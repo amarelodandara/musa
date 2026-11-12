@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Marca musá</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="cores.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="tipografia.css">
+<style>
+/* Layout: uma coluna larga de seções; cada seção = cabeçalho curto + prancha de marca (fundo fixo da marca) + dados medidos. */
+:root {
+  --paper: #FFFBFB;      /* off-white da marca como fundo da página */
+  --surface: #F7EEEF;
+  --ink: #2A0B13;
+  --muted: #74545C;
+  --line: #EBDADE;
+  --accent: #930031;
+  --accent-ink: #FFFBFB;
+  --brand-crimson: #930031;  /* cores fixas das pranchas, iguais nos dois temas */
+  --brand-offwhite: #FFFBFB;
+  --guide: #1E5BD8;         /* linhas de construção */
+  --font-display: var(--fonte-titulo);
+  --font-text: var(--fonte-texto);
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+    --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #1E5BD8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+  --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #1E5BD8; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 16px/1.5 var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+.wrap {
+  max-width: 1160px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* topo */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+.top .wrap { display: flex; align-items: center; gap: 24px; min-height: 56px; }
+.top .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; flex-shrink: 0; }
+.top .brand svg { width: 22px; height: 22px; }
+.top nav { display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; font-size: 14px; min-width: 0; }
+.top nav a { text-decoration: none; color: var(--muted); white-space: nowrap; padding: 6px 0; }
+.top nav a:hover { color: var(--ink); }
+
+/* hero */
+.hero { background: var(--brand-crimson); color: var(--brand-offwhite); }
+.hero .wrap { padding-block: 56px 48px; display: grid; gap: 40px; }
+.hero-lockup { max-width: 760px; }
+.hero-lockup svg { width: 100%; height: auto; display: block; }
+.hero-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: end; }
+.hero h1 { font: 600 clamp(28px, 4vw, 40px)/1.1 var(--font-display); margin: 0 0 12px; letter-spacing: -0.01em; text-wrap: balance; }
+.hero p { margin: 0; max-width: 58ch; font-size: 18px; opacity: .92; }
+.hero .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero .btn { border-color: var(--brand-offwhite); color: var(--brand-offwhite); }
+.hero .btn.solid { background: var(--brand-offwhite); color: var(--brand-crimson); }
+
+/* botões */
+.btn {
+  font: 500 14px/1 var(--font-text); padding: 10px 14px; border-radius: var(--radius);
+  border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.btn.solid { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { font-size: 13px; padding: 7px 10px; }
+
+/* seções */
+section { padding-block: 72px 8px; scroll-margin-top: 64px; }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: end; margin-bottom: 24px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+h2 { font: 600 clamp(24px, 3vw, 30px)/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+.sec-head p { margin: 0; color: var(--muted); max-width: 64ch; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); padding: 2px; gap: 2px; }
+.seg button { font: 500 13px/1 var(--font-text); border: 0; background: transparent; color: var(--muted); padding: 8px 12px; border-radius: 3px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* pranchas */
+.board { border-radius: var(--radius); display: grid; place-items: center; }
+.board.paper { background: var(--brand-offwhite); box-shadow: inset 0 0 0 1px #EBDADE; }
+.board.crimson { background: var(--brand-crimson); }
+.board svg { display: block; width: 100%; height: auto; }
+
+/* logo: grade de variantes */
+.board.photo { background: radial-gradient(circle at 50% 46%, #E9C9A8 0 14%, #B07A5A 15% 26%, #5E6F64 27% 48%, #2F3A36 49%); }
+.variants { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.variant { display: grid; grid-template-rows: auto 1fr; gap: 12px; min-width: 0; }
+.variant.wide { grid-column: span 3; }
+.variant .board { aspect-ratio: 4 / 3; padding: 18%; }
+.variant.wide .board { aspect-ratio: auto; padding: 56px 10%; }
+.variant.wide .board svg { max-width: 640px; }
+.variant .meta { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
+.variant h3 { font: 600 16px/1.2 var(--font-display); margin: 0 0 2px; }
+.variant .meta p { margin: 0; font-size: 14px; color: var(--muted); max-width: 40ch; }
+.variant .acts { display: flex; gap: 6px; }
+
+/* construção */
+.layers { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 13px/1 var(--font-text); display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; user-select: none; }
+.chip input { accent-color: var(--accent); margin: 0; }
+.construct { overflow-x: auto; border-radius: var(--radius); }
+.construct .board { min-width: 760px; padding: 12px; }
+.construct text { font-family: var(--font-mono); }
+.measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 32px; margin: 24px 0 0; }
+.measures div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.measures dt { font-size: 14px; }
+.measures dd { margin: 0; font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.measures small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; font-family: var(--font-mono); }
+
+/* gerador */
+.gen { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.gen-previews { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gen-previews .board { aspect-ratio: 1; padding: 14%; }
+.controls { display: grid; gap: 18px; }
+.ctrl { display: grid; gap: 6px; }
+.ctrl label { display: flex; justify-content: space-between; font-size: 14px; }
+.ctrl output { font: 500 13px var(--font-mono); color: var(--muted); }
+.ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+.readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.readout div { background: var(--paper); padding: 10px 12px; }
+.readout span { display: block; font-size: 12px; color: var(--muted); }
+.readout b { font: 500 16px var(--font-mono); font-variant-numeric: tabular-nums; }
+.presets { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* tamanhos */
+.ramp { display: flex; align-items: flex-end; gap: 28px 32px; flex-wrap: wrap; padding: 32px; }
+.ramp figure { margin: 0; display: grid; gap: 10px; justify-items: center; }
+.ramp figcaption { font: 12px/1.3 var(--font-mono); color: #74545C; text-align: center; }
+.ramp figcaption b { display: block; color: #2A0B13; font-weight: 500; }
+.ramp .cut { align-self: stretch; width: 0; border-left: 1px dashed #930031; position: relative; }
+.ramp .cut span { position: absolute; top: -20px; left: 6px; white-space: nowrap; font: 11px var(--font-mono); color: #930031; }
+
+/* cor */
+.brand-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.brand-sw { border-radius: var(--radius); padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 0; text-align: left; font: inherit; }
+.brand-sw h3 { font: 600 24px/1.1 var(--font-display); margin: 0; }
+.brand-sw .role { font-size: 14px; margin-top: 4px; }
+.brand-sw dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; font: 13px var(--font-mono); }
+.brand-sw dd { margin: 0; }
+h3.sub { font: 600 16px/1.2 var(--font-display); margin: 40px 0 12px; }
+.note { color: var(--muted); max-width: 70ch; margin: -4px 0 14px; }
+.ramps { display: grid; gap: 10px; }
+.tscale { display: grid; gap: 4px; margin: 24px 0 16px; }
+.tscale div { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.tscale small { font: 12px var(--font-mono); color: var(--muted); }
+.tscale span { font-family: var(--fonte-texto); }
+.tscale span.t { font-family: var(--fonte-titulo); line-height: var(--entrelinha-titulo); overflow-wrap: anywhere; min-width: 0; }
+.cramp { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.cramp > span { font: 500 13px var(--font-mono); color: var(--muted); }
+.steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; }
+.step { border: 0; padding: 0; cursor: pointer; display: grid; grid-template-rows: 56px auto; text-align: left; background: none; color: inherit; font: inherit; min-width: 0; }
+.step i { display: block; border-radius: 2px; }
+.step.pin i { outline: 2px solid var(--ink); outline-offset: 2px; }
+.step small { font: 10px/1.3 var(--font-mono); color: var(--muted); padding-top: 4px; overflow: hidden; text-overflow: ellipsis; }
+.roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 16px; }
+.roles div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 2px 10px; align-items: center; }
+.roles i { width: 22px; height: 22px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); grid-row: span 2; }
+.roles b { font: 500 12px var(--font-mono); overflow-wrap: anywhere; }
+.roles small { font: 11px var(--font-mono); color: var(--muted); }
+.ctable-wrap { overflow-x: auto; }
+.ctable { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 640px; }
+.ctable th, .ctable td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.ctable th { font-weight: 500; color: var(--muted); font-size: 12px; }
+.ctable td.n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ctable .smp { display: inline-block; padding: 4px 10px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.ctable .fail { color: var(--accent); font-weight: 600; }
+@media (max-width: 700px) { .brand-pair { grid-template-columns: minmax(0, 1fr); } .cramp { grid-template-columns: minmax(0, 1fr); } .step small { display: none; } }
+.swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.swatch { border-radius: var(--radius); padding: 24px; min-height: 240px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 0; text-align: left; font: inherit; }
+.swatch.c { background: var(--brand-crimson); color: var(--brand-offwhite); }
+.swatch.o { background: var(--brand-offwhite); color: var(--brand-crimson); box-shadow: inset 0 0 0 1px #EBDADE; }
+.swatch h3 { font: 600 24px/1.1 var(--font-display); margin: 0; }
+.swatch .role { font-size: 14px; opacity: .85; margin-top: 4px; }
+.swatch dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; font: 13px var(--font-mono); }
+.swatch dt { opacity: .7; }
+.swatch dd { margin: 0; }
+.pairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.pair { border-radius: var(--radius); padding: 18px; display: grid; gap: 4px; }
+.pair b { font: 600 28px/1 var(--font-display); }
+.pair span { font: 12px var(--font-mono); opacity: .85; }
+
+/* tipografia */
+.type-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+.type-grid .board { padding: 20px; overflow-x: auto; }
+.type-grid .board svg { min-width: 520px; }
+.specimen { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.specimen .big { font: 600 64px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.specimen .abc { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--muted); overflow-wrap: anywhere; }
+.specimen p { margin: 0; font-size: 14px; }
+.note { font-size: 14px; color: var(--muted); border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0 0; max-width: 70ch; }
+
+/* avatar */
+.avatar-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.avatar-row .board { aspect-ratio: 1; padding: 18%; }
+.avatar-side { display: grid; gap: 16px; align-content: start; }
+.avatar-side p { margin: 0; }
+.eye-ctrls { display: flex; flex-wrap: wrap; gap: 8px; }
+.avatar-row > * { min-width: 0; }
+.avatar-row .board#morph { padding: 6%; }
+#eye, #eyeLockup { display: block; width: 100%; height: auto; }
+.eye-lockup { margin: 16px 0 0; display: grid; gap: 8px; }
+.eye-lockup .board { padding: 40px 8%; }
+.eye-lockup svg { max-width: 720px; }
+.eye-lockup figcaption { font-size: 13px; color: var(--muted); }
+.links { display: grid; gap: 8px; }
+.links a { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); text-decoration: none; }
+.links a span { color: var(--muted); font-size: 14px; }
+
+/* uso */
+.rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rule { display: grid; gap: 10px; align-content: start; }
+.rule .board { aspect-ratio: 1; padding: 20%; overflow: hidden; }
+.rule h3 { font: 600 15px/1.25 var(--font-display); margin: 0; display: flex; gap: 8px; align-items: baseline; }
+.rule h3 i { font-style: normal; font: 500 11px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 6px; border-radius: 3px; }
+.rule.do h3 i { background: color-mix(in srgb, #2E7D4F 18%, transparent); color: var(--ink); }
+.rule.dont h3 i { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--ink); }
+.rule p { margin: 0; font-size: 14px; color: var(--muted); }
+
+footer { margin-top: 96px; border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 24px 40px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: var(--radius); font-size: 14px; transition: .2s; pointer-events: none; z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.fallback { position: fixed; inset: auto 16px calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 21; background: var(--paper); border: 1px solid var(--line); padding: 12px; border-radius: var(--radius); display: grid; gap: 8px; }
+.fallback textarea { width: 100%; height: 120px; font: 12px var(--font-mono); }
+
+@media (max-width: 880px) {
+  .variants, .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .variant.wide { grid-column: span 2; }
+  .gen, .type-grid, .avatar-row { grid-template-columns: minmax(0, 1fr); }
+  .pairs { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy, .sec-head { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .variants, .rules, .swatches { grid-template-columns: minmax(0, 1fr); }
+  .variant.wide { grid-column: auto; }
+  .top nav { display: none; }
+  .ramp { padding: 32px 16px; gap: 24px 20px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#logo"><span id="topMark"></span>musá · marca</a>
+    <nav aria-label="Seções">
+      <a href="#logo">Logo</a>
+      <a href="#construcao">Construção</a>
+      <a href="#gerador">Gerador</a>
+      <a href="#tamanhos">Tamanhos</a>
+      <a href="#cor">Cor</a>
+      <a href="#tipografia">Tipografia</a>
+      <a href="#avatar">Avatar</a>
+      <a href="#uso">Uso</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-lockup" id="heroLockup"></div>
+    <div class="hero-copy">
+      <div>
+        <h1>Marca musá</h1>
+        <p>A moldura de uma obra com anéis concêntricos dentro: o museu visto como serviço, um fluxo que não termina. O acento grave do “à” vem do título do trabalho, “à serviço do museu”. Tudo nesta página é desenhado a partir de um único arquivo de geometria.</p>
+      </div>
+      <div class="actions">
+        <button class="btn solid" type="button" data-copy="lockup" data-tone="crimson">Copiar SVG do lockup</button>
+        <a class="btn" href="#construcao">Ver construção</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<section id="logo">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Logo</p>
+      <h2>Cinco peças, uma cor de cada vez</h2>
+      <p>A marca é sempre monocromática. Os anéis, a pupila e o círculo do recorte são vazados: mostram o fundo, então a mesma peça funciona em positivo e em negativo. O avatar é um segmento à parte, mais abaixo.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Tom">
+      <button type="button" data-tone-set="crimson" aria-pressed="true">Positivo</button>
+      <button type="button" data-tone-set="offwhite" aria-pressed="false">Negativo</button>
+    </div>
+  </div>
+  <div class="variants" id="variants"></div>
+</section>
+
+<section id="construcao">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Construção</p>
+      <h2>Medidas tiradas do arquivo</h2>
+      <p>Valores em unidades do SVG original. H é a altura da moldura. As camadas são desenhadas a partir das mesmas constantes que geram os arquivos.</p>
+    </div>
+  </div>
+  <div class="layers" id="layers">
+    <label class="chip"><input type="checkbox" id="lyr-frame" checked> Moldura e tile</label>
+    <label class="chip"><input type="checkbox" id="lyr-rings" checked> Anéis</label>
+    <label class="chip"><input type="checkbox" id="lyr-type" checked> Linhas do logotipo</label>
+    <label class="chip"><input type="checkbox" id="lyr-space"> Espaçamento</label>
+    <label class="chip"><input type="checkbox" id="lyr-clear"> Área de respiro</label>
+  </div>
+  <div class="construct" style="margin-top:16px"><div class="board paper" id="construct"></div></div>
+  <dl class="measures" id="measures"></dl>
+</section>
+
+<section id="gerador">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Gerador</p>
+      <h2>Os anéis são quatro números</h2>
+      <p>O raio externo é fixo. Pupila, vão da pupila, quantidade e peso definem o resto: passo = (R − pupila − vão) ÷ (anéis − 1 + peso). Mudar aqui muda toda a página e o SVG copiado.</p>
+    </div>
+  </div>
+  <div class="gen">
+    <div class="gen-previews">
+      <div class="board paper" id="genSymbol"></div>
+      <div class="board crimson" id="genRings"></div>
+    </div>
+    <div class="controls">
+      <div class="presets" id="presets"></div>
+      <div class="ctrl"><label for="p-count">Anéis <output id="o-count"></output></label><input type="range" id="p-count" min="1" max="14" step="1"></div>
+      <div class="ctrl"><label for="p-weight">Peso (anel ÷ passo) <output id="o-weight"></output></label><input type="range" id="p-weight" min="0.2" max="0.95" step="0.001"></div>
+      <div class="ctrl"><label for="p-pupilR">Raio da pupila <output id="o-pupilR"></output></label><input type="range" id="p-pupilR" min="0" max="12" step="0.01"></div>
+      <div class="ctrl"><label for="p-pupilGap">Vão da pupila <output id="o-pupilGap"></output></label><input type="range" id="p-pupilGap" min="0" max="5" step="0.01"></div>
+      <div class="readout" id="readout"></div>
+      <div><button class="btn small" type="button" id="copyParams">Copiar parâmetros (JSON)</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="tamanhos">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Tamanhos</p>
+      <h2>Onde os anéis fundem</h2>
+      <p id="sizeLead"></p>
+    </div>
+    <label class="chip"><input type="checkbox" id="forceFull"> Mostrar sem simplificar</label>
+  </div>
+  <div class="board paper" style="place-items:stretch"><div class="ramp" id="ramp"></div></div>
+</section>
+
+<section id="cor">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Cor</p>
+      <h2>Coral e carmim</h2>
+      <p>Coral é a cor principal, carmim a secundária. As escalas da interface saem delas, em OKLCH: cada escala mantém o matiz, é mais viva no meio e tem passos mais finos no lado claro. O texto tem escala própria, quase cinza. Clique numa cor para copiar o HEX.</p>
+    </div>
+  </div>
+  <div class="brand-pair" id="brandPair"></div>
+  <h3 class="sub">Escalas</h3>
+  <div class="ramps" id="ramps"></div>
+  <h3 class="sub">Funções</h3>
+  <p class="note">Componentes usam só estes nomes, nunca os passos das escalas. Assim um tema escuro só troca para onde cada função aponta.</p>
+  <div class="roles" id="roles"></div>
+  <h3 class="sub">Contrastes medidos</h3>
+  <p class="note">Cada par como aparece na tela, medido em WCAG 2 e APCA. Coral é clara demais para texto branco (2,50:1), então o botão coral leva texto escuro.</p>
+  <div class="ctable-wrap"><table class="ctable" id="ctable"></table></div>
+</section>
+
+<section id="tipografia">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Tipografia</p>
+      <h2>Logotipo em contorno</h2>
+      <p>As letras do lockup são vetorizadas, não texto. O acento é grave, como em “à serviço do museu”. A altura-x é metade da moldura, e o centro dos anéis cai no meio da altura-x.</p>
+    </div>
+  </div>
+  <div class="type-grid">
+    <div class="board paper" id="typeBoard"></div>
+    <div class="specimen">
+      <p class="eyebrow" style="margin:0">Texto do site</p>
+      <div class="big">Aa</div>
+      <p>Títulos em DM Sans, texto em Inter Tight, as duas com licença OFL pelo Google Fonts. Inter Tight entra no lugar do SF Compact do Figma, que a Apple não licencia para a web. Tokens em <span class="mono">brand/tipografia.css</span>.</p>
+      <div class="abc">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 áâãàçéêíóôõú</div>
+    </div>
+  </div>
+  <div class="tscale" id="tscale"></div>
+  <p class="note">A fonte de origem do logotipo ainda não está registrada no projeto. Quando ela for confirmada, entra aqui com nome, licença e peso usado.</p>
+</section>
+
+<section id="avatar">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Avatar</p>
+      <h2>Um segmento à parte, feito sobre o símbolo</h2>
+      <p>O avatar não é uma versão do logo: é a personagem do produto. Nasce dos mesmos anéis, que se fundem numa faixa grossa, e o centro aberto vira a pupila. Fica fora do kit de logo e tem regras próprias de uso.</p>
+    </div>
+    <div class="eye-ctrls">
+      <div class="seg" role="group" aria-label="Peça de origem">
+        <button type="button" data-eye-frame="symbol" aria-pressed="true">Símbolo</button>
+        <button type="button" data-eye-frame="tile" aria-pressed="false">Ícone</button>
+      </div>
+      <div class="seg" role="group" aria-label="Estado">
+        <button type="button" data-eye-state="0" aria-pressed="true">Logo</button>
+        <button type="button" data-eye-state="1" aria-pressed="false">Olho</button>
+      </div>
+      <div class="seg" role="group" aria-label="Emoção">
+        <button type="button" data-eye-mood="neutral" aria-pressed="true">Neutro</button>
+        <button type="button" data-eye-mood="happy" aria-pressed="false">Feliz</button>
+        <button type="button" data-eye-mood="sad" aria-pressed="false">Triste</button>
+      </div>
+    </div>
+  </div>
+  <div class="avatar-row">
+    <div class="board paper" id="morph"><svg id="eye" role="img" aria-label="Avatar musá: o olho segue o cursor"></svg></div>
+    <div class="avatar-side">
+      <p>Os anéis nunca aparecem sozinhos na marca, então o olho sempre nasce de uma peça aprovada: o símbolo, o ícone ou o lockup. Os anéis já são vazados no tile; na transição eles se fundem no olho, o tile cresce até virar o fundo, a moldura sai e, no lockup, o logotipo some.</p>
+      <p>Abre como logo e vira olho em 0,7 s, com 0,15 s de atraso entre anéis. Parado, nunca olha reto: o repouso é olhando para baixo e para o lado, com olhadelas curtas em volta. Sempre que há um cursor na página, o olho segue o cursor.</p>
+      <p>As emoções mexem só na pupila, que vira boca: feliz sorri, triste faz bico. A troca entre emoções usa molas, então o olho passa de uma para a outra sem cortes.</p>
+      <div class="variant" id="avatarCard"></div>
+      <div class="links">
+        <a href="https://claude.ai/artifact/43soPAbqNiaRtR2nGSAPdZ" target="_blank" rel="noopener">Playground do olho <span>olhar, piscar, humor ↗</span></a>
+        <a href="https://claude.ai/artifact/8FuB4F7YxuTckEFSjozJdv" target="_blank" rel="noopener">Ajuste de humor <span>feliz e triste ↗</span></a>
+      </div>
+    </div>
+  </div>
+  <figure class="eye-lockup">
+    <div class="board paper"><svg id="eyeLockup" role="img" aria-label="Lockup musá virando o avatar no lugar do símbolo"></svg></div>
+    <figcaption>No lockup, o logotipo some e o olho nasce no lugar do símbolo, como num cabeçalho que vira o avatar do produto.</figcaption>
+  </figure>
+</section>
+
+<section id="uso">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Uso</p>
+      <h2>O que fazer e o que evitar</h2>
+    </div>
+  </div>
+  <div class="rules" id="rules"></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Gerado de <span class="mono">brand/musa-geometry.js</span> · fonte: Vector.svg, 12 nov 2026</span>
+    <span>musá · TCC Design Gráfico, Escola de Design UEMG</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*
+ * musá — geometria da marca.
+ * Fonte única para a página de marca e para os SVGs exportados (export.mjs).
+ * Coordenadas no sistema original de Vector.svg (viewBox 0 0 419.458 118.801).
+ * O acento do "a" é grave (à), espelhado do agudo original: alusão a "à serviço do museu".
+ */
+(function (root) {
+  "use strict";
+
+  const COLORS = { crimson: "#930031", offwhite: "#FFFBFB" };
+
+  const SPEC = {
+    lockup: { width: 419.458, height: 118.801 },
+    frame: { x: 0, y: 4.97852, size: 113.822, stroke: 0.889236 },
+    tile: { x: 7.55851, y: 12.537, size: 98.70549 },
+    center: { x: 56.9111, y: 61.8897 },
+    wordmark: {
+      left: 142.114, right: 419.458,
+      baseline: 92.619, xTop: 30.627,
+      overshootTop: 29.151, overshootBottom: 94.095,
+      accentTop: 5.529, // acento ajustado em 2026-11-12 (musa-acento.html): inclinação 7.7°, afinamento 0.92
+      letters: [
+        { ch: "m", left: 142.114, right: 240.391 },
+        { ch: "u", left: 245.124, right: 303.795 },
+        { ch: "s", left: 306.896, right: 360.36 },
+        { ch: "à", left: 362.632, right: 419.458 }
+      ]
+    }
+  };
+
+  // Parâmetros dos anéis. R (raio externo) é fixo; o resto é livre.
+  const RING_PRESETS = {
+    lockup: { label: "Vector.svg (lockup atual)", R: 30.4563, pupilR: 4.2238, pupilGap: 1.2228, count: 8, weight: 0.7586 },
+    v6: { label: "Playground v6 (musa-mark-logo.svg)", R: 30.4563, pupilR: 3.7, pupilGap: 1.42, count: 8, weight: 0.624 }
+  };
+  const AVATAR = { R: 30.4563, inner: 8 };
+
+  const WORDMARK = [
+    "M142.114 92.619V30.627H155.152L156.382 39.114C158.35 35.998 160.933 33.579 164.131 31.857C167.411 30.053 171.142 29.151 175.324 29.151C178.44 29.151 181.228 29.561 183.688 30.381C186.23 31.201 188.444 32.431 190.33 34.071C192.298 35.711 193.897 37.761 195.127 40.221C197.423 36.777 200.416 34.071 204.106 32.103C207.796 30.135 211.814 29.151 216.16 29.151C221.326 29.151 225.713 30.217 229.321 32.349C232.929 34.399 235.676 37.474 237.562 41.574C239.448 45.592 240.391 50.553 240.391 56.457V92.619H225.754V57.933C225.754 52.685 224.688 48.667 222.556 45.879C220.424 43.091 217.267 41.697 213.085 41.697C210.215 41.697 207.673 42.394 205.459 43.788C203.327 45.182 201.646 47.232 200.416 49.938C199.186 52.562 198.571 55.801 198.571 59.655V92.619H183.934V57.933C183.934 52.685 182.868 48.667 180.736 45.879C178.604 43.091 175.406 41.697 171.142 41.697C168.436 41.697 165.976 42.394 163.762 43.788C161.63 45.182 159.949 47.232 158.719 49.938C157.489 52.562 156.874 55.801 156.874 59.655V92.619H142.114Z",
+    "M268.986 94.095C263.984 94.095 259.679 93.111 256.071 91.143C252.545 89.093 249.839 86.059 247.953 82.041C246.067 77.941 245.124 72.898 245.124 66.912V30.627H259.884V65.436C259.884 70.766 260.991 74.825 263.205 77.613C265.501 80.319 268.945 81.672 273.537 81.672C276.489 81.672 279.113 80.975 281.409 79.581C283.787 78.187 285.632 76.178 286.944 73.554C288.338 70.848 289.035 67.568 289.035 63.714V30.627H303.795V92.619H290.757L289.65 82.287C287.764 85.895 285.017 88.765 281.409 90.897C277.883 93.029 273.742 94.095 268.986 94.095Z",
+    "M334.94 94.095C329.446 94.095 324.649 93.234 320.549 91.512C316.531 89.708 313.333 87.248 310.955 84.132C308.659 80.934 307.306 77.285 306.896 73.185H321.656C322.066 74.907 322.804 76.506 323.87 77.982C324.936 79.376 326.371 80.483 328.175 81.303C330.061 82.123 332.275 82.533 334.817 82.533C337.277 82.533 339.286 82.205 340.844 81.549C342.402 80.811 343.55 79.868 344.288 78.72C345.026 77.572 345.395 76.342 345.395 75.03C345.395 73.062 344.862 71.545 343.796 70.479C342.73 69.413 341.172 68.593 339.122 68.019C337.154 67.363 334.776 66.748 331.988 66.174C329.036 65.6 326.166 64.903 323.378 64.083C320.672 63.181 318.212 62.074 315.998 60.762C313.866 59.45 312.144 57.769 310.832 55.719C309.602 53.669 308.987 51.168 308.987 48.216C308.987 44.608 309.93 41.369 311.816 38.499C313.784 35.629 316.572 33.374 320.18 31.734C323.87 30.012 328.257 29.151 333.341 29.151C340.557 29.151 346.297 30.832 350.561 34.194C354.907 37.474 357.449 42.107 358.187 48.093H344.165C343.755 45.797 342.607 44.034 340.721 42.804C338.835 41.492 336.334 40.836 333.218 40.836C330.02 40.836 327.56 41.451 325.838 42.681C324.198 43.829 323.378 45.387 323.378 47.355C323.378 48.585 323.87 49.733 324.854 50.799C325.92 51.783 327.437 52.644 329.405 53.382C331.373 54.038 333.792 54.694 336.662 55.35C341.254 56.252 345.313 57.318 348.839 58.548C352.365 59.778 355.153 61.582 357.203 63.96C359.253 66.338 360.278 69.7 360.278 74.046C360.36 77.982 359.335 81.467 357.203 84.501C355.153 87.535 352.242 89.913 348.47 91.635C344.698 93.275 340.188 94.095 334.94 94.095Z",
+    "M385.264 94.095C380.18 94.095 375.957 93.234 372.595 91.512C369.233 89.79 366.732 87.494 365.092 84.624C363.452 81.754 362.632 78.638 362.632 75.276C362.632 71.34 363.616 67.937 365.584 65.067C367.634 62.197 370.627 59.983 374.563 58.425C378.499 56.785 383.337 55.965 389.077 55.965H404.698C404.698 52.685 404.247 49.979 403.345 47.847C402.443 45.633 401.049 43.993 399.163 42.927C397.277 41.861 394.858 41.328 391.906 41.328C388.544 41.328 385.674 42.107 383.296 43.665C380.918 45.141 379.442 47.437 378.868 50.553H364.354C364.846 46.125 366.322 42.353 368.782 39.237C371.242 36.039 374.481 33.579 378.499 31.857C382.599 30.053 387.068 29.151 391.906 29.151C397.728 29.151 402.689 30.176 406.789 32.226C410.889 34.194 414.005 37.064 416.137 40.836C418.351 44.526 419.458 48.995 419.458 54.243V92.619H406.912L405.436 82.656C404.616 84.296 403.55 85.813 402.238 87.207C401.008 88.601 399.573 89.831 397.933 90.897C396.293 91.881 394.407 92.66 392.275 93.234C390.225 93.808 387.888 94.095 385.264 94.095ZM388.585 82.41C390.963 82.41 393.054 82 394.858 81.18C396.744 80.278 398.343 79.048 399.655 77.49C401.049 75.85 402.115 74.046 402.853 72.078C403.591 70.11 404.083 68.019 404.329 65.805V65.559H390.676C387.806 65.559 385.428 65.928 383.542 66.666C381.656 67.322 380.303 68.306 379.483 69.618C378.663 70.93 378.253 72.447 378.253 74.169C378.253 75.891 378.663 77.367 379.483 78.597C380.303 79.827 381.492 80.77 383.05 81.426C384.608 82.082 386.453 82.41 388.585 82.41ZM375.027 5.529L405.052 10.014L407.474 20.119L377.487 16.49Z"
+  ];
+
+  const f = (n) => +n.toFixed(4);
+
+  // Bandas dos anéis: [{inner, outer}], de dentro para fora.
+  // pitch P = (R - pupilR - pupilGap) / (count - 1 + weight); espessura = weight * P.
+  function rings(p) {
+    const P = (p.R - p.pupilR - p.pupilGap) / (p.count - 1 + p.weight);
+    const t = p.weight * P, gap = P - t;
+    const bands = [];
+    let r = p.pupilR + p.pupilGap;
+    for (let i = 0; i < p.count; i++) { bands.push({ inner: r, outer: r + t }); r += P; }
+    return { pitch: P, thickness: t, gap, bands, pupil: p.pupilR };
+  }
+
+  function circle(cx, cy, r) {
+    if (r <= 0) return "";
+    return `M${f(cx + r)} ${f(cy)}A${f(r)} ${f(r)} 0 1 0 ${f(cx - r)} ${f(cy)}A${f(r)} ${f(r)} 0 1 0 ${f(cx + r)} ${f(cy)}Z`;
+  }
+  function square(x, y, s) { return `M${f(x)} ${f(y)}H${f(x + s)}V${f(y + s)}H${f(x)}Z`; }
+
+  // Círculos aninhados para evenodd: pupila + cada banda.
+  function ringCircles(cx, cy, p, simple) {
+    if (simple) return circle(cx, cy, AVATAR.R) + circle(cx, cy, AVATAR.inner);
+    const g = rings(p);
+    return g.bands.slice().reverse().map(b => circle(cx, cy, b.outer) + circle(cx, cy, b.inner)).join("") + circle(cx, cy, g.pupil);
+  }
+
+  // Peças, cada uma um path evenodd.
+  function parts(p, o) {
+    const { frame, tile, center } = SPEC;
+    const s = frame.stroke;
+    return {
+      frame: square(frame.x, frame.y, frame.size) + square(frame.x + s, frame.y + s, frame.size - 2 * s),
+      tile: square(tile.x, tile.y, tile.size) + ringCircles(center.x, center.y, p, o.simple), // anéis vazados
+      cutout: square(tile.x, tile.y, tile.size) + circle(center.x, center.y, AVATAR.R), // só o círculo maior vazado: janela para fotos
+      rings: ringCircles(center.x, center.y, p, o.simple) // anéis positivos, sem tile
+    };
+  }
+
+  const VARIANTS = {
+    lockup:   { name: "Lockup",    box: [0, 0, SPEC.lockup.width, SPEC.lockup.height], use: ["frame", "tile", "wordmark"] },
+    symbol:   { name: "Símbolo",   box: [0, SPEC.frame.y, SPEC.frame.size, SPEC.frame.size], use: ["frame", "tile"] },
+    tile:     { name: "Ícone",     box: [SPEC.tile.x, SPEC.tile.y, SPEC.tile.size, SPEC.tile.size], use: ["tile"] },
+    cutout:   { name: "Recorte",   box: [0, SPEC.frame.y, SPEC.frame.size, SPEC.frame.size], use: ["frame", "cutout"] },
+    logotype: { name: "Logotipo",  box: [SPEC.wordmark.left, 0, SPEC.wordmark.right - SPEC.wordmark.left, SPEC.wordmark.overshootBottom], use: ["wordmark"] },
+    rings:    { name: "Anéis",     box: [SPEC.center.x - 30.4563, SPEC.center.y - 30.4563, 60.9126, 60.9126], use: ["rings"] },
+    avatar:   { name: "Avatar",    box: [SPEC.center.x - 30.4563, SPEC.center.y - 30.4563, 60.9126, 60.9126], use: ["rings"], simple: true }
+  };
+
+  /**
+   * svg("lockup", { color, params, simple, width, pad })
+   * color: cor única de tinta. Vazados ficam transparentes, então o fundo aparece.
+   */
+  function svg(variant, opts = {}) {
+    const v = VARIANTS[variant];
+    const color = opts.color || COLORS.crimson;
+    const p = opts.params || RING_PRESETS.lockup;
+    const simple = opts.simple ?? !!v.simple;
+    const pad = opts.pad || 0;
+    const pr = parts(p, { simple });
+    const [x, y, w, h] = v.box;
+    const vb = [x - pad, y - pad, w + 2 * pad, h + 2 * pad].map(f).join(" ");
+    const width = opts.width || 1024;
+    const height = f(width * (h + 2 * pad) / (w + 2 * pad));
+    const out = [];
+    for (const k of v.use) {
+      if (k === "wordmark") WORDMARK.forEach(d => out.push(`<path d="${d}" fill="${color}"/>`));
+      else out.push(`<path d="${pr[k]}" fill-rule="evenodd" clip-rule="evenodd" fill="${color}"/>`);
+    }
+    const title = opts.title === false ? "" : `<title>musá ${v.name.toLowerCase()}</title>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${vb}" fill="none" role="img">${title}${out.join("")}</svg>`;
+  }
+
+  // Menor tamanho (px de altura do símbolo) em que o vão entre anéis ainda tem `minGapPx`.
+  function minSymbolPx(p, minGapPx = 0.5) {
+    return Math.ceil(minGapPx * SPEC.frame.size / rings(p).gap);
+  }
+
+  const api = { COLORS, SPEC, RING_PRESETS, AVATAR, WORDMARK, VARIANTS, rings, svg, minSymbolPx, circle };
+  root.MUSA = api;
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+/*
+ * musá — olho (avatar vivo).
+ * Motor único do avatar: morph logo → olho, olhar em repouso para a esquerda,
+ * segue o cursor pela página inteira, pisca, e troca de emoção (feliz, triste) pela pupila.
+ * Valores vindos do Avatar lab (geometria, mola, parallax) e do ajuste de humor (feliz/triste).
+ * Uso: const eye = MusaEye.create(svgEl, { logo: MUSA.RING_PRESETS.v6, frame: "symbol" }); eye.setState(1); eye.setMood("happy");
+ * frame: de qual peça aprovada o olho nasce. Os anéis nunca aparecem sozinhos na marca, então o estado logo é sempre uma peça inteira:
+ *   "symbol" (moldura + tile + anéis), "tile" (Ícone) ou "lockup" (símbolo + logotipo). "rings" fica só para uso interno.
+ *   Nas peças com tile, os anéis são vazados no tile (como no arquivo da marca). Na transição o tile cresce até virar o fundo,
+ *   a moldura sai, o logotipo some, e o olho fica vazado num campo de tinta.
+ */
+(function (root) {
+  "use strict";
+  const R = 30.4563, TAU = Math.PI * 2;
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+  const easeIO = u => { u = clamp(u, 0, 1); return u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; };
+  const bump = u => (u <= 0 || u >= 1) ? 0 : Math.sin(Math.PI * u);
+  const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const CONFIG = {
+    // geometria do avatar: um anel grosso, o centro aberto é a pupila
+    avatar: { rings: 1, pupilR: 0, pupilGap: 8, weight: 0.62 },
+    // morph
+    morphDur: 0.7, stagger: 0.15,
+    // repouso (valores do lab, 12 nov 2026): olhar para baixo e para a direita da tela, que é a esquerda do olho
+    restGaze: [0.6, 1],
+    glance: 0.18,          // amplitude das olhadelas em repouso
+    follow: true,          // segue o cursor pela página inteira
+    followMix: 0.9,        // quanto o cursor manda no olhar (o resto puxa para o repouso)
+    reach: 1, outerFollow: 0.5, falloff: 1.37,
+    stiff: 271, damp: 0.85,
+    breathe: reduce ? 0 : 0.8, breathRate: 0.22,
+    blinkEvery: 0          // piscar automático desligado (escolha da usuária no lab)
+  };
+
+  const NEUTRAL = { pupil: 0, mouthShape: 0, mouthCurve: 0, mouthW: 1.4, mouthT: 0.45, mouthY: 0, mouthRound: 0.6 };
+  const MOOD_KEYS = Object.keys(NEUTRAL);
+  // Do ajuste de humor: as emoções mexem só na pupila, que vira uma boca.
+  // Formas ajustadas aos SVGs exportados pela usuária (Bold Text - tende a ajudar*.svg, 12 nov 2026), erro < 0,002 unidade.
+  const MOODS = {
+    neutral: { label: "Neutro", stiff: 271, damp: 0.85, pose: {} },
+    happy: { label: "Feliz", stiff: 271, damp: 0.85, pose: { pupil: 0.993, mouthShape: 0.801, mouthCurve: 0.503, mouthW: 1.287, mouthT: 0.516, mouthY: 0.606, mouthRound: 0.41 } },
+    sad: { label: "Triste", stiff: 140, damp: 0.95, pose: { pupil: 0.426, mouthShape: 0.966, mouthCurve: -0.722, mouthW: 1.128, mouthT: 0.266, mouthY: 0.862, mouthRound: 0.6 } }
+  };
+
+  /* ---------- geometria ---------- */
+  function ringGeom(n, pr, pg, w) {
+    n = Math.max(1, Math.round(n));
+    const pitch = Math.max(.2, (R - pr - pg) / (n - 1 + w)), rings = [];
+    for (let i = 0; i < n; i++) { const a = pr + pg + i * pitch; rings.push([a, a + w * pitch]); }
+    return { n, pitch, rings, w, pr };
+  }
+  function slice(g, K, s) {
+    const n = g.n, j = Math.min(n - 1, Math.floor(s * n / K));
+    const first = Math.ceil(j * K / n), last = Math.ceil((j + 1) * K / n) - 1;
+    const c = Math.max(1, last - first + 1), k = s - first;
+    const [a, b] = g.rings[j], eps = c > 1 ? .15 : 0;
+    return [a + (b - a) * k / c - (k > 0 ? eps : 0), a + (b - a) * (k + 1) / c + (k < c - 1 ? eps : 0)];
+  }
+  function morphGeom(logo, m) {
+    const A = CONFIG.avatar;
+    const gL = ringGeom(logo.count, logo.pupilR, logo.pupilGap, logo.weight);
+    const gA = ringGeom(A.rings, A.pupilR, A.pupilGap, A.weight);
+    const K = Math.max(gL.n, gA.n), st = clamp(CONFIG.stagger, 0, .9), strands = [];
+    for (let s = 0; s < K; s++) {
+      const d = K > 1 ? st * s / (K - 1) : 0, p = ease((m - d) / (1 - st));
+      const L = slice(gL, K, s), Av = slice(gA, K, s);
+      strands.push([lerp(L[0], Av[0], p), lerp(L[1], Av[1], p)]);
+    }
+    return { strands, pupilR: lerp(gL.pr, gA.pr, ease(m)), pitch: lerp(gL.pitch, gA.pitch, ease(m)) };
+  }
+  function makeWarp(f) {
+    const gamma = Math.pow(2, -f.pupil * .85), G = CONFIG.reach * R * .5;
+    const dx = clamp(f.gx, -1.25, 1.25) * G, dy = clamp(f.gy, -1.25, 1.25) * G;
+    const pul = f.pulse, base = CONFIG.outerFollow, fo = CONFIG.falloff;
+    return (r, th, lin) => {
+      let q = Math.max(0, r / R), rr = lin ? r * lin : R * Math.pow(q, gamma); q = rr / R;
+      if (pul && !lin) rr += pul * rr * ((1 - q) * .35 + .07);
+      let x = rr * Math.cos(th), y = rr * Math.sin(th);
+      const rho = clamp(rr / R, 0, 1), wt = base + (1 - base) * Math.pow(1 - rho * rho, fo);
+      return [x + dx * wt, y + dy * wt];
+    };
+  }
+  const fmt = v => (Math.round(v * 100) / 100).toString();
+  function circlePath(W, r, rev, q) {
+    const n = Math.max(20, Math.ceil(r * 3.4 * q)), o = [];
+    for (let j = 0; j < n; j++) { const [x, y] = W(r, (rev ? -TAU : TAU) * j / n); o.push(fmt(x) + " " + fmt(y)); }
+    return "M" + o.join("L") + "Z";
+  }
+  // A pupila (centro aberto) vira uma lente curva: boca que sorri ou faz bico. Sentido anti-horário = furo.
+  function mouthPath(W, r0, f, q) {
+    const k = clamp(f.mouthShape, 0, 1), w = r0 * Math.max(.2, f.mouthW), t0 = r0 * Math.max(.05, f.mouthT);
+    const A = f.mouthCurve * w * .55;
+    const wE = lerp(r0, w, k), tE = lerp(r0, t0, k), AE = A * k, oyE = f.mouthY * r0 * k;
+    const b = .5 + .5 * Math.tanh(A / (.15 * w)) * Math.min(1, k * 3);
+    const gamma = Math.pow(2, -f.pupil * .85), q0 = Math.pow(r0 / R, gamma);
+    const lin = (R * q0 / r0) * (1 + (f.pulse || 0) * ((1 - q0) * .35 + .07));
+    const rho = clamp(f.mouthRound, 0, 1) * tE;
+    const n = Math.max(96, Math.ceil(r0 * 10 * q)), o = [];
+    for (let j = 0; j < n; j++) {
+      const th = -TAU * j / n, c = Math.cos(th), s = Math.sin(th), x = wE * c;
+      const g = Math.max(0, (Math.abs(c) - .7) / .3), cap = rho * (1 - Math.sqrt(Math.max(0, 1 - g * g)));
+      const y = -AE * (c * c - .5) + oyE + cap * (2 * b - 1) + 2 * tE * s * (s < 0 ? 1 - b : b) - tE * (2 * b - 1);
+      const [X, Y] = W(Math.hypot(x, y), Math.atan2(y, x), lin);
+      o.push(fmt(X) + " " + fmt(Y));
+    }
+    return "M" + o.join("L") + "Z";
+  }
+
+  function fuse(strands) {
+    const out = [];
+    for (const [a, b] of strands) {
+      if (b - a < .02) continue;
+      const g = out[out.length - 1];
+      if (g && a <= g[1] + 1e-3) g[1] = Math.max(g[1], b); else out.push([a, b]);
+    }
+    return out;
+  }
+
+  /* ---------- ponteiro compartilhado (página inteira) ---------- */
+  const pointer = { known: false, x: 0, y: 0 };
+  if (typeof document !== "undefined") {
+    const mv = e => { pointer.known = true; pointer.x = e.clientX; pointer.y = e.clientY; };
+    document.addEventListener("pointermove", mv, { passive: true });
+    document.addEventListener("pointerdown", mv, { passive: true });
+    document.documentElement.addEventListener("pointerleave", () => { pointer.known = false; });
+    window.addEventListener("blur", () => { pointer.known = false; });
+  }
+
+  /* ---------- instâncias ---------- */
+  const eyes = [];
+  let uid = 0, last = 0, running = false;
+
+  function create(svg, opts = {}) {
+    const id = "me" + (uid++);
+    const frame = FRAMES[opts.frame] ? opts.frame : "rings", FR = FRAMES[frame];
+    svg.setAttribute("viewBox", opts.viewBox || FR.viewBox);
+    // o fundo e o tile crescem além da caixa: sempre recortar no SVG, senão pintam a página inteira
+    if (frame !== "rings") svg.style.overflow = "hidden";
+    const eyeG = `<g class="outer"><g class="inner"><path class="eye" d=""/></g></g>`;
+    if (frame === "rings") svg.innerHTML = eyeG;
+    else {
+      const MU = root.MUSA, cx = MU.SPEC.center.x, cy = MU.SPEC.center.y;
+      const word = frame === "lockup" ? `<g class="word" fill="currentColor"><g transform="translate(${-cx} ${-cy})">${MU.WORDMARK.map(d => `<path d="${d}"/>`).join("")}</g></g>` : "";
+      svg.innerHTML = `<defs><mask id="${id}m" maskUnits="userSpaceOnUse" x="-4000" y="-4000" width="8000" height="8000">
+<rect x="-4000" y="-4000" width="8000" height="8000" fill="#fff"/>${eyeG.replace('class="eye"', 'class="eye" fill="#000"')}</mask></defs>
+<rect class="bg" x="-4000" y="-4000" width="8000" height="8000"/>
+<g class="zoom"><path class="frame" fill-rule="evenodd" fill="currentColor"/><rect class="tile" fill="currentColor" mask="url(#${id}m)"/>${word}</g>`;
+    }
+    const e = {
+      svg, frame, FR, eyeEl: svg.querySelector(".eye"), outer: svg.querySelector(".outer"), inner: svg.querySelector(".inner"),
+      zoom: svg.querySelector(".zoom"), frameEl: svg.querySelector(".frame"), tileEl: svg.querySelector(".tile"), word: svg.querySelector(".word"), bg: svg.querySelector(".bg"),
+      logo: opts.logo, ink: opts.ink || "#930031", paper: opts.paper || "#FFFBFB", q: opts.quality || 1,
+      T: 0, morph: { from: opts.state ?? 0, to: opts.state ?? 0, t0: 0, dur: 0 },
+      mood: "neutral", S: { ...NEUTRAL, gx: 0, gy: 0 }, V: {}, sacc: [0, 0], saccNext: 1.5,
+      blinkNext: 2.5, blinkT: -9, lookAt: null, onState: opts.onState
+    };
+    for (const k in e.S) e.V[k] = 0;
+    const paint = () => {
+      if (frame === "rings") e.eyeEl.setAttribute("fill", e.ink);
+      else { svg.style.color = e.ink; e.bg.setAttribute("fill", e.paper); }
+    };
+    paint();
+    const api = {
+      setState(v) { const cur = morphNow(e); e.morph = { from: cur, to: v, t0: e.T, dur: reduce ? 0 : CONFIG.morphDur * Math.max(.25, Math.abs(v - cur)) }; },
+      get state() { return e.morph.to; },
+      setMood(name) { if (MOODS[name]) e.mood = name; if (name !== "neutral" && e.morph.to < 1) api.setState(1); },
+      get mood() { return e.mood; },
+      blink() { e.blinkT = e.T; },
+      look(x, y, secs = 1.6) { e.lookAt = { x, y, until: e.T + secs }; },
+      setInk(c, paper) { e.ink = c; if (paper) e.paper = paper; paint(); },
+      setLogo(p) { e.logo = p; },
+      destroy() { const i = eyes.indexOf(e); if (i >= 0) eyes.splice(i, 1); }
+    };
+    eyes.push(e); start();
+    draw(e);
+    return api;
+  }
+  // Enquadramento de cada peça (centro dos anéis na origem, medidas de musa-geometry.js).
+  const TILE = 49.3527, FRAME = 56.911, STROKE = 0.889236;
+  const FRAMES = {
+    rings:  { viewBox: "-38 -38 76 76" },
+    tile:   { viewBox: "-52 -52 104 104", zoomEnd: 0.8 * 52 / 30.4563, cover: true },
+    symbol: { viewBox: "-60 -60 120 120", zoomEnd: 0.8 * 60 / 30.4563, cover: true, hasFrame: true },
+    lockup: { viewBox: "-60 -60 426.5 120", zoomEnd: 1, cover: false, hasFrame: true, word: true }
+  };
+  const sq = (h) => `M${-h} ${-h}H${h}V${h}H${-h}Z`;
+  function drawFrame(e, m) {
+    const FR = e.FR; if (!FR.zoomEnd) return;
+    const vh = parseFloat(FR.viewBox.split(" ")[3]) / 2;
+    const z = lerp(1, FR.zoomEnd, easeIO(m));
+    const g = ease((m - .12) / .88);
+    const end = FR.cover ? vh / FR.zoomEnd * 1.6 : FRAME;
+    const t = lerp(TILE, end, g);
+    e.zoom.setAttribute("transform", `scale(${z.toFixed(4)})`);
+    e.tileEl.setAttribute("x", -t); e.tileEl.setAttribute("y", -t);
+    e.tileEl.setAttribute("width", 2 * t); e.tileEl.setAttribute("height", 2 * t);
+    if (FR.hasFrame) {
+      const fh = FR.cover ? t + (FRAME - TILE) : FRAME;
+      e.frameEl.setAttribute("d", sq(fh) + sq(fh - STROKE));
+      e.frameEl.setAttribute("opacity", (1 - ease(m / .55)).toFixed(3));
+    }
+    if (e.word) {
+      const a = ease(m / .45);
+      e.word.setAttribute("opacity", (1 - a).toFixed(3));
+      e.word.setAttribute("transform", `translate(${(-14 * a).toFixed(2)} 0)`);
+    }
+  }
+
+  const morphNow = e => { const u = e.morph.dur > 0 ? (e.T - e.morph.t0) / e.morph.dur : 1; return lerp(e.morph.from, e.morph.to, easeIO(u)); };
+
+  function gazeToward(e, x, y) {
+    // centro do olho na tela (a origem do SVG), também no lockup, onde o olho não fica no meio
+    let ox, oy; const M = e.svg.getScreenCTM && e.svg.getScreenCTM();
+    if (M) { ox = M.e; oy = M.f; } else { const b = e.svg.getBoundingClientRect(); ox = b.left + b.width / 2; oy = b.top + b.height / 2; }
+    const dx = x - ox, dy = y - oy;
+    const d = Math.hypot(dx, dy) || 1, scale = Math.max(160, Math.min(innerWidth, innerHeight) * .35);
+    const m = Math.tanh(d / scale);
+    return [dx / d * m, dy / d * m];
+  }
+
+  function step(e, dt) {
+    e.T += dt;
+    const m = morphNow(e), life = ease(m);
+    // alvo do olhar
+    let g;
+    if (e.lookAt && e.T < e.lookAt.until) g = gazeToward(e, e.lookAt.x, e.lookAt.y);
+    else if (CONFIG.follow && pointer.known) {
+      const p = gazeToward(e, pointer.x, pointer.y), k = CONFIG.followMix;
+      g = [p[0] * k + CONFIG.restGaze[0] * (1 - k), p[1] * k + CONFIG.restGaze[1] * (1 - k)];
+    } else {
+      if (e.T > e.saccNext) {
+        e.saccNext = e.T + 1.4 + Math.random() * 2.4;
+        const a = CONFIG.glance;
+        e.sacc = Math.random() < .35 ? [0, 0] : [(Math.random() * 2 - 1) * a, (Math.random() * 2 - 1) * a * .6];
+      }
+      g = [CONFIG.restGaze[0] + e.sacc[0], CONFIG.restGaze[1] + e.sacc[1]];
+    }
+    const md = MOODS[e.mood], tgt = { gx: g[0], gy: g[1] };
+    for (const k of MOOD_KEYS) tgt[k] = k in md.pose ? md.pose[k] : NEUTRAL[k];
+    const n = Math.ceil(dt / (1 / 240)), h = dt / n;
+    for (const k in tgt) {
+      const gaze = k === "gx" || k === "gy";
+      const kk = gaze ? CONFIG.stiff * 2.6 : md.stiff, cc = 2 * Math.sqrt(kk) * (gaze ? CONFIG.damp : md.damp);
+      for (let i = 0; i < n; i++) { e.V[k] += ((tgt[k] - e.S[k]) * kk - e.V[k] * cc) * h; e.S[k] += e.V[k] * h; }
+    }
+    if (CONFIG.blinkEvery > 0 && life > .9 && e.T > e.blinkNext) {
+      e.blinkT = e.T; if (Math.random() < .15) e.blinkT2 = e.T + .32;
+      e.blinkNext = e.T + CONFIG.blinkEvery * (.5 + Math.random());
+    }
+    if (e.blinkT2 && e.T > e.blinkT2) { e.blinkT = e.T; e.blinkT2 = 0; }
+  }
+
+  function draw(e) {
+    const m = morphNow(e), life = ease(m);
+    // no estado logo a marca fica neutra; a vida entra conforme vira olho
+    const f = {};
+    for (const k in e.S) f[k] = k in NEUTRAL ? lerp(NEUTRAL[k], e.S[k], life) : e.S[k] * life;
+    let blink = 0; const bu = (e.T - e.blinkT) / .24; if (bu > 0 && bu < 1) blink = Math.pow(bump(bu), .7) * life;
+    let pulse = 0, sx = 1, sy = 1;
+    if (CONFIG.breathe > 0) { const b = Math.sin(e.T * TAU * CONFIG.breathRate) * CONFIG.breathe * life; sx += .008 * b; sy += .014 * b; pulse += .06 * b; }
+    f.pulse = pulse;
+    const geo = morphGeom(e.logo, m), W = makeWarp(f);
+    let d = "";
+    // Faixas que já se tocam viram um anel só. Sem isso, as emendas sobrepostas entre faixas
+    // aparecem como linhas finas dentro da boca quando ela atravessa o anel.
+    fuse(geo.strands).forEach(([a, b], i) => {
+      d += circlePath(W, b, false, e.q) + (i === 0 ? mouthPath(W, a, f, e.q) : circlePath(W, a, true, e.q));
+    });
+    if (geo.pupilR > .05) d += circlePath(W, geo.pupilR, false, e.q);
+    e.eyeEl.setAttribute("d", d);
+    e.outer.setAttribute("transform", `scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+    e.inner.setAttribute("transform", `scale(1 ${(1 - .93 * blink).toFixed(3)})`);
+    drawFrame(e, m);
+  }
+
+  function frame(ms) {
+    const now = ms / 1000, dt = Math.min(1 / 20, Math.max(0, now - (last || now))); last = now;
+    for (const e of eyes) {
+      const b = e.svg.getBoundingClientRect();
+      const visible = b.bottom > 0 && b.top < innerHeight && b.width > 0;
+      if (!visible) continue;
+      step(e, dt);
+      // parado no estado logo, o desenho não muda: desenha uma vez e pula os quadros seguintes
+      if (e.morph.to === 0 && morphNow(e) === 0) { if (!e.parado) { draw(e); e.parado = true; } continue; }
+      e.parado = false;
+      draw(e);
+    }
+    if (eyes.length) requestAnimationFrame(frame); else running = false;
+  }
+  function start() { if (!running && typeof requestAnimationFrame !== "undefined") { running = true; last = 0; requestAnimationFrame(frame); } }
+
+  root.MusaEye = { create, CONFIG, MOODS, FRAMES };
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+window.MUSA_CORES = {"prims":[{"name":"coral-100","oklch":"oklch(0.937 0.014 40.247)","hex":"#F3E7E3","pinned":false},{"name":"coral-200","oklch":"oklch(0.893 0.036 40.247)","hex":"#F2D4CA","pinned":false},{"name":"coral-300","oklch":"oklch(0.825 0.086 40.247)","hex":"#F7B39C","pinned":false},{"name":"coral-400","oklch":"oklch(0.7351 0.1680 40.247)","hex":"#FF7F50","pinned":true},{"name":"coral-500","oklch":"oklch(0.665 0.171 40.247)","hex":"#E86736","pinned":false},{"name":"coral-600","oklch":"oklch(0.585 0.171 40.247)","hex":"#CC4E17","pinned":false},{"name":"coral-700","oklch":"oklch(0.505 0.149 40.247)","hex":"#A73E10","pinned":false},{"name":"coral-800","oklch":"oklch(0.425 0.119 40.247)","hex":"#823211","pinned":false},{"name":"coral-900","oklch":"oklch(0.345 0.09 40.247)","hex":"#5F250F","pinned":false},{"name":"carmim-100","oklch":"oklch(0.937 0.008 13.679)","hex":"#F0E8E8","pinned":false},{"name":"carmim-200","oklch":"oklch(0.893 0.021 13.679)","hex":"#E9D7D8","pinned":false},{"name":"carmim-300","oklch":"oklch(0.825 0.05 13.679)","hex":"#E4B9BC","pinned":false},{"name":"carmim-400","oklch":"oklch(0.745 0.102 13.679)","hex":"#E59199","pinned":false},{"name":"carmim-500","oklch":"oklch(0.665 0.172 13.679)","hex":"#E95E74","pinned":false},{"name":"carmim-600","oklch":"oklch(0.585 0.172 13.679)","hex":"#CD445D","pinned":false},{"name":"carmim-700","oklch":"oklch(0.505 0.172 13.679)","hex":"#B12846","pinned":false},{"name":"carmim-800","oklch":"oklch(0.4222 0.1687 13.679)","hex":"#930031","pinned":true},{"name":"carmim-900","oklch":"oklch(0.345 0.135 13.679)","hex":"#6E0323","pinned":false},{"name":"carmim-950","oklch":"oklch(0.27 0.1 13.679)","hex":"#4C0517","pinned":false},{"name":"neutro-50","oklch":"oklch(0.985 0.004 26.963)","hex":"#FDF9F9","pinned":false},{"name":"neutro-100","oklch":"oklch(0.962 0.006 26.963)","hex":"#F6F1F0","pinned":false},{"name":"neutro-200","oklch":"oklch(0.93 0.008 26.963)","hex":"#EDE6E5","pinned":false},{"name":"neutro-300","oklch":"oklch(0.875 0.01 26.963)","hex":"#DCD3D2","pinned":false},{"name":"neutro-400","oklch":"oklch(0.78 0.011 26.963)","hex":"#BEB5B4","pinned":false},{"name":"neutro-500","oklch":"oklch(0.68 0.011 26.963)","hex":"#9F9695","pinned":false},{"name":"neutro-600","oklch":"oklch(0.585 0.011 26.963)","hex":"#827978","pinned":false},{"name":"neutro-700","oklch":"oklch(0.5 0.01 26.963)","hex":"#696160","pinned":false},{"name":"neutro-800","oklch":"oklch(0.42 0.009 26.963)","hex":"#524B4A","pinned":false},{"name":"neutro-900","oklch":"oklch(0.33 0.008 26.963)","hex":"#393433","pinned":false},{"name":"neutro-950","oklch":"oklch(0.25 0.007 26.963)","hex":"#252020","pinned":false},{"name":"texto-950","oklch":"oklch(0.18 0.006 13.679)","hex":"#141111","pinned":false},{"name":"texto-900","oklch":"oklch(0.24 0.006 13.679)","hex":"#221E1E","pinned":false},{"name":"texto-700","oklch":"oklch(0.42 0.006 13.679)","hex":"#504C4C","pinned":false},{"name":"texto-600","oklch":"oklch(0.5 0.005 13.679)","hex":"#666262","pinned":false},{"name":"texto-400","oklch":"oklch(0.68 0.004 13.679)","hex":"#9B9797","pinned":false},{"name":"texto-50","oklch":"oklch(0.985 0.003 13.679)","hex":"#FCF9F9","pinned":false}],"roles":[{"name":"--cor-fundo-pagina","ref":"neutro-50"},{"name":"--cor-fundo-superficie","ref":"neutro-100"},{"name":"--cor-fundo-afundado","ref":"neutro-200"},{"name":"--cor-fundo-inverso","ref":"carmim-800"},{"name":"--cor-texto-titulo","ref":"texto-950"},{"name":"--cor-texto-corpo","ref":"texto-900"},{"name":"--cor-texto-secundario","ref":"texto-700"},{"name":"--cor-texto-terciario","ref":"texto-600"},{"name":"--cor-texto-desabilitado","ref":"texto-400"},{"name":"--cor-texto-inverso","ref":"texto-50"},{"name":"--cor-borda-separador","ref":"neutro-300"},{"name":"--cor-borda","ref":"neutro-600"},{"name":"--cor-borda-forte","ref":"neutro-800"},{"name":"--cor-borda-foco","ref":"carmim-700"},{"name":"--cor-principal-sutil","ref":"coral-100"},{"name":"--cor-principal-sutil-hover","ref":"coral-200"},{"name":"--cor-principal-borda","ref":"coral-300"},{"name":"--cor-principal-solido","ref":"coral-400"},{"name":"--cor-principal-solido-hover","ref":"coral-500"},{"name":"--cor-principal-texto","ref":"coral-700"},{"name":"--cor-texto-sobre-principal","ref":"texto-950"},{"name":"--cor-secundaria-sutil","ref":"carmim-100"},{"name":"--cor-secundaria-borda","ref":"carmim-300"},{"name":"--cor-secundaria-solido","ref":"carmim-800"},{"name":"--cor-secundaria-solido-hover","ref":"carmim-900"},{"name":"--cor-secundaria-texto","ref":"carmim-800"},{"name":"--cor-secundaria-texto-hover","ref":"carmim-950"},{"name":"--cor-texto-sobre-secundaria","ref":"texto-50"}],"pairs":[{"label":"Título","fg":"#141111","bg":"#FDF9F9","wcag":"17.97:1","apca":"102.2","req":"passa AA 4,5"},{"label":"Corpo","fg":"#221E1E","bg":"#FDF9F9","wcag":"15.79:1","apca":"100.4","req":"passa AA 4,5"},{"label":"Corpo em superfície","fg":"#221E1E","bg":"#F6F1F0","wcag":"14.74:1","apca":"95.7","req":"passa AA 4,5"},{"label":"Secundário","fg":"#504C4C","bg":"#FDF9F9","wcag":"8.11:1","apca":"86.1","req":"passa AA 4,5"},{"label":"Secundário em superfície","fg":"#504C4C","bg":"#F6F1F0","wcag":"7.57:1","apca":"81.5","req":"passa AA 4,5"},{"label":"Terciário","fg":"#666262","bg":"#FDF9F9","wcag":"5.76:1","apca":"77.0","req":"passa AA 4,5"},{"label":"Terciário em afundado","fg":"#666262","bg":"#EDE6E5","wcag":"4.89:1","apca":"66.2","req":"passa AA 4,5"},{"label":"Desabilitado","fg":"#9B9797","bg":"#FDF9F9","wcag":"2.77:1","apca":"52.1","req":"isento (desabilitado)"},{"label":"Botão coral","fg":"#141111","bg":"#FF7F50","wcag":"7.52:1","apca":"54.8","req":"passa AA 4,5"},{"label":"Botão coral hover","fg":"#141111","bg":"#E86736","wcag":"5.75:1","apca":"44.0","req":"passa AA 4,5"},{"label":"Texto em destaque coral sutil","fg":"#221E1E","bg":"#F3E7E3","wcag":"13.64:1","apca":"90.6","req":"passa AA 4,5"},{"label":"Texto coral","fg":"#A73E10","bg":"#FDF9F9","wcag":"6.02:1","apca":"77.3","req":"passa AA 4,5"},{"label":"Botão carmim","fg":"#FCF9F9","bg":"#930031","wcag":"8.78:1","apca":"-89.8","req":"passa AA 4,5"},{"label":"Link carmim","fg":"#930031","bg":"#FDF9F9","wcag":"8.79:1","apca":"85.7","req":"passa AA 4,5"},{"label":"Link em superfície","fg":"#930031","bg":"#F6F1F0","wcag":"8.21:1","apca":"81.0","req":"passa AA 4,5"},{"label":"Texto em fundo inverso","fg":"#FCF9F9","bg":"#930031","wcag":"8.78:1","apca":"-89.8","req":"passa AA 4,5"},{"label":"Borda de controle","fg":"#827978","bg":"#FDF9F9","wcag":"4.06:1","apca":"66.2","req":"passa 3:1"},{"label":"Anel de foco","fg":"#B12846","bg":"#FDF9F9","wcag":"6.16:1","apca":"77.5","req":"passa 3:1"},{"label":"Botão coral contra a página","fg":"#FF7F50","bg":"#FDF9F9","wcag":"2.39:1","apca":"45.4","req":"**reprova 3:1**"},{"label":"Separador","fg":"#DCD3D2","bg":"#FDF9F9","wcag":"1.41:1","apca":"19.2","req":"só precisa ser visível"}]};
+</script>
+<script>
+(function () {
+  "use strict";
+  const M = window.MUSA, S = M.SPEC, C = M.COLORS;
+  const $ = (s) => document.querySelector(s);
+  const H = S.frame.size;
+  const f2 = (n, d = 3) => (+n).toFixed(d);
+
+  let params = Object.assign({}, M.RING_PRESETS.lockup);
+  try { const s = JSON.parse(localStorage.getItem("musa-params")); if (s && s.count) params = Object.assign(params, s); } catch (e) {}
+  let tone = "crimson";
+
+  const DEFAULT = M.RING_PRESETS.lockup;
+  const isDefault = () => ["pupilR", "pupilGap", "count", "weight"].every(k => Math.abs(params[k] - DEFAULT[k]) < 1e-3);
+  const svg = (v, o = {}) => M.svg(v, Object.assign({ params, title: false }, o));
+  const fillHex = (t) => t === "crimson" ? C.crimson : C.offwhite;
+
+  /* copiar */
+  const toast = $("#toast");
+  let tt;
+  function say(msg) { toast.textContent = msg; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove("show"), 1800); }
+  function copy(text, msg) {
+    const fallback = () => {
+      document.querySelector(".fallback")?.remove();
+      const box = document.createElement("div");
+      box.className = "fallback";
+      box.innerHTML = '<span>Copie o texto abaixo (⌘C / Ctrl+C).</span><textarea readonly></textarea><button class="btn small" type="button">Fechar</button>';
+      box.querySelector("textarea").value = text;
+      box.querySelector("button").onclick = () => box.remove();
+      document.body.appendChild(box);
+      box.querySelector("textarea").select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => say(msg), fallback);
+    } catch (e) { fallback(); }
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-copy]");
+    if (b) copy(M.svg(b.dataset.copy, { params, color: fillHex(b.dataset.tone || tone) }), "SVG copiado");
+    const sw = e.target.closest("[data-hex]");
+    if (sw) copy(sw.dataset.hex, sw.dataset.hex + " copiado");
+  });
+
+  /* topo e hero */
+  function renderTop() {
+    $("#topMark").innerHTML = svg("tile", { color: C.crimson, simple: true });
+    $("#heroLockup").innerHTML = svg("lockup", { color: C.offwhite });
+  }
+
+  /* logo */
+  const VARIANT_INFO = [
+    ["lockup", "Lockup horizontal", "Assinatura principal. Use sempre que houver largura.", true],
+    ["symbol", "Símbolo", "Moldura, tile e anéis completos. Quando o nome já aparece por perto."],
+    ["tile", "Ícone", "Sem moldura. Favicon, ícone de app, foto de perfil."],
+    ["cutout", "Recorte", "Moldura e fundo com o círculo maior vazado. Vai sobre fotos: o vazado enquadra o assunto.", false, true],
+    ["logotype", "Logotipo", "Só o nome, para linhas de texto e rodapés.", true]
+  ];
+  function renderVariants() {
+    const bg = tone === "crimson" ? "paper" : "crimson";
+    const live = !isDefault();
+    $("#variants").innerHTML = VARIANT_INFO.map(([v, name, use, wide, photo]) => `
+      <div class="variant${wide ? " wide" : ""}">
+        <div class="board ${photo ? "photo" : bg}">${svg(v, { color: fillHex(tone) })}</div>
+        <div class="meta">
+          <div><h3>${name}</h3><p>${use}</p></div>
+          <div class="acts">
+            <button class="btn small" type="button" data-copy="${v}">Copiar SVG</button>
+            ${live ? "" : `<a class="btn small" href="assets/musa-${v}-${tone}.svg" target="_blank" rel="noopener">Abrir SVG</a>`}
+          </div>
+        </div>
+      </div>`).join("");
+  }
+  function renderAvatarCard() {
+    $("#avatarCard").innerHTML = `
+        <div class="board paper" style="aspect-ratio:auto;padding:28px"><div style="width:96px;margin:0 auto">${svg("avatar", { color: C.crimson })}</div></div>
+        <div class="meta">
+          <div><h3>Avatar</h3><p>Anel único, centro aberto. Base para os estados de olhar, piscar e humor.</p></div>
+          <div class="acts">
+            <button class="btn small" type="button" data-copy="avatar" data-tone="crimson">Copiar SVG</button>
+            <a class="btn small" href="assets/musa-avatar-crimson.svg" target="_blank" rel="noopener">Abrir SVG</a>
+          </div>
+        </div>`;
+  }
+  renderAvatarCard();
+  document.querySelectorAll("[data-tone-set]").forEach(b => b.addEventListener("click", () => {
+    tone = b.dataset.toneSet;
+    document.querySelectorAll("[data-tone-set]").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderVariants();
+  }));
+
+  /* construção */
+  const G = "#1E5BD8", INK = "#2A0B13";
+  const line = (x1, y1, x2, y2, o = "") => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${G}" stroke-width="0.35" ${o}/>`;
+  const label = (x, y, t, a = "start", c = G) => `<text x="${x}" y="${y}" font-size="4.6" fill="${c}" text-anchor="${a}">${t}</text>`;
+  function dim(x1, y1, x2, y2, t, off = 0, vertical = false) {
+    const tick = 1.6;
+    let s = line(x1, y1, x2, y2);
+    if (vertical) { s += line(x1 - tick, y1, x1 + tick, y1) + line(x2 - tick, y2, x2 + tick, y2); s += `<text x="${x1 - 2.5 + off}" y="${(y1 + y2) / 2}" font-size="4.6" fill="${G}" text-anchor="end" dominant-baseline="middle">${t}</text>`; }
+    else { s += line(x1, y1 - tick, x1, y1 + tick) + line(x2, y2 - tick, x2, y2 + tick); s += label((x1 + x2) / 2, y1 - 2.5 + off, t, "middle"); }
+    return s;
+  }
+  function renderConstruct() {
+    const on = (id) => $("#lyr-" + id).checked;
+    const W = S.lockup.width, fr = S.frame, ti = S.tile, c = S.center, wm = S.wordmark;
+    const cs = H / 4;
+    const vb = [-46, -44, W + 46 + 74, S.lockup.height + 44 + 40];
+    const g = M.rings(params);
+    let o = "";
+    const anyOn = ["frame", "rings", "type", "space", "clear"].some(on);
+
+    if (on("clear")) {
+      o += `<path d="M${-cs} ${-cs}H${W + cs}V${S.lockup.height + cs}H${-cs}Z M0 0V${S.lockup.height}H${W}V0Z" fill="${G}" fill-opacity="0.07" fill-rule="evenodd"/>`;
+      o += `<rect x="${-cs}" y="${-cs}" width="${W + 2 * cs}" height="${S.lockup.height + 2 * cs}" fill="none" stroke="${G}" stroke-width="0.35" stroke-dasharray="2 1.5"/>`;
+      o += label(-cs + 2, -cs + 6, "respiro = H/4 = " + f2(cs, 2));
+    }
+    if (on("frame")) {
+      o += `<rect x="${fr.x}" y="${fr.y}" width="${fr.size}" height="${fr.size}" fill="none" stroke="${G}" stroke-width="0.35" stroke-dasharray="1.5 1"/>`;
+      o += dim(fr.x, fr.y - 7, fr.x + fr.size, fr.y - 7, "H " + f2(fr.size));
+      o += dim(ti.x, fr.y + fr.size + 8, ti.x + ti.size, fr.y + fr.size + 8, "tile " + f2(ti.size), 9);
+      o += dim(-6, fr.y, -6, ti.y, "", 0, true) + label(-8.5, (fr.y + ti.y) / 2 + 1.6, f2(ti.y - fr.y), "end");
+      o += label(-8.5, fr.y + fr.size / 2, "traço " + f2(fr.stroke), "end");
+    }
+    if (on("rings")) {
+      o += line(c.x - 36, c.y, c.x + 36, c.y, 'stroke-dasharray="1 1"') + line(c.x, c.y - 36, c.x, c.y + 36, 'stroke-dasharray="1 1"');
+      g.bands.forEach(b => { o += `<circle cx="${c.x}" cy="${c.y}" r="${b.outer}" fill="none" stroke="${G}" stroke-width="0.2"/>`; });
+      if (g.pupil > 0) o += `<circle cx="${c.x}" cy="${c.y}" r="${g.pupil}" fill="none" stroke="${G}" stroke-width="0.2"/>`;
+      // raios marcados a 45°
+      const a = -Math.PI / 4, R = g.bands.at(-1).outer;
+      o += line(c.x, c.y, c.x + R * Math.cos(a), c.y + R * Math.sin(a));
+      o += label(c.x + R * Math.cos(a) + 1.5, c.y + R * Math.sin(a) - 1.5, "R " + f2(R));
+    }
+    if (on("type")) {
+      const rows = [
+        [wm.accentTop, "acento " + f2(wm.accentTop)],
+        [wm.xTop, "altura-x " + f2(wm.baseline - wm.xTop)],
+        [(wm.xTop + wm.baseline) / 2, "meio-x " + f2((wm.xTop + wm.baseline) / 2)],
+        [wm.baseline, "linha de base " + f2(wm.baseline)]
+      ];
+      rows.forEach(([y, t]) => { o += line(fr.size + 4, y, W + 4, y, 'stroke-dasharray="2 1"') + label(W + 6, y + 1.6, t); });
+      o += line(0, c.y, fr.size + 4, c.y, 'stroke-dasharray="0.6 1"') + label(W + 6, c.y + 7, "centro anéis " + f2(c.y), "start");
+    }
+    if (on("space")) {
+      const y = wm.baseline + 14;
+      o += dim(fr.size, y, wm.left, y, f2(wm.left - fr.size, 2) + " ≈ H/4", 0);
+      wm.letters.slice(1).forEach((L, i) => {
+        const prev = wm.letters[i];
+        o += line(prev.right, wm.xTop + 8, prev.right, wm.baseline - 8, 'stroke-width="0.25"') + line(L.left, wm.xTop + 8, L.left, wm.baseline - 8, 'stroke-width="0.25"');
+        o += label((prev.right + L.left) / 2, wm.overshootBottom + 6, f2(L.left - prev.right, 2), "middle");
+      });
+    }
+    const base = M.svg("lockup", { params, color: C.crimson, title: false }).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+    $("#construct").innerHTML = `<svg viewBox="${vb.join(" ")}" role="img" aria-label="Construção do lockup musá"><g opacity="${anyOn ? 0.32 : 1}">${base}</g>${o}</svg>`;
+  }
+  ["frame", "rings", "type", "space", "clear"].forEach(id => $("#lyr-" + id).addEventListener("change", renderConstruct));
+
+  function renderMeasures() {
+    const g = M.rings(params), wm = S.wordmark, fr = S.frame, ti = S.tile, c = S.center;
+    const pct = (v) => f2(v / H * 100, 1) + "% H";
+    const xh = wm.baseline - wm.xTop;
+    const rows = [
+      ["Altura do lockup (H)", f2(H), "lado da moldura"],
+      ["Largura total", f2(S.lockup.width), f2(S.lockup.width / H, 3) + " H"],
+      ["Traço da moldura", f2(fr.stroke), pct(fr.stroke)],
+      ["Moldura até o tile", f2(ti.x - fr.x), pct(ti.x - fr.x)],
+      ["Tile", f2(ti.size), pct(ti.size)],
+      ["Diâmetro dos anéis", f2(2 * g.bands.at(-1).outer), f2(2 * g.bands.at(-1).outer / ti.size * 100, 1) + "% do tile"],
+      ["Raio da pupila", f2(g.pupil), "vão da pupila " + f2(params.pupilGap)],
+      ["Anel / vão", f2(g.thickness) + " / " + f2(g.gap), params.count + " anéis, passo " + f2(g.pitch)],
+      ["Altura-x", f2(xh), pct(xh)],
+      ["Centro anéis × meio-x", f2(c.y - (wm.xTop + wm.baseline) / 2), "anéis " + f2(c.y) + " · meio-x " + f2((wm.xTop + wm.baseline) / 2)],
+      ["Símbolo até logotipo", f2(wm.left - fr.size), pct(wm.left - fr.size) + " ≈ H/4"],
+      ["Acento abaixo do topo da moldura", f2(wm.accentTop - fr.y), "tudo cabe na altura H"],
+      ["Overshoot das curvas", f2(wm.xTop - wm.overshootTop), f2((wm.xTop - wm.overshootTop) / xh * 100, 1) + "% da altura-x"],
+      ["Respiro mínimo", f2(H / 4), "H/4 em volta de tudo"]
+    ];
+    $("#measures").innerHTML = rows.map(([k, v, n]) => `<div><dt>${k}</dt><dd>${v}</dd><small>${n}</small></div>`).join("");
+  }
+
+  /* gerador */
+  const CTRL = { count: [0, ""], weight: [3, ""], pupilR: [3, ""], pupilGap: [3, ""] };
+  function syncControls() {
+    for (const k in CTRL) { $("#p-" + k).value = params[k]; $("#o-" + k).textContent = f2(params[k], CTRL[k][0]); }
+    document.querySelectorAll("[data-preset]").forEach(b => {
+      const p = M.RING_PRESETS[b.dataset.preset];
+      b.setAttribute("aria-pressed", ["pupilR", "pupilGap", "count", "weight"].every(k => Math.abs(params[k] - p[k]) < 1e-3));
+    });
+  }
+  $("#presets").innerHTML = '<div class="seg" role="group" aria-label="Predefinições">' + Object.entries(M.RING_PRESETS).map(([k, p]) => `<button type="button" data-preset="${k}">${p.label}</button>`).join("") + "</div>";
+  $("#presets").addEventListener("click", (e) => { const b = e.target.closest("[data-preset]"); if (b) { params = Object.assign({}, M.RING_PRESETS[b.dataset.preset]); update(); } });
+  for (const k in CTRL) $("#p-" + k).addEventListener("input", (e) => { params[k] = +e.target.value; update(); });
+  $("#copyParams").addEventListener("click", () => {
+    const { pupilR, pupilGap, count, weight, R } = params;
+    copy(JSON.stringify({ R, pupilR, pupilGap, count, weight }, null, 2), "Parâmetros copiados");
+  });
+  function renderGen() {
+    const g = M.rings(params);
+    $("#genSymbol").innerHTML = svg("symbol", { color: C.crimson });
+    $("#genRings").innerHTML = svg("rings", { color: C.offwhite });
+    const min = M.minSymbolPx(params);
+    $("#readout").innerHTML = [
+      ["Passo", f2(g.pitch)], ["Espessura do anel", f2(g.thickness)],
+      ["Vão entre anéis", f2(g.gap)], ["Símbolo mínimo", min + " px"]
+    ].map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("");
+  }
+
+  /* tamanhos */
+  const SIZES = [160, 120, 96, 72, 56, 40, 32, 24, 16];
+  function renderRamp() {
+    const min = M.minSymbolPx(params), force = $("#forceFull").checked;
+    $("#sizeLead").textContent = `Com ${params.count} anéis e vão de ${f2(M.rings(params).gap)}, o vão fica abaixo de 0,5 px (1 pixel de tela em densidade 2×) quando o símbolo tem menos de ${min} px de altura. Abaixo disso, a página troca automaticamente para o anel único do avatar.`;
+    let cutDone = false;
+    $("#ramp").innerHTML = SIZES.map(px => {
+      const simple = !force && px < min;
+      let cut = "";
+      if (!cutDone && px < min) { cutDone = true; cut = `<div class="cut"><span>${min} px</span></div>`; }
+      return cut + `<figure><div style="width:${px}px;height:${px}px">${svg("symbol", { color: C.crimson, simple, width: px })}</div><figcaption><b>${px} px</b>${simple ? "avatar" : "completo"}</figcaption></figure>`;
+    }).join("");
+  }
+  $("#forceFull").addEventListener("change", renderRamp);
+
+  /* tipografia */
+  function renderType() {
+    const wm = S.wordmark, L = wm.left - 6, R = wm.right + 62;
+    const rows = [[wm.accentTop, "acento grave"], [wm.overshootTop, "overshoot"], [wm.xTop, "altura-x"], [wm.baseline, "base"], [wm.overshootBottom, "overshoot"]];
+    let o = "";
+    rows.forEach(([y, t], i) => {
+      o += `<line x1="${L}" x2="${wm.right + 4}" y1="${y}" y2="${y}" stroke="${G}" stroke-width="0.3" ${i % 2 ? 'stroke-dasharray="1 1"' : ""}/>`;
+      o += `<text x="${wm.right + 6}" y="${y + (i === 1 ? -0.6 : i === 4 ? 4.6 : 1.6)}" font-size="4.2" fill="${G}" font-family="IBM Plex Mono, monospace">${t} ${f2(y, 2)}</text>`;
+    });
+    const glyphs = M.WORDMARK.map(d => `<path d="${d}" fill="${C.crimson}" fill-opacity="0.85"/>`).join("");
+    $("#typeBoard").innerHTML = `<svg viewBox="${L} -6 ${R - L} ${wm.overshootBottom + 12}" role="img" aria-label="Métricas do logotipo">${glyphs}${o}</svg>`;
+  }
+
+  /* avatar: olho vivo (brand/musa-eye.js), sempre nascendo de uma peça aprovada */
+  const eyeOpts = (frame) => ({ logo: params, frame, ink: C.crimson, paper: C.offwhite, state: 0 });
+  let eye = window.MusaEye.create($("#eye"), eyeOpts("symbol"));
+  const eyeLockup = window.MusaEye.create($("#eyeLockup"), eyeOpts("lockup"));
+  const allEyes = () => [eye, eyeLockup];
+  const syncEyeBtns = () => {
+    document.querySelectorAll("[data-eye-state]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.eyeState === eye.state)));
+    document.querySelectorAll("[data-eye-mood]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.eyeMood === eye.mood)));
+  };
+  document.querySelectorAll("[data-eye-frame]").forEach(b => b.addEventListener("click", () => {
+    const st = eye.state, md = eye.mood;
+    eye.destroy(); eye = window.MusaEye.create($("#eye"), Object.assign(eyeOpts(b.dataset.eyeFrame), { state: st }));
+    if (md !== "neutral") eye.setMood(md);
+    document.querySelectorAll("[data-eye-frame]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+  document.querySelectorAll("[data-eye-state]").forEach(b => b.addEventListener("click", () => {
+    const v = +b.dataset.eyeState; allEyes().forEach(x => { if (v === 0) x.setMood("neutral"); x.setState(v); }); syncEyeBtns();
+  }));
+  document.querySelectorAll("[data-eye-mood]").forEach(b => b.addEventListener("click", () => { allEyes().forEach(x => x.setMood(b.dataset.eyeMood)); syncEyeBtns(); }));
+  // abre como logo e vira olho quando a seção aparece
+  new IntersectionObserver((ents, obs) => {
+    if (ents.some(x => x.isIntersecting)) { obs.disconnect(); setTimeout(() => { allEyes().forEach(x => x.setState(1)); syncEyeBtns(); }, 900); }
+  }, { threshold: 0.4 }).observe($("#morph"));
+
+  /* cor: escalas e funções de brand/cores.css (injetadas por export.mjs) */
+  function renderColors() {
+    const K = window.MUSA_CORES; if (!K) return;
+    const P = Object.fromEntries(K.prims.map(x => [x.name, x]));
+    const bp = [["coral-400", "Coral", "Principal. Ação e destaque. Leva texto escuro.", "#141111"], ["carmim-800", "Carmim", "Secundária. Marca, links, fundo inverso. Leva texto claro.", "#FCF9F9"]];
+    $("#brandPair").innerHTML = bp.map(([n, t, r, fg]) => `<button class="brand-sw" type="button" data-hex="${P[n].hex}" style="background:var(--${n});color:${fg}">
+      <div><h3>${t}</h3><div class="role">${r}</div></div>
+      <dl><dt>HEX</dt><dd>${P[n].hex}</dd><dt>OKLCH</dt><dd>${P[n].oklch}</dd><dt>Escala</dt><dd>${n}</dd></dl></button>`).join("");
+    const groups = [...new Set(K.prims.map(x => x.name.split("-")[0]))];
+    $("#ramps").innerHTML = groups.map(g => `<div class="cramp"><span>${g}</span><div class="steps">${K.prims.filter(x => x.name.startsWith(g + "-")).map(x =>
+      `<button type="button" class="step${x.pinned ? " pin" : ""}" data-hex="${x.hex}" title="${x.name} · ${x.hex} · ${x.oklch}"><i style="background:var(--${x.name})"></i><small>${x.name.split("-")[1]}<br>${x.hex}</small></button>`).join("")}</div></div>`).join("");
+    $("#roles").innerHTML = K.roles.map(r => `<div><i style="background:var(${r.name})"></i><b>${r.name.replace("--cor-", "")}</b><small>${r.ref}</small></div>`).join("");
+    $("#ctable").innerHTML = `<thead><tr><th>Uso</th><th>Amostra</th><th>WCAG</th><th>APCA Lc</th><th>Resultado</th></tr></thead><tbody>` +
+      K.pairs.map(p => `<tr><td>${p.label}</td><td><span class="smp" style="color:${p.fg};background:${p.bg};box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)">Aa musá</span></td><td class="n">${p.wcag}</td><td class="n">${p.apca}</td><td class="${/reprova/.test(p.req) ? "fail" : ""}">${p.req.replace(/\*/g, "")}</td></tr>`).join("") + "</tbody>";
+  }
+  renderColors();
+
+  /* escala tipográfica (brand/tipografia.css) */
+  (function renderTypeScale() {
+    const rows = [["4xl", 700, "musá"], ["3xl", 700, "Visitas escolares"], ["2xl", 700, "Antes da visita"], ["xl", 600, "Tende a ajudar"], ["lg", 400, "Um mapa de consulta para quem trabalha em museu."], ["md", 400, "A excursão da escola costuma ser o primeiro contato com um museu."], ["sm", 400, "Fonte: entrevistas com educadores, 2026."], ["xs", 500, "PRÁTICA GERAL"]];
+    const cs = getComputedStyle(document.documentElement);
+    $("#tscale").innerHTML = rows.map(([k, w, t]) => { const v = cs.getPropertyValue("--tamanho-" + k).trim(); return `<div><small>--tamanho-${k} · ${Math.round(parseFloat(v) * 16)} px · ${w} · ${["4xl","3xl","2xl","xl"].includes(k) ? "DM Sans" : "Inter Tight"}</small><span class="${["4xl","3xl","2xl","xl"].includes(k) ? "t" : ""}" style="font-size:var(--tamanho-${k});font-weight:${w}">${t}</span></div>`; }).join("");
+  })();
+
+  /* uso */
+  function renderRules() {
+    const sym = (o = {}) => svg("symbol", Object.assign({ color: C.crimson }, o));
+    const rules = [
+      ["do", "Positivo", "Crimson sobre off-white.", `<div class="board paper">${sym()}</div>`],
+      ["do", "Negativo", "Off-white sobre crimson. Os vazados mostram o fundo.", `<div class="board crimson">${sym({ color: C.offwhite })}</div>`],
+      ["dont", "Outras cores", "A marca só existe em crimson ou off-white.", `<div class="board paper">${sym({ color: "#2F6BD8" })}</div>`],
+      ["dont", "Fundo escuro", "Crimson sobre quase preto dá 2,06:1. Use o negativo.", `<div class="board" style="background:#1F0A10">${sym()}</div>`],
+      ["dont", "Distorcer", "Nunca estique, achate ou gire.", `<div class="board paper"><div style="transform:scaleX(1.35) rotate(-6deg)">${sym()}</div></div>`],
+      ["dont", "Anéis pequenos demais", `Com 8 anéis abaixo de ${M.minSymbolPx(params)} px, os vãos somem.`, `<div class="board paper"><div style="width:28px;height:28px">${sym({ simple: false, width: 28 })}</div></div>`],
+      ["do", "Versão mínima", "Em tamanhos pequenos, o anel único do avatar.", `<div class="board paper"><div style="width:28px;height:28px">${sym({ simple: true, width: 28 })}</div></div>`],
+      ["do", "Respiro", "H/4 livre em volta, igual ao vão entre símbolo e nome.", `<div class="board paper" style="padding:14%"><div style="outline:1px dashed #1E5BD8;outline-offset:0;padding:20%;width:100%">${sym()}</div></div>`]
+    ];
+    $("#rules").innerHTML = rules.map(([k, t, p, b]) => `<div class="rule ${k}">${b}<h3><i>${k === "do" ? "Fazer" : "Evitar"}</i>${t}</h3><p>${p}</p></div>`).join("");
+  }
+
+  function update() {
+    try { localStorage.setItem("musa-params", JSON.stringify(params)); } catch (e) {}
+    syncControls(); renderTop(); renderVariants(); renderConstruct(); renderMeasures(); renderGen(); renderRamp(); renderRules(); allEyes().forEach(x => x.setLogo(params));
+  }
+  renderType();
+  update();
+})();
+</script>

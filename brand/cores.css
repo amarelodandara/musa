@@ -1,0 +1,97 @@
+/*
+ * musá — cores da interface.
+ * Duas camadas: primitivas (rampas por matiz e passo) e semânticas (por função).
+ * Componentes usam só as semânticas.
+ *
+ * Coral #FF7F50 é a principal e carmim #930031 a secundária, ambas fixas na rampa
+ * (coral no passo 400, carmim no 800). Cada rampa mantém o próprio matiz do início ao fim.
+ * O neutro tem um leve tom entre os dois matizes. O texto tem rampa própria, quase cinza.
+ *
+ * Coral é clara (L 0,735): texto branco sobre ela mede 2,50:1 e reprova.
+ * Por isso o botão coral leva texto escuro (texto-950, 7,52:1).
+ * Gerado em 2026-11-12; contrastes medidos em cores.md.
+ */
+:root {
+  /* coral */
+  --coral-100: oklch(0.937 0.014 40.247);         /* #F3E7E3 */
+  --coral-200: oklch(0.893 0.036 40.247);         /* #F2D4CA */
+  --coral-300: oklch(0.825 0.086 40.247);         /* #F7B39C */
+  --coral-400: oklch(0.7351 0.1680 40.247);       /* #FF7F50 · cor da marca, fixa */
+  --coral-500: oklch(0.665 0.171 40.247);         /* #E86736 */
+  --coral-600: oklch(0.585 0.171 40.247);         /* #CC4E17 */
+  --coral-700: oklch(0.505 0.149 40.247);         /* #A73E10 */
+  --coral-800: oklch(0.425 0.119 40.247);         /* #823211 */
+  --coral-900: oklch(0.345 0.09 40.247);          /* #5F250F */
+
+  /* carmim */
+  --carmim-100: oklch(0.937 0.008 13.679);         /* #F0E8E8 */
+  --carmim-200: oklch(0.893 0.021 13.679);         /* #E9D7D8 */
+  --carmim-300: oklch(0.825 0.05 13.679);          /* #E4B9BC */
+  --carmim-400: oklch(0.745 0.102 13.679);         /* #E59199 */
+  --carmim-500: oklch(0.665 0.172 13.679);         /* #E95E74 */
+  --carmim-600: oklch(0.585 0.172 13.679);         /* #CD445D */
+  --carmim-700: oklch(0.505 0.172 13.679);         /* #B12846 */
+  --carmim-800: oklch(0.4222 0.1687 13.679);       /* #930031 · cor da marca, fixa */
+  --carmim-900: oklch(0.345 0.135 13.679);         /* #6E0323 */
+  --carmim-950: oklch(0.27 0.1 13.679);            /* #4C0517 */
+
+  /* neutro */
+  --neutro-50: oklch(0.985 0.004 26.963);         /* #FDF9F9 */
+  --neutro-100: oklch(0.962 0.006 26.963);         /* #F6F1F0 */
+  --neutro-200: oklch(0.93 0.008 26.963);          /* #EDE6E5 */
+  --neutro-300: oklch(0.875 0.01 26.963);          /* #DCD3D2 */
+  --neutro-400: oklch(0.78 0.011 26.963);          /* #BEB5B4 */
+  --neutro-500: oklch(0.68 0.011 26.963);          /* #9F9695 */
+  --neutro-600: oklch(0.585 0.011 26.963);         /* #827978 */
+  --neutro-700: oklch(0.5 0.01 26.963);            /* #696160 */
+  --neutro-800: oklch(0.42 0.009 26.963);          /* #524B4A */
+  --neutro-900: oklch(0.33 0.008 26.963);          /* #393433 */
+  --neutro-950: oklch(0.25 0.007 26.963);          /* #252020 */
+
+  /* texto */
+  --texto-950: oklch(0.18 0.006 13.679);          /* #141111 */
+  --texto-900: oklch(0.24 0.006 13.679);          /* #221E1E */
+  --texto-700: oklch(0.42 0.006 13.679);          /* #504C4C */
+  --texto-600: oklch(0.5 0.005 13.679);           /* #666262 */
+  --texto-400: oklch(0.68 0.004 13.679);          /* #9B9797 */
+  --texto-50: oklch(0.985 0.003 13.679);         /* #FCF9F9 */
+
+  /* ---- semânticas ---- */
+  /* Superfícies */
+  --cor-fundo-pagina: var(--neutro-50);
+  --cor-fundo-superficie: var(--neutro-100);
+  --cor-fundo-afundado: var(--neutro-200);
+  --cor-fundo-inverso: var(--carmim-800);
+
+  /* Texto */
+  --cor-texto-titulo: var(--texto-950);
+  --cor-texto-corpo: var(--texto-900);
+  --cor-texto-secundario: var(--texto-700);
+  --cor-texto-terciario: var(--texto-600);
+  --cor-texto-desabilitado: var(--texto-400);
+  --cor-texto-inverso: var(--texto-50);
+
+  /* Bordas */
+  --cor-borda-separador: var(--neutro-300);
+  --cor-borda: var(--neutro-600);
+  --cor-borda-forte: var(--neutro-800);
+  --cor-borda-foco: var(--carmim-700);
+
+  /* Principal: coral (ação, destaque) */
+  --cor-principal-sutil: var(--coral-100);
+  --cor-principal-sutil-hover: var(--coral-200);
+  --cor-principal-borda: var(--coral-300);
+  --cor-principal-solido: var(--coral-400);
+  --cor-principal-solido-hover: var(--coral-500);
+  --cor-principal-texto: var(--coral-700);
+  --cor-texto-sobre-principal: var(--texto-950);
+
+  /* Secundária: carmim (marca, links, inverso) */
+  --cor-secundaria-sutil: var(--carmim-100);
+  --cor-secundaria-borda: var(--carmim-300);
+  --cor-secundaria-solido: var(--carmim-800);
+  --cor-secundaria-solido-hover: var(--carmim-900);
+  --cor-secundaria-texto: var(--carmim-800);
+  --cor-secundaria-texto-hover: var(--carmim-950);
+  --cor-texto-sobre-secundaria: var(--texto-50);
+}

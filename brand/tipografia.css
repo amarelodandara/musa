@@ -1,0 +1,34 @@
+/*
+ * musá — tipografia da interface.
+ * Títulos: DM Sans (OFL), variável, peso 100–1000 e tamanho ótico 9–40.
+ * Texto: Inter Tight (OFL), variável, peso 100–900. Substitui o SF Compact usado no Figma:
+ * a licença da Apple não permite o SF Compact na web. Inter Tight foi a mais próxima entre 11
+ * fontes abertas comparadas com ele (largura +3%, altura-x 0,75 contra 0,77, mesmo desenho de base).
+ * Use Inter Tight também no Figma, para o arquivo e o site baterem.
+ *
+ * Carregar antes deste arquivo:
+ * <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap">
+ *
+ * Escala: razão 1,25 a partir de 16 px, arredondada para pixels inteiros.
+ */
+:root {
+  --fonte-titulo: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fonte-texto: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fonte-dados: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --tamanho-xs: 0.8125rem;  /* 13 px  legendas, rótulos, fontes */
+  --tamanho-sm: 0.875rem;   /* 14 px  texto de apoio */
+  --tamanho-md: 1rem;       /* 16 px  corpo */
+  --tamanho-lg: 1.25rem;    /* 20 px  lead, títulos de cartão */
+  --tamanho-xl: 1.5625rem;  /* 25 px  h2 */
+  --tamanho-2xl: 1.9375rem; /* 31 px  h1 de página interna */
+  --tamanho-3xl: 2.4375rem; /* 39 px  h1 da página inicial */
+  --tamanho-4xl: 3.0625rem; /* 49 px  destaque */
+
+  --entrelinha-texto: 1.5;
+  --entrelinha-titulo: 1.15;
+
+  --peso-texto: 400;
+  --peso-forte: 600;
+  --peso-titulo: 700;
+}

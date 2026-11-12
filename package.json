@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
+    "agentation": "^3.1.2",
+    "dialkit": "^2.2.0",
+    "tailwindcss": "^4.3.5"
+  }
+}

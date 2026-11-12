@@ -1,0 +1,786 @@
+<title>Marca musá</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="cores.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="tipografia.css">
+<style>
+/* Layout: uma coluna larga de seções; cada seção = cabeçalho curto + prancha de marca (fundo fixo da marca) + dados medidos. */
+:root {
+  --paper: #FFFBFB;      /* off-white da marca como fundo da página */
+  --surface: #F7EEEF;
+  --ink: #2A0B13;
+  --muted: #74545C;
+  --line: #EBDADE;
+  --accent: #930031;
+  --accent-ink: #FFFBFB;
+  --brand-crimson: #930031;  /* cores fixas das pranchas, iguais nos dois temas */
+  --brand-offwhite: #FFFBFB;
+  --guide: #1E5BD8;         /* linhas de construção */
+  --font-display: var(--fonte-titulo);
+  --font-text: var(--fonte-texto);
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+    --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #1E5BD8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+  --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #1E5BD8; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 16px/1.5 var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+.wrap {
+  max-width: 1160px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* topo */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+.top .wrap { display: flex; align-items: center; gap: 24px; min-height: 56px; }
+.top .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; flex-shrink: 0; }
+.top .brand svg { width: 22px; height: 22px; }
+.top nav { display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; font-size: 14px; min-width: 0; }
+.top nav a { text-decoration: none; color: var(--muted); white-space: nowrap; padding: 6px 0; }
+.top nav a:hover { color: var(--ink); }
+
+/* hero */
+.hero { background: var(--brand-crimson); color: var(--brand-offwhite); }
+.hero .wrap { padding-block: 56px 48px; display: grid; gap: 40px; }
+.hero-lockup { max-width: 760px; }
+.hero-lockup svg { width: 100%; height: auto; display: block; }
+.hero-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: end; }
+.hero h1 { font: 600 clamp(28px, 4vw, 40px)/1.1 var(--font-display); margin: 0 0 12px; letter-spacing: -0.01em; text-wrap: balance; }
+.hero p { margin: 0; max-width: 58ch; font-size: 18px; opacity: .92; }
+.hero .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero .btn { border-color: var(--brand-offwhite); color: var(--brand-offwhite); }
+.hero .btn.solid { background: var(--brand-offwhite); color: var(--brand-crimson); }
+
+/* botões */
+.btn {
+  font: 500 14px/1 var(--font-text); padding: 10px 14px; border-radius: var(--radius);
+  border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.btn.solid { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { font-size: 13px; padding: 7px 10px; }
+
+/* seções */
+section { padding-block: 72px 8px; scroll-margin-top: 64px; }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: end; margin-bottom: 24px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+h2 { font: 600 clamp(24px, 3vw, 30px)/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+.sec-head p { margin: 0; color: var(--muted); max-width: 64ch; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); padding: 2px; gap: 2px; }
+.seg button { font: 500 13px/1 var(--font-text); border: 0; background: transparent; color: var(--muted); padding: 8px 12px; border-radius: 3px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* pranchas */
+.board { border-radius: var(--radius); display: grid; place-items: center; }
+.board.paper { background: var(--brand-offwhite); box-shadow: inset 0 0 0 1px #EBDADE; }
+.board.crimson { background: var(--brand-crimson); }
+.board svg { display: block; width: 100%; height: auto; }
+
+/* logo: grade de variantes */
+.board.photo { background: radial-gradient(circle at 50% 46%, #E9C9A8 0 14%, #B07A5A 15% 26%, #5E6F64 27% 48%, #2F3A36 49%); }
+.variants { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.variant { display: grid; grid-template-rows: auto 1fr; gap: 12px; min-width: 0; }
+.variant.wide { grid-column: span 3; }
+.variant .board { aspect-ratio: 4 / 3; padding: 18%; }
+.variant.wide .board { aspect-ratio: auto; padding: 56px 10%; }
+.variant.wide .board svg { max-width: 640px; }
+.variant .meta { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
+.variant h3 { font: 600 16px/1.2 var(--font-display); margin: 0 0 2px; }
+.variant .meta p { margin: 0; font-size: 14px; color: var(--muted); max-width: 40ch; }
+.variant .acts { display: flex; gap: 6px; }
+
+/* construção */
+.layers { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 13px/1 var(--font-text); display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; user-select: none; }
+.chip input { accent-color: var(--accent); margin: 0; }
+.construct { overflow-x: auto; border-radius: var(--radius); }
+.construct .board { min-width: 760px; padding: 12px; }
+.construct text { font-family: var(--font-mono); }
+.measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 32px; margin: 24px 0 0; }
+.measures div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.measures dt { font-size: 14px; }
+.measures dd { margin: 0; font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.measures small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; font-family: var(--font-mono); }
+
+/* gerador */
+.gen { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.gen-previews { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gen-previews .board { aspect-ratio: 1; padding: 14%; }
+.controls { display: grid; gap: 18px; }
+.ctrl { display: grid; gap: 6px; }
+.ctrl label { display: flex; justify-content: space-between; font-size: 14px; }
+.ctrl output { font: 500 13px var(--font-mono); color: var(--muted); }
+.ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+.readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.readout div { background: var(--paper); padding: 10px 12px; }
+.readout span { display: block; font-size: 12px; color: var(--muted); }
+.readout b { font: 500 16px var(--font-mono); font-variant-numeric: tabular-nums; }
+.presets { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* tamanhos */
+.ramp { display: flex; align-items: flex-end; gap: 28px 32px; flex-wrap: wrap; padding: 32px; }
+.ramp figure { margin: 0; display: grid; gap: 10px; justify-items: center; }
+.ramp figcaption { font: 12px/1.3 var(--font-mono); color: #74545C; text-align: center; }
+.ramp figcaption b { display: block; color: #2A0B13; font-weight: 500; }
+.ramp .cut { align-self: stretch; width: 0; border-left: 1px dashed #930031; position: relative; }
+.ramp .cut span { position: absolute; top: -20px; left: 6px; white-space: nowrap; font: 11px var(--font-mono); color: #930031; }
+
+/* cor */
+.brand-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.brand-sw { border-radius: var(--radius); padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 0; text-align: left; font: inherit; }
+.brand-sw h3 { font: 600 24px/1.1 var(--font-display); margin: 0; }
+.brand-sw .role { font-size: 14px; margin-top: 4px; }
+.brand-sw dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; font: 13px var(--font-mono); }
+.brand-sw dd { margin: 0; }
+h3.sub { font: 600 16px/1.2 var(--font-display); margin: 40px 0 12px; }
+.note { color: var(--muted); max-width: 70ch; margin: -4px 0 14px; }
+.ramps { display: grid; gap: 10px; }
+.tscale { display: grid; gap: 4px; margin: 24px 0 16px; }
+.tscale div { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.tscale small { font: 12px var(--font-mono); color: var(--muted); }
+.tscale span { font-family: var(--fonte-texto); }
+.tscale span.t { font-family: var(--fonte-titulo); line-height: var(--entrelinha-titulo); overflow-wrap: anywhere; min-width: 0; }
+.cramp { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.cramp > span { font: 500 13px var(--font-mono); color: var(--muted); }
+.steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; }
+.step { border: 0; padding: 0; cursor: pointer; display: grid; grid-template-rows: 56px auto; text-align: left; background: none; color: inherit; font: inherit; min-width: 0; }
+.step i { display: block; border-radius: 2px; }
+.step.pin i { outline: 2px solid var(--ink); outline-offset: 2px; }
+.step small { font: 10px/1.3 var(--font-mono); color: var(--muted); padding-top: 4px; overflow: hidden; text-overflow: ellipsis; }
+.roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 16px; }
+.roles div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 2px 10px; align-items: center; }
+.roles i { width: 22px; height: 22px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); grid-row: span 2; }
+.roles b { font: 500 12px var(--font-mono); overflow-wrap: anywhere; }
+.roles small { font: 11px var(--font-mono); color: var(--muted); }
+.ctable-wrap { overflow-x: auto; }
+.ctable { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 640px; }
+.ctable th, .ctable td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.ctable th { font-weight: 500; color: var(--muted); font-size: 12px; }
+.ctable td.n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ctable .smp { display: inline-block; padding: 4px 10px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.ctable .fail { color: var(--accent); font-weight: 600; }
+@media (max-width: 700px) { .brand-pair { grid-template-columns: minmax(0, 1fr); } .cramp { grid-template-columns: minmax(0, 1fr); } .step small { display: none; } }
+.swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.swatch { border-radius: var(--radius); padding: 24px; min-height: 240px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 0; text-align: left; font: inherit; }
+.swatch.c { background: var(--brand-crimson); color: var(--brand-offwhite); }
+.swatch.o { background: var(--brand-offwhite); color: var(--brand-crimson); box-shadow: inset 0 0 0 1px #EBDADE; }
+.swatch h3 { font: 600 24px/1.1 var(--font-display); margin: 0; }
+.swatch .role { font-size: 14px; opacity: .85; margin-top: 4px; }
+.swatch dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; font: 13px var(--font-mono); }
+.swatch dt { opacity: .7; }
+.swatch dd { margin: 0; }
+.pairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.pair { border-radius: var(--radius); padding: 18px; display: grid; gap: 4px; }
+.pair b { font: 600 28px/1 var(--font-display); }
+.pair span { font: 12px var(--font-mono); opacity: .85; }
+
+/* tipografia */
+.type-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+.type-grid .board { padding: 20px; overflow-x: auto; }
+.type-grid .board svg { min-width: 520px; }
+.specimen { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.specimen .big { font: 600 64px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.specimen .abc { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--muted); overflow-wrap: anywhere; }
+.specimen p { margin: 0; font-size: 14px; }
+.note { font-size: 14px; color: var(--muted); border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0 0; max-width: 70ch; }
+
+/* avatar */
+.avatar-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.avatar-row .board { aspect-ratio: 1; padding: 18%; }
+.avatar-side { display: grid; gap: 16px; align-content: start; }
+.avatar-side p { margin: 0; }
+.eye-ctrls { display: flex; flex-wrap: wrap; gap: 8px; }
+.avatar-row > * { min-width: 0; }
+.avatar-row .board#morph { padding: 6%; }
+#eye, #eyeLockup { display: block; width: 100%; height: auto; }
+.eye-lockup { margin: 16px 0 0; display: grid; gap: 8px; }
+.eye-lockup .board { padding: 40px 8%; }
+.eye-lockup svg { max-width: 720px; }
+.eye-lockup figcaption { font-size: 13px; color: var(--muted); }
+.links { display: grid; gap: 8px; }
+.links a { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); text-decoration: none; }
+.links a span { color: var(--muted); font-size: 14px; }
+
+/* uso */
+.rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rule { display: grid; gap: 10px; align-content: start; }
+.rule .board { aspect-ratio: 1; padding: 20%; overflow: hidden; }
+.rule h3 { font: 600 15px/1.25 var(--font-display); margin: 0; display: flex; gap: 8px; align-items: baseline; }
+.rule h3 i { font-style: normal; font: 500 11px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 6px; border-radius: 3px; }
+.rule.do h3 i { background: color-mix(in srgb, #2E7D4F 18%, transparent); color: var(--ink); }
+.rule.dont h3 i { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--ink); }
+.rule p { margin: 0; font-size: 14px; color: var(--muted); }
+
+footer { margin-top: 96px; border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 24px 40px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: var(--radius); font-size: 14px; transition: .2s; pointer-events: none; z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.fallback { position: fixed; inset: auto 16px calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 21; background: var(--paper); border: 1px solid var(--line); padding: 12px; border-radius: var(--radius); display: grid; gap: 8px; }
+.fallback textarea { width: 100%; height: 120px; font: 12px var(--font-mono); }
+
+@media (max-width: 880px) {
+  .variants, .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .variant.wide { grid-column: span 2; }
+  .gen, .type-grid, .avatar-row { grid-template-columns: minmax(0, 1fr); }
+  .pairs { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy, .sec-head { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .variants, .rules, .swatches { grid-template-columns: minmax(0, 1fr); }
+  .variant.wide { grid-column: auto; }
+  .top nav { display: none; }
+  .ramp { padding: 32px 16px; gap: 24px 20px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#logo"><span id="topMark"></span>musá · marca</a>
+    <nav aria-label="Seções">
+      <a href="#logo">Logo</a>
+      <a href="#construcao">Construção</a>
+      <a href="#gerador">Gerador</a>
+      <a href="#tamanhos">Tamanhos</a>
+      <a href="#cor">Cor</a>
+      <a href="#tipografia">Tipografia</a>
+      <a href="#avatar">Avatar</a>
+      <a href="#uso">Uso</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-lockup" id="heroLockup"></div>
+    <div class="hero-copy">
+      <div>
+        <h1>Marca musá</h1>
+        <p>A moldura de uma obra com anéis concêntricos dentro: o museu visto como serviço, um fluxo que não termina. O acento grave do “à” vem do título do trabalho, “à serviço do museu”. Tudo nesta página é desenhado a partir de um único arquivo de geometria.</p>
+      </div>
+      <div class="actions">
+        <button class="btn solid" type="button" data-copy="lockup" data-tone="crimson">Copiar SVG do lockup</button>
+        <a class="btn" href="#construcao">Ver construção</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<section id="logo">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Logo</p>
+      <h2>Cinco peças, uma cor de cada vez</h2>
+      <p>A marca é sempre monocromática. Os anéis, a pupila e o círculo do recorte são vazados: mostram o fundo, então a mesma peça funciona em positivo e em negativo. O avatar é um segmento à parte, mais abaixo.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Tom">
+      <button type="button" data-tone-set="crimson" aria-pressed="true">Positivo</button>
+      <button type="button" data-tone-set="offwhite" aria-pressed="false">Negativo</button>
+    </div>
+  </div>
+  <div class="variants" id="variants"></div>
+</section>
+
+<section id="construcao">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Construção</p>
+      <h2>Medidas tiradas do arquivo</h2>
+      <p>Valores em unidades do SVG original. H é a altura da moldura. As camadas são desenhadas a partir das mesmas constantes que geram os arquivos.</p>
+    </div>
+  </div>
+  <div class="layers" id="layers">
+    <label class="chip"><input type="checkbox" id="lyr-frame" checked> Moldura e tile</label>
+    <label class="chip"><input type="checkbox" id="lyr-rings" checked> Anéis</label>
+    <label class="chip"><input type="checkbox" id="lyr-type" checked> Linhas do logotipo</label>
+    <label class="chip"><input type="checkbox" id="lyr-space"> Espaçamento</label>
+    <label class="chip"><input type="checkbox" id="lyr-clear"> Área de respiro</label>
+  </div>
+  <div class="construct" style="margin-top:16px"><div class="board paper" id="construct"></div></div>
+  <dl class="measures" id="measures"></dl>
+</section>
+
+<section id="gerador">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Gerador</p>
+      <h2>Os anéis são quatro números</h2>
+      <p>O raio externo é fixo. Pupila, vão da pupila, quantidade e peso definem o resto: passo = (R − pupila − vão) ÷ (anéis − 1 + peso). Mudar aqui muda toda a página e o SVG copiado.</p>
+    </div>
+  </div>
+  <div class="gen">
+    <div class="gen-previews">
+      <div class="board paper" id="genSymbol"></div>
+      <div class="board crimson" id="genRings"></div>
+    </div>
+    <div class="controls">
+      <div class="presets" id="presets"></div>
+      <div class="ctrl"><label for="p-count">Anéis <output id="o-count"></output></label><input type="range" id="p-count" min="1" max="14" step="1"></div>
+      <div class="ctrl"><label for="p-weight">Peso (anel ÷ passo) <output id="o-weight"></output></label><input type="range" id="p-weight" min="0.2" max="0.95" step="0.001"></div>
+      <div class="ctrl"><label for="p-pupilR">Raio da pupila <output id="o-pupilR"></output></label><input type="range" id="p-pupilR" min="0" max="12" step="0.01"></div>
+      <div class="ctrl"><label for="p-pupilGap">Vão da pupila <output id="o-pupilGap"></output></label><input type="range" id="p-pupilGap" min="0" max="5" step="0.01"></div>
+      <div class="readout" id="readout"></div>
+      <div><button class="btn small" type="button" id="copyParams">Copiar parâmetros (JSON)</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="tamanhos">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Tamanhos</p>
+      <h2>Onde os anéis fundem</h2>
+      <p id="sizeLead"></p>
+    </div>
+    <label class="chip"><input type="checkbox" id="forceFull"> Mostrar sem simplificar</label>
+  </div>
+  <div class="board paper" style="place-items:stretch"><div class="ramp" id="ramp"></div></div>
+</section>
+
+<section id="cor">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Cor</p>
+      <h2>Coral e carmim</h2>
+      <p>Coral é a cor principal, carmim a secundária. As escalas da interface saem delas, em OKLCH: cada escala mantém o matiz, é mais viva no meio e tem passos mais finos no lado claro. O texto tem escala própria, quase cinza. Clique numa cor para copiar o HEX.</p>
+    </div>
+  </div>
+  <div class="brand-pair" id="brandPair"></div>
+  <h3 class="sub">Escalas</h3>
+  <div class="ramps" id="ramps"></div>
+  <h3 class="sub">Funções</h3>
+  <p class="note">Componentes usam só estes nomes, nunca os passos das escalas. Assim um tema escuro só troca para onde cada função aponta.</p>
+  <div class="roles" id="roles"></div>
+  <h3 class="sub">Contrastes medidos</h3>
+  <p class="note">Cada par como aparece na tela, medido em WCAG 2 e APCA. Coral é clara demais para texto branco (2,50:1), então o botão coral leva texto escuro.</p>
+  <div class="ctable-wrap"><table class="ctable" id="ctable"></table></div>
+</section>
+
+<section id="tipografia">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Tipografia</p>
+      <h2>Logotipo em contorno</h2>
+      <p>As letras do lockup são vetorizadas, não texto. O acento é grave, como em “à serviço do museu”. A altura-x é metade da moldura, e o centro dos anéis cai no meio da altura-x.</p>
+    </div>
+  </div>
+  <div class="type-grid">
+    <div class="board paper" id="typeBoard"></div>
+    <div class="specimen">
+      <p class="eyebrow" style="margin:0">Texto do site</p>
+      <div class="big">Aa</div>
+      <p>Títulos em DM Sans, texto em Inter Tight, as duas com licença OFL pelo Google Fonts. Inter Tight entra no lugar do SF Compact do Figma, que a Apple não licencia para a web. Tokens em <span class="mono">brand/tipografia.css</span>.</p>
+      <div class="abc">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 áâãàçéêíóôõú</div>
+    </div>
+  </div>
+  <div class="tscale" id="tscale"></div>
+  <p class="note">A fonte de origem do logotipo ainda não está registrada no projeto. Quando ela for confirmada, entra aqui com nome, licença e peso usado.</p>
+</section>
+
+<section id="avatar">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Avatar</p>
+      <h2>Um segmento à parte, feito sobre o símbolo</h2>
+      <p>O avatar não é uma versão do logo: é a personagem do produto. Nasce dos mesmos anéis, que se fundem numa faixa grossa, e o centro aberto vira a pupila. Fica fora do kit de logo e tem regras próprias de uso.</p>
+    </div>
+    <div class="eye-ctrls">
+      <div class="seg" role="group" aria-label="Peça de origem">
+        <button type="button" data-eye-frame="symbol" aria-pressed="true">Símbolo</button>
+        <button type="button" data-eye-frame="tile" aria-pressed="false">Ícone</button>
+      </div>
+      <div class="seg" role="group" aria-label="Estado">
+        <button type="button" data-eye-state="0" aria-pressed="true">Logo</button>
+        <button type="button" data-eye-state="1" aria-pressed="false">Olho</button>
+      </div>
+      <div class="seg" role="group" aria-label="Emoção">
+        <button type="button" data-eye-mood="neutral" aria-pressed="true">Neutro</button>
+        <button type="button" data-eye-mood="happy" aria-pressed="false">Feliz</button>
+        <button type="button" data-eye-mood="sad" aria-pressed="false">Triste</button>
+      </div>
+    </div>
+  </div>
+  <div class="avatar-row">
+    <div class="board paper" id="morph"><svg id="eye" role="img" aria-label="Avatar musá: o olho segue o cursor"></svg></div>
+    <div class="avatar-side">
+      <p>Os anéis nunca aparecem sozinhos na marca, então o olho sempre nasce de uma peça aprovada: o símbolo, o ícone ou o lockup. Os anéis já são vazados no tile; na transição eles se fundem no olho, o tile cresce até virar o fundo, a moldura sai e, no lockup, o logotipo some.</p>
+      <p>Abre como logo e vira olho em 0,7 s, com 0,15 s de atraso entre anéis. Parado, nunca olha reto: o repouso é olhando para baixo e para o lado, com olhadelas curtas em volta. Sempre que há um cursor na página, o olho segue o cursor.</p>
+      <p>As emoções mexem só na pupila, que vira boca: feliz sorri, triste faz bico. A troca entre emoções usa molas, então o olho passa de uma para a outra sem cortes.</p>
+      <div class="variant" id="avatarCard"></div>
+      <div class="links">
+        <a href="https://claude.ai/artifact/43soPAbqNiaRtR2nGSAPdZ" target="_blank" rel="noopener">Playground do olho <span>olhar, piscar, humor ↗</span></a>
+        <a href="https://claude.ai/artifact/8FuB4F7YxuTckEFSjozJdv" target="_blank" rel="noopener">Ajuste de humor <span>feliz e triste ↗</span></a>
+      </div>
+    </div>
+  </div>
+  <figure class="eye-lockup">
+    <div class="board paper"><svg id="eyeLockup" role="img" aria-label="Lockup musá virando o avatar no lugar do símbolo"></svg></div>
+    <figcaption>No lockup, o logotipo some e o olho nasce no lugar do símbolo, como num cabeçalho que vira o avatar do produto.</figcaption>
+  </figure>
+</section>
+
+<section id="uso">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Uso</p>
+      <h2>O que fazer e o que evitar</h2>
+    </div>
+  </div>
+  <div class="rules" id="rules"></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Gerado de <span class="mono">brand/musa-geometry.js</span> · fonte: Vector.svg, 12 nov 2026</span>
+    <span>musá · TCC Design Gráfico, Escola de Design UEMG</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* @geometry */
+</script>
+<script>
+/* @eye */
+</script>
+<script>
+window.MUSA_CORES = /* @cores */;
+</script>
+<script>
+(function () {
+  "use strict";
+  const M = window.MUSA, S = M.SPEC, C = M.COLORS;
+  const $ = (s) => document.querySelector(s);
+  const H = S.frame.size;
+  const f2 = (n, d = 3) => (+n).toFixed(d);
+
+  let params = Object.assign({}, M.RING_PRESETS.lockup);
+  try { const s = JSON.parse(localStorage.getItem("musa-params")); if (s && s.count) params = Object.assign(params, s); } catch (e) {}
+  let tone = "crimson";
+
+  const DEFAULT = M.RING_PRESETS.lockup;
+  const isDefault = () => ["pupilR", "pupilGap", "count", "weight"].every(k => Math.abs(params[k] - DEFAULT[k]) < 1e-3);
+  const svg = (v, o = {}) => M.svg(v, Object.assign({ params, title: false }, o));
+  const fillHex = (t) => t === "crimson" ? C.crimson : C.offwhite;
+
+  /* copiar */
+  const toast = $("#toast");
+  let tt;
+  function say(msg) { toast.textContent = msg; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove("show"), 1800); }
+  function copy(text, msg) {
+    const fallback = () => {
+      document.querySelector(".fallback")?.remove();
+      const box = document.createElement("div");
+      box.className = "fallback";
+      box.innerHTML = '<span>Copie o texto abaixo (⌘C / Ctrl+C).</span><textarea readonly></textarea><button class="btn small" type="button">Fechar</button>';
+      box.querySelector("textarea").value = text;
+      box.querySelector("button").onclick = () => box.remove();
+      document.body.appendChild(box);
+      box.querySelector("textarea").select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => say(msg), fallback);
+    } catch (e) { fallback(); }
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-copy]");
+    if (b) copy(M.svg(b.dataset.copy, { params, color: fillHex(b.dataset.tone || tone) }), "SVG copiado");
+    const sw = e.target.closest("[data-hex]");
+    if (sw) copy(sw.dataset.hex, sw.dataset.hex + " copiado");
+  });
+
+  /* topo e hero */
+  function renderTop() {
+    $("#topMark").innerHTML = svg("tile", { color: C.crimson, simple: true });
+    $("#heroLockup").innerHTML = svg("lockup", { color: C.offwhite });
+  }
+
+  /* logo */
+  const VARIANT_INFO = [
+    ["lockup", "Lockup horizontal", "Assinatura principal. Use sempre que houver largura.", true],
+    ["symbol", "Símbolo", "Moldura, tile e anéis completos. Quando o nome já aparece por perto."],
+    ["tile", "Ícone", "Sem moldura. Favicon, ícone de app, foto de perfil."],
+    ["cutout", "Recorte", "Moldura e fundo com o círculo maior vazado. Vai sobre fotos: o vazado enquadra o assunto.", false, true],
+    ["logotype", "Logotipo", "Só o nome, para linhas de texto e rodapés.", true]
+  ];
+  function renderVariants() {
+    const bg = tone === "crimson" ? "paper" : "crimson";
+    const live = !isDefault();
+    $("#variants").innerHTML = VARIANT_INFO.map(([v, name, use, wide, photo]) => `
+      <div class="variant${wide ? " wide" : ""}">
+        <div class="board ${photo ? "photo" : bg}">${svg(v, { color: fillHex(tone) })}</div>
+        <div class="meta">
+          <div><h3>${name}</h3><p>${use}</p></div>
+          <div class="acts">
+            <button class="btn small" type="button" data-copy="${v}">Copiar SVG</button>
+            ${live ? "" : `<a class="btn small" href="assets/musa-${v}-${tone}.svg" target="_blank" rel="noopener">Abrir SVG</a>`}
+          </div>
+        </div>
+      </div>`).join("");
+  }
+  function renderAvatarCard() {
+    $("#avatarCard").innerHTML = `
+        <div class="board paper" style="aspect-ratio:auto;padding:28px"><div style="width:96px;margin:0 auto">${svg("avatar", { color: C.crimson })}</div></div>
+        <div class="meta">
+          <div><h3>Avatar</h3><p>Anel único, centro aberto. Base para os estados de olhar, piscar e humor.</p></div>
+          <div class="acts">
+            <button class="btn small" type="button" data-copy="avatar" data-tone="crimson">Copiar SVG</button>
+            <a class="btn small" href="assets/musa-avatar-crimson.svg" target="_blank" rel="noopener">Abrir SVG</a>
+          </div>
+        </div>`;
+  }
+  renderAvatarCard();
+  document.querySelectorAll("[data-tone-set]").forEach(b => b.addEventListener("click", () => {
+    tone = b.dataset.toneSet;
+    document.querySelectorAll("[data-tone-set]").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderVariants();
+  }));
+
+  /* construção */
+  const G = "#1E5BD8", INK = "#2A0B13";
+  const line = (x1, y1, x2, y2, o = "") => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${G}" stroke-width="0.35" ${o}/>`;
+  const label = (x, y, t, a = "start", c = G) => `<text x="${x}" y="${y}" font-size="4.6" fill="${c}" text-anchor="${a}">${t}</text>`;
+  function dim(x1, y1, x2, y2, t, off = 0, vertical = false) {
+    const tick = 1.6;
+    let s = line(x1, y1, x2, y2);
+    if (vertical) { s += line(x1 - tick, y1, x1 + tick, y1) + line(x2 - tick, y2, x2 + tick, y2); s += `<text x="${x1 - 2.5 + off}" y="${(y1 + y2) / 2}" font-size="4.6" fill="${G}" text-anchor="end" dominant-baseline="middle">${t}</text>`; }
+    else { s += line(x1, y1 - tick, x1, y1 + tick) + line(x2, y2 - tick, x2, y2 + tick); s += label((x1 + x2) / 2, y1 - 2.5 + off, t, "middle"); }
+    return s;
+  }
+  function renderConstruct() {
+    const on = (id) => $("#lyr-" + id).checked;
+    const W = S.lockup.width, fr = S.frame, ti = S.tile, c = S.center, wm = S.wordmark;
+    const cs = H / 4;
+    const vb = [-46, -44, W + 46 + 74, S.lockup.height + 44 + 40];
+    const g = M.rings(params);
+    let o = "";
+    const anyOn = ["frame", "rings", "type", "space", "clear"].some(on);
+
+    if (on("clear")) {
+      o += `<path d="M${-cs} ${-cs}H${W + cs}V${S.lockup.height + cs}H${-cs}Z M0 0V${S.lockup.height}H${W}V0Z" fill="${G}" fill-opacity="0.07" fill-rule="evenodd"/>`;
+      o += `<rect x="${-cs}" y="${-cs}" width="${W + 2 * cs}" height="${S.lockup.height + 2 * cs}" fill="none" stroke="${G}" stroke-width="0.35" stroke-dasharray="2 1.5"/>`;
+      o += label(-cs + 2, -cs + 6, "respiro = H/4 = " + f2(cs, 2));
+    }
+    if (on("frame")) {
+      o += `<rect x="${fr.x}" y="${fr.y}" width="${fr.size}" height="${fr.size}" fill="none" stroke="${G}" stroke-width="0.35" stroke-dasharray="1.5 1"/>`;
+      o += dim(fr.x, fr.y - 7, fr.x + fr.size, fr.y - 7, "H " + f2(fr.size));
+      o += dim(ti.x, fr.y + fr.size + 8, ti.x + ti.size, fr.y + fr.size + 8, "tile " + f2(ti.size), 9);
+      o += dim(-6, fr.y, -6, ti.y, "", 0, true) + label(-8.5, (fr.y + ti.y) / 2 + 1.6, f2(ti.y - fr.y), "end");
+      o += label(-8.5, fr.y + fr.size / 2, "traço " + f2(fr.stroke), "end");
+    }
+    if (on("rings")) {
+      o += line(c.x - 36, c.y, c.x + 36, c.y, 'stroke-dasharray="1 1"') + line(c.x, c.y - 36, c.x, c.y + 36, 'stroke-dasharray="1 1"');
+      g.bands.forEach(b => { o += `<circle cx="${c.x}" cy="${c.y}" r="${b.outer}" fill="none" stroke="${G}" stroke-width="0.2"/>`; });
+      if (g.pupil > 0) o += `<circle cx="${c.x}" cy="${c.y}" r="${g.pupil}" fill="none" stroke="${G}" stroke-width="0.2"/>`;
+      // raios marcados a 45°
+      const a = -Math.PI / 4, R = g.bands.at(-1).outer;
+      o += line(c.x, c.y, c.x + R * Math.cos(a), c.y + R * Math.sin(a));
+      o += label(c.x + R * Math.cos(a) + 1.5, c.y + R * Math.sin(a) - 1.5, "R " + f2(R));
+    }
+    if (on("type")) {
+      const rows = [
+        [wm.accentTop, "acento " + f2(wm.accentTop)],
+        [wm.xTop, "altura-x " + f2(wm.baseline - wm.xTop)],
+        [(wm.xTop + wm.baseline) / 2, "meio-x " + f2((wm.xTop + wm.baseline) / 2)],
+        [wm.baseline, "linha de base " + f2(wm.baseline)]
+      ];
+      rows.forEach(([y, t]) => { o += line(fr.size + 4, y, W + 4, y, 'stroke-dasharray="2 1"') + label(W + 6, y + 1.6, t); });
+      o += line(0, c.y, fr.size + 4, c.y, 'stroke-dasharray="0.6 1"') + label(W + 6, c.y + 7, "centro anéis " + f2(c.y), "start");
+    }
+    if (on("space")) {
+      const y = wm.baseline + 14;
+      o += dim(fr.size, y, wm.left, y, f2(wm.left - fr.size, 2) + " ≈ H/4", 0);
+      wm.letters.slice(1).forEach((L, i) => {
+        const prev = wm.letters[i];
+        o += line(prev.right, wm.xTop + 8, prev.right, wm.baseline - 8, 'stroke-width="0.25"') + line(L.left, wm.xTop + 8, L.left, wm.baseline - 8, 'stroke-width="0.25"');
+        o += label((prev.right + L.left) / 2, wm.overshootBottom + 6, f2(L.left - prev.right, 2), "middle");
+      });
+    }
+    const base = M.svg("lockup", { params, color: C.crimson, title: false }).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+    $("#construct").innerHTML = `<svg viewBox="${vb.join(" ")}" role="img" aria-label="Construção do lockup musá"><g opacity="${anyOn ? 0.32 : 1}">${base}</g>${o}</svg>`;
+  }
+  ["frame", "rings", "type", "space", "clear"].forEach(id => $("#lyr-" + id).addEventListener("change", renderConstruct));
+
+  function renderMeasures() {
+    const g = M.rings(params), wm = S.wordmark, fr = S.frame, ti = S.tile, c = S.center;
+    const pct = (v) => f2(v / H * 100, 1) + "% H";
+    const xh = wm.baseline - wm.xTop;
+    const rows = [
+      ["Altura do lockup (H)", f2(H), "lado da moldura"],
+      ["Largura total", f2(S.lockup.width), f2(S.lockup.width / H, 3) + " H"],
+      ["Traço da moldura", f2(fr.stroke), pct(fr.stroke)],
+      ["Moldura até o tile", f2(ti.x - fr.x), pct(ti.x - fr.x)],
+      ["Tile", f2(ti.size), pct(ti.size)],
+      ["Diâmetro dos anéis", f2(2 * g.bands.at(-1).outer), f2(2 * g.bands.at(-1).outer / ti.size * 100, 1) + "% do tile"],
+      ["Raio da pupila", f2(g.pupil), "vão da pupila " + f2(params.pupilGap)],
+      ["Anel / vão", f2(g.thickness) + " / " + f2(g.gap), params.count + " anéis, passo " + f2(g.pitch)],
+      ["Altura-x", f2(xh), pct(xh)],
+      ["Centro anéis × meio-x", f2(c.y - (wm.xTop + wm.baseline) / 2), "anéis " + f2(c.y) + " · meio-x " + f2((wm.xTop + wm.baseline) / 2)],
+      ["Símbolo até logotipo", f2(wm.left - fr.size), pct(wm.left - fr.size) + " ≈ H/4"],
+      ["Acento abaixo do topo da moldura", f2(wm.accentTop - fr.y), "tudo cabe na altura H"],
+      ["Overshoot das curvas", f2(wm.xTop - wm.overshootTop), f2((wm.xTop - wm.overshootTop) / xh * 100, 1) + "% da altura-x"],
+      ["Respiro mínimo", f2(H / 4), "H/4 em volta de tudo"]
+    ];
+    $("#measures").innerHTML = rows.map(([k, v, n]) => `<div><dt>${k}</dt><dd>${v}</dd><small>${n}</small></div>`).join("");
+  }
+
+  /* gerador */
+  const CTRL = { count: [0, ""], weight: [3, ""], pupilR: [3, ""], pupilGap: [3, ""] };
+  function syncControls() {
+    for (const k in CTRL) { $("#p-" + k).value = params[k]; $("#o-" + k).textContent = f2(params[k], CTRL[k][0]); }
+    document.querySelectorAll("[data-preset]").forEach(b => {
+      const p = M.RING_PRESETS[b.dataset.preset];
+      b.setAttribute("aria-pressed", ["pupilR", "pupilGap", "count", "weight"].every(k => Math.abs(params[k] - p[k]) < 1e-3));
+    });
+  }
+  $("#presets").innerHTML = '<div class="seg" role="group" aria-label="Predefinições">' + Object.entries(M.RING_PRESETS).map(([k, p]) => `<button type="button" data-preset="${k}">${p.label}</button>`).join("") + "</div>";
+  $("#presets").addEventListener("click", (e) => { const b = e.target.closest("[data-preset]"); if (b) { params = Object.assign({}, M.RING_PRESETS[b.dataset.preset]); update(); } });
+  for (const k in CTRL) $("#p-" + k).addEventListener("input", (e) => { params[k] = +e.target.value; update(); });
+  $("#copyParams").addEventListener("click", () => {
+    const { pupilR, pupilGap, count, weight, R } = params;
+    copy(JSON.stringify({ R, pupilR, pupilGap, count, weight }, null, 2), "Parâmetros copiados");
+  });
+  function renderGen() {
+    const g = M.rings(params);
+    $("#genSymbol").innerHTML = svg("symbol", { color: C.crimson });
+    $("#genRings").innerHTML = svg("rings", { color: C.offwhite });
+    const min = M.minSymbolPx(params);
+    $("#readout").innerHTML = [
+      ["Passo", f2(g.pitch)], ["Espessura do anel", f2(g.thickness)],
+      ["Vão entre anéis", f2(g.gap)], ["Símbolo mínimo", min + " px"]
+    ].map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("");
+  }
+
+  /* tamanhos */
+  const SIZES = [160, 120, 96, 72, 56, 40, 32, 24, 16];
+  function renderRamp() {
+    const min = M.minSymbolPx(params), force = $("#forceFull").checked;
+    $("#sizeLead").textContent = `Com ${params.count} anéis e vão de ${f2(M.rings(params).gap)}, o vão fica abaixo de 0,5 px (1 pixel de tela em densidade 2×) quando o símbolo tem menos de ${min} px de altura. Abaixo disso, a página troca automaticamente para o anel único do avatar.`;
+    let cutDone = false;
+    $("#ramp").innerHTML = SIZES.map(px => {
+      const simple = !force && px < min;
+      let cut = "";
+      if (!cutDone && px < min) { cutDone = true; cut = `<div class="cut"><span>${min} px</span></div>`; }
+      return cut + `<figure><div style="width:${px}px;height:${px}px">${svg("symbol", { color: C.crimson, simple, width: px })}</div><figcaption><b>${px} px</b>${simple ? "avatar" : "completo"}</figcaption></figure>`;
+    }).join("");
+  }
+  $("#forceFull").addEventListener("change", renderRamp);
+
+  /* tipografia */
+  function renderType() {
+    const wm = S.wordmark, L = wm.left - 6, R = wm.right + 62;
+    const rows = [[wm.accentTop, "acento grave"], [wm.overshootTop, "overshoot"], [wm.xTop, "altura-x"], [wm.baseline, "base"], [wm.overshootBottom, "overshoot"]];
+    let o = "";
+    rows.forEach(([y, t], i) => {
+      o += `<line x1="${L}" x2="${wm.right + 4}" y1="${y}" y2="${y}" stroke="${G}" stroke-width="0.3" ${i % 2 ? 'stroke-dasharray="1 1"' : ""}/>`;
+      o += `<text x="${wm.right + 6}" y="${y + (i === 1 ? -0.6 : i === 4 ? 4.6 : 1.6)}" font-size="4.2" fill="${G}" font-family="IBM Plex Mono, monospace">${t} ${f2(y, 2)}</text>`;
+    });
+    const glyphs = M.WORDMARK.map(d => `<path d="${d}" fill="${C.crimson}" fill-opacity="0.85"/>`).join("");
+    $("#typeBoard").innerHTML = `<svg viewBox="${L} -6 ${R - L} ${wm.overshootBottom + 12}" role="img" aria-label="Métricas do logotipo">${glyphs}${o}</svg>`;
+  }
+
+  /* avatar: olho vivo (brand/musa-eye.js), sempre nascendo de uma peça aprovada */
+  const eyeOpts = (frame) => ({ logo: params, frame, ink: C.crimson, paper: C.offwhite, state: 0 });
+  let eye = window.MusaEye.create($("#eye"), eyeOpts("symbol"));
+  const eyeLockup = window.MusaEye.create($("#eyeLockup"), eyeOpts("lockup"));
+  const allEyes = () => [eye, eyeLockup];
+  const syncEyeBtns = () => {
+    document.querySelectorAll("[data-eye-state]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.eyeState === eye.state)));
+    document.querySelectorAll("[data-eye-mood]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.eyeMood === eye.mood)));
+  };
+  document.querySelectorAll("[data-eye-frame]").forEach(b => b.addEventListener("click", () => {
+    const st = eye.state, md = eye.mood;
+    eye.destroy(); eye = window.MusaEye.create($("#eye"), Object.assign(eyeOpts(b.dataset.eyeFrame), { state: st }));
+    if (md !== "neutral") eye.setMood(md);
+    document.querySelectorAll("[data-eye-frame]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+  document.querySelectorAll("[data-eye-state]").forEach(b => b.addEventListener("click", () => {
+    const v = +b.dataset.eyeState; allEyes().forEach(x => { if (v === 0) x.setMood("neutral"); x.setState(v); }); syncEyeBtns();
+  }));
+  document.querySelectorAll("[data-eye-mood]").forEach(b => b.addEventListener("click", () => { allEyes().forEach(x => x.setMood(b.dataset.eyeMood)); syncEyeBtns(); }));
+  // abre como logo e vira olho quando a seção aparece
+  new IntersectionObserver((ents, obs) => {
+    if (ents.some(x => x.isIntersecting)) { obs.disconnect(); setTimeout(() => { allEyes().forEach(x => x.setState(1)); syncEyeBtns(); }, 900); }
+  }, { threshold: 0.4 }).observe($("#morph"));
+
+  /* cor: escalas e funções de brand/cores.css (injetadas por export.mjs) */
+  function renderColors() {
+    const K = window.MUSA_CORES; if (!K) return;
+    const P = Object.fromEntries(K.prims.map(x => [x.name, x]));
+    const bp = [["coral-400", "Coral", "Principal. Ação e destaque. Leva texto escuro.", "#141111"], ["carmim-800", "Carmim", "Secundária. Marca, links, fundo inverso. Leva texto claro.", "#FCF9F9"]];
+    $("#brandPair").innerHTML = bp.map(([n, t, r, fg]) => `<button class="brand-sw" type="button" data-hex="${P[n].hex}" style="background:var(--${n});color:${fg}">
+      <div><h3>${t}</h3><div class="role">${r}</div></div>
+      <dl><dt>HEX</dt><dd>${P[n].hex}</dd><dt>OKLCH</dt><dd>${P[n].oklch}</dd><dt>Escala</dt><dd>${n}</dd></dl></button>`).join("");
+    const groups = [...new Set(K.prims.map(x => x.name.split("-")[0]))];
+    $("#ramps").innerHTML = groups.map(g => `<div class="cramp"><span>${g}</span><div class="steps">${K.prims.filter(x => x.name.startsWith(g + "-")).map(x =>
+      `<button type="button" class="step${x.pinned ? " pin" : ""}" data-hex="${x.hex}" title="${x.name} · ${x.hex} · ${x.oklch}"><i style="background:var(--${x.name})"></i><small>${x.name.split("-")[1]}<br>${x.hex}</small></button>`).join("")}</div></div>`).join("");
+    $("#roles").innerHTML = K.roles.map(r => `<div><i style="background:var(${r.name})"></i><b>${r.name.replace("--cor-", "")}</b><small>${r.ref}</small></div>`).join("");
+    $("#ctable").innerHTML = `<thead><tr><th>Uso</th><th>Amostra</th><th>WCAG</th><th>APCA Lc</th><th>Resultado</th></tr></thead><tbody>` +
+      K.pairs.map(p => `<tr><td>${p.label}</td><td><span class="smp" style="color:${p.fg};background:${p.bg};box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)">Aa musá</span></td><td class="n">${p.wcag}</td><td class="n">${p.apca}</td><td class="${/reprova/.test(p.req) ? "fail" : ""}">${p.req.replace(/\*/g, "")}</td></tr>`).join("") + "</tbody>";
+  }
+  renderColors();
+
+  /* escala tipográfica (brand/tipografia.css) */
+  (function renderTypeScale() {
+    const rows = [["4xl", 700, "musá"], ["3xl", 700, "Visitas escolares"], ["2xl", 700, "Antes da visita"], ["xl", 600, "Tende a ajudar"], ["lg", 400, "Um mapa de consulta para quem trabalha em museu."], ["md", 400, "A excursão da escola costuma ser o primeiro contato com um museu."], ["sm", 400, "Fonte: entrevistas com educadores, 2026."], ["xs", 500, "PRÁTICA GERAL"]];
+    const cs = getComputedStyle(document.documentElement);
+    $("#tscale").innerHTML = rows.map(([k, w, t]) => { const v = cs.getPropertyValue("--tamanho-" + k).trim(); return `<div><small>--tamanho-${k} · ${Math.round(parseFloat(v) * 16)} px · ${w} · ${["4xl","3xl","2xl","xl"].includes(k) ? "DM Sans" : "Inter Tight"}</small><span class="${["4xl","3xl","2xl","xl"].includes(k) ? "t" : ""}" style="font-size:var(--tamanho-${k});font-weight:${w}">${t}</span></div>`; }).join("");
+  })();
+
+  /* uso */
+  function renderRules() {
+    const sym = (o = {}) => svg("symbol", Object.assign({ color: C.crimson }, o));
+    const rules = [
+      ["do", "Positivo", "Crimson sobre off-white.", `<div class="board paper">${sym()}</div>`],
+      ["do", "Negativo", "Off-white sobre crimson. Os vazados mostram o fundo.", `<div class="board crimson">${sym({ color: C.offwhite })}</div>`],
+      ["dont", "Outras cores", "A marca só existe em crimson ou off-white.", `<div class="board paper">${sym({ color: "#2F6BD8" })}</div>`],
+      ["dont", "Fundo escuro", "Crimson sobre quase preto dá 2,06:1. Use o negativo.", `<div class="board" style="background:#1F0A10">${sym()}</div>`],
+      ["dont", "Distorcer", "Nunca estique, achate ou gire.", `<div class="board paper"><div style="transform:scaleX(1.35) rotate(-6deg)">${sym()}</div></div>`],
+      ["dont", "Anéis pequenos demais", `Com 8 anéis abaixo de ${M.minSymbolPx(params)} px, os vãos somem.`, `<div class="board paper"><div style="width:28px;height:28px">${sym({ simple: false, width: 28 })}</div></div>`],
+      ["do", "Versão mínima", "Em tamanhos pequenos, o anel único do avatar.", `<div class="board paper"><div style="width:28px;height:28px">${sym({ simple: true, width: 28 })}</div></div>`],
+      ["do", "Respiro", "H/4 livre em volta, igual ao vão entre símbolo e nome.", `<div class="board paper" style="padding:14%"><div style="outline:1px dashed #1E5BD8;outline-offset:0;padding:20%;width:100%">${sym()}</div></div>`]
+    ];
+    $("#rules").innerHTML = rules.map(([k, t, p, b]) => `<div class="rule ${k}">${b}<h3><i>${k === "do" ? "Fazer" : "Evitar"}</i>${t}</h3><p>${p}</p></div>`).join("");
+  }
+
+  function update() {
+    try { localStorage.setItem("musa-params", JSON.stringify(params)); } catch (e) {}
+    syncControls(); renderTop(); renderVariants(); renderConstruct(); renderMeasures(); renderGen(); renderRamp(); renderRules(); allEyes().forEach(x => x.setLogo(params));
+  }
+  renderType();
+  update();
+})();
+</script>

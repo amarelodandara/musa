@@ -1,0 +1,231 @@
+/*
+ * musá — estilo do site.
+ * Cores e tipos vêm de brand/cores.css e brand/tipografia.css (carregados antes deste arquivo).
+ * Aqui só se usam as funções (--cor-*, --fonte-*, --tamanho-*), nunca valores soltos.
+ * Tudo fica na camada "base": as classes do Tailwind (camada "utilities") sempre ganham.
+ * A barra de navegação é estilizada só com classes do Tailwind, no próprio HTML.
+ */
+@layer base {
+:root {
+  --col: 250px;
+  --rot: 148px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--fonte-texto);
+  font-size: var(--tamanho-md);
+  line-height: var(--entrelinha-texto);
+  color: var(--cor-texto-corpo);
+  background: var(--cor-fundo-pagina);
+}
+h1, h2, h3 { font-family: var(--fonte-titulo); color: var(--cor-texto-titulo); line-height: var(--entrelinha-titulo); text-wrap: balance; }
+a { color: var(--cor-secundaria-texto); }
+a:hover { color: var(--cor-secundaria-texto-hover); }
+:focus-visible { outline: 3px solid var(--cor-borda-foco); outline-offset: 2px; }
+
+.rodape { border-top: 1px solid var(--cor-borda-separador); }
+.rodape-dentro { max-width: 1080px; margin: 0 auto; padding: 20px 16px 32px; display: flex; gap: 16px; justify-content: space-between; font-size: var(--tamanho-sm); color: var(--cor-texto-secundario); }
+
+/* Página inicial */
+.texto { max-width: 680px; margin: 0 auto; padding: 40px 16px 72px; }
+.hero { padding-top: 24px; }
+h1 { font-size: var(--tamanho-3xl); font-weight: var(--peso-titulo); margin: 0 0 16px; letter-spacing: -0.01em; }
+.lead { font-size: var(--tamanho-lg); line-height: 1.4; margin: 0 0 24px; }
+section { margin-top: 48px; }
+h2 { font-size: var(--tamanho-xl); font-weight: var(--peso-titulo); margin: 0 0 12px; }
+.texto li { margin-bottom: 8px; }
+.texto ul { padding-left: 20px; }
+
+/* Botões: um principal (coral, texto escuro) por vista; o resto é secundário */
+.botao {
+  display: inline-block;
+  padding: 11px 18px;
+  background: var(--cor-principal-solido);
+  color: var(--cor-texto-sobre-principal);
+  border: 2px solid var(--cor-principal-solido);
+  border-radius: 4px;
+  font: inherit;
+  font-weight: var(--peso-forte);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease, border-color 150ms ease;
+}
+.botao:active { transform: scale(0.97); }
+.botao:hover { background: var(--cor-principal-solido-hover); border-color: var(--cor-principal-solido-hover); color: var(--cor-texto-sobre-principal); }
+.botao.secundario { background: var(--cor-fundo-pagina); color: var(--cor-texto-corpo); border-color: var(--cor-borda); }
+.botao.secundario:hover { background: var(--cor-fundo-superficie); border-color: var(--cor-borda-forte); }
+
+.atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.atalhos h3 { font-size: var(--tamanho-sm); color: var(--cor-texto-secundario); margin: 0 0 6px; font-weight: var(--peso-forte); }
+.atalhos a { display: block; padding: 7px 0; border-top: 1px solid var(--cor-borda-separador); text-decoration: none; }
+.atalhos a:hover { text-decoration: underline; }
+.origens { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; margin: 14px 0; align-items: baseline; }
+.origens dt, .origens dd { margin: 0; }
+.fontes { font-size: var(--tamanho-sm); color: var(--cor-texto-secundario); }
+
+/* Selos de origem: diferenciados por traço e preenchimento, não só por tom */
+.selo {
+  display: inline-block;
+  padding: 0 6px;
+  font-size: var(--tamanho-xs);
+  line-height: 18px;
+  white-space: nowrap;
+  border-radius: 3px;
+  border: 1px solid var(--cor-secundaria-solido);
+}
+.selo.fonte { background: var(--cor-secundaria-solido); color: var(--cor-texto-sobre-secundaria); }
+.selo.adaptada { background: var(--cor-fundo-pagina); color: var(--cor-secundaria-texto); }
+.selo.hipotese { background: var(--cor-fundo-pagina); color: var(--cor-texto-secundario); border: 1px dashed var(--cor-borda); }
+
+/* Mapa */
+.pagina-mapa { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  padding: 9px 16px;
+  border-bottom: 2px solid var(--cor-borda-forte);
+  font-size: var(--tamanho-sm);
+}
+.legenda { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.contagem { margin-left: auto; color: var(--cor-texto-secundario); }
+.sinal { display: inline-block; width: 1em; text-align: center; font-weight: var(--peso-titulo); }
+.quadro { flex: 1; overflow: auto; position: relative; }
+table { border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+th, td {
+  width: var(--col);
+  min-width: var(--col);
+  padding: 9px 10px;
+  vertical-align: top;
+  text-align: left;
+  border-right: 1px solid var(--cor-borda-separador);
+  border-bottom: 1px solid var(--cor-borda-separador);
+  background: var(--cor-fundo-pagina);
+}
+thead th { position: sticky; z-index: 2; font-family: var(--fonte-titulo); }
+thead tr:nth-child(1) th {
+  top: 0;
+  height: 36px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: var(--cor-fundo-inverso);
+  color: var(--cor-texto-inverso);
+  font-size: var(--tamanho-sm);
+  border-right-color: var(--cor-texto-inverso);
+}
+thead tr:nth-child(2) th {
+  top: 36px;
+  background: var(--cor-fundo-afundado);
+  border-bottom: 2px solid var(--cor-borda-forte);
+}
+thead tr:nth-child(2) small { display: block; color: var(--cor-texto-secundario); font-weight: var(--peso-texto); font-family: var(--fonte-texto); }
+.rotulo {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: var(--rot);
+  min-width: var(--rot);
+  background: var(--cor-fundo-superficie);
+  font-size: var(--tamanho-sm);
+  border-right: 2px solid var(--cor-borda-forte);
+}
+thead th.rotulo { z-index: 3; }
+tr.separador th {
+  padding: 4px 10px;
+  background: var(--cor-fundo-afundado);
+  font-size: var(--tamanho-xs);
+  border-top: 2px dashed var(--cor-borda-forte);
+  border-bottom: 1px solid var(--cor-borda-separador);
+  border-right: 0;
+}
+tr.separador .faixa { position: sticky; left: 0; display: inline-block; max-width: 92vw; }
+tr.separador b { margin-right: 8px; }
+tr.separador .nota { color: var(--cor-texto-secundario); font-weight: var(--peso-texto); font-family: var(--fonte-texto); }
+td.percurso { background: var(--cor-fundo-superficie); font-size: var(--tamanho-sm); font-style: italic; }
+td.celula { padding: 0; }
+td.celula button {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+  height: 100%;
+  padding: 9px 10px;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: var(--tamanho-sm);
+  line-height: 1.35;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+td.celula button:hover { background: var(--cor-principal-sutil); }
+td.celula button[aria-pressed="true"] { background: var(--cor-principal-sutil); outline: 3px solid var(--cor-borda-foco); outline-offset: -3px; }
+td.vazia { color: var(--cor-texto-terciario); font-size: var(--tamanho-xs); background: repeating-linear-gradient(135deg, var(--cor-fundo-pagina), var(--cor-fundo-pagina) 7px, var(--cor-fundo-superficie) 7px, var(--cor-fundo-superficie) 14px); }
+tr.etapa-foco, th.foco, td.foco { background-color: var(--cor-fundo-superficie); }
+th.foco { background: var(--cor-secundaria-solido-hover) !important; color: var(--cor-texto-inverso); }
+
+.item { display: grid; grid-template-columns: 1em 1fr; gap: 0 5px; margin-bottom: 7px; }
+.item:last-child { margin-bottom: 0; }
+.item .selo { margin-top: 3px; justify-self: start; }
+.item .corpo { grid-column: 2; }
+
+/* Painel de detalhe */
+.painel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  width: min(460px, 100%);
+  padding: 20px 20px 32px;
+  overflow: auto;
+  background: var(--cor-fundo-pagina);
+  border-left: 2px solid var(--cor-borda-forte);
+  box-shadow: -8px 0 0 var(--cor-fundo-afundado);
+}
+.painel[hidden] { display: none; }
+.painel .contexto { color: var(--cor-texto-secundario); font-size: var(--tamanho-sm); margin: 0 40px 4px 0; }
+.painel h2 { margin: 0 40px 18px 0; font-size: var(--tamanho-xl); }
+.painel h3 { font-size: var(--tamanho-md); margin: 22px 0 10px; border-top: 2px solid var(--cor-borda-forte); padding-top: 8px; }
+.painel .item { font-size: var(--tamanho-lg); line-height: 1.4; grid-template-columns: 1fr; margin-bottom: 15px; }
+.painel .item .corpo { grid-column: 1; }
+.painel .ref { display: block; font-size: var(--tamanho-xs); color: var(--cor-texto-secundario); margin-top: 4px; }
+.fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  background: var(--cor-fundo-pagina);
+  color: var(--cor-texto-corpo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 4px;
+  font-size: var(--tamanho-lg);
+  cursor: pointer;
+}
+.fechar:hover { background: var(--cor-fundo-superficie); }
+.acoes { margin-top: 24px; }
+.acoes .botao { font-size: var(--tamanho-sm); padding: 8px 12px; }
+.navegar { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.navegar button { flex: 1; padding: 8px; background: var(--cor-fundo-pagina); color: var(--cor-texto-corpo); border: 1px solid var(--cor-borda); border-radius: 4px; font: inherit; font-size: var(--tamanho-sm); cursor: pointer; }
+.navegar button:hover:not(:disabled) { background: var(--cor-fundo-superficie); }
+.navegar button:disabled { color: var(--cor-texto-desabilitado); cursor: default; }
+
+@media (max-width: 640px) {
+  :root { --col: 220px; --rot: 96px; }
+  h1 { font-size: var(--tamanho-2xl); }
+  .rotulo { font-size: var(--tamanho-xs); padding: 8px 6px; }
+  .contagem { margin-left: 0; }
+}
+
+/* Foco temporário na barra de navegação: tudo o resto fica escondido (o conteúdo continua no HTML).
+   Para voltar: tirar a classe "foco-nav" do <body> e devolver data-hero ao .hero em index.html. */
+body.foco-nav > main,
+body.foco-nav > footer,
+body.foco-nav > .quadro,
+body.foco-nav > .painel,
+body.foco-nav .topo > :not(.nav-marca) { display: none !important; }
+}

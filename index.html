@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>musá</title>
+<link rel="icon" href="brand/assets/musa-tile-crimson.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap">
+<link rel="stylesheet" href="brand/cores.css">
+<link rel="stylesheet" href="brand/tipografia.css">
+<link rel="stylesheet" href="tailwind.css">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body class="inicio">
+<header class="nav sticky top-0 z-10 bg-transparente border-b border-borda-separador shadow-none">
+  <div class="nav-dentro mx-auto flex items-center h-12 max-w-none px-6 gap-6">
+    <a class="nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline" href="index.html" aria-label="musá, página inicial">
+      <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
+      <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src="brand/assets/musa-logotype-crimson.svg" alt="" width="68" height="23"></span>
+    </a>
+    <nav class="nav-links ml-auto" aria-label="Principal">
+      <ul class="nav-lista flex m-0 p-0 list-none gap-1">
+        <li><a class="nav-link block px-2.5 py-2 rounded-sm text-sm font-medium font-texto text-texto-corpo no-underline transition-colors duration-150 hover:bg-fundo-superficie hover:text-texto-titulo data-atual:text-secundaria-texto" href="mapa.html">Ferramenta</a></li>
+        <li><a class="nav-link block px-2.5 py-2 rounded-sm text-sm font-medium font-texto text-texto-corpo no-underline transition-colors duration-150 hover:bg-fundo-superficie hover:text-texto-titulo data-atual:text-secundaria-texto" href="sobre.html">Sobre</a></li>
+        <li><a class="nav-link block px-2.5 py-2 rounded-sm text-sm font-medium font-texto text-texto-corpo no-underline transition-colors duration-150 hover:bg-fundo-superficie hover:text-texto-titulo data-atual:text-secundaria-texto" href="recursos.html">Recursos</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main class="texto">
+  <div class="hero" data-hero>
+    <h1>Visitas escolares melhores, do primeiro contato à volta para a sala de aula</h1>
+    <p class="lead">Um mapa de consulta para quem trabalha em museu: o que tende a ajudar e o que tende a atrapalhar em cada etapa da visita, para cada equipe.</p>
+    <p><a class="botao" href="mapa.html">Abrir o mapa</a></p>
+  </div>
+
+  <section>
+    <h2>Por que visitas escolares</h2>
+    <p>Para muita gente, a excursão da escola é o primeiro contato com um museu. Essa experiência pode influenciar a decisão de voltar ou não.</p>
+    <p>As normas e os cursos existentes orientam bem o planejamento estratégico do museu. Este mapa os complementa com o que acontece na prática, do ponto de vista de quem visita.</p>
+  </section>
+
+  <section>
+    <h2>O que este mapa é, e o que não é</h2>
+    <ul>
+      <li><strong>É</strong> um ponto de partida. Reúne práticas gerais que tendem a ajudar ou a atrapalhar.</li>
+      <li><strong>Não é</strong> uma nota nem um ranking. Não compara museus.</li>
+      <li><strong>Não é</strong> uma garantia. Nenhuma prática funciona igual em todo lugar: adapte à sua equipe, ao seu público e ao seu acervo.</li>
+      <li><strong>Não é</strong> uma verificação legal. Parte do princípio de que o museu já funciona regularmente.</li>
+    </ul>
+  </section>
+
+  <section id="como-usar">
+    <h2>Como usar</h2>
+    <ul>
+      <li><strong>Colunas</strong> são as etapas da escola: antes, durante e depois da visita.</li>
+      <li><strong>Linhas</strong> são quem participa de cada etapa. São funções, não cargos: em um museu pequeno, a mesma pessoa pode ocupar várias.</li>
+      <li><strong>Linha de frente</strong> é o que a escola vê do museu. <strong>Bastidores</strong> é o que ela não vê, mas sente.</li>
+      <li><strong>Cada célula</strong> traz o que tende a ajudar (+) e o que tende a atrapalhar (−). Células vazias ainda estão em pesquisa.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Comece pela etapa que preocupa você</h2>
+    <div id="atalhos" class="atalhos"></div>
+  </section>
+
+  <section id="de-onde-vem">
+    <h2>De onde vem o conteúdo</h2>
+    <p>Cada item mostra de onde veio. Os marcados como hipótese ainda estão sendo validados com museus.</p>
+    <dl class="origens">
+      <dt><span class="selo fonte">Fonte</span></dt><dd>Dito de forma direta no documento citado.</dd>
+      <dt><span class="selo adaptada">Adaptada</span></dt><dd>Interpretação nossa a partir do documento citado.</dd>
+      <dt><span class="selo hipotese">Hipótese</span></dt><dd>Ainda sem base em documento, em validação com museus.</dd>
+    </dl>
+    <ul id="fontes" class="fontes"></ul>
+  </section>
+
+  <p><a class="botao" href="mapa.html">Abrir o mapa</a> <button class="botao secundario" type="button" data-copiar="">Copiar link desta página</button></p>
+</main>
+<footer class="rodape"><div class="rodape-dentro"><span>musá</span><a href="brand/marca.html">Guia da marca</a></div></footer>
+<script src="brand/musa-geometry.js"></script>
+<script src="brand/musa-eye.js"></script>
+<script src="navegacao.js"></script>
+<script src="conteudo.js"></script>
+<script src="app.js"></script>
+<script type="importmap">{"imports":{"react":"https://esm.sh/react@18.3.1","react/jsx-runtime":"https://esm.sh/react@18.3.1/jsx-runtime","react-dom":"https://esm.sh/react-dom@18.3.1?deps=react@18.3.1","react-dom/client":"https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1","agentation":"/node_modules/agentation/dist/index.mjs"}}</script>
+<script type="module" src="dev/agentation.js"></script>
+<script type="module" src="dev/navbar-dials.js"></script>
+</body>
+</html>

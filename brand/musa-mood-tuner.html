@@ -1,0 +1,419 @@
+<title>Musá Mood Tuner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: two mood columns side by side (Happy | Sad), each a sticky live eye over its own sliders; shared look + export below. */
+:root{
+  --bg:#F6F1F1; --surface:#FFFBFB; --line:#E7D9DB; --fg:#2A1218; --muted:#7B6268;
+  --accent:#930031; --accent-fg:#FFFBFB; --accent-soft:#F4E2E6; --focus:#C2185B;
+  --font-ui:"Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --av-ink:#930031; --av-bg:#FFFBFB;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#150B0E; --surface:#1F1216; --line:#3A252B; --fg:#F5EAEC; --muted:#B19AA0;
+    --accent:#FF7398; --accent-fg:#22070E; --accent-soft:#3A1520; --focus:#FF9AB5; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#150B0E; --surface:#1F1216; --line:#3A252B; --fg:#F5EAEC; --muted:#B19AA0;
+  --accent:#FF7398; --accent-fg:#22070E; --accent-soft:#3A1520; --focus:#FF9AB5; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg); color:var(--fg)}
+body{font-family:var(--font-ui); font-size:14px; line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:20px 40px}
+.wrap{max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:18px}
+header{display:flex; flex-wrap:wrap; gap:8px 20px; align-items:baseline; justify-content:space-between}
+h1{margin:0; font-size:20px; font-weight:700; letter-spacing:-.01em; text-wrap:balance}
+h1 span{color:var(--accent)}
+header p{margin:0; color:var(--muted); font-size:13px; max-width:60ch}
+
+.cols{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:20px; align-items:start}
+@media (max-width:760px){ .cols{grid-template-columns:minmax(0,1fr)} }
+.col{display:flex; flex-direction:column; gap:12px; min-width:0}
+.view{position:sticky; top:calc(env(safe-area-inset-top,0px) + 10px); z-index:2; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:12px; display:flex; flex-direction:column; gap:10px}
+.view-head{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.view-head h2{margin:0; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+.stage{position:relative; width:100%; aspect-ratio:16/10; max-width:100%; border-radius:12px; overflow:hidden; background:var(--av-bg); cursor:pointer; border:1px solid var(--line)}
+.stage svg{position:absolute; left:50%; top:50%; height:86%; aspect-ratio:1; transform:translate(-50%,-50%); overflow:visible}
+.minis{display:flex; gap:12px; align-items:flex-end}
+.minis figure{margin:0; display:flex; flex-direction:column; align-items:center; gap:4px}
+.minis svg{display:block; border-radius:50%; background:var(--av-bg); border:1px solid var(--line)}
+.minis figcaption{font:10.5px/1 var(--font-mono); color:var(--muted)}
+.minis .spacer{flex:1}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:2px; gap:2px}
+.seg button{appearance:none; border:0; background:none; font:500 12px/1 var(--font-ui); color:var(--fg); padding:7px 11px; border-radius:999px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg)}
+.cycle{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
+
+section.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:4px 14px 6px}
+details{border-top:1px solid var(--line)} details:first-child{border-top:0}
+summary{cursor:pointer; list-style:none; padding:11px 0; font-weight:600; display:flex; justify-content:space-between; align-items:center; font-size:13px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; font:500 14px var(--font-mono); color:var(--muted)}
+details[open] summary::after{content:"−"}
+.ctl-list{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px 16px; padding-bottom:14px}
+@media (max-width:420px){ .ctl-list{grid-template-columns:minmax(0,1fr)} }
+.ctl{display:flex; flex-direction:column; gap:4px; min-width:0}
+.ctl .top{display:flex; justify-content:space-between; gap:8px; font-size:12.5px}
+.ctl label{user-select:none}
+.ctl output{font:12px var(--font-mono); color:var(--muted); font-variant-numeric:tabular-nums}
+.ctl.changed label{color:var(--accent); font-weight:600}
+input[type=range]{width:100%; accent-color:var(--accent); margin:0}
+input[type=checkbox]{accent-color:var(--accent); width:16px; height:16px; margin:0}
+select{font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:5px 8px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.stage:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.colbtns{display:flex; gap:8px; flex-wrap:wrap}
+
+.shared{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:20px}
+@media (max-width:760px){ .shared{grid-template-columns:minmax(0,1fr)} }
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.panel h3{margin:0; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase}
+.row{display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12.5px}
+.hint{font-size:12px; color:var(--muted); margin:0}
+.btns{display:flex; flex-wrap:wrap; gap:8px}
+.btn{appearance:none; font:600 13px/1 var(--font-ui); padding:10px 14px; border-radius:10px; cursor:pointer; border:1px solid var(--line); background:var(--bg); color:var(--fg)}
+.btn.small{font-size:12px; padding:7px 10px}
+.btn.primary{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+textarea{width:100%; min-height:90px; font:12px/1.4 var(--font-mono); color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; resize:vertical}
+.toast{font-size:12px; color:var(--accent); min-height:1em}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>musá eye · <span>happy</span> &amp; <span>sad</span></h1>
+    <p>Avatar state only. Each column tunes one mood live. Click an eye to blink it. Double-click a slider label to reset it.</p>
+  </header>
+
+  <div class="cols" id="cols"></div>
+
+  <div class="shared">
+    <div class="panel">
+      <h3>Look</h3>
+      <div class="row"><label for="look">Colours</label><select id="look"></select></div>
+      <div class="row"><label for="lidLine">Draw lid edge</label><input type="checkbox" id="lidLine"></div>
+      <div class="row"><label for="breathe">Breathing</label><input type="range" id="breathe" min="0" max="2" step="0.01" style="max-width:55%"></div>
+      <div class="row"><label for="cycleSec">Cycle: seconds per state</label><input type="range" id="cycleSec" min="0.6" max="5" step="0.1" style="max-width:55%"></div>
+    </div>
+    <div class="panel">
+      <h3>Export</h3>
+      <p class="hint">Copies happy and sad as one JSON (pose, motion, intensity, spring). Paste it to Claude. Load also accepts the full JSON from the Avatar lab.</p>
+      <div class="btns">
+        <button class="btn primary" id="copyJson" type="button">Copy settings</button>
+        <button class="btn" id="resetAll" type="button">Reset both</button>
+      </div>
+      <details><summary>Load settings</summary>
+        <textarea id="jsonIn" spellcheck="false" placeholder="Paste JSON"></textarea>
+        <div class="btns" style="padding:8px 0 10px"><button class="btn" id="applyJson" type="button">Apply</button></div>
+      </details>
+      <div class="toast" id="toast" role="status"></div>
+      <textarea id="copyFallback" hidden readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s), el = id => document.getElementById(id);
+const R = 30.4563, TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+const bump = u => (u <= 0 || u >= 1) ? 0 : Math.sin(Math.PI * u);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* fixed avatar geometry + motion (user's baked lab values) */
+const GEO = { aRings: 1, aPupilR: 0, aPupilGap: 8, aWeight: 0.62, reach: 1, outerFollow: .5, falloff: 1.37 };
+const POSE = ['gx','gy','pupil','lidU','lidL','tiltU','tiltL','curveU','curveL','bend','rot','sx','sy','ty','mouthShape','mouthCurve','mouthW','mouthT','mouthY','mouthRound'];
+const NEUTRAL = { gx:0, gy:0, pupil:0, lidU:0, lidL:0, tiltU:0, tiltL:0, curveU:0, curveL:0, bend:0, rot:0, sx:1, sy:1, ty:0, mouthShape:0, mouthCurve:0, mouthW:1.4, mouthT:.45, mouthY:0, mouthRound:.6 };
+
+const BASE = {
+  happy: { intensity: 1, stiff: 271, damp: .85,
+    pose: { lidL: .36, curveL: .9, bend: .22, pupil: .51, mouthShape: .72, mouthCurve: 1.22, mouthW: 1.93, mouthT: .71, mouthY: .36 },
+    motion: { bounce: 0, bounceRate: 4.2, squash: 0, glow: 0 } },
+  sad: { intensity: 1, stiff: 140, damp: .95,
+    pose: { lidU: .4, tiltU: -.4, curveU: -.15, bend: -.38, gy: .5, pupil: .15, ty: 1.5, mouthShape: 1, mouthCurve: -.7, mouthW: 1.35, mouthT: .35, mouthY: .15 },
+    motion: { sway: 0, swayRate: .6, sighEvery: 0, sighDepth: .6 } }
+};
+const DEF_LOOK = { look: 'crimson', lidLine: false, breathe: reduceMotion ? 0 : .8, cycleSec: 1.8 };
+const LOOKS = {
+  crimson: { label: 'Crimson on paper', ink: '#930031', bg: '#FFFBFB' },
+  reversed: { label: 'Paper on crimson', ink: '#FFFBFB', bg: '#930031' },
+  night: { label: 'Night', ink: '#FF7398', bg: '#1B0E12' }
+};
+const MOUTH_UI = [
+  ['mouthShape','Pupil → mouth',0,1,.01], ['mouthCurve','Smile / frown',-1.5,1.5,.01],
+  ['mouthW','Mouth width',.6,2.6,.01], ['mouthT','Mouth openness',.1,1.2,.01],
+  ['mouthY','Mouth height (+ down)',-1,1,.01], ['mouthRound','Tip roundness',0,1,.01], ['pupil','Pupil dilation',-1,1,.01]
+];
+// Moods now drive only the pupil: everything else stays at the neutral pose.
+const ACTIVE = new Set(MOUTH_UI.map(i => i[0]));
+const POSE_UI = [
+  ['bend','Whole-eye bend',-1,1,.01], ['pupil','Pupil dilation',-1,1,.01],
+  ['lidU','Upper lid',0,1,.01], ['lidL','Lower lid',0,1,.01],
+  ['tiltU','Upper lid tilt',-1,1,.01], ['tiltL','Lower lid tilt',-1,1,.01],
+  ['curveU','Upper lid arch',-1.5,1.5,.01], ['curveL','Lower lid arch',-1.5,1.5,.01],
+  ['gx','Gaze x',-1,1,.01], ['gy','Gaze y',-1,1,.01],
+  ['ty','Lift (− up)',-6,6,.01], ['rot','Head tilt °',-30,30,.1],
+  ['sx','Width',.7,1.3,.01], ['sy','Height',.7,1.3,.01]
+];
+const MOTION_UI = {
+  happy: [['bounce','Bounce',0,3,.01], ['bounceRate','Bounce speed',.5,8,.01], ['squash','Squash on bounce',0,1,.01], ['glow','Pupil pulse',0,1,.01]],
+  sad: [['sway','Sway °',0,6,.01], ['swayRate','Sway speed',.1,2,.01], ['sighEvery','Sigh every (s, 0 = off)',0,8,.1], ['sighDepth','Sigh depth',0,1.5,.01]]
+};
+const FEEL_UI = [['intensity','Intensity',0,1.5,.01], ['stiff','Enter speed (stiffness)',20,400,1], ['damp','Damping',.3,1.4,.01]];
+
+const clone = o => JSON.parse(JSON.stringify(o));
+const STORE = 'musa-mood-tuner-v1';
+let cfg = { happy: clone(BASE.happy), sad: clone(BASE.sad), ...DEF_LOOK };
+function mergeMood(name, src) {
+  if (!src || typeof src !== 'object') return;
+  const m = cfg[name];
+  for (const k of ['intensity','stiff','damp']) if (typeof src[k] === 'number') m[k] = src[k];
+  if (src.pose) for (const k of POSE) if (typeof src.pose[k] === 'number') m.pose[k] = src.pose[k];
+  if (src.motion) for (const k in m.motion) if (typeof src.motion[k] === 'number') m.motion[k] = src.motion[k];
+}
+function loadJSON(j) {
+  cfg = { happy: clone(BASE.happy), sad: clone(BASE.sad), ...DEF_LOOK };
+  for (const k in DEF_LOOK) if (k in j) cfg[k] = j[k];
+  if (j.happy || j.sad) { mergeMood('happy', j.happy); mergeMood('sad', j.sad); }
+  if (j.moodEdits) { // Avatar lab export
+    for (const n of ['happy','sad']) if (j.moodEdits[n]) mergeMood(n, { pose: j.moodEdits[n] });
+    if (typeof j.intensity === 'number' && j.intensity > 0) { cfg.happy.intensity = cfg.sad.intensity = j.intensity; }
+    if (typeof j.breathe === 'number') cfg.breathe = j.breathe;
+  }
+  if (!LOOKS[cfg.look]) cfg.look = 'crimson';
+}
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) loadJSON(s); } catch (e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(cfg)); } catch (e) {} };
+
+/* ---------- geometry ---------- */
+function geom() {
+  const n = GEO.aRings, pr = GEO.aPupilR, pg = GEO.aPupilGap, w = GEO.aWeight;
+  const pitch = Math.max(.2, (R - pr - pg) / (n - 1 + w)), rings = [];
+  for (let i = 0; i < n; i++) { const a = pr + pg + i * pitch; rings.push([a, a + w * pitch]); }
+  return { rings, pitch, pr, thick: pitch * w };
+}
+const G = geom();
+function makeWarp(f) {
+  const gamma = Math.pow(2, -f.pupil * .85), Gs = GEO.reach * R * .5;
+  const dx = clamp(f.gx, -1.25, 1.25) * Gs, dy = clamp(f.gy, -1.25, 1.25) * Gs;
+  const pul = f.pulse, bend = f.bend, base = GEO.outerFollow, fo = GEO.falloff;
+  // lin: scale r uniformly instead of the radial power curve, so a shape keeps its outline (used by the mouth)
+  return (r, th, lin) => {
+    let q = Math.max(0, r / R), rr = lin ? r * lin : R * Math.pow(q, gamma); q = rr / R;
+    if (pul && !lin) rr += pul * rr * ((1 - q) * .35 + .07);
+    let x = rr * Math.cos(th), y = rr * Math.sin(th);
+    const rho = clamp(rr / R, 0, 1), wt = base + (1 - base) * Math.pow(1 - rho * rho, fo);
+    x += dx * wt; y += dy * wt;
+    if (bend) y += bend * (R * .14 - .0115 * x * x);
+    return [x, y];
+  };
+}
+const fmt = v => (Math.round(v * 100) / 100).toString();
+function circlePath(W, r, rev, q) {
+  const n = Math.max(20, Math.ceil(r * 3.4 * q)), o = [];
+  for (let j = 0; j < n; j++) { const [x, y] = W(r, (rev ? -TAU : TAU) * j / n); o.push(fmt(x) + ' ' + fmt(y)); }
+  return 'M' + o.join('L') + 'Z';
+}
+
+// The open centre (pupil) morphs from a circle into a curved lens: a mouth that smiles (corners up) or frowns.
+// Same angle parameter for both shapes, so the blend stays smooth and never self-intersects.
+function mouthPath(W, r0, f, q) {
+  // Shape parameters morph (not points), so the lip edge stays a clean parabola at every mouthShape value.
+  // Smile: upper lip is a pure parabola, all opening hangs below it. Frown: mirrored, lower lip is the parabola.
+  const k = clamp(f.mouthShape, 0, 1), w = r0 * Math.max(.2, f.mouthW), t0 = r0 * Math.max(.05, f.mouthT);
+  const A = f.mouthCurve * w * .55;
+  const wE = lerp(r0, w, k), tE = lerp(r0, t0, k), AE = A * k, oyE = f.mouthY * r0 * k;
+  const b = .5 + .5 * Math.tanh(A / (.15 * w)) * Math.min(1, k * 3);
+  // pupil dilation + breathing as one uniform scale, so they never bend the lip
+  const gamma = Math.pow(2, -f.pupil * .85), q0 = Math.pow(r0 / R, gamma);
+  const lin = (R * q0 / r0) * (1 + (f.pulse || 0) * ((1 - q0) * .35 + .07));
+  const rho = clamp(f.mouthRound, 0, 1) * tE;
+  const n = Math.max(96, Math.ceil(r0 * 10 * q)), o = [];
+  for (let j = 0; j < n; j++) {
+    const th = -TAU * j / n, c = Math.cos(th), s = Math.sin(th);
+    const x = wE * c;
+    // round tips: only the outer 30% of the lip bends toward the tip (quarter-circle easing), so the middle stays a pure parabola
+    const g = Math.max(0, (Math.abs(c) - .7) / .3), cap = rho * (1 - Math.sqrt(Math.max(0, 1 - g * g)));
+    const y = -AE * (c * c - .5) + oyE + cap * (2 * b - 1) + 2 * tE * s * (s < 0 ? 1 - b : b) - tE * (2 * b - 1);
+    const [X, Y] = W(Math.hypot(x, y), Math.atan2(y, x), lin);
+    o.push(fmt(X) + ' ' + fmt(Y));
+  }
+  return 'M' + o.join('L') + 'Z';
+}
+
+let uid = 0;
+function buildSvg(svg, small) {
+  const id = 'e' + (uid++);
+  svg.setAttribute('viewBox', small ? '-35 -35 70 70' : '-38 -38 76 76');
+  svg.innerHTML = `<defs><clipPath id="${id}l"><path d=""/></clipPath><clipPath id="${id}c"><circle cx="0" cy="0" r="34"/></clipPath></defs>
+<g class="outer"><g class="inner"><g clip-path="url(#${id}l)"><path class="eye" d=""/></g><g clip-path="url(#${id}c)"><path class="lid" fill="none" stroke-linecap="round" d=""/></g></g></g>`;
+  const q = s => svg.querySelector(s);
+  return { svg, clip: q('clipPath path'), eye: q('.eye'), outer: q('.outer'), inner: q('.inner'), lid: q('.lid'), q: small ? .45 : 1 };
+}
+function draw(av, f) {
+  const W = makeWarp(f);
+  let d = '';
+  G.rings.forEach(([a, b], i) => { d += circlePath(W, b, false, av.q) + (i === 0 ? mouthPath(W, a, f, av.q) : circlePath(W, a, true, av.q)); });
+  if (G.pr > .05) d += circlePath(W, G.pr, false, av.q);
+  av.eye.setAttribute('d', d);
+  const sx = Math.max(.1, f.sx), sy = Math.max(.1, f.sy), blink = clamp(f.blink, 0, 1);
+  av.outer.setAttribute('transform', `translate(0 ${fmt(f.ty)}) rotate(${fmt(f.rot)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+  av.inner.setAttribute('transform', `scale(1 ${(1 - .93 * blink).toFixed(3)})`);
+  const L = 60, E = R * 1.08, lu = clamp(f.lidU, 0, 1), ll = clamp(f.lidL, 0, 1);
+  const su = Math.min(1, lu * 3), sl = Math.min(1, ll * 3);
+  const yU = x => -E * (1 - lu) - 22 * (1 - su) + su * (f.tiltU * x * .5 + f.curveU * R * .45 * ((x / R) ** 2 - 1));
+  const yL = x => E * (1 - ll) + 22 * (1 - sl) + sl * (f.tiltL * x * .5 + f.curveL * R * .45 * ((x / R) ** 2 - 1));
+  const top = [], bot = [], N = 28;
+  for (let j = 0; j <= N; j++) { const x = -L + 2 * L * j / N; top.push(fmt(x) + ' ' + fmt(yU(x))); }
+  for (let j = N; j >= 0; j--) { const x = -L + 2 * L * j / N; bot.push(fmt(x) + ' ' + fmt(Math.max(yL(x), yU(x)))); }
+  av.clip.setAttribute('d', 'M' + top.join('L') + 'L' + bot.join('L') + 'Z');
+  let dl = '';
+  if (cfg.lidLine) {
+    const seg = fn => { const o = []; for (let j = 0; j <= 40; j++) { const x = -R + 2 * R * j / 40; o.push(fmt(x) + ' ' + fmt(fn(x))); } return 'M' + o.join('L'); };
+    if (lu > .02) dl += seg(yU);
+    if (ll > .02) dl += seg(x => Math.max(yL(x), yU(x)));
+    av.lid.setAttribute('stroke-width', (G.thick * .2).toFixed(2));
+  }
+  av.lid.setAttribute('d', dl);
+}
+
+/* ---------- one live eye per mood ---------- */
+const eyes = {};
+let T = 0;
+function makeEye(name) {
+  const e = { name, show: 'mood', cycle: false, cycleT: 0, S: { ...NEUTRAL }, V: {}, w: 0, wv: 0, blinkT: -9, avs: [], rows: {} };
+  for (const k of POSE) e.V[k] = 0;
+  return e;
+}
+function target(e) {
+  const m = cfg[e.name], on = e.show === 'mood', t = { ...NEUTRAL };
+  if (on) for (const k in m.pose) if (ACTIVE.has(k)) t[k] = NEUTRAL[k] + (m.pose[k] - NEUTRAL[k]) * m.intensity;
+  return t;
+}
+function stepEye(e, dt) {
+  const m = cfg[e.name];
+  if (e.cycle) { e.cycleT += dt; if (e.cycleT > cfg.cycleSec) { e.cycleT = 0; setShow(e, e.show === 'mood' ? 'neutral' : 'mood', true); } }
+  const tgt = target(e), kk = m.stiff, cc = 2 * Math.sqrt(kk) * m.damp;
+  const n = Math.ceil(dt / (1 / 240)), h = dt / n;
+  const wT = e.show === 'mood' ? 1 : 0;
+  for (let i = 0; i < n; i++) {
+    for (const k of POSE) { e.V[k] += ((tgt[k] - e.S[k]) * kk - e.V[k] * cc) * h; e.S[k] += e.V[k] * h; }
+    e.wv += ((wT - e.w) * kk - e.wv * cc) * h; e.w += e.wv * h;
+  }
+  const f = { ...e.S, pulse: 0, blink: 0 }, w = clamp(e.w, 0, 1.2) * Math.min(1, m.intensity), mo = m.motion;
+  if (false && e.name === 'happy') {
+    const s = Math.abs(Math.sin(T * mo.bounceRate));
+    f.ty -= 1.8 * mo.bounce * s * w;
+    f.sy += .04 * mo.squash * mo.bounce * (s - .5) * w; f.sx -= .03 * mo.squash * mo.bounce * (s - .5) * w;
+    f.pulse += .25 * mo.glow * Math.sin(T * mo.bounceRate * .5) * w;
+  } else if (false) {
+    f.rot += mo.sway * Math.sin(T * mo.swayRate * TAU * .5) * w;
+    if (mo.sighEvery > 0) {
+      const per = mo.sighEvery + 1.6, u = (T % per) / 1.6, b = u < 1 ? bump(u) : 0;
+      f.ty += 1.6 * mo.sighDepth * b * w; f.sy -= .05 * mo.sighDepth * b * w; f.lidU += .14 * mo.sighDepth * b * w;
+    }
+  }
+  if (cfg.breathe > 0) { const b = Math.sin(T * TAU * .22) * cfg.breathe; f.sx += .008 * b; f.sy += .014 * b; f.pulse += .06 * b; }
+  const bu = (T - e.blinkT) / .24; if (bu > 0 && bu < 1) f.blink = Math.pow(bump(bu), .7);
+  for (const av of e.avs) draw(av, f);
+}
+function setShow(e, v, fromCycle) {
+  e.show = v; if (!fromCycle) e.cycleT = 0;
+  e.segBtns.mood.setAttribute('aria-pressed', v === 'mood'); e.segBtns.neutral.setAttribute('aria-pressed', v === 'neutral');
+}
+
+/* ---------- UI ---------- */
+const dec = s => s >= 1 ? 0 : s >= .1 ? 1 : 2;
+function slider(e, group, [key, label, a, b, st]) {
+  const id = `${e.name}-${group}-${key}`, row = document.createElement('div'); row.className = 'ctl';
+  row.innerHTML = `<div class="top"><label for="${id}">${label}</label><output for="${id}"></output></div><input type="range" id="${id}" min="${a}" max="${b}" step="${st}">`;
+  const inp = row.querySelector('input'), out = row.querySelector('output'), lab = row.querySelector('label');
+  const obj = () => group === 'pose' ? cfg[e.name].pose : group === 'motion' ? cfg[e.name].motion : cfg[e.name];
+  const baseObj = () => group === 'pose' ? BASE[e.name].pose : group === 'motion' ? BASE[e.name].motion : BASE[e.name];
+  const cur = () => key in obj() ? obj()[key] : NEUTRAL[key];
+  const set = () => { const v = cur(); inp.value = v; out.textContent = (+v).toFixed(dec(st)); const bv = key in baseObj() ? baseObj()[key] : NEUTRAL[key]; row.classList.toggle('changed', Math.abs(v - bv) > 1e-9); };
+  inp.addEventListener('input', () => { obj()[key] = +inp.value; if (group !== 'motion' && group !== 'feel' && e.show !== 'mood') setShow(e, 'mood'); set(); save(); });
+  lab.addEventListener('dblclick', ev => { ev.preventDefault(); const bo = baseObj(); if (key in bo) obj()[key] = bo[key]; else delete obj()[key]; set(); save(); });
+  e.rows[id] = set; set();
+  return row;
+}
+function group(e, title, items, g, open) {
+  const det = document.createElement('details'); det.open = open;
+  const sum = document.createElement('summary'); sum.textContent = title;
+  const list = document.createElement('div'); list.className = 'ctl-list';
+  items.forEach(it => list.appendChild(slider(e, g, it)));
+  det.append(sum, list); return det;
+}
+function buildCol(name, label) {
+  const e = eyes[name] = makeEye(name);
+  const col = document.createElement('div'); col.className = 'col';
+  col.innerHTML = `<div class="view">
+    <div class="view-head"><h2>${label}</h2>
+      <div class="seg" role="group" aria-label="${label} preview"><button type="button" data-v="neutral">Neutral</button><button type="button" data-v="mood">${label}</button></div></div>
+    <div class="stage" tabindex="0" role="button" aria-label="Blink the ${label.toLowerCase()} eye"><svg aria-hidden="true"></svg></div>
+    <div class="minis"><figure><svg width="48" height="48" aria-hidden="true"></svg><figcaption>48px</figcaption></figure><figure><svg width="32" height="32" aria-hidden="true"></svg><figcaption>32px</figcaption></figure><figure><svg width="20" height="20" aria-hidden="true"></svg><figcaption>20px</figcaption></figure>
+      <span class="spacer"></span><label class="cycle"><input type="checkbox" id="cyc-${name}"> Cycle</label></div>
+  </div>`;
+  const svgs = col.querySelectorAll('svg');
+  e.avs = [...svgs].map((s, i) => buildSvg(s, i > 0));
+  e.segBtns = {}; col.querySelectorAll('.seg button').forEach(b => { e.segBtns[b.dataset.v] = b; b.onclick = () => { e.cycle = false; el('cyc-' + name).checked = false; setShow(e, b.dataset.v); }; });
+  const stg = col.querySelector('.stage'), blink = () => { e.blinkT = T; };
+  stg.addEventListener('click', blink); stg.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); blink(); } });
+  col.querySelector('#cyc-' + name).addEventListener('change', ev => { e.cycle = ev.target.checked; e.cycleT = 0; });
+  const card = document.createElement('section'); card.className = 'card';
+  card.append(group(e, 'Pupil', MOUTH_UI, 'pose', true), group(e, 'Feel', FEEL_UI, 'feel', true));
+  const btns = document.createElement('div'); btns.className = 'colbtns';
+  btns.innerHTML = `<button class="btn small" type="button">Replay entrance</button><button class="btn small" type="button">Reset ${label.toLowerCase()}</button>`;
+  const [replay, reset] = btns.querySelectorAll('button');
+  replay.onclick = () => { setShow(e, 'neutral'); setTimeout(() => setShow(e, 'mood'), 450); };
+  reset.onclick = () => { cfg[name] = clone(BASE[name]); refreshAll(); save(); toast(label + ' reset to the lab defaults.'); };
+  col.append(card, btns);
+  el('cols').appendChild(col);
+  setShow(e, 'mood');
+}
+function refreshAll() {
+  for (const e of Object.values(eyes)) for (const f of Object.values(e.rows)) f();
+  el('look').value = cfg.look; el('lidLine').checked = !!cfg.lidLine; el('breathe').value = cfg.breathe; el('cycleSec').value = cfg.cycleSec;
+  applyLook();
+}
+function applyLook() {
+  const L = LOOKS[cfg.look], rs = document.documentElement.style;
+  rs.setProperty('--av-ink', L.ink); rs.setProperty('--av-bg', L.bg);
+  for (const e of Object.values(eyes)) for (const av of e.avs) { av.eye.setAttribute('fill', L.ink); av.lid.setAttribute('stroke', L.ink); }
+}
+for (const [k, l] of Object.entries(LOOKS)) { const o = document.createElement('option'); o.value = k; o.textContent = l.label; el('look').appendChild(o); }
+el('look').onchange = ev => { cfg.look = ev.target.value; applyLook(); save(); };
+el('lidLine').onchange = ev => { cfg.lidLine = ev.target.checked; save(); };
+el('breathe').oninput = ev => { cfg.breathe = +ev.target.value; save(); };
+el('cycleSec').oninput = ev => { cfg.cycleSec = +ev.target.value; save(); };
+
+const toast = msg => { el('toast').textContent = msg; clearTimeout(toast.t); toast.t = setTimeout(() => el('toast').textContent = '', 2600); };
+function copy(text, ok) {
+  const fb = () => { const ta = el('copyFallback'); ta.hidden = false; ta.value = text; ta.focus(); ta.select(); toast('Clipboard blocked here. Text is selected below, press Cmd/Ctrl+C.'); };
+  try { navigator.clipboard.writeText(text).then(() => { el('copyFallback').hidden = true; toast(ok); }, fb); } catch (e) { fb(); }
+}
+const slim = m => ({ intensity: m.intensity, stiff: m.stiff, damp: m.damp, pose: Object.fromEntries([...ACTIVE].map(k => [k, k in m.pose ? m.pose[k] : NEUTRAL[k]])) });
+el('copyJson').onclick = () => copy(JSON.stringify({ happy: slim(cfg.happy), sad: slim(cfg.sad), look: cfg.look, lidLine: cfg.lidLine, breathe: cfg.breathe, cycleSec: cfg.cycleSec }, null, 2), 'Happy and sad settings copied as JSON.');
+el('resetAll').onclick = () => { cfg = { happy: clone(BASE.happy), sad: clone(BASE.sad), ...DEF_LOOK }; refreshAll(); save(); toast('Both moods reset to the lab defaults.'); };
+el('applyJson').onclick = () => {
+  try { loadJSON(JSON.parse(el('jsonIn').value)); refreshAll(); save(); toast('Settings loaded.'); }
+  catch (e) { toast('That text is not valid JSON. Paste the output of "Copy settings" or the Avatar lab export.'); }
+};
+
+buildCol('happy', 'Happy'); buildCol('sad', 'Sad'); refreshAll();
+let last = performance.now() / 1000;
+function frame(ms) {
+  const now = ms / 1000, dt = Math.min(1 / 20, Math.max(0, now - last)); last = now; T += dt;
+  for (const e of Object.values(eyes)) stepEye(e, dt);
+  requestAnimationFrame(frame);
+}
+for (const e of Object.values(eyes)) stepEye(e, 0.001);
+requestAnimationFrame(frame);
+})();
+</script>

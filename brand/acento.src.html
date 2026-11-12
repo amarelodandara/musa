@@ -1,0 +1,409 @@
+<title>Acento musà</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: palco grande à esquerda, painel de controles à direita; tira de tamanhos reais embaixo. */
+:root {
+  --paper: #FFFBFB;
+  --surface: #F7EEEF;
+  --ink: #2A0B13;
+  --muted: #74545C;
+  --line: #EBDADE;
+  --accent: #930031;
+  --accent-ink: #FFFBFB;
+  --brand-crimson: #930031;
+  --brand-offwhite: #FFFBFB;
+  --guide: #1E5BD8;
+  --ghost: #1E5BD8;
+  --font-text: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+    --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #6F9BFF; --ghost: #6F9BFF; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1A0A0F; --surface: #24111A; --ink: #FBEFF1; --muted: #C2A4AB; --line: #3B2029;
+  --accent: #E8768F; --accent-ink: #1A0A0F; --guide: #6F9BFF; --ghost: #6F9BFF; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--font-text); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+}
+.wrap { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 60ch; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); display: grid; gap: 0; min-width: 0; }
+.stage-bar { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.stage-bar label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; padding: 4px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.canvas { position: relative; background: var(--brand-offwhite); touch-action: none; cursor: grab; }
+.canvas.dragging { cursor: grabbing; }
+.canvas.inverse { background: var(--brand-crimson); }
+.canvas svg { display: block; width: 100%; height: auto; max-height: 62vh; }
+.hint { position: absolute; left: 10px; bottom: 8px; font-size: 11px; color: #74545C; font-family: var(--font-mono); pointer-events: none; }
+.canvas.inverse .hint { color: #F3C9D3; }
+
+.measures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border-top: 1px solid var(--line); }
+.measures div { background: var(--surface); padding: 8px 12px; display: grid; gap: 2px; }
+.measures span { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.measures b { font-family: var(--font-mono); font-weight: 500; font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.panel { display: grid; gap: 16px; min-width: 0; }
+fieldset { border: 1px solid var(--line); border-radius: var(--radius); margin: 0; padding: 12px; display: grid; gap: 10px; }
+legend { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 0 4px; }
+.ctl { display: grid; grid-template-columns: 1fr 76px; gap: 2px 10px; align-items: center; }
+.ctl label { font-size: 13px; cursor: pointer; user-select: none; }
+.ctl label small { color: var(--muted); font-size: 11px; margin-left: 4px; }
+.ctl label.changed::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: 6px; vertical-align: middle; }
+.ctl input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+.ctl input[type="number"] { width: 76px; font: 13px var(--font-mono); padding: 3px 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); color: var(--ink); text-align: right; grid-row: 1; grid-column: 2; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+button.b { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+button.b.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.b:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
+textarea { width: 100%; min-height: 70px; font: 12px var(--font-mono); padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); color: var(--ink); resize: vertical; }
+.status { font-size: 12px; color: var(--muted); min-height: 1.4em; }
+
+.sizes { display: grid; gap: 10px; }
+.sizes h2 { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin: 0; }
+.strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 700px) { .strip { grid-template-columns: minmax(0, 1fr); } }
+.board { border-radius: var(--radius); padding: 18px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px 26px; border: 1px solid var(--line); min-width: 0; }
+.board.light { background: var(--brand-offwhite); }
+.board.dark { background: var(--brand-crimson); border-color: var(--brand-crimson); }
+.board figure { margin: 0; display: grid; gap: 6px; justify-items: start; }
+.board figcaption { font: 10px var(--font-mono); color: #74545C; }
+.board.dark figcaption { color: #F3C9D3; }
+.board svg { display: block; max-width: 100%; height: auto; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Acento do <span style="color:var(--accent)">musà</span></h1>
+    <p>Ajuste fino do acento grave. Arraste o acento no palco para movê-lo. Clique duas vezes no nome de um ajuste para voltar ao valor atual da marca.</p>
+  </header>
+
+  <div class="main">
+    <section class="stage" aria-label="Palco">
+      <div class="stage-bar">
+        <div class="seg" role="group" aria-label="Enquadramento">
+          <button type="button" id="view-a" aria-pressed="true">Letra à</button>
+          <button type="button" id="view-word" aria-pressed="false">Palavra</button>
+        </div>
+        <div class="seg" role="group" aria-label="Fundo">
+          <button type="button" id="bg-light" aria-pressed="true">Off-white</button>
+          <button type="button" id="bg-dark" aria-pressed="false">Carmim</button>
+        </div>
+        <label><input type="checkbox" id="opt-guides" checked> Guias</label>
+        <label><input type="checkbox" id="opt-ghost" checked> Atual (contorno)</label>
+        <label><input type="checkbox" id="opt-points"> Pontos</label>
+      </div>
+      <div class="canvas" id="canvas">
+        <svg id="stage" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pré-visualização do acento"></svg>
+        <span class="hint">arraste para mover · unidades de Vector.svg</span>
+      </div>
+      <div class="measures" id="measures"></div>
+    </section>
+
+    <aside class="panel">
+      <fieldset id="f-pos"><legend>Posição</legend></fieldset>
+      <fieldset id="f-shape"><legend>Forma</legend></fieldset>
+      <fieldset id="f-ends"><legend>Pontas e curva</legend></fieldset>
+      <fieldset>
+        <legend>Exportar</legend>
+        <div class="btns">
+          <button type="button" class="b primary" id="copy-json">Copiar ajustes</button>
+          <button type="button" class="b" id="copy-path">Copiar path</button>
+          <button type="button" class="b" id="copy-svg">Copiar SVG do logotipo</button>
+          <button type="button" class="b" id="reset">Voltar ao atual</button>
+        </div>
+        <textarea id="io" aria-label="Ajustes em JSON" spellcheck="false"></textarea>
+        <div class="btns"><button type="button" class="b" id="load">Carregar JSON colado</button></div>
+        <div class="status" id="status" role="status"></div>
+      </fieldset>
+    </aside>
+  </div>
+
+  <section class="sizes">
+    <h2>Tamanhos reais</h2>
+    <div class="strip">
+      <div class="board light" id="board-light"></div>
+      <div class="board dark" id="board-dark"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* @geometry */
+</script>
+<script>
+(function () {
+  "use strict";
+  const M = window.MUSA;
+  const WM = M.SPEC.wordmark;
+  const STEM_M = 155.152 - 142.114; // haste do m
+  const ORIGINAL_A = M.WORDMARK[3];
+  const subs = ORIGINAL_A.split(/(?=M)/);
+  const A_BASE = subs.slice(0, -1).join("");
+  const ACCENT_ORIG = subs[subs.length - 1];
+  // Quadrilátero do acento atual: topo-esq, base-esq, topo-dir, base-dir.
+  const Q = { lt: [375.027, 5.529], lb: [377.487, 16.49], rt: [405.052, 10.014], rb: [407.474, 20.119] };
+
+  const r3 = (n) => Math.round(n * 1000) / 1000;
+  const f = (n) => +n.toFixed(3);
+  const deg = Math.PI / 180;
+
+  function derive() {
+    const L = [(Q.lt[0] + Q.lb[0]) / 2, (Q.lt[1] + Q.lb[1]) / 2];
+    const R = [(Q.rt[0] + Q.rb[0]) / 2, (Q.rt[1] + Q.rb[1]) / 2];
+    const dx = R[0] - L[0], dy = R[1] - L[1];
+    const len = Math.hypot(dx, dy), th = Math.atan2(dy, dx);
+    const t = [Math.cos(th), Math.sin(th)], n = [-Math.sin(th), Math.cos(th)];
+    const end = (top, bot) => { const v = [bot[0] - top[0], bot[1] - top[1]]; const h = v[0] * n[0] + v[1] * n[1]; const k = v[0] * t[0] + v[1] * t[1]; return { w: h, cut: Math.atan(k / h) / deg }; };
+    const a = end(Q.lt, Q.lb), b = end(Q.rt, Q.rb);
+    return {
+      cx: r3((L[0] + R[0]) / 2), cy: r3((L[1] + R[1]) / 2), len: r3(len), angle: r3(th / deg),
+      thick: r3((a.w + b.w) / 2), taper: r3(b.w / a.w), cutL: r3(a.cut), cutR: r3(b.cut), bend: 0, round: 0
+    };
+  }
+  const BASE = derive();
+
+  const DEFS = [
+    { k: "cx", g: "f-pos", label: "Horizontal", unit: "x", min: 365, max: 420, step: 0.01 },
+    { k: "cy", g: "f-pos", label: "Vertical", unit: "y", min: -8, max: 32, step: 0.01 },
+    { k: "angle", g: "f-pos", label: "Inclinação", unit: "°", min: 0, max: 70, step: 0.1 },
+    { k: "len", g: "f-shape", label: "Comprimento", unit: "", min: 8, max: 52, step: 0.01 },
+    { k: "thick", g: "f-shape", label: "Espessura média", unit: "", min: 2, max: 20, step: 0.01 },
+    { k: "taper", g: "f-shape", label: "Afinamento", unit: "dir ÷ esq", min: 0.2, max: 2, step: 0.005 },
+    { k: "cutL", g: "f-ends", label: "Corte esquerdo", unit: "°", min: -60, max: 60, step: 0.1 },
+    { k: "cutR", g: "f-ends", label: "Corte direito", unit: "°", min: -60, max: 60, step: 0.1 },
+    { k: "bend", g: "f-ends", label: "Curvatura", unit: "+ arqueia", min: -8, max: 8, step: 0.01 },
+    { k: "round", g: "f-ends", label: "Cantos arredondados", unit: "raio", min: 0, max: 6, step: 0.01 }
+  ];
+
+  const KEY = "musa-acento-v2";
+  let p = { ...BASE };
+  try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) p = { ...BASE, ...pick(s) }; } catch (e) {}
+  function pick(o) { const out = {}; DEFS.forEach(d => { if (typeof o[d.k] === "number" && isFinite(o[d.k])) out[d.k] = o[d.k]; }); return out; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {} }
+
+  // ---------- geometria ----------
+  function shape(p) {
+    const th = p.angle * deg, t = [Math.cos(th), Math.sin(th)], n = [-Math.sin(th), Math.cos(th)];
+    const wL = 2 * p.thick / (1 + p.taper), wR = p.taper * wL;
+    const L = [p.cx - t[0] * p.len / 2, p.cy - t[1] * p.len / 2];
+    const R = [p.cx + t[0] * p.len / 2, p.cy + t[1] * p.len / 2];
+    const ends = (E, h, c) => { const k = Math.tan(c * deg) * h; return { top: [E[0] - n[0] * h - t[0] * k, E[1] - n[1] * h - t[1] * k], bot: [E[0] + n[0] * h + t[0] * k, E[1] + n[1] * h + t[1] * k] }; };
+    const a = ends(L, wL / 2, p.cutL), b = ends(R, wR / 2, p.cutR);
+    const ctl = (P0, P1) => { const m = [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2]; return [m[0] - n[0] * 2 * p.bend, m[1] - n[1] * 2 * p.bend]; };
+    const edges = [
+      { q: true, p0: a.top, c: ctl(a.top, b.top), p1: b.top },
+      { q: false, p0: b.top, p1: b.bot },
+      { q: true, p0: b.bot, c: ctl(b.bot, a.bot), p1: a.bot },
+      { q: false, p0: a.bot, p1: a.top }
+    ];
+    return { edges, corners: [a.top, b.top, b.bot, a.bot], L, R, n, t };
+  }
+  const lerp = (A, B, s) => [A[0] + (B[0] - A[0]) * s, A[1] + (B[1] - A[1]) * s];
+  const quadAt = (e, s) => { const a = lerp(e.p0, e.c, s), b = lerp(e.c, e.p1, s); return lerp(a, b, s); };
+  const elen = (e) => { if (!e.q) return Math.hypot(e.p1[0] - e.p0[0], e.p1[1] - e.p0[1]); let l = 0, prev = e.p0; for (let i = 1; i <= 24; i++) { const pt = quadAt(e, i / 24); l += Math.hypot(pt[0] - prev[0], pt[1] - prev[1]); prev = pt; } return l; };
+  function sub(e, s0, s1) {
+    if (!e.q) return { q: false, p0: lerp(e.p0, e.p1, s0), p1: lerp(e.p0, e.p1, s1) };
+    const P0 = e.p0, C = e.c, P1 = e.p1;
+    const bl = (u, v) => [
+      P0[0] * (1 - u) * (1 - v) + C[0] * ((1 - u) * v + u * (1 - v)) + P1[0] * u * v,
+      P0[1] * (1 - u) * (1 - v) + C[1] * ((1 - u) * v + u * (1 - v)) + P1[1] * u * v
+    ];
+    return { q: true, p0: bl(s0, s0), c: bl(s0, s1), p1: bl(s1, s1) };
+  }
+  function accentD(p) {
+    const S = shape(p);
+    const lens = S.edges.map(elen);
+    const r = Math.max(0, Math.min(p.round, Math.min(...lens) * 0.49));
+    const tr = S.edges.map((e, i) => r > 0 ? sub(e, r / lens[i], 1 - r / lens[i]) : e);
+    const P = (pt) => f(pt[0]) + " " + f(pt[1]);
+    let d = "M" + P(tr[0].p0);
+    for (let i = 0; i < 4; i++) {
+      const e = tr[i];
+      d += e.q ? "Q" + P(e.c) + " " + P(e.p1) : "L" + P(e.p1);
+      const next = tr[(i + 1) % 4];
+      if (r > 0) d += "Q" + P(S.edges[i].p1) + " " + P(next.p0);
+    }
+    return d + "Z";
+  }
+  function bounds(p) {
+    const S = shape(p); const pts = [];
+    S.edges.forEach(e => { for (let i = 0; i <= 24; i++) pts.push(e.q ? quadAt(e, i / 24) : lerp(e.p0, e.p1, i / 24)); });
+    const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  }
+  const aPath = () => A_BASE + accentD(p);
+
+  // ---------- controles ----------
+  const inputs = {};
+  DEFS.forEach(d => {
+    const box = document.createElement("div"); box.className = "ctl";
+    const id = "c-" + d.k;
+    box.innerHTML = `<label for="${id}" title="Clique duas vezes para voltar ao atual">${d.label}${d.unit ? `<small>${d.unit}</small>` : ""}</label>
+      <input type="number" id="${id}-n" step="${d.step}" aria-label="${d.label} (valor)">
+      <input type="range" id="${id}" min="${d.min}" max="${d.max}" step="${d.step}">`;
+    document.getElementById(d.g).appendChild(box);
+    const rng = box.querySelector('input[type="range"]'), num = box.querySelector('input[type="number"]'), lab = box.querySelector("label");
+    inputs[d.k] = { rng, num, lab };
+    rng.addEventListener("input", () => { p[d.k] = +rng.value; num.value = rng.value; update(); });
+    num.addEventListener("input", () => { const v = parseFloat(num.value); if (isFinite(v)) { p[d.k] = v; rng.value = v; update(false); } });
+    lab.addEventListener("dblclick", (e) => { e.preventDefault(); p[d.k] = BASE[d.k]; sync(); update(); });
+  });
+  function sync() {
+    DEFS.forEach(d => { const i = inputs[d.k]; i.rng.value = p[d.k]; if (document.activeElement !== i.num) i.num.value = r3(p[d.k]); });
+  }
+
+  // ---------- palco ----------
+  const svgEl = document.getElementById("stage");
+  const canvas = document.getElementById("canvas");
+  let view = "a", inverse = false;
+  const opt = { guides: document.getElementById("opt-guides"), ghost: document.getElementById("opt-ghost"), points: document.getElementById("opt-points") };
+  const VB = { a: [352, -14, 76, 116], word: [136, -14, 290, 116] };
+
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function drawStage() {
+    const [x, y, w, h] = VB[view];
+    svgEl.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+    const ink = inverse ? "#FFFBFB" : "#930031";
+    const G = inverse ? "#9EC0FF" : "#1E5BD8";
+    const sw = w / 600;
+    let o = "";
+    if (opt.guides.checked) {
+      const lines = [[0, "topo do acento 0"], [WM.overshootTop, "overshoot " + WM.overshootTop], [WM.xTop, "altura-x " + WM.xTop], [WM.baseline, "linha de base " + WM.baseline], [WM.overshootBottom, ""]];
+      lines.forEach(([ly, t]) => {
+        o += `<line x1="${x}" x2="${x + w}" y1="${ly}" y2="${ly}" stroke="${G}" stroke-width="${sw}" stroke-dasharray="${sw * 4} ${sw * 3}" opacity="0.7"/>`;
+        if (t) o += `<text x="${x + w - sw * 6}" y="${ly - sw * 4}" text-anchor="end" font-size="${sw * 15}" fill="${G}" font-family="IBM Plex Mono, monospace">${t}</text>`;
+      });
+      const la = WM.letters[3];
+      [la.left, la.right].forEach(lx => { o += `<line x1="${lx}" x2="${lx}" y1="${y}" y2="${y + h}" stroke="${G}" stroke-width="${sw}" opacity="0.35"/>`; });
+    }
+    if (view === "word") M.WORDMARK.slice(0, 3).forEach(d => { o += `<path d="${d}" fill="${ink}"/>`; });
+    o += `<path d="${A_BASE}" fill="${ink}"/>`;
+    o += `<path id="acc" d="${accentD(p)}" fill="${ink}" style="cursor:move"/>`;
+    if (opt.ghost.checked) o += `<path d="${ACCENT_ORIG}" fill="none" stroke="${G}" stroke-width="${sw * 1.4}" stroke-dasharray="${sw * 3} ${sw * 2}"/>`;
+    if (opt.points.checked) {
+      const S = shape(p);
+      o += `<line x1="${S.L[0]}" y1="${S.L[1]}" x2="${S.R[0]}" y2="${S.R[1]}" stroke="${G}" stroke-width="${sw}"/>`;
+      S.corners.forEach(c => { o += `<circle cx="${c[0]}" cy="${c[1]}" r="${sw * 3}" fill="${G}"/>`; });
+      o += `<circle cx="${p.cx}" cy="${p.cy}" r="${sw * 4}" fill="none" stroke="${G}" stroke-width="${sw * 1.2}"/>`;
+    }
+    svgEl.innerHTML = o;
+  }
+
+  function drawMeasures() {
+    const b = bounds(p);
+    const wL = 2 * p.thick / (1 + p.taper), wR = p.taper * wL;
+    const items = [
+      ["Folga até a altura-x", r3(WM.xTop - b.y1), r3(WM.xTop - 20.119)],
+      ["Topo", r3(b.y0), 5.529],
+      ["Sobra à direita do a", r3(b.x1 - WM.right), r3(407.474 - WM.right)],
+      ["Espessura esq / dir", r3(wL) + " / " + r3(wR), null],
+      ["Espessura ÷ haste do m", r3(p.thick / STEM_M), r3(BASE.thick / STEM_M)]
+    ];
+    document.getElementById("measures").innerHTML = items.map(([k, v, ref]) =>
+      `<div><span>${k}</span><b>${v}${ref !== null && ref !== undefined ? ` <small style="color:var(--muted);font-weight:400">atual ${ref}</small>` : ""}</b></div>`).join("");
+  }
+
+  // ---------- tamanhos reais ----------
+  function logotypeSVG(color, height) {
+    const [x, , w] = VB.word; const vx = WM.left - 2, vw = WM.right - WM.left + 4, vy = -2, vh = WM.overshootBottom + 4;
+    const wpx = f(height * vw / vh);
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${wpx}" height="${height}" viewBox="${vx} ${vy} ${vw} ${vh}">${M.WORDMARK.slice(0, 3).map(d => `<path d="${d}" fill="${color}"/>`).join("")}<path d="${aPath()}" fill="${color}"/></svg>`;
+  }
+  function lockupSVG(color, height) {
+    const saved = M.WORDMARK[3]; M.WORDMARK[3] = aPath();
+    const r = M.svg("lockup", { color, params: M.RING_PRESETS.lockup, width: Math.round(height * M.SPEC.lockup.width / M.SPEC.lockup.height), title: false });
+    M.WORDMARK[3] = saved; return r;
+  }
+  function drawBoards() {
+    const make = (color) => [16, 24, 40].map(hh => `<figure>${logotypeSVG(color, hh)}<figcaption>${hh}px</figcaption></figure>`).join("")
+      + `<figure>${lockupSVG(color, 64)}<figcaption>lockup 64px</figcaption></figure>`
+      + `<figure>${logotypeSVG(color, 96)}<figcaption>96px</figcaption></figure>`;
+    document.getElementById("board-light").innerHTML = make("#930031");
+    document.getElementById("board-dark").innerHTML = make("#FFFBFB");
+  }
+
+  // ---------- atualização ----------
+  let raf = 0;
+  function update(doSync = true) {
+    if (doSync) sync();
+    DEFS.forEach(d => inputs[d.k].lab.classList.toggle("changed", Math.abs(p[d.k] - BASE[d.k]) > 1e-6));
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { drawStage(); drawMeasures(); drawBoards(); save(); });
+  }
+
+  // arrastar
+  let drag = null;
+  canvas.addEventListener("pointerdown", (e) => {
+    const pt = toSvg(e); drag = { x: pt.x, y: pt.y, cx: p.cx, cy: p.cy };
+    canvas.setPointerCapture(e.pointerId); canvas.classList.add("dragging");
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!drag) return; const pt = toSvg(e);
+    const fine = e.shiftKey ? 0.2 : 1;
+    p.cx = r3(drag.cx + (pt.x - drag.x) * fine); p.cy = r3(drag.cy + (pt.y - drag.y) * fine); update();
+  });
+  const end = () => { drag = null; canvas.classList.remove("dragging"); };
+  canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
+  function toSvg(e) { const m = svgEl.getScreenCTM(); const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); return pt; }
+
+  // setas do teclado no palco
+  canvas.tabIndex = 0;
+  canvas.addEventListener("keydown", (e) => {
+    const s = e.shiftKey ? 1 : 0.1; let hit = true;
+    if (e.key === "ArrowLeft") p.cx = r3(p.cx - s); else if (e.key === "ArrowRight") p.cx = r3(p.cx + s);
+    else if (e.key === "ArrowUp") p.cy = r3(p.cy - s); else if (e.key === "ArrowDown") p.cy = r3(p.cy + s); else hit = false;
+    if (hit) { e.preventDefault(); update(); }
+  });
+
+  const seg = (ids, fn) => ids.forEach(id => document.getElementById(id).addEventListener("click", () => {
+    ids.forEach(j => document.getElementById(j).setAttribute("aria-pressed", String(j === id))); fn(id); update();
+  }));
+  seg(["view-a", "view-word"], id => { view = id === "view-a" ? "a" : "word"; });
+  seg(["bg-light", "bg-dark"], id => { inverse = id === "bg-dark"; canvas.classList.toggle("inverse", inverse); });
+  Object.values(opt).forEach(el => el.addEventListener("change", () => update()));
+
+  // exportar
+  const status = document.getElementById("status");
+  const io = document.getElementById("io");
+  function json() { const o = {}; DEFS.forEach(d => o[d.k] = r3(p[d.k])); return JSON.stringify({ accent: o, path: accentD(p) }, null, 2); }
+  async function copy(text, msg) {
+    io.value = text;
+    try { await navigator.clipboard.writeText(text); status.textContent = msg; }
+    catch (e) { io.focus(); io.select(); status.textContent = "Não deu para copiar direto. O texto está selecionado na caixa: use Cmd+C."; }
+  }
+  document.getElementById("copy-json").addEventListener("click", () => copy(json(), "Ajustes copiados. Cole na conversa para eu aplicar na marca."));
+  document.getElementById("copy-path").addEventListener("click", () => copy(accentD(p), "Path do acento copiado."));
+  document.getElementById("copy-svg").addEventListener("click", () => copy(logotypeSVG("#930031", 120), "SVG do logotipo copiado."));
+  document.getElementById("reset").addEventListener("click", () => { p = { ...BASE }; update(); status.textContent = "Voltou ao acento atual da marca."; });
+  document.getElementById("load").addEventListener("click", () => {
+    try { const o = JSON.parse(io.value); p = { ...p, ...pick(o.accent || o) }; update(); status.textContent = "Ajustes carregados."; }
+    catch (e) { status.textContent = "JSON inválido. Cole o texto gerado por Copiar ajustes."; }
+  });
+
+  update();
+})();
+</script>

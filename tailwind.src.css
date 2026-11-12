@@ -1,0 +1,115 @@
+/*
+ * musá — Tailwind v4 (só tema + utilitários, sem preflight; o reset fica em estilo.css).
+ * O tema é só o da marca: cores = funções de brand/cores.css, tamanhos = brand/tipografia.css.
+ * As cores padrão do Tailwind foram removidas de propósito: só existem as da paleta.
+ * Gerar: npx @tailwindcss/cli -i tailwind.src.css -o tailwind.css   (o Solo faz isso sozinho)
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "./index.html";
+@source "./mapa.html";
+@source "./sobre.html";
+@source "./recursos.html";
+@source "./navegacao.js";
+@source "./dev/navbar-dials.js";
+
+@theme inline {
+  --color-*: initial;
+  --color-transparente: transparent;
+  --color-fundo-pagina: var(--cor-fundo-pagina);
+  --color-fundo-superficie: var(--cor-fundo-superficie);
+  --color-fundo-afundado: var(--cor-fundo-afundado);
+  --color-fundo-inverso: var(--cor-fundo-inverso);
+  --color-texto-titulo: var(--cor-texto-titulo);
+  --color-texto-corpo: var(--cor-texto-corpo);
+  --color-texto-secundario: var(--cor-texto-secundario);
+  --color-texto-terciario: var(--cor-texto-terciario);
+  --color-texto-desabilitado: var(--cor-texto-desabilitado);
+  --color-texto-inverso: var(--cor-texto-inverso);
+  --color-borda-separador: var(--cor-borda-separador);
+  --color-borda: var(--cor-borda);
+  --color-borda-forte: var(--cor-borda-forte);
+  --color-borda-foco: var(--cor-borda-foco);
+  --color-principal-sutil: var(--cor-principal-sutil);
+  --color-principal-sutil-hover: var(--cor-principal-sutil-hover);
+  --color-principal-borda: var(--cor-principal-borda);
+  --color-principal-solido: var(--cor-principal-solido);
+  --color-principal-solido-hover: var(--cor-principal-solido-hover);
+  --color-principal-texto: var(--cor-principal-texto);
+  --color-texto-sobre-principal: var(--cor-texto-sobre-principal);
+  --color-secundaria-sutil: var(--cor-secundaria-sutil);
+  --color-secundaria-borda: var(--cor-secundaria-borda);
+  --color-secundaria-solido: var(--cor-secundaria-solido);
+  --color-secundaria-solido-hover: var(--cor-secundaria-solido-hover);
+  --color-secundaria-texto: var(--cor-secundaria-texto);
+  --color-secundaria-texto-hover: var(--cor-secundaria-texto-hover);
+  --color-texto-sobre-secundaria: var(--cor-texto-sobre-secundaria);
+
+  /* primitivas das escalas (para testes no painel; componentes usam as funções acima) */
+  --color-coral-100: var(--coral-100);
+  --color-coral-200: var(--coral-200);
+  --color-coral-300: var(--coral-300);
+  --color-coral-400: var(--coral-400);
+  --color-coral-500: var(--coral-500);
+  --color-coral-600: var(--coral-600);
+  --color-coral-700: var(--coral-700);
+  --color-coral-800: var(--coral-800);
+  --color-coral-900: var(--coral-900);
+  --color-carmim-100: var(--carmim-100);
+  --color-carmim-200: var(--carmim-200);
+  --color-carmim-300: var(--carmim-300);
+  --color-carmim-400: var(--carmim-400);
+  --color-carmim-500: var(--carmim-500);
+  --color-carmim-600: var(--carmim-600);
+  --color-carmim-700: var(--carmim-700);
+  --color-carmim-800: var(--carmim-800);
+  --color-carmim-900: var(--carmim-900);
+  --color-carmim-950: var(--carmim-950);
+  --color-neutro-50: var(--neutro-50);
+  --color-neutro-100: var(--neutro-100);
+  --color-neutro-200: var(--neutro-200);
+  --color-neutro-300: var(--neutro-300);
+  --color-neutro-400: var(--neutro-400);
+  --color-neutro-500: var(--neutro-500);
+  --color-neutro-600: var(--neutro-600);
+  --color-neutro-700: var(--neutro-700);
+  --color-neutro-800: var(--neutro-800);
+  --color-neutro-900: var(--neutro-900);
+  --color-neutro-950: var(--neutro-950);
+  --color-texto-950: var(--texto-950);
+  --color-texto-900: var(--texto-900);
+  --color-texto-700: var(--texto-700);
+  --color-texto-600: var(--texto-600);
+  --color-texto-400: var(--texto-400);
+  --color-texto-50: var(--texto-50);
+
+  --text-*: initial;
+  --text-xs: var(--tamanho-xs);   --text-xs--line-height: 1.4;
+  --text-sm: var(--tamanho-sm);   --text-sm--line-height: 1.45;
+  --text-md: var(--tamanho-md);   --text-md--line-height: 1.5;
+  --text-lg: var(--tamanho-lg);   --text-lg--line-height: 1.4;
+  --text-xl: var(--tamanho-xl);   --text-xl--line-height: 1.25;
+  --text-2xl: var(--tamanho-2xl); --text-2xl--line-height: 1.2;
+  --text-3xl: var(--tamanho-3xl); --text-3xl--line-height: 1.15;
+  --text-4xl: var(--tamanho-4xl); --text-4xl--line-height: 1.1;
+
+  --font-*: initial;
+  --font-titulo: var(--fonte-titulo);
+  --font-texto: var(--fonte-texto);
+  --font-dados: var(--fonte-dados);
+
+  /* curvas fortes (Emil Kowalski): saída para entradas, entra-sai para o que se move na tela */
+  --ease-forte: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-entra-sai: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Revelar o nome da marca da esquerda para a direita */
+@utility clip-esconde { clip-path: inset(0 100% 0 0); }
+@utility clip-mostra { clip-path: inset(0 0 0 0); }
+@utility transicao-revelar {
+  transition-property: clip-path, opacity, transform, filter;
+  transition-duration: var(--tw-duration, 260ms);
+  transition-timing-function: var(--tw-ease, var(--ease-forte));
+}

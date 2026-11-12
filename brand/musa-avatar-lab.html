@@ -1,0 +1,872 @@
+<title>Musá Avatar Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky live stage on the left, control console on the right; stacks on phones. */
+:root{
+  --bg:#F6F1F1; --surface:#FFFBFB; --line:#E7D9DB; --fg:#2A1218; --muted:#7B6268;
+  --accent:#930031; --accent-fg:#FFFBFB; --accent-soft:#F4E2E6; --focus:#C2185B;
+  --font-ui:"Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --av-ink:#930031; --av-paper:#FFFBFB; --av-bg:#FFFBFB;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#150B0E; --surface:#1F1216; --line:#3A252B; --fg:#F5EAEC; --muted:#B19AA0;
+    --accent:#FF7398; --accent-fg:#22070E; --accent-soft:#3A1520; --focus:#FF9AB5; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#150B0E; --surface:#1F1216; --line:#3A252B; --fg:#F5EAEC; --muted:#B19AA0;
+  --accent:#FF7398; --accent-fg:#22070E; --accent-soft:#3A1520; --focus:#FF9AB5; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg); color:var(--fg)}
+body{font-family:var(--font-ui); font-size:14px; line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:20px 40px}
+.wrap{max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:20px}
+header{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; justify-content:space-between}
+.brand{display:flex; align-items:flex-end; gap:14px}
+.brand svg{height:30px; width:auto; display:block}
+.brand svg path{fill:var(--accent)}
+.brand h1{font-size:15px; font-weight:600; margin:0 0 3px; letter-spacing:.01em; color:var(--muted)}
+header p{margin:0; color:var(--muted); max-width:56ch; font-size:13px}
+
+main{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:24px; align-items:start}
+@media (max-width:900px){ main{grid-template-columns:minmax(0,1fr)} .left{position:static!important} }
+.left{position:sticky; top:calc(env(safe-area-inset-top,0px) + 16px); display:flex; flex-direction:column; gap:12px; min-width:0}
+
+.stage{position:relative; width:100%; aspect-ratio:1/1; max-width:100%; border-radius:18px; overflow:hidden;
+  background:var(--av-bg); border:1px solid var(--line); cursor:crosshair; touch-action:none; user-select:none}
+#av{position:absolute; left:50%; top:50%; width:62%; height:62%; transform:translate(-50%,-50%); overflow:visible; pointer-events:none}
+.stage.tile #av{width:74%; height:74%}
+.target{position:absolute; font:500 12px/1 var(--font-ui); padding:8px 11px; border-radius:999px; cursor:pointer;
+  color:var(--av-ink); background:transparent; border:1px solid color-mix(in srgb, var(--av-ink) 35%, transparent)}
+.stage.tile .target{color:var(--av-paper); border-color:color-mix(in srgb, var(--av-paper) 40%, transparent)}
+.target:hover,.target:focus-visible{background:color-mix(in srgb, var(--av-ink) 10%, transparent)}
+.stage.tile .target:hover{background:color-mix(in srgb, var(--av-paper) 14%, transparent)}
+.t-tl{left:14px; top:14px}.t-tr{right:14px; top:14px}.t-bl{left:14px; bottom:14px}.t-br{right:14px; bottom:14px}
+.stage-tools{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:6px}
+.ping{position:absolute; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:50%; pointer-events:none;
+  border:2px solid var(--av-ink); animation:ping .9s ease-out forwards}
+.stage.tile .ping{border-color:var(--av-paper)}
+@keyframes ping{from{transform:scale(.4); opacity:1} to{transform:scale(2.6); opacity:0}}
+.mini{all:unset; cursor:pointer; font:500 11px/1 var(--font-mono); padding:7px 10px; border-radius:999px;
+  color:var(--av-ink); background:color-mix(in srgb, var(--av-ink) 9%, transparent)}
+.stage.tile .mini{color:var(--av-paper); background:color-mix(in srgb, var(--av-paper) 14%, transparent)}
+.mini:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+.status{display:flex; flex-wrap:wrap; gap:8px 16px; font:12px/1.4 var(--font-mono); color:var(--muted); font-variant-numeric:tabular-nums}
+.status b{color:var(--fg); font-weight:500}
+.sizes{display:flex; flex-direction:column; gap:12px; padding:12px 14px; background:var(--surface); border:1px solid var(--line); border-radius:14px}
+.size-row{display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap}
+.size-row .lbl{width:52px; flex:none}
+.sizes figure{margin:0; display:flex; flex-direction:column; align-items:center; gap:6px}
+.sizes figcaption{font:10.5px/1 var(--font-mono); color:var(--muted)}
+.sizes svg{display:block; border-radius:50%; background:var(--av-bg)}
+.sizes svg.sq{border-radius:12px}
+.sizes .lbl{font-size:12px; font-weight:600; color:var(--muted); align-self:center}
+
+.panel{display:flex; flex-direction:column; gap:14px; min-width:0}
+section.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px 16px; display:flex; flex-direction:column; gap:10px}
+.card h2{margin:0; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; gap:10px}
+.card h2 small{font:500 11px var(--font-ui); letter-spacing:0; text-transform:none; color:var(--muted)}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{appearance:none; font:500 13px/1 var(--font-ui); color:var(--fg); background:transparent; border:1px solid var(--line);
+  padding:8px 11px; border-radius:999px; cursor:pointer; display:inline-flex; gap:7px; align-items:center}
+.chip:hover{border-color:var(--accent)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+.chip kbd{font:500 10px/1 var(--font-mono); color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:2px 4px}
+.chip[aria-pressed="true"] kbd{color:inherit; border-color:currentColor; opacity:.7}
+.chip.flash{background:var(--accent-soft)}
+.inline-ctl{display:flex; align-items:center; gap:10px; font-size:12px; color:var(--muted)}
+.inline-ctl input{flex:1}
+
+details{border-top:1px solid var(--line)}
+details:first-of-type{border-top:0}
+summary{cursor:pointer; list-style:none; padding:10px 0; font-weight:600; display:flex; justify-content:space-between; align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; font:500 14px var(--font-mono); color:var(--muted)}
+details[open] summary::after{content:"−"}
+.ctl-list{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px 18px; padding-bottom:14px}
+@media (max-width:480px){ .ctl-list{grid-template-columns:minmax(0,1fr)} }
+.ctl{display:flex; flex-direction:column; gap:4px; min-width:0}
+.ctl .top{display:flex; justify-content:space-between; gap:8px; font-size:12.5px}
+.ctl label{cursor:default; user-select:none}
+.ctl output{font:12px var(--font-mono); color:var(--muted); font-variant-numeric:tabular-nums}
+.ctl.changed label{color:var(--accent); font-weight:600}
+.ctl.inherit input{opacity:.5}
+.ctl.inherit output{font-style:italic}
+details.tuner{border-top:1px solid var(--line); margin-top:4px}
+details.tuner .hint{margin:0 0 10px}
+.hint.warn{color:var(--accent)}
+.linkbtn{appearance:none; border:0; background:none; padding:0; font:inherit; font-weight:600; color:var(--accent); text-decoration:underline; cursor:pointer}
+.ctl-row{flex-direction:row; align-items:center; justify-content:space-between}
+input[type=range]{width:100%; accent-color:var(--accent); margin:0}
+input[type=color]{width:44px; height:26px; border:1px solid var(--line); border-radius:6px; padding:0; background:none}
+select{font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:5px 8px}
+input[type=checkbox]{accent-color:var(--accent); width:16px; height:16px}
+.hint{font-size:12px; color:var(--muted); margin:0}
+.btns{display:flex; flex-wrap:wrap; gap:8px}
+.btn{appearance:none; font:600 13px/1 var(--font-ui); padding:10px 14px; border-radius:10px; cursor:pointer; border:1px solid var(--line); background:var(--bg); color:var(--fg)}
+.btn.primary{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+textarea{width:100%; min-height:110px; font:12px/1.4 var(--font-mono); color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; resize:vertical}
+.toast{font-size:12px; color:var(--accent); min-height:1em}
+@media (prefers-reduced-motion: reduce){ .ping{animation-duration:.01s} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="192 88 283 98" aria-label="musá" role="img"><path d="M194.844 183V121.008H207.882L209.112 129.495C211.08 126.379 213.663 123.96 216.861 122.238C220.141 120.434 223.872 119.532 228.054 119.532C231.17 119.532 233.958 119.942 236.418 120.762C238.96 121.582 241.174 122.812 243.06 124.452C245.028 126.092 246.627 128.142 247.857 130.602C250.153 127.158 253.146 124.452 256.836 122.484C260.526 120.516 264.544 119.532 268.89 119.532C274.056 119.532 278.443 120.598 282.051 122.73C285.659 124.78 288.406 127.855 290.292 131.955C292.178 135.973 293.121 140.934 293.121 146.838V183H278.484V148.314C278.484 143.066 277.418 139.048 275.286 136.26C273.154 133.472 269.997 132.078 265.815 132.078C262.945 132.078 260.403 132.775 258.189 134.169C256.057 135.563 254.376 137.613 253.146 140.319C251.916 142.943 251.301 146.182 251.301 150.036V183H236.664V148.314C236.664 143.066 235.598 139.048 233.466 136.26C231.334 133.472 228.136 132.078 223.872 132.078C221.166 132.078 218.706 132.775 216.492 134.169C214.36 135.563 212.679 137.613 211.449 140.319C210.219 142.943 209.604 146.182 209.604 150.036V183H194.844ZM321.716 184.476C316.714 184.476 312.409 183.492 308.801 181.524C305.275 179.474 302.569 176.44 300.683 172.422C298.797 168.322 297.854 163.279 297.854 157.293V121.008H312.614V155.817C312.614 161.147 313.721 165.206 315.935 167.994C318.231 170.7 321.675 172.053 326.267 172.053C329.219 172.053 331.843 171.356 334.139 169.962C336.517 168.568 338.362 166.559 339.674 163.935C341.068 161.229 341.765 157.949 341.765 154.095V121.008H356.525V183H343.487L342.38 172.668C340.494 176.276 337.747 179.146 334.139 181.278C330.613 183.41 326.472 184.476 321.716 184.476ZM387.671 184.476C382.177 184.476 377.38 183.615 373.28 181.893C369.262 180.089 366.064 177.629 363.686 174.513C361.39 171.315 360.037 167.666 359.627 163.566H374.387C374.797 165.288 375.535 166.887 376.601 168.363C377.667 169.757 379.102 170.864 380.906 171.684C382.792 172.504 385.006 172.914 387.548 172.914C390.008 172.914 392.017 172.586 393.575 171.93C395.133 171.192 396.281 170.249 397.019 169.101C397.757 167.953 398.126 166.723 398.126 165.411C398.126 163.443 397.593 161.926 396.527 160.86C395.461 159.794 393.903 158.974 391.853 158.4C389.885 157.744 387.507 157.129 384.719 156.555C381.767 155.981 378.897 155.284 376.109 154.464C373.403 153.562 370.943 152.455 368.729 151.143C366.597 149.831 364.875 148.15 363.563 146.1C362.333 144.05 361.718 141.549 361.718 138.597C361.718 134.989 362.661 131.75 364.547 128.88C366.515 126.01 369.303 123.755 372.911 122.115C376.601 120.393 380.988 119.532 386.072 119.532C393.288 119.532 399.028 121.213 403.292 124.575C407.638 127.855 410.18 132.488 410.918 138.474H396.896C396.486 136.178 395.338 134.415 393.452 133.185C391.566 131.873 389.065 131.217 385.949 131.217C382.751 131.217 380.291 131.832 378.569 133.062C376.929 134.21 376.109 135.768 376.109 137.736C376.109 138.966 376.601 140.114 377.585 141.18C378.651 142.164 380.168 143.025 382.136 143.763C384.104 144.419 386.523 145.075 389.393 145.731C393.985 146.633 398.044 147.699 401.57 148.929C405.096 150.159 407.884 151.963 409.934 154.341C411.984 156.719 413.009 160.081 413.009 164.427C413.091 168.363 412.066 171.848 409.934 174.882C407.884 177.916 404.973 180.294 401.201 182.016C397.429 183.656 392.919 184.476 387.671 184.476ZM437.994 184.476C432.91 184.476 428.687 183.615 425.325 181.893C421.963 180.171 419.462 177.875 417.822 175.005C416.182 172.135 415.362 169.019 415.362 165.657C415.362 161.721 416.346 158.318 418.314 155.448C420.364 152.578 423.357 150.364 427.293 148.806C431.229 147.166 436.067 146.346 441.807 146.346H457.428C457.428 143.066 456.977 140.36 456.075 138.228C455.173 136.014 453.779 134.374 451.893 133.308C450.007 132.242 447.588 131.709 444.636 131.709C441.274 131.709 438.404 132.488 436.026 134.046C433.648 135.522 432.172 137.818 431.598 140.934H417.084C417.576 136.506 419.052 132.734 421.512 129.618C423.972 126.42 427.211 123.96 431.229 122.238C435.329 120.434 439.798 119.532 444.636 119.532C450.458 119.532 455.419 120.557 459.519 122.607C463.619 124.575 466.735 127.445 468.867 131.217C471.081 134.907 472.188 139.376 472.188 144.624V183H459.642L458.166 173.037C457.346 174.677 456.28 176.194 454.968 177.588C453.738 178.982 452.303 180.212 450.663 181.278C449.023 182.262 447.137 183.041 445.005 183.615C442.955 184.189 440.618 184.476 437.994 184.476ZM441.315 172.791C443.693 172.791 445.784 172.381 447.588 171.561C449.474 170.659 451.073 169.429 452.385 167.871C453.779 166.231 454.845 164.427 455.583 162.459C456.321 160.491 456.813 158.4 457.059 156.186V155.94H443.406C440.536 155.94 438.158 156.309 436.272 157.047C434.386 157.703 433.033 158.687 432.213 159.999C431.393 161.311 430.983 162.828 430.983 164.55C430.983 166.272 431.393 167.748 432.213 168.978C433.033 170.208 434.222 171.151 435.78 171.807C437.338 172.463 439.183 172.791 441.315 172.791ZM431.229 115.719L429.876 105.756L456.198 90.381L457.92 101.82L431.229 115.719Z"/></svg>
+      <h1>Avatar lab</h1>
+    </div>
+    <p>The ring of the mark, rebuilt as an eye with two states: the full logo and a simpler avatar for small spaces. It rests looking left and follows your cursor anywhere on the page. Hover a label or click anywhere and it looks there.</p>
+  </header>
+
+  <main>
+    <div class="left">
+      <div class="stage" id="stage">
+        <svg id="av" viewBox="-38 -38 76 76"></svg>
+        <button class="target t-tl" type="button">Tickets</button>
+        <button class="target t-tr" type="button">Floor map</button>
+        <button class="target t-bl" type="button">Audio guide</button>
+        <button class="target t-br" type="button">Help desk</button>
+        <div class="stage-tools">
+          <button class="mini" id="pauseBtn" type="button">Pause</button>
+          <button class="mini" id="centerBtn" type="button">Look at me</button>
+        </div>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="sizes" id="sizes"></div>
+    </div>
+
+    <div class="panel">
+      <section class="card">
+        <h2>State <small>press M to switch</small></h2>
+        <div class="chips"><button class="chip" id="stLogo" type="button">Logo</button><button class="chip" id="stAvatar" type="button">Avatar</button></div>
+        <div class="inline-ctl"><label for="morphScrub">Morph</label><input type="range" id="morphScrub" min="0" max="1" step="0.001" value="0"></div>
+      </section>
+      <section class="card">
+        <h2>Mood <small>click again to return to neutral</small></h2>
+        <div class="chips" id="moods"></div>
+        <div class="inline-ctl"><label for="intensityQuick">Intensity</label><input type="range" id="intensityQuick" min="0" max="1.5" step="0.01"><output id="intensityOut"></output></div>
+        <p class="hint warn" id="intensityWarn" hidden>Mood intensity is 0, so moods have no visible effect. <button class="linkbtn" id="intensityFix" type="button">Set it to 1</button></p>
+        <details class="tuner"><summary>Tune <span id="moodEditName">a mood</span></summary>
+          <p class="hint" id="moodEditEmpty">Pick a mood above to tune it.</p>
+          <div id="moodEditBody"><p class="hint">Sliders showing "rest" use the resting pose until you move them. Double-click a label to undo your change.</p><div class="ctl-list" id="moodEditList"></div><div class="btns"><button class="btn" id="moodEditReset" type="button">Reset this mood</button></div></div>
+        </details>
+      </section>
+      <section class="card">
+        <h2>Activity <small>loops until changed</small></h2>
+        <div class="chips" id="acts"></div>
+        <details class="tuner"><summary>Tune <span id="actEditName">an activity</span></summary>
+          <p class="hint" id="actEditEmpty">Pick an activity other than Idle to tune it.</p>
+          <div id="actEditBody"><p class="hint">Values here replace the resting pose while the activity runs.</p><div class="ctl-list" id="actEditList"></div><div class="btns"><button class="btn" id="actEditReset" type="button">Reset this activity</button></div></div>
+        </details>
+      </section>
+      <section class="card">
+        <h2>Gestures <small>one-shots, they stack</small></h2>
+        <div class="chips" id="gestures"></div>
+        <details class="tuner"><summary>Tune <span id="gestEditName">Nod yes</span></summary>
+          <p class="hint">Applies to the last gesture you played.</p>
+          <div class="ctl-list" id="gestEditList"></div>
+          <div class="btns"><button class="btn" id="gestPreview" type="button">Play it</button><button class="btn" id="gestEditReset" type="button">Reset this gesture</button></div>
+        </details>
+      </section>
+      <section class="card">
+        <h2>Resting state <small>double-click a label to reset it</small></h2>
+        <div id="restGroups"></div>
+      </section>
+      <section class="card">
+        <h2>Export</h2>
+        <p class="hint">One JSON with everything: both geometries, morph, resting pose, motion, colours, and your mood, activity and gesture tuning. Paste it to Claude.</p>
+        <div class="btns">
+          <button class="btn primary" id="copyJson" type="button">Copy all settings</button>
+          <button class="btn" id="copySvg" type="button">Copy current frame as SVG</button>
+          <button class="btn" id="resetAll" type="button">Reset to logo</button>
+        </div>
+        <details>
+          <summary>Load settings</summary>
+          <textarea id="jsonIn" spellcheck="false" placeholder='Paste JSON from "Copy all settings"'></textarea>
+          <div class="btns" style="padding-top:8px"><button class="btn" id="applyJson" type="button">Apply</button></div>
+        </details>
+        <div class="toast" id="toast" role="status"></div>
+        <textarea id="copyFallback" hidden readonly></textarea>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const R = 30.4563, TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+const easeIO = u => { u = clamp(u, 0, 1); return u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; };
+const bump = u => (u <= 0 || u >= 1) ? 0 : Math.sin(Math.PI * u);
+const win = (u, a, b) => clamp((u - a) / (b - a), 0, 1);
+const env = (u, a = .15, b = .15) => Math.min(ease(u / a), ease((1 - u) / b));
+const kf = (u, fr) => {
+  if (u <= fr[0][0]) return fr[0].slice(1);
+  for (let i = 1; i < fr.length; i++) if (u <= fr[i][0]) {
+    const a = fr[i - 1], b = fr[i], s = ease((u - a[0]) / (b[0] - a[0]));
+    return a.slice(1).map((v, j) => v + (b[j + 1] - v) * s);
+  }
+  return fr[fr.length - 1].slice(1);
+};
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- resting state ---------- */
+const DEF = {
+  // logo geometry (from the brand SVG)
+  rings: 8, pupilR: 3.7, pupilGap: 1.42, weight: 0.624,
+  // avatar geometry: one thick ring, the open centre is the pupil
+  aRings: 1, aPupilR: 0, aPupilGap: 8, aWeight: 0.62,
+  // morph
+  morphDur: .7, stagger: .15, calmLogo: true,
+  // resting pose
+  gx: 0.6, gy: 1, pupil: 0, lidU: 0, lidL: 0, tiltU: 0, tiltL: 0, curveU: 0, curveL: 0, bend: 0, rot: 0, sx: 1, sy: 1, arc: 1, rip: 0, wob: 0,
+  mouthShape: 0, mouthCurve: 0, mouthW: 1.4, mouthT: .45, mouthY: 0, mouthRound: .6,
+  // motion
+  reach: 1, outerFollow: .5, falloff: 1.37, stiff: 271, damp: .85, intensity: 1, follow: true,
+  breathe: reduceMotion ? 0 : .8, breathRate: .22, blinkEvery: 0, saccade: reduceMotion ? 0 : .76, flowSpeed: 3.31,
+  // colour
+  preset: 'crimson', ink: '#930031', paper: '#FFFBFB', tile: false, lidLine: false
+};
+const NEUTRAL = { gx: 0, gy: 0, pupil: 0, lidU: 0, lidL: 0, tiltU: 0, tiltL: 0, curveU: 0, curveL: 0, bend: 0, rot: 0, sx: 1, sy: 1, tx: 0, ty: 0, arc: 1, rip: 0, wob: 0, pulse: 0, blink: 0, spinPh: 0, mouthShape: 0, mouthCurve: 0, mouthW: 1.4, mouthT: .45, mouthY: 0, mouthRound: .6 };
+const PRESETS = {
+  crimson: { label: 'Crimson on paper', ink: '#930031', paper: '#FFFBFB', tile: false },
+  tile: { label: 'Logo tile', ink: '#930031', paper: '#FFFBFB', tile: true },
+  reversed: { label: 'Paper on crimson', ink: '#FFFBFB', paper: '#930031', tile: false },
+  night: { label: 'Night', ink: '#FF7398', paper: '#1B0E12', tile: false },
+  custom: { label: 'Custom' }
+};
+const STORE = 'musa-avatar-rest-v3';
+let rest = { ...DEF };
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) rest = { ...DEF, ...s }; } catch (e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(rest)); } catch (e) {} };
+
+const SCHEMA = [
+  { group: 'Avatar geometry', open: true, items: [
+    ['aRings', 'Rings', 1, 8, 1], ['aWeight', 'Line weight', .2, .95, .001],
+    ['aPupilR', 'Pupil radius', 0, 14, .01], ['aPupilGap', 'Pupil gap', 0, 8, .01]
+  ]},
+  { group: 'Logo geometry', items: [
+    ['rings', 'Rings', 2, 14, 1], ['weight', 'Line weight', .2, .95, .001],
+    ['pupilR', 'Pupil radius', 0, 10, .01], ['pupilGap', 'Pupil gap', 0, 5, .01]
+  ]},
+  { group: 'Morph', items: [
+    ['morphDur', 'Duration (s)', .2, 3, .01], ['stagger', 'Ring stagger', 0, .8, .01],
+    ['calmLogo', 'Logo state stays neutral', 'bool']
+  ]},
+  { group: 'Resting pose', open: true, items: [
+    ['gx', 'Gaze x', -1, 1, .01], ['gy', 'Gaze y', -1, 1, .01],
+    ['pupil', 'Pupil dilation', -1, 1, .01], ['bend', 'Smile / frown', -1, 1, .01],
+    ['lidU', 'Upper lid', 0, 1, .01], ['lidL', 'Lower lid', 0, 1, .01],
+    ['tiltU', 'Upper lid tilt', -1, 1, .01], ['tiltL', 'Lower lid tilt', -1, 1, .01],
+    ['curveU', 'Upper lid arch', -1.5, 1.5, .01], ['curveL', 'Lower lid arch', -1.5, 1.5, .01],
+    ['sx', 'Width', .7, 1.3, .01], ['sy', 'Height', .7, 1.3, .01],
+    ['rot', 'Head tilt °', -30, 30, .1], ['arc', 'Ring arc', .05, 1, .01],
+    ['rip', 'Flow ripple', 0, 1, .01], ['wob', 'Wobble', 0, 1, .01]
+  ]},
+  { group: 'Motion & life', items: [
+    ['follow', 'Follow pointer on stage', 'bool'], ['intensity', 'Mood intensity', 0, 1.5, .01],
+    ['reach', 'Gaze reach', 0, 1, .01], ['outerFollow', 'Outer ring follows gaze', 0, 1, .01],
+    ['falloff', 'Inner ring parallax', .5, 3, .01],
+    ['stiff', 'Spring stiffness', 20, 400, 1], ['damp', 'Spring damping', .3, 1.4, .01],
+    ['breathe', 'Breathing', 0, 2, .01], ['breathRate', 'Breaths / sec', .05, 1, .01],
+    ['blinkEvery', 'Blink every (s, 0 = off)', 0, 12, .1], ['saccade', 'Idle glances', 0, 1, .01],
+    ['flowSpeed', 'Ripple speed', 0, 4, .01]
+  ]},
+  { group: 'Colour', items: [
+    ['preset', 'Look', 'select'], ['tile', 'Show logo tile', 'bool'],
+    ['ink', 'Ink', 'color'], ['paper', 'Paper', 'color'],
+    ['lidLine', 'Draw lid edge', 'bool']
+  ]}
+];
+
+/* ---------- moods, activities, gestures ---------- */
+const MOODS = {
+  neutral: { label: 'Neutral', set: {} },
+  // happy e sad: do ajuste de humor, só a pupila (vira boca)
+  happy: { label: 'Happy', set: { pupil: 0.993, mouthShape: 0.801, mouthCurve: 0.503, mouthW: 1.287, mouthT: 0.516, mouthY: 0.606, mouthRound: 0.41 } },
+  joy: { label: 'Joy', set: { lidL: .58, curveL: 1.45, bend: .4, pupil: .2 },
+    loop: t => ({ ty: -1.8 * Math.abs(Math.sin(t * 4.2)), sy: .02 * Math.sin(t * 8.4) }) },
+  love: { label: 'Love', set: { pupil: .75, lidL: .22, curveL: .7, bend: .18 },
+    loop: t => { const p = t % 1; return { pulse: .55 * (bump(win(p, 0, .12)) + .7 * bump(win(p, .2, .34))) }; } },
+  curious: { label: 'Curious', set: { lidU: .06, tiltU: -.25, rot: -9, pupil: .35, gx: .28, gy: -.18 } },
+  surprised: { label: 'Surprised', set: { sx: 1.07, sy: 1.09, pupil: -.6, lidU: 0, lidL: 0 } },
+  proud: { label: 'Proud', set: { lidU: .3, curveU: -.2, lidL: .12, curveL: .4, gy: -.3, ty: -1.5, bend: .12 } },
+  shy: { label: 'Shy', set: { gx: -.55, gy: .5, lidU: .28, lidL: .3, curveL: .6, rot: 7, sx: .97, sy: .97 } },
+  focused: { label: 'Focused', set: { lidU: .24, lidL: .18, curveU: -.25, curveL: -.25, pupil: -.38 } },
+  skeptical: { label: 'Skeptical', set: { lidU: .36, tiltU: .3, curveU: -.35, lidL: .28, curveL: -.2, gx: .6, pupil: -.15 } },
+  bored: { label: 'Bored', set: { lidU: .5, curveU: -.5, gx: .35, gy: .25, bend: -.1, pupil: .05 } },
+  sleepy: { label: 'Sleepy', set: { lidU: .6, curveU: -.3, gy: .3, pupil: .1, sy: .97 },
+    loop: t => ({ blink: .1 + .1 * Math.sin(t * .9) }) },
+  sad: { label: 'Sad', set: { pupil: 0.426, mouthShape: 0.966, mouthCurve: -0.722, mouthW: 1.128, mouthT: 0.266, mouthY: 0.862, mouthRound: 0.6 } },
+  angry: { label: 'Angry', set: { lidU: .46, tiltU: .5, curveU: -.45, lidL: .14, pupil: -.5, bend: -.18 },
+    loop: t => ({ tx: .18 * Math.sin(t * 47), ty: .12 * Math.sin(t * 39) }) },
+  scared: { label: 'Scared', set: { pupil: -.85, sx: .95, sy: 1.06, lidU: 0, gy: .08 },
+    loop: t => ({ tx: .45 * Math.sin(t * 31) * Math.sin(t * 7), ty: .3 * Math.sin(t * 27), pupil: .08 * Math.sin(t * 13) }) },
+  confused: { label: 'Confused', set: { rot: 9, tiltU: .3, lidU: .18, wob: .55, gx: -.25, gy: -.3 },
+    loop: t => ({ rot: 4 * Math.sin(t * 1.3) }) },
+  oops: { hidden: true, label: 'Oops', set: { lidU: .3, tiltU: -.3, bend: -.3, pupil: -.2 } }
+};
+
+// user tuning layered over the built-in moods / activities / gestures
+function editsOf(kind) { const k = kind === 'mood' ? 'moodEdits' : 'actEdits'; if (!rest[k] || typeof rest[k] !== 'object') rest[k] = {}; return rest[k]; }
+function baseSet(kind, name) { return ((kind === 'mood' ? MOODS : ACTS)[name] || {}).set || {}; }
+function effSet(kind, name) { return { ...baseSet(kind, name), ...(editsOf(kind)[name] || {}) }; }
+function gestTune(name) { const g = (rest.gestEdits && rest.gestEdits[name]) || {}; return { speed: g.speed ?? 1, strength: g.strength ?? 1 }; }
+
+let waves = [];
+const srch = { next: 0, g: [0, 0] }, lst = { next: 0 };
+const ACTS = {
+  idle: { label: 'Idle' },
+  thinking: { label: 'Thinking', set: { lidU: .12, wob: .22, rip: .3, rot: -4 },
+    loop: t => ({ gaze: [.5 + .1 * Math.sin(t * .7), -.55 + .08 * Math.sin(t * 1.1)] }) },
+  listening: { label: 'Listening', set: { pupil: .25, rot: 5, lidU: 0 },
+    loop: t => { if (t > lst.next) { lst.next = t + 1.15; waves.push({ t0: t, dur: 1.4, dir: -1, a: 1.3 }); } return { pulse: .06 * Math.sin(t * 2) }; } },
+  speaking: { label: 'Speaking', set: { pupil: .1 },
+    loop: t => { const s = Math.max(0, Math.sin(t * 9.3) * .6 + Math.sin(t * 14.1 + 1) * .4 + Math.sin(t * 3.1) * .35); return { pulse: .5 * s, bend: .08 * s }; } },
+  loading: { label: 'Loading', set: { arc: .66, spin: 2.6, pupil: -.15 }, loop: () => ({ gaze: [0, 0] }) },
+  reading: { label: 'Reading', set: { lidU: .22, lidL: .1, pupil: -.1 },
+    loop: t => { const per = 2.4, k = Math.floor(t / per), u = (t % per) / per;
+      const x = u < .82 ? -.75 + 1.5 * (Math.floor(u / .82 * 7) / 6) : .75 - 1.5 * ease((u - .82) / .18);
+      return { gaze: [clamp(x, -.75, .75), -.35 + (k % 4) * .22] }; } },
+  searching: { label: 'Searching', set: { pupil: -.1, lidU: 0 },
+    loop: t => { if (t > srch.next) { srch.next = t + .5 + Math.random() * .7; srch.g = [(Math.random() * 2 - 1) * .85, (Math.random() * 2 - 1) * .6]; } return { gaze: srch.g }; } },
+  sleeping: { label: 'Sleeping', set: { blink: .9, pupil: .3, ty: 2.5 },
+    loop: t => ({ sy: .03 * Math.sin(t * 1.1), pulse: .15 * Math.sin(t * 1.1) }) }
+};
+
+const nodFn = (amp = 1) => u => { const e = env(u, .1, .3), s = Math.sin(u * Math.PI * 4); return { ty: 3.2 * amp * s * e, gaze: [0, .35 * s], gw: .6 * e, sy: -.02 * s * e }; };
+const shakeFn = (amp = 1) => u => { const e = (1 - u) * ease(u / .08), s = Math.sin(u * Math.PI * 6); return { tx: 4 * amp * s * e, gaze: [-.5 * s, 0], gw: .7 * e, rot: 2 * s * e }; };
+const GESTURES = {
+  blink: { label: 'Blink', key: ' ', kbd: 'Space', dur: .24, fn: u => ({ blink: Math.pow(bump(u), .7) }) },
+  doubleBlink: { label: 'Double blink', dur: .6, fn: u => ({ blink: bump(win(u, 0, .42)) + bump(win(u, .5, .92)) }) },
+  slowBlink: { label: 'Slow blink', key: 'k', dur: 1.4, fn: u => ({ blink: Math.min(1, bump(u) * 1.5) * .96, bend: .15 * bump(u) }) },
+  nod: { label: 'Nod yes', key: 'n', dur: 1, fn: nodFn() },
+  shake: { label: 'Shake no', key: 'x', dur: .9, fn: shakeFn() },
+  lookAround: { label: 'Look around', key: 'l', dur: 2.6, fn: u => { const [x, y] = kf(u, [[0, 0, 0], [.12, -.85, 0], [.38, -.85, -.1], [.5, .85, -.5], [.75, .85, -.4], [.88, .1, .6], [1, 0, 0]]); return { gaze: [x, y], gw: env(u, .05, .1) }; } },
+  rollEyes: { label: 'Roll eyes', key: 'r', dur: 1.6, fn: u => { const a = Math.PI + Math.PI * ease(win(u, .1, .75)), e = env(u, .1, .2); return { gaze: [Math.cos(a) * .85, Math.sin(a) * .85], gw: e, lidU: .22 * e, curveU: -.3 * e }; } },
+  hop: { label: 'Hop', key: 'h', dur: .8, fn: u => { const pre = bump(win(u, 0, .2)), air = win(u, .18, .72), land = bump(win(u, .7, .95)), ab = bump(air);
+    return { sy: -.14 * pre + .08 * ab - .12 * land, sx: .1 * pre - .05 * ab + .1 * land, ty: 3 * pre - 9 * ab + 2.5 * land, gaze: [0, -.35 * ab], gw: .5 * ab }; } },
+  attention: { label: 'Attention', key: 'a', dur: .8, fn: u => { const b = bump(win(u, 0, .3)), s = 1 - ease(win(u, .2, 1)); return { sx: .14 * b, sy: .14 * b, pupil: -.7 * s, lidU: -.5 * s, lidL: -.5 * s }; } },
+  dizzy: { label: 'Dizzy', key: 'd', dur: 2.8, fn: u => { const e = env(u, .1, .25), a = u * TAU * 3.5; return { gaze: [Math.cos(a) * .6, Math.sin(a) * .6], gw: e, wob: .7 * e, rot: 8 * Math.sin(u * Math.PI * 5) * e }; } },
+  ping: { label: 'Ping', key: 'p', dur: .01, start: (t, k = 1) => { waves.push({ t0: t, dur: 1.2, dir: 1, a: 1.9 * k }, { t0: t + .25, dur: 1.2, dir: 1, a: 1.2 * k }, { t0: t + .5, dur: 1.2, dir: 1, a: .7 * k }); }, fn: () => ({}) },
+  flow: { label: 'Flow', key: 'f', dur: 1.8, fn: u => { const e = env(u, .15, .25); return { arc: -.35 * e, spinPh: ease(u) * TAU }; } },
+  success: { label: 'Success', key: 's', dur: 1.1, start: () => hold('happy', 1.9), fn: nodFn(.7) },
+  error: { label: 'Error', key: 'e', dur: 1, start: () => hold('oops', 1.7), fn: shakeFn(1) },
+  wakeUp: { label: 'Wake up', key: 'w', dur: 2, start: () => { if (activity === 'sleeping') setActivity('idle'); },
+    fn: u => ({ blink: kf(u, [[0, 1], [.3, .35], [.42, .9], [.62, 0], [1, 0]])[0] - S.blink, sy: .1 * bump(win(u, .6, 1)), pupil: kf(u, [[0, .5], [.6, .5], [1, 0]])[0] }) }
+};
+
+// Conjunto aprovado (12 nov 2026): humores neutral, happy, sad; atividades idle, thinking, reading; gestos nod, shake, look around, ping.
+// Success e error só passam do neutro para feliz ou triste. Blink e double blink ficam ocultos, só para o piscar automático.
+for (const k of Object.keys(MOODS)) if (!['neutral', 'happy', 'sad'].includes(k)) delete MOODS[k];
+for (const k of Object.keys(ACTS)) if (!['idle', 'thinking', 'reading'].includes(k)) delete ACTS[k];
+for (const k of Object.keys(GESTURES)) if (!['nod', 'shake', 'lookAround', 'ping', 'blink', 'doubleBlink'].includes(k)) delete GESTURES[k];
+GESTURES.blink.hidden = GESTURES.doubleBlink.hidden = true;
+GESTURES.success = { label: 'Success', key: 's', dur: .01, start: () => hold('happy', 1.9), fn: () => ({}) };
+GESTURES.error = { label: 'Error', key: 'e', dur: .01, start: () => hold('sad', 1.9), fn: () => ({}) };
+
+/* ---------- animation state ---------- */
+const KEYS = ['gx', 'gy', 'pupil', 'lidU', 'lidL', 'tiltU', 'tiltL', 'curveU', 'curveL', 'bend', 'rot', 'sx', 'sy', 'tx', 'ty', 'arc', 'rip', 'wob', 'pulse', 'blink', 'spin', 'mouthShape', 'mouthCurve', 'mouthW', 'mouthT', 'mouthY', 'mouthRound'];
+const ZERO = { tx: 0, ty: 0, pulse: 0, blink: 0, spin: 0 };
+let mood = 'neutral', activity = 'idle', holdMood = null, gestures = [];
+let T = 0, paused = false, spinPhase = 0, ripPhase = 0;
+let sacc = [0, 0], saccNext = 1, blinkNext = 2.5;
+let lookAt = null; const pointer = { active: false, x: 0, y: 0, last: -9 };
+const S = {}, V = {}; let F = {};
+// morph: 0 = logo, 1 = avatar
+const morph = { from: 0, to: 0, t0: 0, dur: 1 };
+const morphNow = () => { const u = morph.dur > 0 ? (T - morph.t0) / morph.dur : 1; return lerp(morph.from, morph.to, easeIO(u)); };
+function morphTo(v) { const cur = morphNow(); morph.from = cur; morph.to = v; morph.t0 = T; morph.dur = rest.morphDur * Math.max(.25, Math.abs(v - cur)); }
+
+function hold(name, secs) { holdMood = { name, until: T + secs }; }
+function targets() {
+  const t = {};
+  for (const k of KEYS) t[k] = (k in rest) ? +rest[k] : ZERO[k];
+  const ms = effSet('mood', (holdMood && T < holdMood.until) ? holdMood.name : mood);
+  const I = rest.intensity;
+  for (const k in ms) t[k] += (ms[k] - t[k]) * I;
+  const as = effSet('act', activity);
+  for (const k in as) t[k] = as[k];
+  return t;
+}
+for (const [k, v] of Object.entries(targets())) { S[k] = v; V[k] = 0; }
+F = { ...S, spinPh: 0 };
+
+const stage = $('#stage');
+let mainSvg;
+function vecTo(cx, cy) {
+  const b = mainSvg.getBoundingClientRect();
+  const dx = cx - (b.left + b.width / 2), dy = cy - (b.top + b.height / 2);
+  const d = Math.hypot(dx, dy) || 1, m = Math.tanh(d / (stage.clientWidth * .38));
+  return [dx / d * m, dy / d * m];
+}
+function addGesture(name) {
+  const g = GESTURES[name], tu = gestTune(name);
+  if (g.start) g.start(T, tu.strength);
+  gestures.push({ g, t0: T, dur: g.dur / Math.max(.05, tu.speed), str: tu.strength });
+}
+
+function step(dt) {
+  const tgt = targets();
+  const a = ACTS[activity];
+  const actLoop = a.loop ? a.loop(T) : {};
+  let g;
+  if (lookAt && T < lookAt.until) g = vecTo(lookAt.x, lookAt.y);
+  else if (actLoop.gaze) g = actLoop.gaze;
+  else if (rest.follow && pointer.active) { const p = vecTo(pointer.x, pointer.y); g = [p[0] * .88 + tgt.gx * .12, p[1] * .88 + tgt.gy * .12]; }
+  else {
+    if (T > saccNext) {
+      saccNext = T + 1.2 + Math.random() * 2.6;
+      const amt = rest.saccade * .35;
+      sacc = Math.random() < .3 ? [0, 0] : [(Math.random() * 2 - 1) * amt, (Math.random() * 2 - 1) * amt * .6];
+    }
+    g = [tgt.gx + sacc[0], tgt.gy + sacc[1]];
+  }
+  tgt.gx = g[0]; tgt.gy = g[1];
+  if (rest.blinkEvery > 0 && activity !== 'sleeping' && T > blinkNext) {
+    addGesture(Math.random() < .15 ? 'doubleBlink' : 'blink');
+    blinkNext = T + rest.blinkEvery * (.5 + Math.random());
+  }
+  const n = Math.ceil(dt / (1 / 240)), h = dt / n;
+  for (const k of KEYS) {
+    const kk = (k === 'gx' || k === 'gy') ? rest.stiff * 2.6 : rest.stiff, cc = 2 * Math.sqrt(kk) * rest.damp;
+    for (let i = 0; i < n; i++) { V[k] += ((tgt[k] - S[k]) * kk - V[k] * cc) * h; S[k] += V[k] * h; }
+  }
+  F = { ...S, spinPh: 0 };
+  const add = (d, w = 1) => { for (const k in d) if (k !== 'gaze' && k !== 'gw') F[k] = (F[k] || 0) + d[k] * w; };
+  const mName = (holdMood && T < holdMood.until) ? holdMood.name : mood;
+  if (MOODS[mName].loop) add(MOODS[mName].loop(T), Math.min(1, rest.intensity));
+  add(actLoop);
+  gestures = gestures.filter(x => T - x.t0 < x.dur);
+  for (const x of gestures) {
+    const u = (T - x.t0) / x.dur, d = x.g.fn(u, T);
+    add(d, x.str);
+    if (d.gaze) { F.gx += (d.gaze[0] * x.str - F.gx) * d.gw; F.gy += (d.gaze[1] * x.str - F.gy) * d.gw; }
+  }
+  if (rest.breathe > 0) {
+    const b = Math.sin(T * TAU * rest.breathRate) * rest.breathe;
+    F.sx += .008 * b; F.sy += .014 * b; F.pulse += .06 * b;
+  }
+  waves = waves.filter(w => T - w.t0 < w.dur);
+  spinPhase += F.spin * dt;
+  ripPhase += dt * rest.flowSpeed * 3;
+}
+
+/* ---------- geometry ---------- */
+function ringGeom(n, pr, pg, w) {
+  n = Math.max(1, Math.round(n)); pr = +pr; pg = +pg; w = +w;
+  const pitch = Math.max(.2, (R - pr - pg) / (n - 1 + w));
+  const rings = [];
+  for (let i = 0; i < n; i++) { const a = pr + pg + i * pitch; rings.push([a, a + w * pitch]); }
+  return { n, pitch, rings, w, pr };
+}
+// Strand s of K: which ring of geometry g it belongs to, and which slice of that ring.
+// Neighbouring strands in the same ring touch (with a hair of overlap) so they read as one fused band.
+function slice(g, K, s) {
+  const n = g.n, j = Math.min(n - 1, Math.floor(s * n / K));
+  const first = Math.ceil(j * K / n), last = Math.ceil((j + 1) * K / n) - 1;
+  const c = Math.max(1, last - first + 1), k = s - first;
+  const [a, b] = g.rings[j], eps = c > 1 ? .15 : 0;
+  return [a + (b - a) * k / c - (k > 0 ? eps : 0), a + (b - a) * (k + 1) / c + (k < c - 1 ? eps : 0)];
+}
+function morphGeom(c, m) {
+  const gL = ringGeom(c.rings, c.pupilR, c.pupilGap, c.weight);
+  const gA = ringGeom(c.aRings, c.aPupilR, c.aPupilGap, c.aWeight);
+  const K = Math.max(gL.n, gA.n), st = clamp(+c.stagger, 0, .9);
+  const strands = [];
+  for (let s = 0; s < K; s++) {
+    const d = K > 1 ? st * s / (K - 1) : 0;
+    const p = ease((m - d) / (1 - st));
+    const L = slice(gL, K, s), A = slice(gA, K, s);
+    strands.push([lerp(L[0], A[0], p), lerp(L[1], A[1], p)]);
+  }
+  const pm = ease(m);
+  return { strands, pupilR: lerp(gL.pr, gA.pr, pm), pitch: lerp(gL.pitch, gA.pitch, pm), thick: lerp(gL.pitch * gL.w, gA.pitch * gA.w, pm) };
+}
+function makeWarp(f, c, pitch) {
+  const gamma = Math.pow(2, -f.pupil * .85);
+  const G = c.reach * R * .5;
+  const dx = clamp(f.gx, -1.25, 1.25) * G, dy = clamp(f.gy, -1.25, 1.25) * G;
+  const lam = pitch * 2.6, ripA = f.rip * .8, pul = f.pulse, wob = f.wob, bend = f.bend, fo = c.falloff, base = clamp(+c.outerFollow, 0, 1);
+  const ph = ripPhase, tw = T * 2.2;
+  const wv = waves.map(w => { const u = clamp((T - w.t0) / w.dur, 0, 1); return { pos: .12 + .88 * (w.dir > 0 ? u : 1 - u), a: w.a * bump(u) }; }).filter(w => w.a > .001);
+  return (r, th, lin) => {
+    let q = Math.max(0, r / R);
+    let rr = lin ? r * lin : R * Math.pow(q, gamma); q = rr / R;
+    const en = Math.sin(Math.PI / 2 * clamp(q * 1.6, 0, 1));
+    if (ripA) rr += ripA * en * Math.sin(TAU * rr / lam - ph);
+    if (pul && !lin) rr += pul * rr * ((1 - q) * .35 + .07);
+    for (const w of wv) rr += w.a * en * Math.exp(-(((q - w.pos) / .13) ** 2));
+    if (wob) rr += wob * 1.1 * en * Math.sin(3 * th + tw + rr * .18);
+    let x = rr * Math.cos(th), y = rr * Math.sin(th);
+    const rho = clamp(rr / R, 0, 1), wt = base + (1 - base) * Math.pow(1 - rho * rho, fo);
+    x += dx * wt; y += dy * wt;
+    if (bend) y += bend * (R * .14 - .0115 * x * x);
+    return [x, y];
+  };
+}
+const fmt = v => (Math.round(v * 100) / 100).toString();
+function pts(W, r, a0, a1, n, out) {
+  for (let j = 0; j <= n; j++) { const [x, y] = W(r, a0 + (a1 - a0) * j / n); out.push(fmt(x) + ' ' + fmt(y)); }
+}
+function circlePath(W, r, rev, q) {
+  const n = Math.max(20, Math.ceil(r * 3.4 * q)), o = [];
+  pts(W, r, 0, rev ? -TAU : TAU, n, o); o.pop();
+  return 'M' + o.join('L') + 'Z';
+}
+function sectorPath(W, a, b, a0, a1, q) {
+  const span = a1 - a0, o = [];
+  pts(W, b, a0, a1, Math.max(6, Math.ceil(b * 3.4 * q * span / TAU)), o);
+  pts(W, a, a1, a0, Math.max(6, Math.ceil(a * 3.4 * q * span / TAU)), o);
+  return 'M' + o.join('L') + 'Z';
+}
+
+// A pupila (centro aberto) vira uma lente curva: boca que sorri ou faz bico (do ajuste de humor).
+function mouthPath(W, r0, f, q) {
+  const k = clamp(f.mouthShape, 0, 1), w = r0 * Math.max(.2, f.mouthW), t0 = r0 * Math.max(.05, f.mouthT);
+  const A = f.mouthCurve * w * .55;
+  const wE = lerp(r0, w, k), tE = lerp(r0, t0, k), AE = A * k, oyE = f.mouthY * r0 * k;
+  const b = .5 + .5 * Math.tanh(A / (.15 * w)) * Math.min(1, k * 3);
+  const gamma = Math.pow(2, -f.pupil * .85), q0 = Math.pow(r0 / R, gamma);
+  const lin = (R * q0 / r0) * (1 + (f.pulse || 0) * ((1 - q0) * .35 + .07));
+  const rho = clamp(f.mouthRound, 0, 1) * tE;
+  const n = Math.max(96, Math.ceil(r0 * 10 * q)), o = [];
+  for (let j = 0; j < n; j++) {
+    const th = -TAU * j / n, c = Math.cos(th), s = Math.sin(th), x = wE * c;
+    const g = Math.max(0, (Math.abs(c) - .7) / .3), cap = rho * (1 - Math.sqrt(Math.max(0, 1 - g * g)));
+    const y = -AE * (c * c - .5) + oyE + cap * (2 * b - 1) + 2 * tE * s * (s < 0 ? 1 - b : b) - tE * (2 * b - 1);
+    const [X, Y] = W(Math.hypot(x, y), Math.atan2(y, x), lin);
+    o.push(fmt(X) + ' ' + fmt(Y));
+  }
+  return 'M' + o.join('L') + 'Z';
+}
+
+/* ---------- avatar instances ---------- */
+let uid = 0;
+const avatars = [];
+function buildAvatar(svgEl, opts) {
+  const id = 'av' + (uid++);
+  svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svgEl.innerHTML = `<defs><clipPath id="${id}l"><path d=""/></clipPath><clipPath id="${id}c"><circle cx="0" cy="0" r="34"/></clipPath></defs>
+<rect class="bg" x="-60" y="-60" width="120" height="120"/>
+<g class="tile" visibility="hidden"><rect class="tout" x="-56.4666" y="-56.4666" width="112.933" height="112.933" fill="none" stroke-width="0.889"/><rect class="tfill" x="-49.3525" y="-49.3525" width="98.705" height="98.705"/></g>
+<g class="outer"><g class="inner"><g clip-path="url(#${id}l)"><path class="eye" fill-rule="nonzero" d=""/></g><g clip-path="url(#${id}c)"><path class="lid" fill="none" stroke-linecap="round" d=""/></g></g></g>`;
+  const q = s => svgEl.querySelector(s);
+  const av = { svg: svgEl, clip: q('clipPath path'), eye: q('.eye'), outer: q('.outer'), inner: q('.inner'), lid: q('.lid'),
+    bg: q('.bg'), tile: q('.tile'), tout: q('.tout'), tfill: q('.tfill'), quality: opts.quality || 1, fixedM: opts.m, small: !!opts.small };
+  avatars.push(av);
+  return av;
+}
+function drawAvatar(av, mNow) {
+  const c = rest, m = av.fixedM == null ? mNow : av.fixedM;
+  // in logo state the mark can stay neutral: life fades in as it becomes the avatar
+  const life = c.calmLogo ? ease(m) : 1;
+  const f = {};
+  for (const k in NEUTRAL) f[k] = lerp(NEUTRAL[k], F[k] ?? NEUTRAL[k], life);
+  const geo = morphGeom(c, m);
+  const W = makeWarp(f, c, geo.pitch), qy = av.quality;
+  const arc = clamp(f.arc, .02, 1), sp = (spinPhase + (f.spinPh || 0)) * life;
+  let d = '';
+  // anel inteiro: faixas que se tocam viram um anel só, senão as emendas aparecem como linhas dentro da boca
+  if (arc >= .999) {
+    const fused = [];
+    for (const [a, b] of geo.strands) { if (b - a < .02) continue; const g = fused[fused.length - 1]; if (g && a <= g[1] + 1e-3) g[1] = Math.max(g[1], b); else fused.push([a, b]); }
+    fused.forEach(([a, b], i) => { d += circlePath(W, b, false, qy) + (i === 0 ? mouthPath(W, a, f, qy) : circlePath(W, a, true, qy)); });
+  } else geo.strands.forEach(([a, b], i) => {
+    if (b - a < .02) return;
+    { const dir = i % 2 ? 1 : -1, a0 = sp * dir * (1 + i * .12) + i * .9 - Math.PI / 2; d += sectorPath(W, a, b, a0, a0 + arc * TAU, qy); }
+  });
+  if (geo.pupilR > .05) d += circlePath(W, geo.pupilR, false, qy);
+  av.eye.setAttribute('d', d);
+  const sx = Math.max(.1, f.sx), sy = Math.max(.1, f.sy), blink = clamp(f.blink, 0, 1);
+  av.outer.setAttribute('transform', `translate(${fmt(f.tx)} ${fmt(f.ty)}) rotate(${fmt(f.rot)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+  av.inner.setAttribute('transform', `scale(1 ${(1 - .93 * blink).toFixed(3)})`);
+  const L = 60, E = R * 1.08, lu = clamp(f.lidU, 0, 1), ll = clamp(f.lidL, 0, 1);
+  const su = Math.min(1, lu * 3), sl = Math.min(1, ll * 3);
+  const yU = x => -E * (1 - lu) - 22 * (1 - su) + su * (f.tiltU * x * .5 + f.curveU * R * .45 * ((x / R) ** 2 - 1));
+  const yL = x => E * (1 - ll) + 22 * (1 - sl) + sl * (f.tiltL * x * .5 + f.curveL * R * .45 * ((x / R) ** 2 - 1));
+  const top = [], bot = [], N = 28;
+  for (let j = 0; j <= N; j++) { const x = -L + 2 * L * j / N; top.push(fmt(x) + ' ' + fmt(yU(x))); }
+  for (let j = N; j >= 0; j--) { const x = -L + 2 * L * j / N; bot.push(fmt(x) + ' ' + fmt(Math.max(yL(x), yU(x)))); }
+  av.clip.setAttribute('d', 'M' + top.join('L') + 'L' + bot.join('L') + 'Z');
+  let dl = '';
+  if (c.lidLine) {
+    const seg = fn => { const o = []; for (let j = 0; j <= 40; j++) { const x = -R + 2 * R * j / 40; o.push(fmt(x) + ' ' + fmt(fn(x))); } return 'M' + o.join('L'); };
+    if (lu > .02) dl += seg(yU);
+    if (ll > .02) dl += seg(x => Math.max(yL(x), yU(x)));
+    av.lid.setAttribute('stroke-width', (geo.thick * .55).toFixed(2));
+  }
+  av.lid.setAttribute('d', dl);
+}
+
+/* ---------- look / colours ---------- */
+function applyLook() {
+  const tile = !!rest.tile, bg = tile ? rest.ink : rest.paper;
+  const root = document.documentElement.style;
+  root.setProperty('--av-ink', rest.ink); root.setProperty('--av-paper', rest.paper); root.setProperty('--av-bg', bg);
+  stage.classList.toggle('tile', tile);
+  for (const av of avatars) {
+    av.bg.setAttribute('fill', bg);
+    av.tile.setAttribute('visibility', tile ? 'visible' : 'hidden');
+    av.tout.setAttribute('stroke', rest.paper); av.tfill.setAttribute('fill', rest.paper);
+    av.eye.setAttribute('fill', rest.ink); av.lid.setAttribute('stroke', rest.ink);
+    av.svg.setAttribute('viewBox', av.small ? (tile ? '-57.5 -57.5 115 115' : '-35 -35 70 70') : (tile ? '-60 -60 120 120' : '-38 -38 76 76'));
+  }
+}
+function buildAvatars() {
+  mainSvg = $('#av');
+  buildAvatar(mainSvg, { quality: 1 });
+  const host = $('#sizes');
+  [['Logo', 0], ['Avatar', 1]].forEach(([name, m]) => {
+    const row = document.createElement('div'); row.className = 'size-row';
+    row.innerHTML = `<span class="lbl">${name}</span>`;
+    [96, 48, 32, 20].forEach(s => {
+      const fig = document.createElement('figure');
+      const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      sv.setAttribute('width', s); sv.setAttribute('height', s); sv.setAttribute('aria-hidden', 'true');
+      fig.appendChild(sv);
+      const cap = document.createElement('figcaption'); cap.textContent = s + 'px'; fig.appendChild(cap);
+      row.appendChild(fig);
+      buildAvatar(sv, { quality: s >= 96 ? .6 : .35, m, small: true });
+    });
+    host.appendChild(row);
+  });
+}
+
+/* ---------- panel ---------- */
+const refresh = {};
+const el = id => document.getElementById(id);
+function decimals(step) { return step >= 1 ? 0 : step >= .1 ? 1 : step >= .01 ? 2 : 3; }
+function markChanged(row, key) { row.classList.toggle('changed', JSON.stringify(rest[key]) !== JSON.stringify(DEF[key])); }
+function changed(key) {
+  if (key === 'preset') { const p = PRESETS[rest.preset]; if (p && p.ink) { rest.ink = p.ink; rest.paper = p.paper; rest.tile = p.tile; ['ink', 'paper', 'tile'].forEach(k => refresh[k] && refresh[k]()); } }
+  if (key === 'ink' || key === 'paper') { rest.preset = 'custom'; refresh.preset && refresh.preset(); }
+  if (key === 'intensity') syncIntensity();
+  // editing a geometry shows that state on stage
+  if (/^a(Rings|Weight|PupilR|PupilGap)$/.test(key)) showState(1);
+  if (/^(rings|weight|pupilR|pupilGap)$/.test(key)) showState(0);
+  applyLook(); save();
+}
+function makeCtl([key, label, a, b, step]) {
+  const row = document.createElement('div'); row.className = 'ctl';
+  const id = 'c-' + key;
+  if (a === 'bool' || a === 'color' || a === 'select') {
+    row.classList.add('ctl-row');
+    let input;
+    if (a === 'select') {
+      input = document.createElement('select');
+      for (const [k, p] of Object.entries(PRESETS)) { const o = document.createElement('option'); o.value = k; o.textContent = p.label; input.appendChild(o); }
+    } else { input = document.createElement('input'); input.type = a === 'bool' ? 'checkbox' : 'color'; }
+    input.id = id;
+    const lab = document.createElement('label'); lab.htmlFor = id; lab.textContent = label;
+    row.append(lab, input);
+    const get = () => a === 'bool' ? input.checked : input.value;
+    const set = () => { if (a === 'bool') input.checked = !!rest[key]; else input.value = rest[key]; markChanged(row, key); };
+    input.addEventListener(a === 'select' || a === 'bool' ? 'change' : 'input', () => { rest[key] = get(); markChanged(row, key); changed(key); });
+    lab.addEventListener('dblclick', e => { e.preventDefault(); rest[key] = DEF[key]; set(); changed(key); });
+    refresh[key] = set; set();
+    return row;
+  }
+  row.innerHTML = `<div class="top"><label for="${id}">${label}</label><output for="${id}"></output></div><input type="range" id="${id}" min="${a}" max="${b}" step="${step}">`;
+  const input = row.querySelector('input'), out = row.querySelector('output'), lab = row.querySelector('label');
+  const dec = decimals(step);
+  const set = () => { input.value = rest[key]; out.textContent = (+rest[key]).toFixed(dec); markChanged(row, key); };
+  input.addEventListener('input', () => { rest[key] = +input.value; out.textContent = (+input.value).toFixed(dec); markChanged(row, key); changed(key); });
+  lab.addEventListener('dblclick', e => { e.preventDefault(); rest[key] = DEF[key]; set(); changed(key); });
+  refresh[key] = set; set();
+  return row;
+}
+function buildPanel() {
+  const host = el('restGroups');
+  SCHEMA.forEach(grp => {
+    const det = document.createElement('details'); det.open = !!grp.open;
+    const sum = document.createElement('summary'); sum.textContent = grp.group;
+    const list = document.createElement('div'); list.className = 'ctl-list';
+    grp.items.forEach(it => list.appendChild(makeCtl(it)));
+    det.append(sum, list); host.appendChild(det);
+  });
+}
+const iq = el('intensityQuick');
+function syncIntensity() { iq.value = rest.intensity; el('intensityOut').textContent = (+rest.intensity).toFixed(2); el('intensityWarn').hidden = +rest.intensity > 0; }
+el('intensityFix').onclick = () => { rest.intensity = 1; refresh.intensity(); syncIntensity(); save(); };
+iq.addEventListener('input', () => { rest.intensity = +iq.value; refresh.intensity(); syncIntensity(); save(); });
+
+/* state switch */
+const stateBtns = { 0: el('stLogo'), 1: el('stAvatar') }, scrub = el('morphScrub');
+let scrubbing = false;
+function showState(v) { morphTo(v); stateBtns[0].setAttribute('aria-pressed', v === 0); stateBtns[1].setAttribute('aria-pressed', v === 1); }
+stateBtns[0].onclick = () => showState(0);
+stateBtns[1].onclick = () => showState(1);
+scrub.addEventListener('input', () => { scrubbing = true; const v = +scrub.value; morph.from = morph.to = v; morph.dur = 0; stateBtns[0].setAttribute('aria-pressed', v === 0); stateBtns[1].setAttribute('aria-pressed', v === 1); });
+scrub.addEventListener('change', () => { scrubbing = false; });
+
+/* tuners: mood, activity, last gesture */
+const tuners = {}, gestRows = {};
+let lastGesture = 'nod';
+const POSE_ITEMS = SCHEMA.find(g => g.group === 'Resting pose').items;
+const curName = kind => kind === 'mood' ? mood : activity;
+const tunable = (kind, name) => !(kind === 'mood' && name === 'neutral') && !(kind === 'act' && name === 'idle');
+function rangeRow(id, label, a, b, step) {
+  const row = document.createElement('div'); row.className = 'ctl';
+  row.innerHTML = `<div class="top"><label for="${id}">${label}</label><output for="${id}"></output></div><input type="range" id="${id}" min="${a}" max="${b}" step="${step}">`;
+  return { row, inp: row.querySelector('input'), out: row.querySelector('output'), lab: row.querySelector('label'), dec: decimals(step) };
+}
+function buildTuner(kind) {
+  const list = el(kind + 'EditList'), rows = {};
+  const items = [...POSE_ITEMS, kind === 'act' ? ['spin', 'Ring spin', -6, 6, .01] : ['ty', 'Lift', -6, 6, .01]];
+  for (const [key, label, a, b, step] of items) {
+    const r = rangeRow(`t-${kind}-${key}`, label, a, b, step);
+    r.inp.addEventListener('input', () => {
+      const name = curName(kind); if (!tunable(kind, name)) return;
+      const E = editsOf(kind); (E[name] = E[name] || {})[key] = +r.inp.value; save(); refreshTuner(kind);
+    });
+    r.lab.addEventListener('dblclick', e => {
+      e.preventDefault(); const name = curName(kind), E = editsOf(kind);
+      if (E[name]) { delete E[name][key]; if (!Object.keys(E[name]).length) delete E[name]; }
+      save(); refreshTuner(kind);
+    });
+    rows[key] = r; list.appendChild(r.row);
+  }
+  tuners[kind] = rows;
+  el(kind + 'EditReset').onclick = () => { delete editsOf(kind)[curName(kind)]; save(); refreshTuner(kind); };
+}
+function refreshTuner(kind) {
+  const rows = tuners[kind]; if (!rows) return;
+  const name = curName(kind), ok = tunable(kind, name);
+  el(kind + 'EditName').textContent = ok ? (kind === 'mood' ? MOODS : ACTS)[name].label : (kind === 'mood' ? 'a mood' : 'an activity');
+  el(kind + 'EditBody').hidden = !ok; el(kind + 'EditEmpty').hidden = ok;
+  const s = effSet(kind, name), E = editsOf(kind)[name] || {};
+  for (const [key, r] of Object.entries(rows)) {
+    const has = key in s, v = has ? s[key] : (key in rest ? +rest[key] : 0);
+    r.inp.value = v; r.out.textContent = has ? (+v).toFixed(r.dec) : 'rest';
+    r.row.classList.toggle('changed', key in E); r.row.classList.toggle('inherit', !has);
+  }
+}
+function buildGestTuner() {
+  const list = el('gestEditList');
+  for (const [key, label, a, b, step] of [['speed', 'Speed', .25, 3, .01], ['strength', 'Strength', 0, 2, .01]]) {
+    const r = rangeRow('t-g-' + key, label, a, b, step);
+    r.inp.addEventListener('input', () => { if (!rest.gestEdits || typeof rest.gestEdits !== 'object') rest.gestEdits = {}; (rest.gestEdits[lastGesture] = rest.gestEdits[lastGesture] || {})[key] = +r.inp.value; save(); refreshGestTuner(); });
+    r.lab.addEventListener('dblclick', e => { e.preventDefault(); const E = rest.gestEdits && rest.gestEdits[lastGesture]; if (E) { delete E[key]; if (!Object.keys(E).length) delete rest.gestEdits[lastGesture]; } save(); refreshGestTuner(); });
+    gestRows[key] = r; list.appendChild(r.row);
+  }
+  el('gestPreview').onclick = () => fireGesture(lastGesture, true);
+  el('gestEditReset').onclick = () => { if (rest.gestEdits) delete rest.gestEdits[lastGesture]; save(); refreshGestTuner(); };
+}
+function refreshGestTuner() {
+  el('gestEditName').textContent = GESTURES[lastGesture].label;
+  const tu = gestTune(lastGesture), E = (rest.gestEdits && rest.gestEdits[lastGesture]) || {};
+  for (const [key, r] of Object.entries(gestRows)) { r.inp.value = tu[key]; r.out.textContent = (+tu[key]).toFixed(2) + '×'; r.row.classList.toggle('changed', key in E); }
+}
+function refreshAllTuners() { refreshTuner('mood'); refreshTuner('act'); refreshGestTuner(); }
+
+function chip(label, kbd) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'chip';
+  b.textContent = label;
+  if (kbd) { const k = document.createElement('kbd'); k.textContent = kbd; b.appendChild(k); }
+  return b;
+}
+const moodBtns = {}, actBtns = {}, gestBtns = {};
+function setMood(m) { mood = m; holdMood = null; for (const [k, b] of Object.entries(moodBtns)) b.setAttribute('aria-pressed', k === m); refreshTuner('mood'); updateStatus(); }
+function setActivity(a) { activity = a; for (const [k, b] of Object.entries(actBtns)) b.setAttribute('aria-pressed', k === a); refreshTuner('act'); updateStatus(); }
+function wakeAvatar() { if (morph.to < 1 && rest.calmLogo) showState(1); }
+function buildChips() {
+  for (const [k, m] of Object.entries(MOODS)) { if (m.hidden) continue; const b = chip(m.label); b.onclick = () => { wakeAvatar(); setMood(mood === k ? 'neutral' : k); }; moodBtns[k] = b; el('moods').appendChild(b); }
+  for (const [k, a] of Object.entries(ACTS)) { const b = chip(a.label); b.onclick = () => { wakeAvatar(); setActivity(activity === k ? 'idle' : k); }; actBtns[k] = b; el('acts').appendChild(b); }
+  for (const [k, g] of Object.entries(GESTURES)) {
+    if (g.hidden) continue;
+    const b = chip(g.label, g.kbd || (g.key ? g.key.toUpperCase() : ''));
+    b.onclick = () => fireGesture(k); gestBtns[k] = b; el('gestures').appendChild(b);
+  }
+  setMood('neutral'); setActivity('idle');
+}
+function fireGesture(k, fromTuner) {
+  wakeAvatar(); addGesture(k);
+  if (!fromTuner && k !== lastGesture) { lastGesture = k; refreshGestTuner(); }
+  const b = gestBtns[k]; b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 220);
+}
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key.toLowerCase() === 'm') { e.preventDefault(); showState(morph.to >= .5 ? 0 : 1); return; }
+  const hit = Object.entries(GESTURES).find(([, g]) => !g.hidden && g.key && g.key === e.key.toLowerCase());
+  if (hit) { e.preventDefault(); fireGesture(hit[0]); }
+});
+
+/* ---------- stage interaction ---------- */
+// segue o cursor pela página inteira, não só no palco
+document.addEventListener('pointermove', e => { pointer.active = true; pointer.x = e.clientX; pointer.y = e.clientY; pointer.last = T; }, { passive: true });
+document.documentElement.addEventListener('pointerleave', () => { pointer.active = false; });
+window.addEventListener('blur', () => { pointer.active = false; });
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  lookAt = { x: e.clientX, y: e.clientY, until: T + 2.2 };
+  const r = stage.getBoundingClientRect(), p = document.createElement('div');
+  p.className = 'ping'; p.style.left = (e.clientX - r.left) + 'px'; p.style.top = (e.clientY - r.top) + 'px';
+  stage.appendChild(p); setTimeout(() => p.remove(), 950);
+});
+stage.querySelectorAll('.target').forEach(t => {
+  const look = () => { const r = t.getBoundingClientRect(); lookAt = { x: r.left + r.width / 2, y: r.top + r.height / 2, until: Infinity }; };
+  t.addEventListener('pointerenter', look); t.addEventListener('focus', look);
+  t.addEventListener('pointerleave', () => { lookAt = null; }); t.addEventListener('blur', () => { lookAt = null; });
+  t.addEventListener('click', () => { look(); lookAt.until = T + 2; });
+});
+el('pauseBtn').onclick = () => { paused = !paused; el('pauseBtn').textContent = paused ? 'Play' : 'Pause'; };
+el('centerBtn').onclick = e => { e.stopPropagation(); const b = mainSvg.getBoundingClientRect(); lookAt = { x: b.left + b.width / 2, y: b.top + b.height / 2, until: T + 2 }; addGesture('blink'); };
+
+/* ---------- export ---------- */
+const toast = msg => { el('toast').textContent = msg; clearTimeout(toast.t); toast.t = setTimeout(() => el('toast').textContent = '', 2600); };
+function copy(text, okMsg) {
+  const fb = () => { const ta = el('copyFallback'); ta.hidden = false; ta.value = text; ta.focus(); ta.select(); toast('Clipboard blocked here. Text is selected below, press Cmd/Ctrl+C.'); };
+  try { navigator.clipboard.writeText(text).then(() => { el('copyFallback').hidden = true; toast(okMsg); }, fb); } catch (e) { fb(); }
+}
+el('copyJson').onclick = () => copy(JSON.stringify(rest, null, 2), 'All settings copied as JSON, including mood, activity and gesture tuning.');
+el('copySvg').onclick = () => {
+  const clone = mainSvg.cloneNode(true); clone.removeAttribute('id'); clone.removeAttribute('style');
+  clone.setAttribute('width', '512'); clone.setAttribute('height', '512');
+  copy(new XMLSerializer().serializeToString(clone), 'Current frame copied as SVG.');
+};
+el('resetAll').onclick = () => { rest = { ...DEF }; Object.values(refresh).forEach(f => f()); syncIntensity(); applyLook(); save(); setMood('neutral'); setActivity('idle'); refreshAllTuners(); toast('Back to the defaults. Mood, activity and gesture tuning cleared.'); };
+el('applyJson').onclick = () => {
+  try { const j = JSON.parse(el('jsonIn').value); rest = { ...DEF, ...j }; Object.values(refresh).forEach(f => f()); syncIntensity(); applyLook(); save(); refreshAllTuners(); toast('Settings loaded.'); }
+  catch (e) { toast('That text is not valid JSON. Paste the output of "Copy all settings".'); }
+};
+
+/* ---------- status + loop ---------- */
+const statusEl = el('status');
+function updateStatus() {
+  const m = (holdMood && T < holdMood.until) ? holdMood.name : mood, mv = morphNow();
+  const st = mv <= .001 ? 'logo' : mv >= .999 ? 'avatar' : 'morphing ' + Math.round(mv * 100) + '%';
+  statusEl.innerHTML = `<span>state <b>${st}</b></span><span>mood <b>${MOODS[m].label.toLowerCase()}</b></span><span>activity <b>${ACTS[activity].label.toLowerCase()}</b></span><span>gaze <b>${F.gx.toFixed(2)}, ${F.gy.toFixed(2)}</b></span>`;
+}
+let last = performance.now() / 1000, statT = 0;
+function frame(ms) {
+  const now = ms / 1000, dt = Math.min(1 / 20, Math.max(0, now - last)); last = now;
+  if (!paused) { T += dt; step(dt); }
+  const mv = morphNow();
+  if (!scrubbing) scrub.value = mv;
+  for (const av of avatars) drawAvatar(av, mv);
+  if ((statT += dt) > .12) { statT = 0; updateStatus(); }
+  requestAnimationFrame(frame);
+}
+
+buildAvatars(); buildPanel(); buildTuner('mood'); buildTuner('act'); buildGestTuner(); buildChips(); refreshGestTuner(); syncIntensity(); applyLook();
+stateBtns[0].setAttribute('aria-pressed', 'true');
+setTimeout(() => showState(1), 1100); // opens on the logo, then becomes the avatar
+for (const av of avatars) drawAvatar(av, 0);
+updateStatus();
+requestAnimationFrame(frame);
+})();
+</script>
+
