@@ -62,6 +62,7 @@
   setInterval(() => {
     const agora = performance.now();
     if (!NAV.ocioso || tocando || !visivel || document.hidden || agora - ultimo < NAV.esperarS * 1000 || agora < proximo) return;
+    if (document.querySelector('.abertura[data-estado="tocando"]')) return; // não competir com a abertura
     tocando = true;
     principal.abrir();
     const w = innerWidth, h = innerHeight, d = NAV.duracaoS * 1000;

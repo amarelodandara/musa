@@ -5,6 +5,9 @@
  * Tudo fica na camada "base": as classes do Tailwind (camada "utilities") sempre ganham.
  * A barra de navegação é estilizada só com classes do Tailwind, no próprio HTML.
  */
+/* sublinhado animado das palavras grifadas na abertura (registrado para poder interpolar) */
+@property --grifo { syntax: "<number>"; inherits: true; initial-value: 1; }
+
 @layer base {
 :root {
   --col: 250px;
@@ -31,6 +34,8 @@ a:hover { color: var(--cor-secundaria-texto-hover); }
 /* Página inicial */
 .texto { max-width: 680px; margin: 0 auto; padding: 40px 16px 72px; }
 .hero { padding-top: 24px; }
+.tagline { margin: 0 0 12px; font-family: var(--fonte-titulo); font-size: var(--tamanho-sm); font-weight: var(--peso-forte); color: var(--cor-secundaria-texto); }
+.acoes-hero { display: flex; flex-wrap: wrap; gap: 12px; }
 h1 { font-size: var(--tamanho-3xl); font-weight: var(--peso-titulo); margin: 0 0 16px; letter-spacing: -0.01em; }
 .lead { font-size: var(--tamanho-lg); line-height: 1.4; margin: 0 0 24px; }
 section { margin-top: 48px; }
@@ -228,4 +233,38 @@ body.foco-nav > footer,
 body.foco-nav > .quadro,
 body.foco-nav > .painel,
 body.foco-nav .topo > :not(.nav-marca) { display: none !important; }
+
+/* Abertura da página inicial: palco animado (abertura.js) e o texto de entrada.
+   Coordenadas do palco em % do viewBox 1080 × 600; texto em cqw para escalar com o palco. */
+.abertura { position: relative; max-width: 1200px; margin: 0 auto; padding: 8px 16px 0; display: grid; }
+.palco { grid-area: 1 / 1; position: relative; aspect-ratio: 1080 / 600; container-type: inline-size; }
+.palco-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.planta-fundo { fill: var(--coral-100); stroke: var(--coral-200); stroke-width: 2; }
+.planta-traco { fill: none; stroke: var(--coral-300); stroke-width: 3; stroke-linejoin: round; }
+.planta-rotulo { font-family: var(--fonte-dados); font-size: 12px; letter-spacing: 0.08em; fill: var(--cor-secundaria-texto); }
+.caminho { fill: none; stroke: var(--cor-secundaria-solido); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.frase { position: absolute; margin: 0; font-family: var(--fonte-titulo); }
+.frase-a { right: 60.6%; top: 11%; width: 30%; text-align: right; font-size: 2.4cqw; font-weight: 500; line-height: 1.25; color: var(--cor-texto-secundario); }
+.frase-b { left: 50.5%; top: 68%; width: 46%; font-size: 3.6cqw; font-weight: var(--peso-titulo); line-height: 1.15; color: var(--cor-secundaria-texto); }
+.grifo { position: relative; white-space: nowrap; }
+.grifo::after { content: ""; position: absolute; left: 0; right: 0; bottom: -0.06em; height: 0.07em; background: currentColor; transform: scaleX(var(--grifo, 1)); transform-origin: left center; }
+.cartao { position: absolute; display: flex; align-items: center; gap: 0.8cqw; background: var(--cor-fundo-pagina); border: 1px solid var(--cor-borda-separador); box-shadow: 0 0.3cqw 1.2cqw var(--cor-fundo-afundado); font-family: var(--fonte-texto); color: var(--cor-texto-corpo); }
+.busca { left: 1.6%; top: 56.7%; width: 20.4%; height: 6.4%; padding: 0 1.1cqw; border-radius: 999px; font-size: 1.35cqw; }
+.agenda { left: 83.8%; top: 56.5%; width: 15.2%; padding: 0.9cqw 1cqw; border-radius: 0.8cqw; border-left: 0.4cqw solid var(--cor-principal-solido); font-size: 1.3cqw; }
+.agenda-corpo { display: grid; line-height: 1.25; }
+.agenda-corpo small { color: var(--cor-texto-secundario); font-size: 0.85em; }
+.icone { display: grid; place-items: center; flex: none; width: 2.1cqw; height: 2.1cqw; color: var(--cor-secundaria-solido); }
+.icone svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.busca-texto { white-space: nowrap; overflow: hidden; }
+.cursor-texto { width: 1px; height: 1.6cqw; background: var(--cor-texto-corpo); margin-left: -0.5cqw; }
+.pular { position: absolute; top: 12px; right: 16px; z-index: 2; padding: 6px 10px; border: 0; border-radius: 4px; background: transparent; color: var(--cor-texto-secundario); font: inherit; font-size: var(--tamanho-xs); cursor: pointer; transition: opacity 200ms ease, background-color 150ms ease; }
+.pular:hover { background: var(--cor-fundo-superficie); }
+.abertura .hero { grid-area: 1 / 1; align-self: center; justify-self: center; max-width: 760px; padding: 0 16px 9%; text-align: center; }
+.abertura .hero .acoes-hero { justify-content: center; }
+.abertura[data-estado="tocando"] .hero { opacity: 0; visibility: hidden; }
+.abertura[data-estado="fim"] .pular { opacity: 0; pointer-events: none; }
+@media (max-width: 760px) {
+  .abertura .hero { grid-area: auto; padding: 24px 0 0; text-align: left; justify-self: start; }
+  .abertura .hero .acoes-hero { justify-content: flex-start; }
+}
 }

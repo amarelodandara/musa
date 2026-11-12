@@ -111,7 +111,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     duracaoS: [N.duracaoS ?? 3.5, 1, 8, 0.1]
   };
 
-  createDialRoot({ position: "bottom-left", theme: "light", defaultOpen: true });
+  createDialRoot({ position: "bottom-left", theme: "light", defaultOpen: false });
   const kit = createDialKit("Barra de navegação", config, { id: "musa-navbar", persist: true });
 
   kit.subscribe((v) => {

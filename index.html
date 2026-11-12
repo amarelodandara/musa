@@ -30,12 +30,30 @@
     </nav>
   </div>
 </header>
-<main class="texto">
-  <div class="hero" data-hero>
-    <h1>Visitas escolares melhores, do primeiro contato à volta para a sala de aula</h1>
-    <p class="lead">Um mapa de consulta para quem trabalha em museu: o que tende a ajudar e o que tende a atrapalhar em cada etapa da visita, para cada equipe.</p>
-    <p><a class="botao" href="mapa.html">Abrir o mapa</a></p>
+<section class="abertura" data-hero>
+  <div class="palco" id="palco" aria-hidden="true">
+    <svg class="palco-svg" viewBox="0 0 1080 600" preserveAspectRatio="xMidYMid meet">
+      <g class="planta">
+        <rect class="planta-fundo" x="360" y="125" width="345" height="345"/>
+        <path class="planta-traco" d="M388 180H680V390H388Z M418 180V390 M433 180V240 M470 180V240 M418 240H470 M433 240L445 228H462L470 240V330L462 342H445L433 330Z M440 260H463 M440 272H463 M440 284H463 M440 296H463 M440 308H463 M520 180V250 M520 250H600 M600 180V250 M388 300H418 M560 390V340 M560 340H680 M425 390V412H475V390 M430 396H470 M430 402H470 M430 408H470"/>
+        <text class="planta-rotulo" x="692" y="147" text-anchor="end">SEU MUSEU</text>
+      </g>
+      <path class="caminho" id="caminho" d="M238 358 C268 330 250 250 200 222 C160 200 185 165 230 175 C290 188 320 150 290 128 C255 105 225 150 250 205 C280 270 330 300 345 360 C362 430 330 520 385 545 C440 568 470 500 452 440 C440 395 448 360 470 340 C510 300 600 290 630 320 C660 352 610 385 560 375 C505 362 520 300 575 300 C620 300 610 345 580 345 C560 345 556 330 566 322 C600 290 640 230 600 190 C560 150 470 160 480 120 C490 80 600 60 680 80 C760 100 800 150 780 210 C765 260 830 330 900 380"/>
+    </svg>
+    <p class="frase frase-a">Onde você acha que começa a jornada do seu visitante</p>
+    <div class="cartao busca"><span class="icone icone-busca"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span class="busca-texto" data-texto="museu de ciências em bh"></span><span class="cursor-texto"></span></div>
+    <div class="cartao agenda"><span class="icone icone-agenda"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10H20.5 M8 3V7 M16 3V7"/></svg></span><span class="agenda-corpo"><b>Voltar no museu</b><small>sáb · 10:00</small></span></div>
+    <p class="frase frase-b">Onde realmente <span class="grifo">começa</span> e <span class="grifo">termina</span> a jornada do seu visitante.</p>
   </div>
+  <button class="pular" type="button">Pular animação</button>
+  <div class="hero">
+    <p class="tagline">O design a serviço dos museus</p>
+    <h1>A ferramenta para enxergar a jornada completa dos seus visitantes</h1>
+    <p class="lead">Comece com a jornada de educadores e alunos, transfira os aprendizados para qualquer jornada.</p>
+    <p class="acoes-hero"><a class="botao" href="mapa.html">Usar</a> <a class="botao secundario" href="recursos.html">Aprender</a></p>
+  </div>
+</section>
+<main class="texto">
 
   <section>
     <h2>Por que visitas escolares</h2>
@@ -85,6 +103,7 @@
 <script src="brand/musa-geometry.js"></script>
 <script src="brand/musa-eye.js"></script>
 <script src="navegacao.js"></script>
+<script src="abertura.js"></script>
 <script src="conteudo.js"></script>
 <script src="app.js"></script>
 <script type="importmap">{"imports":{"react":"https://esm.sh/react@18.3.1","react/jsx-runtime":"https://esm.sh/react@18.3.1/jsx-runtime","react-dom":"https://esm.sh/react-dom@18.3.1?deps=react@18.3.1","react-dom/client":"https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1","agentation":"/node_modules/agentation/dist/index.mjs"}}</script>
