@@ -14,6 +14,7 @@
 @source "./recursos.html";
 @source "./navegacao.js";
 @source "./dev/navbar-dials.js";
+@source "./dev/abertura-dials.js";
 
 @theme inline {
   --color-*: initial;
