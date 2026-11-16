@@ -16,3 +16,24 @@ processes:
     auto_restart: false
     restart_when_changed: []
     env: {}
+  Conteúdo (checar planilha):
+    command: npm run conteudo:checar
+    working_dir: null
+    auto_start: false
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
+  Conteúdo (importar planilha):
+    command: npm run conteudo
+    working_dir: null
+    auto_start: false
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
+  PDFs (gerar):
+    command: npm run pdfs
+    working_dir: null
+    auto_start: false
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
