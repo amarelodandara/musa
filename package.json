@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "marca": "node public/brand/export.mjs"
+    "marca": "node public/brand/export.mjs",
+    "conteudo": "node scripts/conteudo.mjs",
+    "conteudo:checar": "node scripts/conteudo.mjs --checar"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",

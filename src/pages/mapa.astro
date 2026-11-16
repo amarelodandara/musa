@@ -1,25 +1,310 @@
 ---
+// Mapa da Visita. Dois modos sobre o mesmo DOM (ADR 0003, decisões Q25–Q26, Q34):
+//   etapa  → uma Etapa aberta por vez, as outras compactas (padrão; único modo no celular)
+//   inteiro → todas as Etapas lado a lado, Camadas alinhadas em linhas
+// O detalhe de uma Etapa abre num painel lateral (folha de baixo no celular), com Origem e Fonte de cada Prática.
 import Base from "../layouts/Base.astro";
+import MarcaNav from "../components/MarcaNav.astro";
+import { conteudo, FASES, SENTIMENTOS, AVATAR, fonte, funcao } from "../lib/conteudo";
+
+const { etapas, funcoes, pontosContato, praticas } = conteudo;
+const daEtapa = (id: string) => ({
+  pontos: pontosContato.filter((p) => p.etapa === id),
+  boas: praticas.filter((p) => p.etapa === id && p.tipo === "boa"),
+  evitar: praticas.filter((p) => p.etapa === id && p.tipo === "evitar")
+});
+const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
+const humor = (s: string | null) => (s && SENTIMENTOS[s]?.humor) || null;
+const peso = (s: string | null) => (s && s in SENTIMENTOS ? SENTIMENTOS[s].peso : null);
+const CAMADAS = [
+  { id: "sentimentos", nome: "Sentimentos" },
+  { id: "acoes", nome: "Ações da escola" },
+  { id: "pontos", nome: "Pontos de contato" },
+  { id: "boas", nome: "Boas práticas" },
+  { id: "evitar", nome: "O que evitar" }
+];
+const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.nome).length }));
 ---
-<Base titulo="Mapa da Visita" classeCorpo="pagina-mapa" cabecalho={false} rodape={false}>
-<header class="topo">
-  <a class="nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline" href="/" aria-label="musá, página inicial">
-      <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
-      <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src="/brand/assets/musa-logotype-crimson.svg" alt="" width="68" height="23"></span>
-    </a>
-  <div class="legenda">
-    <span><b class="sinal">+</b> tende a ajudar</span>
-    <span><b class="sinal">−</b> tende a atrapalhar</span>
-    <span class="selo fonte">Fonte</span>
-    <span class="selo adaptada">Adaptada</span>
-    <span class="selo hipotese">Hipótese</span>
+<Base titulo="Mapa da Visita" classeCorpo="pagina-mapa-v2" cabecalho={false} rodape={false}>
+<div class="mapa" data-modo="etapa" data-linha="sim" id="mapa">
+  <header class="mapa-topo">
+    <MarcaNav />
+    <h1 class="mapa-titulo">Mapa da Visita</h1>
+    <div class="mapa-controles">
+      <div class="seletor-modo" role="group" aria-label="Como ver o mapa">
+        <button type="button" data-escolher-modo="etapa" aria-pressed="true">Etapa por etapa</button>
+        <button type="button" data-escolher-modo="inteiro" aria-pressed="false">Mapa inteiro</button>
+      </div>
+      <label class="filtro-funcao">
+        <span class="visualmente-oculto">Filtrar por função</span>
+        <select id="filtro-funcao">
+          <option value="">Todas as funções</option>
+          {funcoes.map((f) => <option value={f.id}>{f.nome}</option>)}
+        </select>
+      </label>
+      <label class="alternar-linha"><input type="checkbox" id="mostrar-linha" checked /> Linha dos sentimentos</label>
+      <a class="botao secundario botao-pequeno" href="/baixar">Baixar o mapa</a>
+    </div>
+  </header>
+
+  <nav class="mapa-passos" aria-label="Etapas">
+    <button type="button" class="passo-seta" data-passo="-1" aria-label="Etapa anterior">←</button>
+    <p class="passo-rotulo" aria-live="polite"><span id="passo-n">1</span> de {etapas.length} · <span id="passo-nome">{rotuloFase(etapas[0].fase)} · {etapas[0].nome}</span></p>
+    <button type="button" class="passo-seta" data-passo="1" aria-label="Próxima etapa">→</button>
+  </nav>
+
+  <div class="mapa-rolagem">
+    <div class="mapa-grade" style={`--n:${etapas.length}`}>
+      <div class="fases" aria-hidden="true">
+        {grupos.map((g) => <div class="fase" style={`grid-column: span ${g.n}`}>{g.rotulo}</div>)}
+      </div>
+      <div class="rotulos" aria-hidden="true">
+        <div class="rotulo-topo"></div>
+        {CAMADAS.map((c) => <div class={`rotulo rotulo-${c.id}`}>{c.nome}</div>)}
+      </div>
+      <svg class="linha-sentimentos" aria-hidden="true"><path /></svg>
+
+      {etapas.map((e, i) => {
+        const d = daEtapa(e.id);
+        const h = humor(e.sentimento);
+        return (
+          <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
+            <header class="etapa-topo">
+              <p class="etapa-fase">{rotuloFase(e.fase)}</p>
+              <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}><span class="etapa-n">{e.ordem}</span> {e.nome}</button></h2>
+              <button type="button" class="etapa-detalhe" data-detalhe={e.id}><span class="texto-longo">Ver tudo sobre esta etapa</span><span class="texto-curto">Ver tudo</span></button>
+            </header>
+            <div class="camada camada-sentimentos" data-camada="sentimentos">
+              <span class="ponto-linha"></span>
+              {e.sentimento ? (
+                <div class="sentimento">
+                  {h && <img class="avatar" src={AVATAR[h]} alt="" width="40" height="40" />}
+                  <p class="sentimento-nome">{e.sentimento}</p>
+                  {e.pensamento && <p class="pensamento">“{e.pensamento}”</p>}
+                </div>
+              ) : <p class="vazio">Sem registro</p>}
+            </div>
+            <div class="camada camada-acoes" data-camada="acoes">
+              <h3 class="camada-titulo">Ações da escola</h3>
+              {e.acoesEscola ? <p>{e.acoesEscola}</p> : <p class="vazio">Sem registro</p>}
+            </div>
+            <div class="camada camada-pontos" data-camada="pontos">
+              <h3 class="camada-titulo">Pontos de contato</h3>
+              {d.pontos.length ? <ul class="etiquetas">{d.pontos.map((p) => <li>{p.canal}</li>)}</ul> : <p class="vazio">Sem registro</p>}
+            </div>
+            {(["boas", "evitar"] as const).map((tipo) => (
+              <div class={`camada camada-${tipo}`} data-camada={tipo}>
+                <h3 class="camada-titulo">{tipo === "boas" ? "Boas práticas" : "O que evitar"}</h3>
+                {d[tipo].length ? (
+                  <ul class="praticas">
+                    {d[tipo].map((p) => (
+                      <li class="pratica" data-funcao={p.funcao} data-tipo={p.tipo}>
+                        <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
+                        <span class="pratica-titulo">{p.titulo}</span>
+                        <span class="pratica-funcao">{funcao(p.funcao)?.nome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p class="vazio">Sem registro</p>}
+                <p class="vazio vazio-filtro" hidden>Nada para esta função</p>
+              </div>
+            ))}
+          </section>
+        );
+      })}
+    </div>
   </div>
-  <span id="contagem" class="contagem"></span>
-</header>
-<div class="quadro" id="quadro" tabindex="0" aria-label="Mapa de etapas e funções"></div>
-<aside class="painel" id="painel" hidden aria-live="polite"></aside>
+
+  {etapas.map((e) => {
+    const d = daEtapa(e.id);
+    return (
+      <template id={`detalhe-${e.id}`}>
+        <p class="det-fase">{rotuloFase(e.fase)} · Etapa {e.ordem} de {etapas.length}</p>
+        <h2 class="det-nome">{e.nome}</h2>
+        {e.descricao && <p class="det-descricao">{e.descricao}</p>}
+        {e.sentimento && (
+          <section class="det-bloco">
+            <h3>Sentimentos</h3>
+            <p class="det-sentimento">{humor(e.sentimento) && <img src={AVATAR[humor(e.sentimento)!]} alt="" width="32" height="32" />}<strong>{e.sentimento}</strong></p>
+            {e.pensamento && <blockquote>“{e.pensamento}”</blockquote>}
+            {e.origemSentimento && <p class="det-origem">{e.origemSentimento}{fonte(e.fonteSentimento) && <> · {fonte(e.fonteSentimento)}</>}</p>}
+          </section>
+        )}
+        {e.acoesEscola && <section class="det-bloco"><h3>Ações da escola</h3><p>{e.acoesEscola}</p></section>}
+        {d.pontos.length > 0 && (
+          <section class="det-bloco">
+            <h3>Pontos de contato</h3>
+            <ul class="det-lista">{d.pontos.map((p) => <li><strong>{p.canal}</strong>{p.descricao && <p>{p.descricao}</p>}</li>)}</ul>
+          </section>
+        )}
+        {(["boas", "evitar"] as const).map((tipo) => d[tipo].length > 0 && (
+          <section class="det-bloco">
+            <h3>{tipo === "boas" ? "Boas práticas" : "O que evitar"}</h3>
+            <ul class="det-lista">
+              {d[tipo].map((p) => (
+                <li class="pratica" data-funcao={p.funcao}>
+                  <strong><span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span> {p.titulo}</strong>
+                  {p.detalhe && <p>{p.detalhe}</p>}
+                  <p class="det-origem">{funcao(p.funcao)?.nome} · {p.origem}{fonte(p.fonte) && <> · {fonte(p.fonte)}</>}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </template>
+    );
+  })}
+
+  <dialog class="detalhe" id="detalhe" aria-labelledby="detalhe-titulo">
+    <div class="detalhe-barra"><button type="button" class="detalhe-fechar" data-fechar aria-label="Fechar">Fechar</button></div>
+    <div class="detalhe-corpo" id="detalhe-corpo"></div>
+  </dialog>
+</div>
+
 <Fragment slot="scripts">
-  <script is:inline src="/scripts/conteudo.js"></script>
-  <script is:inline src="/scripts/app.js"></script>
+  <script>
+    import "../scripts/mapa";
+  </script>
 </Fragment>
 </Base>
+
+<style is:global>
+  .pagina-mapa-v2 { background: var(--neutro-50); }
+  .visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .mapa { --col-compacta: 136px; --col-aberta: minmax(420px, 1fr); --col-inteira: 232px; --rotulos: 0px;
+    min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
+
+  /* topo */
+  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 8px 24px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
+  .mapa-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 600; color: var(--carmim-800); }
+  .mapa-controles { margin-left: auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: var(--tamanho-sm); }
+  .seletor-modo { display: inline-flex; border: 1px solid var(--neutro-400); border-radius: 6px; padding: 2px; background: var(--neutro-100); }
+  .seletor-modo button { font: inherit; border: 0; background: transparent; color: var(--texto-700); padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease; }
+  .seletor-modo button[aria-pressed="true"] { background: var(--neutro-50); color: var(--texto-950); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08); }
+  .filtro-funcao select { font: inherit; padding: 5px 8px; border: 1px solid var(--neutro-400); border-radius: 6px; background: var(--neutro-50); color: var(--texto-900); }
+  .alternar-linha { display: inline-flex; gap: 6px; align-items: center; color: var(--texto-700); cursor: pointer; }
+  .alternar-linha input { accent-color: var(--carmim-800); }
+
+  /* passos (modo etapa) */
+  .mapa-passos { display: flex; align-items: center; gap: 12px; padding: 12px 24px 0; }
+  .mapa[data-modo="inteiro"] .mapa-passos { display: none; }
+  .passo-seta { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--coral-400); background: var(--neutro-50); color: var(--carmim-800);
+    font-size: 18px; cursor: pointer; transition: transform 160ms var(--ease-out), background-color 150ms ease; }
+  .passo-seta:hover { background: var(--coral-100); }
+  .passo-seta:active { transform: scale(0.95); }
+  .passo-seta:disabled { opacity: 0.35; cursor: default; }
+  .passo-rotulo { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
+  .passo-rotulo #passo-nome { color: var(--texto-950); }
+
+  /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
+  .mapa-rolagem { overflow-x: auto; padding: 12px 24px 48px; }
+  .mapa-grade { position: relative; display: grid; column-gap: 0;
+    grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
+    grid-template-rows: auto auto minmax(132px, auto) auto auto auto auto; }
+  .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
+  .fase { padding: 6px 12px; font-size: var(--tamanho-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--neutro-50); background: var(--carmim-800); border-left: 1px solid var(--carmim-600); }
+  .rotulos { grid-column: 1; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; }
+  .rotulo { padding: 12px 12px 12px 0; font-size: var(--tamanho-sm); font-weight: 600; color: var(--texto-950); border-top: 1px solid var(--neutro-300); }
+  .mapa[data-modo="etapa"] .rotulos { visibility: hidden; }
+
+  .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-left: 1px solid var(--neutro-300); background: var(--neutro-50);
+    transition: background-color 200ms ease; }
+  .etapa-topo { padding: 10px 12px; border-bottom: 1px solid var(--neutro-300); }
+  .etapa-fase { margin: 0 0 2px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); }
+  .etapa-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; }
+  .etapa-abrir { all: unset; cursor: pointer; }
+  .etapa-abrir:focus-visible { outline: 2px solid var(--carmim-800); outline-offset: 2px; border-radius: 2px; }
+  .etapa-n { color: var(--texto-600); font-size: var(--tamanho-sm); }
+  .etapa-detalhe { margin-top: 8px; font: inherit; font-size: var(--tamanho-xs); color: var(--carmim-800); background: none; border: 1px solid var(--carmim-300);
+    border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: background-color 150ms ease; }
+  .etapa-detalhe:hover { background: var(--carmim-100); }
+  .etapa-detalhe .texto-curto { display: none; }
+  .mapa[data-modo="inteiro"] .etapa-detalhe .texto-longo { display: none; }
+  .mapa[data-modo="inteiro"] .etapa-detalhe .texto-curto { display: inline; }
+  .mapa[data-modo="inteiro"] .camada-titulo, .mapa[data-modo="inteiro"] .etapa-fase { display: none; }
+  .mapa[data-modo="inteiro"] .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
+
+  .camada { padding: 12px; border-top: 1px solid var(--neutro-200); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
+  .camada p { margin: 0; }
+  .camada-titulo { margin: 0 0 6px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); font-weight: 600; }
+  .vazio { color: var(--texto-400); font-style: italic; }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .etiquetas li { padding: 2px 8px; border-radius: 999px; background: var(--neutro-100); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs); }
+  .praticas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .pratica { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; }
+  .pratica[hidden] { display: none; }
+  .marcador { font-weight: 700; color: var(--coral-600); }
+  .pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
+  .pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
+
+  /* sentimentos */
+  .camada-sentimentos { position: relative; }
+  .sentimento { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; position: relative; z-index: 1; }
+  .avatar { width: 40px; height: 40px; grid-row: span 2; }
+  .sentimento-nome { font-weight: 600; color: var(--carmim-800); }
+  .pensamento { grid-column: 1 / -1; margin-top: 6px !important; font-style: italic; color: var(--texto-700); }
+  .linha-sentimentos { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 0; }
+  .linha-sentimentos path { fill: none; stroke: var(--coral-400); stroke-width: 2.5; stroke-linecap: round; opacity: 0.55; }
+  .mapa[data-linha="nao"] .linha-sentimentos { display: none; }
+
+  /* modo etapa: a aberta mostra tudo; as compactas, só o título e as Práticas */
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-titulo,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pensamento,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-acoes > p,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-pontos > *,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-funcao,
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .avatar { width: 28px; height: 28px; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--coral-100); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-xl); color: var(--carmim-800); }
+
+  /* modo mapa inteiro */
+  .mapa[data-modo="inteiro"] { --rotulos: 148px; --colunas: repeat(var(--n), var(--col-inteira)); }
+
+  /* painel de detalhe */
+  .detalhe { margin: 0 0 0 auto; height: 100dvh; max-height: none; width: min(520px, 100vw); padding: 0; border: 0; border-left: 1px solid var(--neutro-300);
+    background: var(--neutro-50); color: var(--texto-900); box-shadow: -8px 0 32px rgb(0 0 0 / 0.08); }
+  .detalhe::backdrop { background: rgb(40 10 20 / 0.25); }
+  .detalhe[open] { animation: entra-lado 260ms var(--ease-out); }
+  @keyframes entra-lado { from { transform: translateX(24px); opacity: 0; } }
+  .detalhe-barra { position: sticky; top: 0; display: flex; justify-content: flex-end; padding: 10px 16px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-200); }
+  .detalhe-fechar { font: inherit; font-size: var(--tamanho-sm); background: none; border: 1px solid var(--neutro-400); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  .detalhe-corpo { padding: 20px 24px 48px; font-size: var(--tamanho-sm); line-height: 1.5; }
+  .det-fase { margin: 0; font-size: var(--tamanho-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-600); }
+  .det-nome { margin: 4px 0 12px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-2xl); color: var(--carmim-800); font-weight: 600; }
+  .det-descricao { color: var(--texto-700); }
+  .det-bloco { margin: 24px 0 0; }
+  .det-bloco h3 { margin: 0 0 8px; font-size: var(--tamanho-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-600); }
+  .det-bloco p { margin: 4px 0 0; }
+  .det-sentimento { display: flex; gap: 8px; align-items: center; }
+  .det-bloco blockquote { margin: 8px 0 0; padding-left: 12px; border-left: 2px solid var(--coral-400); font-style: italic; color: var(--texto-700); }
+  .det-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+  .det-lista .pratica { display: block; }
+  .det-origem { font-size: var(--tamanho-xs); color: var(--texto-600); }
+
+  @media (prefers-reduced-motion: reduce) { .detalhe[open] { animation: none; } }
+
+  /* celular: só o modo etapa, uma coluna na tela */
+  @media (max-width: 760px) {
+    .mapa-topo { padding: 8px 16px; }
+    .mapa-titulo { font-size: var(--tamanho-sm); }
+    .mapa-controles { width: 100%; margin-left: 0; }
+    .seletor-modo, .alternar-linha { display: none; }
+    .mapa-passos { padding: 12px 16px 0; }
+    .mapa-rolagem { padding: 12px 16px 40px; overflow-x: hidden; }
+    .mapa-grade, .mapa[data-modo] .mapa-grade { grid-template-columns: 0 100%; }
+    .mapa .etapa:not([data-aberta]) { display: none; }
+    .fases { display: none; }
+    .linha-sentimentos { display: none; }
+    .detalhe { margin: auto 0 0; width: 100vw; height: auto; max-height: 85dvh; border-left: 0; border-top: 1px solid var(--neutro-300); border-radius: 16px 16px 0 0; }
+    .detalhe[open] { animation: entra-baixo 300ms var(--ease-out); }
+    @keyframes entra-baixo { from { transform: translateY(40px); opacity: 0; } }
+  }
+</style>
