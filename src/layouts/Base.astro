@@ -1,0 +1,55 @@
+---
+// Esqueleto comum a todas as páginas: cabeçalho, fontes, estilos da marca, rodapé e scripts compartilhados.
+import "../styles/tailwind.css";
+import "../styles/estilo.css";
+import Cabecalho from "../components/Cabecalho.astro";
+import Rodape from "../components/Rodape.astro";
+
+interface Props {
+  titulo?: string;
+  classeCorpo?: string;
+  cabecalho?: boolean; // o mapa tem cabeçalho próprio
+  rodape?: boolean;
+}
+const { titulo, classeCorpo, cabecalho = true, rodape = true } = Astro.props;
+const tituloFinal = titulo ? `${titulo} · musá` : "musá";
+const dev = import.meta.env.DEV;
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{tituloFinal}</title>
+<link rel="icon" href="/brand/assets/musa-tile-crimson.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap">
+<link rel="stylesheet" href="/brand/cores.css">
+<link rel="stylesheet" href="/brand/tipografia.css">
+<slot name="head" />
+</head>
+<body class={classeCorpo}>
+{cabecalho && <Cabecalho />}
+<slot />
+{rodape && <Rodape />}
+<script is:inline src="/brand/musa-geometry.js"></script>
+<script is:inline src="/brand/musa-eye.js"></script>
+<script is:inline src="/scripts/navegacao.js"></script>
+<slot name="scripts" />
+{dev && (
+  <>
+    <script is:inline type="importmap" set:html={JSON.stringify({ imports: {
+      "react": "https://esm.sh/react@18.3.1",
+      "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
+      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+      "agentation": "https://esm.sh/agentation@3.1.2?external=react,react-dom"
+    } })} />
+    <script is:inline type="module" src="/dev/agentation.js"></script>
+    <script is:inline type="module" src="/dev/navbar-dials.js"></script>
+  </>
+)}
+</body>
+</html>

@@ -3,21 +3,14 @@ name: musa
 icon: null
 processes:
   Site:
-    command: python3 dev/servidor.py 4321
+    command: npm run dev
     working_dir: null
     auto_start: true
     auto_restart: true
     restart_when_changed: []
     env: {}
   Marca (rebuild):
-    command: node --watch-path=brand/marca.src.html --watch-path=brand/musa-geometry.js --watch-path=brand/musa-eye.js --watch-path=brand/cores.css --watch-path=brand/cores.md --watch-path=brand/tipografia.css brand/export.mjs
-    working_dir: null
-    auto_start: true
-    auto_restart: false
-    restart_when_changed: []
-    env: {}
-  Tailwind:
-    command: node --watch-path=index.html --watch-path=mapa.html --watch-path=sobre.html --watch-path=recursos.html --watch-path=navegacao.js --watch-path=dev --watch-path=tailwind.src.css node_modules/@tailwindcss/cli/dist/index.mjs -i tailwind.src.css -o tailwind.css
+    command: node --watch-path=public/brand/marca.src.html --watch-path=public/brand/musa-geometry.js --watch-path=public/brand/musa-eye.js --watch-path=public/brand/cores.css --watch-path=public/brand/cores.md --watch-path=public/brand/tipografia.css public/brand/export.mjs
     working_dir: null
     auto_start: true
     auto_restart: false

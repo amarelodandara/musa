@@ -1,0 +1,16 @@
+---
+// Navegação principal: marca, Sobre, e as duas ações (Baixar o mapa, Usar o mapa).
+import MarcaNav from "./MarcaNav.astro";
+const atual = Astro.url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
+const link = "nav-link block px-2.5 py-2 rounded-sm text-sm font-medium font-inter text-texto-900 no-underline transition-colors duration-150 hover:bg-neutro-100 hover:text-texto-950 data-atual:text-carmim-800";
+---
+<header class="nav sticky top-0 z-10 bg-transparente border-b border-neutro-300 shadow-none">
+  <div class="nav-dentro mx-auto flex items-center h-12 max-w-none px-6 gap-6">
+    <MarcaNav />
+    <nav class="nav-links ml-auto flex items-center gap-2" aria-label="Principal">
+      <a class={link} href="/sobre" aria-current={atual === "/sobre" ? "page" : undefined} data-atual={atual === "/sobre" ? "" : undefined}>Sobre</a>
+      <a class="botao secundario botao-pequeno" href="/baixar" aria-current={atual === "/baixar" ? "page" : undefined}>Baixar o mapa</a>
+      <a class="botao botao-pequeno" href="/mapa">Usar o mapa</a>
+    </nav>
+  </div>
+</header>

@@ -29,7 +29,7 @@
     atalhos.innerHTML = FASES.map(
       (f) =>
         `<div><h3>${esc(f.nome)}</h3>${ETAPAS.filter((e) => e.fase === f.id)
-          .map((e) => `<a href="mapa.html#${e.id}">${esc(e.nome)}</a>`)
+          .map((e) => `<a href="/mapa#${e.id}">${esc(e.nome)}</a>`)
           .join("")}</div>`
     ).join("");
     document.getElementById("fontes").innerHTML = Object.entries(FONTES)

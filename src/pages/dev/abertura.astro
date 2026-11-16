@@ -1,0 +1,19 @@
+---
+// Revisão da abertura, só em desenvolvimento. No site publicado redireciona para o início.
+import Base from "../../layouts/Base.astro";
+import Abertura from "../../components/Abertura.astro";
+const dev = import.meta.env.DEV;
+if (!dev) return Astro.redirect("/");
+---
+<Base titulo="Abertura · revisão" cabecalho={false} rodape={false}>
+<style is:inline slot="head">
+  /* espaço fixo para os painéis à direita, para não cobrirem o palco */
+  @media (min-width: 900px) { body { padding-right: 320px; } }
+</style>
+<Abertura />
+<Fragment slot="scripts">
+  <script is:inline>window.MUSA_ABERTURA_SEMPRE = true;</script>
+  <script is:inline src="/scripts/abertura.js"></script>
+  <script is:inline type="module" src="/dev/abertura-dials.js"></script>
+</Fragment>
+</Base>

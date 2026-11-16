@@ -2,20 +2,15 @@
  * musá — Tailwind v4 (só tema + utilitários, sem preflight; o reset fica em estilo.css).
  * O tema é só o da marca: cores = escalas de brand/cores.css, fontes e tamanhos = brand/tipografia.css.
  * As cores e fontes padrão do Tailwind foram removidas de propósito: só existem as da marca.
- * Gerar: npx @tailwindcss/cli -i tailwind.src.css -o tailwind.css   (o Solo faz isso sozinho)
+ * Compilado pelo Astro (plugin @tailwindcss/vite); importado em src/layouts/Base.astro.
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 
-@source "./index.html";
-@source "./mapa.html";
-@source "./sobre.html";
-@source "./recursos.html";
-@source "./navegacao.js";
-@source "./dev/navbar-dials.js";
-@source "./dev/abertura-dials.js";
-@source "./dev/abertura.html";
+@source "../";
+@source "../../public/scripts";
+@source "../../public/dev";
 
 @theme inline {
   /* só as peças: escalas de cor e famílias por nome. Sem papéis (fundo, texto…) por enquanto. */

@@ -212,7 +212,7 @@ th.foco { background: var(--carmim-900) !important; color: var(--texto-50); }
 }
 .fechar:hover { background: var(--neutro-100); }
 .acoes { margin-top: 24px; }
-.acoes .botao { font-size: var(--tamanho-sm); padding: 8px 12px; }
+.acoes .botao, .botao.botao-pequeno { font-size: var(--tamanho-sm); padding: 6px 12px; }
 .navegar { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
 .navegar button { flex: 1; padding: 8px; background: var(--neutro-50); color: var(--texto-900); border: 1px solid var(--neutro-600); border-radius: 4px; font: inherit; font-size: var(--tamanho-sm); cursor: pointer; }
 .navegar button:hover:not(:disabled) { background: var(--neutro-100); }

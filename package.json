@@ -1,8 +1,19 @@
 {
+  "name": "musa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "marca": "node public/brand/export.mjs"
+  },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.5",
+    "@tailwindcss/vite": "^4.3.5",
     "agentation": "^3.1.2",
+    "astro": "^7.4.12",
     "dialkit": "^2.2.0",
+    "playwright": "^1.65.1",
     "tailwindcss": "^4.3.5"
   }
 }

@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base titulo="Mapa da Visita" classeCorpo="pagina-mapa" cabecalho={false} rodape={false}>
+<header class="topo">
+  <a class="nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline" href="/" aria-label="musá, página inicial">
+      <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
+      <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src="/brand/assets/musa-logotype-crimson.svg" alt="" width="68" height="23"></span>
+    </a>
+  <div class="legenda">
+    <span><b class="sinal">+</b> tende a ajudar</span>
+    <span><b class="sinal">−</b> tende a atrapalhar</span>
+    <span class="selo fonte">Fonte</span>
+    <span class="selo adaptada">Adaptada</span>
+    <span class="selo hipotese">Hipótese</span>
+  </div>
+  <span id="contagem" class="contagem"></span>
+</header>
+<div class="quadro" id="quadro" tabindex="0" aria-label="Mapa de etapas e funções"></div>
+<aside class="painel" id="painel" hidden aria-live="polite"></aside>
+<Fragment slot="scripts">
+  <script is:inline src="/scripts/conteudo.js"></script>
+  <script is:inline src="/scripts/app.js"></script>
+</Fragment>
+</Base>

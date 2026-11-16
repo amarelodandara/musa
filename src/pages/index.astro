@@ -1,0 +1,57 @@
+---
+import Base from "../layouts/Base.astro";
+import Abertura from "../components/Abertura.astro";
+---
+<Base classeCorpo="inicio">
+<Abertura />
+<main class="texto">
+
+  <section>
+    <h2>Por que visitas escolares</h2>
+    <p>Para muita gente, a excursão da escola é o primeiro contato com um museu. Essa experiência pode influenciar a decisão de voltar ou não.</p>
+    <p>As normas e os cursos existentes orientam bem o planejamento estratégico do museu. Este mapa os complementa com o que acontece na prática, do ponto de vista de quem visita.</p>
+  </section>
+
+  <section>
+    <h2>O que este mapa é, e o que não é</h2>
+    <ul>
+      <li><strong>É</strong> um ponto de partida. Reúne práticas gerais que tendem a ajudar ou a atrapalhar.</li>
+      <li><strong>Não é</strong> uma nota nem um ranking. Não compara museus.</li>
+      <li><strong>Não é</strong> uma garantia. Nenhuma prática funciona igual em todo lugar: adapte à sua equipe, ao seu público e ao seu acervo.</li>
+      <li><strong>Não é</strong> uma verificação legal. Parte do princípio de que o museu já funciona regularmente.</li>
+    </ul>
+  </section>
+
+  <section id="como-usar">
+    <h2>Como usar</h2>
+    <ul>
+      <li><strong>Colunas</strong> são as etapas da escola: antes, durante e depois da visita.</li>
+      <li><strong>Linhas</strong> são quem participa de cada etapa. São funções, não cargos: em um museu pequeno, a mesma pessoa pode ocupar várias.</li>
+      <li><strong>Linha de frente</strong> é o que a escola vê do museu. <strong>Bastidores</strong> é o que ela não vê, mas sente.</li>
+      <li><strong>Cada célula</strong> traz o que tende a ajudar (+) e o que tende a atrapalhar (−). Células vazias ainda estão em pesquisa.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Comece pela etapa que preocupa você</h2>
+    <div id="atalhos" class="atalhos"></div>
+  </section>
+
+  <section id="de-onde-vem">
+    <h2>De onde vem o conteúdo</h2>
+    <p>Cada item mostra de onde veio. Os marcados como hipótese ainda estão sendo validados com museus.</p>
+    <dl class="origens">
+      <dt><span class="selo fonte">Fonte</span></dt><dd>Dito de forma direta no documento citado.</dd>
+      <dt><span class="selo adaptada">Adaptada</span></dt><dd>Interpretação nossa a partir do documento citado.</dd>
+      <dt><span class="selo hipotese">Hipótese</span></dt><dd>Ainda sem base em documento, em validação com museus.</dd>
+    </dl>
+    <ul id="fontes" class="fontes"></ul>
+  </section>
+
+  <p><a class="botao" href="/mapa">Abrir o mapa</a> <button class="botao secundario" type="button" data-copiar="">Copiar link desta página</button></p>
+</main><Fragment slot="scripts">
+  <script is:inline src="/scripts/abertura.js"></script>
+  <script is:inline src="/scripts/conteudo.js"></script>
+  <script is:inline src="/scripts/app.js"></script>
+</Fragment>
+</Base>

@@ -1,0 +1,54 @@
+---
+// Abertura da página inicial: palco animado (public/scripts/abertura.js) e hero.
+// Também usada em /dev/abertura para revisão.
+---
+<section class="abertura" data-hero>
+  <div class="palco" id="palco" aria-hidden="true">
+    <svg class="palco-svg absolute inset-0 size-full overflow-visible" viewBox="0 0 1080 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <!-- Giz de cera, usado no caminho e nos grifos da frase final.
+             1. borda: um ruído desloca o contorno do traço (feTurbulence + feDisplacementMap);
+             2. grão: outro ruído vira uma máscara que fura o traço, como o papel aparecendo (feColorMatrix + feComposite).
+             Valores em unidades do viewBox. Os grifos são traços neste mesmo svg (g.grifos, montados por abertura.js).
+             Ajuste fino no painel "Giz" de dev/abertura.html. -->
+        <filter id="giz" filterUnits="userSpaceOnUse" x="-40" y="-40" width="1160" height="680" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+          <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+          <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+          <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+          <feComposite in="borda" in2="mascara" operator="in"/>
+        </filter>
+      </defs>
+      <g class="planta">
+        <!-- planta em linha fina (1 px na tela, não escala): paredes duplas, portas com folha e arco, escada, pilares, vitrines -->
+        <path class="planta-traco traco-0.5 stroke-texto-700" vector-effect="non-scaling-stroke" d="
+          M372 142H466 M506 142H700V458H476 M430 458H372V142
+          M377 147H466 M506 147H695V453H476 M430 453H377V147
+          M430 458V435 M430 435A23 23 0 0 1 453 458 M476 458V435 M476 435A23 23 0 0 0 453 458
+          M466 142V147 M506 142V147 M466 142A20 20 0 0 0 486 162
+          M520 147V215 M520 245V300 M515 147V215 M515 245V295
+          M377 300H470 M500 300H520 M377 295H470 M500 295H515
+          M640 147V200 M640 230V260H695 M645 147V200 M645 230V255H695
+          M382 380H420V448H382Z M382 388H420 M382 396H420 M382 404H420 M382 412H420 M382 420H420 M382 428H420 M382 436H420 M401 444V384 M397 389L401 384L405 389
+          M557.5 327.5h5v5h-5Z M637.5 327.5h5v5h-5Z M557.5 397.5h5v5h-5Z M637.5 397.5h5v5h-5Z
+          M440 410Q453 398 466 410
+          M392 175h44v12h-44Z M450 175h44v12h-44Z M392 240h44v12h-44Z
+          M655 290h30v80h-30Z"/>
+      </g>
+      <path class="caminho traco-4 stroke-carmim-600" id="caminho" d="M238 358 C268 330 248 308 198 280 C158 258 166 167 211 177 C271 190 368 213 312 159 C277 136 246 218 271 273 C301 338 322 276 337 336 C354 406 330 520 385 545 C440 568 470 500 452 440 C440 395 448 360 470 340 C510 300 600 290 630 320 C660 352 610 385 560 375 C505 362 502 257 557 257 C602 257 626 347 596 347 C576 347 556 330 566 322 C600 290 640 230 600 190 C560 150 475 162 485 122 C495 82 663 57 743 77 C823 97 800 150 780 210 C765 260 830 330 900 380"/>
+      <g class="grifos"></g>
+    </svg>
+    <p class="frase frase-a absolute m-0 right-153 top-21 w-67 text-lg font-inter font-light text-texto-600 text-right leading-tight tracking-normal">Onde você acha que começa a jornada do seu visitante:</p>
+    <p class="rotulo-museu absolute m-0 right-96 top-31 text-2xs font-inter-tight font-light text-texto-700 text-left leading-none tracking-widest uppercase">Seu museu</p>
+    <div class="cartao busca absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-4 top-85 w-55 h-9.5 px-3 rounded-full"><span class="icone icone-busca grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span class="busca-texto whitespace-nowrap overflow-hidden" data-texto="museu de ciências em bh"></span><span class="cursor-texto w-px h-4 -ml-1.5 bg-texto-900"></span></div>
+    <div class="cartao agenda absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-226 top-85 w-41 py-2.5 px-2.5 rounded-lg border-l-4 border-l-coral-400"><span class="icone icone-agenda grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10H20.5 M8 3V7 M16 3V7"/></svg></span><span class="agenda-corpo grid leading-tight"><b class="agenda-titulo font-semibold">Voltar no museu</b><small class="agenda-detalhe text-xs text-texto-700">sáb · 10:00</small></span></div>
+    <p class="frase frase-b absolute m-0 left-136 top-102 w-113 text-3xl font-dm-sans font-semibold text-carmim-800 text-left leading-tight tracking-wide">Onde realmente <span class="grifo">começa</span> e <span class="grifo">termina</span> a jornada do seu visitante.</p>
+  </div>
+  <button class="pular absolute top-3 right-4 z-10 px-2.5 py-1.5 border-0 rounded-sm bg-transparente font-inter text-xs text-texto-700 cursor-pointer transition-colors duration-150 hover:bg-neutro-100" type="button">Pular animação</button>
+  <div class="hero col-start-1 row-start-1 self-center justify-self-center max-w-3xl px-4 pb-16 text-center max-md:row-start-2 max-md:self-start max-md:justify-self-start max-md:px-0 max-md:pt-6 max-md:pb-0 max-md:text-left">
+    <p class="tagline">O design a serviço dos museus</p>
+    <h1>A ferramenta para enxergar a jornada completa dos seus visitantes</h1>
+    <p class="lead">Comece com a jornada de educadores e alunos, transfira os aprendizados para qualquer jornada.</p>
+    <p class="acoes-hero flex flex-wrap gap-3 justify-center max-md:justify-start"><a class="botao" href="/mapa">Usar o mapa</a> <a class="botao secundario" href="/baixar">Baixar o mapa</a></p>
+  </div>
+</section>

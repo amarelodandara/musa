@@ -1,5 +1,5 @@
 // Agentation (anotações visuais para o agente) só no servidor local. Nunca carrega no site publicado.
-// React vem do esm.sh; o Agentation vem de node_modules (npm install agentation -D).
+// React e o Agentation vêm do esm.sh (o Vite reescreveria os imports de React do node_modules).
 if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   // o react-dom do esm.sh lê process.env.NODE_ENV, que não existe no navegador
   globalThis.process ??= { env: { NODE_ENV: "development" } };
