@@ -1,8 +1,59 @@
 ---
+// Sobre (decisões Q10, Q31, Q35). Rascunho de texto: revisar com a equipe.
 import Base from "../layouts/Base.astro";
+import { conteudo } from "../lib/conteudo";
+const { fontes } = conteudo;
 ---
 <Base titulo="Sobre">
-<main class="texto">
-  <h1>Sobre o musá</h1>
+<main class="texto sobre">
+  <p class="tagline">Sobre</p>
+  <h1>O musá ajuda equipes de museus a enxergar a visita escolar inteira</h1>
+  <p class="lead">É uma ferramenta gratuita, aberta a qualquer equipe, sem cadastro.</p>
+
+  <section>
+    <h2>Por que a visita escolar</h2>
+    <p>Para muita gente, a excursão da escola é o primeiro contato com um museu, e às vezes o único. É também o tipo de visita que os museus mais recebem e melhor conhecem. Por isso o musá começa por ela.</p>
+    <p>Quando pensamos na visita do ponto de vista da escola, ela não começa na porta: começa quando o professor procura um museu e termina, quando termina, depois que a turma volta para a sala de aula. É nesse antes e nesse depois que muitas visitas se perdem.</p>
+  </section>
+
+  <section>
+    <h2>O que o mapa é, e o que não é</h2>
+    <ul>
+      <li><strong>É</strong> um ponto de partida para conversar em equipe sobre a visita escolar.</li>
+      <li><strong>Não é</strong> uma nota nem um ranking. Não compara museus.</li>
+      <li><strong>Não é</strong> uma lista de regras. Nenhuma prática funciona igual em todo lugar: adapte à sua equipe, ao seu público e ao seu acervo.</li>
+      <li><strong>Não é</strong> uma verificação legal. Parte do princípio de que o museu já funciona regularmente.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>De onde vem o conteúdo</h2>
+    <p>Cada prática mostra a sua origem quando você abre o detalhe de uma etapa:</p>
+    <dl class="origens-sobre">
+      <dt>Documento</dt><dd>Dito de forma direta em um documento oficial.</dd>
+      <dt>Adaptado de documento</dt><dd>Nossa leitura a partir de um documento oficial.</dd>
+      <dt>Pesquisa de campo</dt><dd>Vem das entrevistas com equipes de museus e com professores.</dd>
+    </dl>
+    <ul class="fontes">{fontes.map((f) => <li>{f.referencia}</li>)}</ul>
+  </section>
+
+  <section>
+    <h2>Próximos passos</h2>
+    <p>A visita escolar é a primeira. A mesma forma de olhar serve para outros tipos de visita e para outras áreas do trabalho no museu, e é para lá que o musá quer crescer.</p>
+  </section>
+
+  <section>
+    <h2>Quem faz</h2>
+    <p>Design e pesquisa: Letícia França e Nicoly Dandara.</p>
+    <p>Orientação: Simone Souza.</p>
+    <p>Agradecemos às equipes de museus e à professora que dividiram com a gente como a visita escolar acontece na prática.</p>
+  </section>
 </main>
 </Base>
+
+<style>
+  .sobre h1 { font-size: var(--tamanho-3xl); }
+  .origens-sobre { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 16px 0; }
+  .origens-sobre dt { font-weight: 600; color: var(--carmim-800); }
+  .origens-sobre dd { margin: 0; }
+</style>

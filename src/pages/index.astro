@@ -1,57 +1,107 @@
 ---
+// Página inicial (decisão Q30): abertura, tese, funcionalidades, uso em equipe, origem do conteúdo, chamada final.
 import Base from "../layouts/Base.astro";
 import Abertura from "../components/Abertura.astro";
+import { conteudo, FASES } from "../lib/conteudo";
+
+const { etapas, praticas, fontes } = conteudo;
+const porFase = FASES.map((f) => ({ ...f, etapas: etapas.filter((e) => e.fase === f.nome) }));
+const porOrigem = (o: string) => praticas.filter((p) => p.origem === o).length;
+const documentais = fontes.filter((f) => f.codigo !== "ENT");
+
+const FUNCIONALIDADES = [
+  { titulo: "Etapa por etapa", texto: "Percorra a visita na ordem em que a escola a vive, uma etapa aberta por vez, do primeiro contato ao retorno." },
+  { titulo: "O mapa inteiro", texto: "Veja as onze etapas lado a lado e compare onde o museu já cuida bem da escola e onde ela fica sozinha." },
+  { titulo: "Filtrar por função", texto: "Mediação, comunicação, gestão: cada pessoa da equipe vê só o que está ao seu alcance em cada etapa." },
+  { titulo: "Baixar para imprimir", texto: "Leve o mapa para a parede da sala de reuniões em A1, A2 ou A4, com espaço para a equipe escrever." }
+];
 ---
 <Base classeCorpo="inicio">
 <Abertura />
-<main class="texto">
 
-  <section>
-    <h2>Por que visitas escolares</h2>
-    <p>Para muita gente, a excursão da escola é o primeiro contato com um museu. Essa experiência pode influenciar a decisão de voltar ou não.</p>
-    <p>As normas e os cursos existentes orientam bem o planejamento estratégico do museu. Este mapa os complementa com o que acontece na prática, do ponto de vista de quem visita.</p>
+<main class="inicio-corpo">
+  <section class="bloco tese">
+    <h2>A visita começa antes da porta e termina depois dela</h2>
+    <p>Para muitos museus, a visita escolar acontece entre a chegada e a saída da turma. Para a escola, ela começa semanas antes, quando o professor procura um lugar para levar os alunos, e continua depois, em sala de aula.</p>
+    <p>O que acontece fora do museu decide se a turma vem, como chega e se um dia volta.</p>
+    <ol class="fases-resumo">
+      {porFase.map((f) => (
+        <li>
+          <strong>{f.rotulo}</strong>
+          <span>{f.etapas.map((e) => e.nome).join(" · ")}</span>
+        </li>
+      ))}
+    </ol>
   </section>
 
-  <section>
-    <h2>O que este mapa é, e o que não é</h2>
-    <ul>
-      <li><strong>É</strong> um ponto de partida. Reúne práticas gerais que tendem a ajudar ou a atrapalhar.</li>
-      <li><strong>Não é</strong> uma nota nem um ranking. Não compara museus.</li>
-      <li><strong>Não é</strong> uma garantia. Nenhuma prática funciona igual em todo lugar: adapte à sua equipe, ao seu público e ao seu acervo.</li>
-      <li><strong>Não é</strong> uma verificação legal. Parte do princípio de que o museu já funciona regularmente.</li>
+  <section class="bloco">
+    <h2>O que dá para fazer com o mapa</h2>
+    <ul class="cartoes">
+      {FUNCIONALIDADES.map((f) => (
+        <li class="cartao-func"><h3>{f.titulo}</h3><p>{f.texto}</p></li>
+      ))}
     </ul>
   </section>
 
-  <section id="como-usar">
-    <h2>Como usar</h2>
-    <ul>
-      <li><strong>Colunas</strong> são as etapas da escola: antes, durante e depois da visita.</li>
-      <li><strong>Linhas</strong> são quem participa de cada etapa. São funções, não cargos: em um museu pequeno, a mesma pessoa pode ocupar várias.</li>
-      <li><strong>Linha de frente</strong> é o que a escola vê do museu. <strong>Bastidores</strong> é o que ela não vê, mas sente.</li>
-      <li><strong>Cada célula</strong> traz o que tende a ajudar (+) e o que tende a atrapalhar (−). Células vazias ainda estão em pesquisa.</li>
+  <section class="bloco">
+    <h2>Um ponto de partida para conversar em equipe</h2>
+    <p>Cada museu é diferente. O mapa não é nota, ranking nem lista de regras: é uma forma de olhar a visita do ponto de vista da escola e decidir, em equipe, por onde começar.</p>
+    <ul class="lista-uso">
+      <li><strong>Leve para a reunião.</strong> Abra a etapa que mais preocupa a equipe e use as práticas como pauta.</li>
+      <li><strong>Divida por função.</strong> Cada pessoa olha o que está ao seu alcance, sem precisar ler tudo.</li>
+      <li><strong>Escreva por cima.</strong> A versão impressa tem espaço em cada etapa para o que é próprio do seu museu.</li>
     </ul>
   </section>
 
-  <section>
-    <h2>Comece pela etapa que preocupa você</h2>
-    <div id="atalhos" class="atalhos"></div>
-  </section>
-
-  <section id="de-onde-vem">
+  <section class="bloco">
     <h2>De onde vem o conteúdo</h2>
-    <p>Cada item mostra de onde veio. Os marcados como hipótese ainda estão sendo validados com museus.</p>
-    <dl class="origens">
-      <dt><span class="selo fonte">Fonte</span></dt><dd>Dito de forma direta no documento citado.</dd>
-      <dt><span class="selo adaptada">Adaptada</span></dt><dd>Interpretação nossa a partir do documento citado.</dd>
-      <dt><span class="selo hipotese">Hipótese</span></dt><dd>Ainda sem base em documento, em validação com museus.</dd>
+    <p>Cada prática do mapa mostra de onde veio. Elas partem dos documentos do Instituto Brasileiro de Museus e de entrevistas com equipes de museus e professores.</p>
+    <dl class="numeros">
+      <div><dt>{porOrigem("Documento") + porOrigem("Adaptado de documento")}</dt><dd>práticas a partir de documentos oficiais</dd></div>
+      <div><dt>{porOrigem("Pesquisa de campo")}</dt><dd>práticas a partir da pesquisa de campo</dd></div>
+      <div><dt>{etapas.length}</dt><dd>etapas, do primeiro contato ao retorno</dd></div>
     </dl>
-    <ul id="fontes" class="fontes"></ul>
+    <ul class="fontes-lista">{documentais.map((f) => <li>{f.referencia}</li>)}</ul>
   </section>
 
-  <p><a class="botao" href="/mapa">Abrir o mapa</a> <button class="botao secundario" type="button" data-copiar="">Copiar link desta página</button></p>
-</main><Fragment slot="scripts">
+  <section class="bloco chamada-final">
+    <h2>Comece pela etapa que preocupa você</h2>
+    <p class="acoes-hero"><a class="botao" href="/mapa">Usar o mapa</a> <a class="botao secundario" href="/baixar">Baixar o mapa</a></p>
+  </section>
+</main>
+
+<Fragment slot="scripts">
   <script is:inline src="/scripts/abertura.js"></script>
-  <script is:inline src="/scripts/conteudo.js"></script>
-  <script is:inline src="/scripts/app.js"></script>
 </Fragment>
 </Base>
+
+<style>
+  .inicio-corpo { max-width: 1080px; margin: 0 auto; padding: 24px 16px 96px; }
+  .bloco { margin: 0; padding: 72px 0; border-top: 1px solid var(--neutro-300); }
+  .bloco > h2 { font-size: var(--tamanho-2xl); max-width: 22ch; margin-bottom: 16px; }
+  .bloco > p { max-width: 62ch; margin: 0 0 12px; }
+  .tese > h2 { font-size: var(--tamanho-3xl); color: var(--carmim-800); }
+  .fases-resumo { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .fases-resumo li { padding: 16px; border-top: 3px solid var(--carmim-800); background: var(--neutro-100); font-size: var(--tamanho-sm); }
+  .fases-resumo strong { display: block; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); color: var(--carmim-800); margin-bottom: 6px; }
+  .fases-resumo span { color: var(--texto-700); }
+  .cartoes { list-style: none; padding: 0; margin: 24px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .cartao-func { padding: 20px; border: 1px solid var(--neutro-300); border-radius: 8px; background: var(--neutro-50); }
+  .cartao-func h3 { margin: 0 0 8px; font-size: var(--tamanho-lg); color: var(--carmim-800); }
+  .cartao-func p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
+  .lista-uso { max-width: 62ch; padding-left: 20px; }
+  .lista-uso li { margin-bottom: 10px; }
+  .numeros { display: flex; flex-wrap: wrap; gap: 32px; margin: 24px 0; }
+  .numeros div { min-width: 160px; }
+  .numeros dt { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-4xl); font-weight: 700; color: var(--carmim-800); line-height: 1; }
+  .numeros dd { margin: 6px 0 0; font-size: var(--tamanho-sm); color: var(--texto-700); max-width: 20ch; }
+  .fontes-lista { font-size: var(--tamanho-xs); color: var(--texto-600); padding-left: 18px; max-width: 70ch; }
+  .chamada-final { text-align: center; }
+  .chamada-final > h2 { margin: 0 auto 24px; }
+  .chamada-final .acoes-hero { justify-content: center; margin: 0 auto; }
+  @media (max-width: 720px) {
+    .fases-resumo { grid-template-columns: 1fr; }
+    .bloco { padding: 48px 0; }
+    .tese > h2 { font-size: var(--tamanho-2xl); }
+  }
+</style>
