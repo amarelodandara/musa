@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "marca": "node public/brand/export.mjs",
     "conteudo": "node scripts/conteudo.mjs",
-    "conteudo:checar": "node scripts/conteudo.mjs --checar"
+    "conteudo:checar": "node scripts/conteudo.mjs --checar",
+    "pdfs": "node scripts/pdfs.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",

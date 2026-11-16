@@ -1,9 +1,36 @@
 ---
+// Baixar o mapa (Q31): os PDFs gerados por npm run pdfs (ADR 0004).
 import Base from "../layouts/Base.astro";
+const ARQUIVOS = [
+  { formato: "A1", arquivo: "a1", medida: "84,1 × 59,4 cm", texto: "O mapa completo numa folha só, com o detalhe de cada prática. Para a parede da sala de reuniões." },
+  { formato: "A2", arquivo: "a2", medida: "59,4 × 42 cm", texto: "O mapa inteiro com os títulos das práticas. Cabe em qualquer gráfica rápida." },
+  { formato: "A4", arquivo: "a4", medida: "3 páginas, uma por fase", texto: "Antes, durante e depois da visita em folhas separadas, para imprimir no escritório." }
+];
 ---
 <Base titulo="Baixar o mapa">
-<main class="texto">
-  <h1>Baixar o mapa</h1>
-  <p>O Mapa da Visita em versões para imprimir: A1, A2 e A4.</p>
+<main class="texto baixar">
+  <p class="tagline">Baixar o mapa</p>
+  <h1>O Mapa da Visita para imprimir</h1>
+  <p class="lead">Cada etapa termina com linhas em branco para a equipe escrever o que é próprio do seu museu.</p>
+  <ul class="arquivos">
+    {ARQUIVOS.map((a) => (
+      <li>
+        <div><h2>{a.formato} <span>{a.medida}</span></h2><p>{a.texto}</p></div>
+        <a class="botao" href={`/arquivos/musa-mapa-da-visita-${a.arquivo}.pdf`} download>Baixar {a.formato} (PDF)</a>
+      </li>
+    ))}
+  </ul>
+  <p class="dica">Dica: imprima em papel fosco e deixe canetas por perto na reunião.</p>
 </main>
 </Base>
+
+<style>
+  .arquivos { list-style: none; padding: 0; margin: 32px 0; display: grid; gap: 16px; }
+  .arquivos li { display: flex; gap: 24px; align-items: center; justify-content: space-between; padding: 20px; border: 1px solid var(--neutro-300); border-radius: 8px; margin: 0; }
+  .arquivos h2 { margin: 0 0 4px; font-size: var(--tamanho-xl); color: var(--carmim-800); }
+  .arquivos h2 span { font-family: var(--fonte-inter); font-size: var(--tamanho-sm); font-weight: 400; color: var(--texto-600); }
+  .arquivos p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
+  .arquivos .botao { white-space: nowrap; }
+  .dica { font-size: var(--tamanho-sm); color: var(--texto-600); }
+  @media (max-width: 600px) { .arquivos li { flex-direction: column; align-items: flex-start; } }
+</style>

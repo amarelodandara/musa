@@ -1,0 +1,167 @@
+---
+// Modelo de impressão do Mapa da Visita (ADR 0004, decisões Q27–Q29). Página interna: o script
+// scripts/pdfs.mjs abre cada formato num navegador automatizado e salva o PDF em public/arquivos/.
+//   a1 → uma folha A1 paisagem, completo (títulos e detalhes)
+//   a2 → uma folha A2 paisagem, só os títulos das práticas
+//   a4 → uma página A4 paisagem por fase, só os títulos
+// Boas práticas e O que evitar terminam com pelo menos 3 linhas pautadas; o espaço que sobra até o fim da grade vira pauta também.
+import { conteudo, FASES, SENTIMENTOS, AVATAR, funcao } from "../../lib/conteudo";
+
+export function getStaticPaths() {
+  return ["a1", "a2", "a4"].map((formato) => ({ params: { formato } }));
+}
+const { formato } = Astro.params as { formato: "a1" | "a2" | "a4" };
+const PAPEL = { a1: { w: 841, h: 594, base: 3.1 }, a2: { w: 594, h: 420, base: 2.25 }, a4: { w: 297, h: 210, base: 1.45 } }[formato];
+const completo = formato === "a1";
+const { etapas, pontosContato, praticas } = conteudo;
+const paginas = formato === "a4" ? FASES.map((f) => ({ fases: [f], etapas: etapas.filter((e) => e.fase === f.nome) })) : [{ fases: FASES, etapas }];
+const humor = (s: string | null) => (s && SENTIMENTOS[s]?.humor) || null;
+const peso = (s: string | null) => (s && s in SENTIMENTOS ? SENTIMENTOS[s].peso : null);
+const linha = (lista: typeof etapas) => {
+  let d = "", aberto = false;
+  lista.forEach((e, i) => {
+    const p = peso(e.sentimento);
+    if (p === null) { aberto = false; return; }
+    d += `${aberto ? "L" : "M"}${((i + 0.5) / lista.length) * 100} ${24 - p * 7} `;
+    aberto = true;
+  });
+  return d.trim();
+};
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>Mapa da Visita · impressão {formato.toUpperCase()} · musá</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap">
+<link rel="stylesheet" href="/brand/cores.css">
+<link rel="stylesheet" href="/brand/tipografia.css">
+<style is:inline set:html={`@page { size: ${PAPEL.w}mm ${PAPEL.h}mm; margin: 0; } :root { --u: ${PAPEL.base}mm; --w: ${PAPEL.w}mm; --h: ${PAPEL.h}mm; }`}></style>
+</head>
+<body class={`formato-${formato}`}>
+{paginas.map((pg) => (
+  <section class="folha">
+    <header class="folha-topo">
+      <img class="folha-marca" src="/brand/assets/musa-lockup-crimson.svg" alt="musá" />
+      <div>
+        <h1>Mapa da Visita</h1>
+        <p>A visita escolar do ponto de vista da escola: antes, durante e depois do dia no museu.{formato === "a4" && <> · {pg.fases[0].rotulo}</>}</p>
+      </div>
+      <ul class="legenda">
+        <li><b>+</b> tende a ajudar</li>
+        <li><b>−</b> tende a atrapalhar</li>
+        <li><span class="pauta-exemplo"></span> escreva aqui o que é do seu museu</li>
+      </ul>
+    </header>
+
+    <div class="grade" style={`--n:${pg.etapas.length}`}>
+      <div class="canto"></div>
+      {pg.fases.map((f) => <div class="fase" style={`grid-column: span ${pg.etapas.filter((e) => e.fase === f.nome).length}`}>{f.rotulo}</div>)}
+
+      <div class="rotulo rotulo-etapa"></div>
+      {pg.etapas.map((e) => <div class="etapa-nome"><span>{e.ordem}</span> {e.nome}</div>)}
+
+      <div class="rotulo">Sentimentos</div>
+      <div class="sentimentos" style={`grid-column: span ${pg.etapas.length}`}>
+        <svg class="linha" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d={linha(pg.etapas)} vector-effect="non-scaling-stroke" /></svg>
+        {pg.etapas.map((e) => (
+          <div class="sentimento">
+            {e.sentimento ? <>
+              {humor(e.sentimento) && <img src={AVATAR[humor(e.sentimento)!]} alt="" />}
+              <strong>{e.sentimento}</strong>
+              {e.pensamento && <em>“{e.pensamento}”</em>}
+            </> : <span class="vazio">—</span>}
+          </div>
+        ))}
+      </div>
+
+      <div class="rotulo">Ações da escola</div>
+      {pg.etapas.map((e) => <div class="celula">{e.acoesEscola ?? ""}</div>)}
+
+      <div class="rotulo">Pontos de contato</div>
+      {pg.etapas.map((e) => <div class="celula etiquetas">{pontosContato.filter((p) => p.etapa === e.id).map((p) => <span>{p.canal}</span>)}</div>)}
+
+      {(["boa", "evitar"] as const).map((tipo) => <>
+        <div class="rotulo">{tipo === "boa" ? "Boas práticas" : "O que evitar"}</div>
+        {pg.etapas.map((e) => (
+          <div class="celula praticas">
+            <ul>
+              {praticas.filter((p) => p.etapa === e.id && p.tipo === tipo).map((p) => (
+                <li>
+                  <b>{tipo === "boa" ? "+" : "−"}</b>
+                  <span class="titulo">{p.titulo}</span>
+                  {completo && p.detalhe && <span class="detalhe">{p.detalhe}</span>}
+                  {completo && <span class="funcao">{funcao(p.funcao)?.nome}</span>}
+                </li>
+              ))}
+            </ul>
+            <div class="pautas" aria-hidden="true"></div>
+          </div>
+        ))}
+      </>)}
+    </div>
+
+    <footer class="folha-rodape">
+      <span>musá · usemusa.app</span>
+      <span>Fontes: IBRAM, Plano Museológico (módulos 1–4) e Política Nacional de Educação Museal; entrevistas com equipes de museus e professores.</span>
+    </footer>
+  </section>
+))}
+</body>
+</html>
+
+<style is:global>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--neutro-50); }
+  body { font-family: var(--fonte-inter-tight); color: var(--texto-900); font-size: calc(var(--u) * 1.15); line-height: 1.3;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .folha { width: var(--w); height: var(--h); padding: calc(var(--u) * 4); display: flex; flex-direction: column; gap: calc(var(--u) * 2);
+    break-after: page; overflow: hidden; }
+  .folha:last-child { break-after: auto; }
+
+  .folha-topo { display: flex; align-items: flex-end; gap: calc(var(--u) * 4); }
+  .folha-marca { height: calc(var(--u) * 5); }
+  .folha-topo h1 { margin: 0; font-family: var(--fonte-dm-sans); font-size: calc(var(--u) * 3.4); color: var(--carmim-800); line-height: 1; }
+  .folha-topo p { margin: calc(var(--u) * 0.6) 0 0; color: var(--texto-700); }
+  .legenda { margin: 0 0 0 auto; padding: 0; list-style: none; display: flex; gap: calc(var(--u) * 2.4); color: var(--texto-700); }
+  .legenda b { color: var(--coral-600); }
+  .pauta-exemplo { display: inline-block; width: calc(var(--u) * 5); border-bottom: 1px solid var(--neutro-500); vertical-align: middle; }
+
+  .grade { flex: 1; min-height: 0; display: grid; grid-template-columns: calc(var(--u) * 11) repeat(var(--n), 1fr);
+    grid-template-rows: auto auto auto auto auto 1fr 1fr; border: 1px solid var(--neutro-400); }
+  .canto { background: var(--carmim-800); }
+  .fase { background: var(--carmim-800); color: var(--neutro-50); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: calc(var(--u) * 0.6) calc(var(--u) * 1); font-size: calc(var(--u) * 1); border-left: 1px solid var(--carmim-600); }
+  .rotulo { padding: calc(var(--u) * 0.8); font-family: var(--fonte-dm-sans); font-weight: 600; color: var(--carmim-800); border-top: 1px solid var(--neutro-300); background: var(--neutro-100); }
+  .etapa-nome { padding: calc(var(--u) * 0.8); font-family: var(--fonte-dm-sans); font-weight: 600; font-size: calc(var(--u) * 1.4); color: var(--texto-950);
+    border-left: 1px solid var(--neutro-300); border-top: 1px solid var(--neutro-300); }
+  .etapa-nome span { color: var(--texto-600); font-weight: 400; }
+
+  .sentimentos { position: relative; display: grid; grid-template-columns: subgrid; border-top: 1px solid var(--neutro-300); }
+  .sentimentos .linha { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sentimentos .linha path { fill: none; stroke: var(--coral-400); stroke-width: 2; opacity: 0.6; }
+  .sentimento { position: relative; padding: calc(var(--u) * 0.8); border-left: 1px solid var(--neutro-300); display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 0.3); }
+  .sentimento img { width: calc(var(--u) * 3); height: calc(var(--u) * 3); }
+  .sentimento strong { color: var(--carmim-800); }
+  .sentimento em { color: var(--texto-700); font-size: 0.9em; }
+
+  .celula { padding: calc(var(--u) * 0.8); border-left: 1px solid var(--neutro-300); border-top: 1px solid var(--neutro-300); min-width: 0; }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 0.4); align-content: flex-start; }
+  .etiquetas span { padding: 0 calc(var(--u) * 0.6); border: 1px solid var(--neutro-400); border-radius: 99px; font-size: 0.9em; }
+  .praticas { display: flex; flex-direction: column; }
+  .praticas ul { margin: 0; padding: 0; list-style: none; display: grid; gap: calc(var(--u) * 0.7); }
+  .praticas li { display: grid; grid-template-columns: calc(var(--u) * 1.2) 1fr; }
+  .praticas li b { color: var(--coral-600); }
+  .praticas .titulo { font-weight: 500; }
+  .praticas .detalhe, .praticas .funcao { grid-column: 2; color: var(--texto-700); font-size: 0.88em; }
+  .praticas .funcao { color: var(--texto-600); font-style: italic; }
+  /* pauta: no mínimo 3 linhas, e cresce até o fim da grade */
+  .pautas { flex: 1; min-height: calc(var(--u) * 2.4 * 3 + var(--u)); margin-top: calc(var(--u) * 0.8);
+    background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--u) * 2.4 - 1px), var(--neutro-400) calc(var(--u) * 2.4 - 1px) calc(var(--u) * 2.4)); }
+
+  .folha-rodape { display: flex; justify-content: space-between; gap: calc(var(--u) * 4); color: var(--texto-600); font-size: 0.85em; }
+  @media screen { body { background: var(--neutro-300); } .folha { margin: 24px auto; background: var(--neutro-50); box-shadow: 0 4px 24px rgb(0 0 0 / 0.15); } }
+</style>
