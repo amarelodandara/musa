@@ -6,7 +6,13 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const MUSA = createRequire(import.meta.url)(join(here, "musa-geometry.js"));
+// musa-geometry.js é um script clássico (UMD); o package.json da raiz é "type": "module",
+// então ele é avaliado aqui como CommonJS em vez de passar pelo require.
+import { readFileSync as lerArquivo } from "node:fs";
+import vm from "node:vm";
+const modulo = { exports: {} };
+vm.runInNewContext(lerArquivo(join(here, "musa-geometry.js"), "utf8"), { module: modulo, exports: modulo.exports });
+const MUSA = modulo.exports;
 const out = join(here, "assets");
 mkdirSync(out, { recursive: true });
 
