@@ -1,0 +1,3 @@
+# O conteúdo vive numa planilha do Google Sheets e entra no site como um retrato congelado
+
+O conteúdo do mapa (Práticas, Etapas, Funções, Fontes) é escrito numa planilha do Google Sheets, que é a fonte única e onde a equipe edita sem tocar no código. Um script baixa as abas, valida e grava um arquivo de dados no repositório, que é commitado e publicado junto com o site. O site nunca consulta a planilha enquanto alguém navega: abre rápido, não depende do Google e não mostra edições pela metade. Publicar é rodar um comando, com histórico no git. Descartamos um botão na planilha que dispararia o deploy direto: não precisamos dele, e ver o que mudou antes de ir ao ar vale mais. A planilha precisa estar compartilhada como "qualquer pessoa com o link pode ver".

@@ -1,0 +1,3 @@
+# Os PDFs do mapa são gerados na publicação, não no navegador de quem baixa
+
+Os PDFs para impressão (A1, A2 e A3/A4) são gerados pelo mesmo comando que publica o conteúdo da planilha. Ele abre uma página interna de impressão num navegador automatizado e salva os arquivos no site. Descartamos o "Imprimir → Salvar como PDF" do navegador porque o resultado varia entre navegadores e falha em papéis grandes, e descartamos a diagramação manual no InDesign/Figma porque cada mudança de conteúdo viraria retrabalho. A contrapartida é que o PDF é igual para todos e não pode ser personalizado; se a Autoavaliação voltar, um PDF personalizado precisará de outro caminho.
