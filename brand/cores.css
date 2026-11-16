@@ -1,14 +1,14 @@
 /*
- * musá — cores da interface.
- * Duas camadas: primitivas (rampas por matiz e passo) e semânticas (por função).
- * Componentes usam só as semânticas.
+ * musá — cores da interface: só as escalas (primitivas), por matiz e passo.
+ * Sem camada de funções por enquanto: os papéis (fundo, texto, borda…) serão decididos
+ * depois de construir com as peças.
  *
  * Coral #FF7F50 é a principal e carmim #930031 a secundária, ambas fixas na rampa
  * (coral no passo 400, carmim no 800). Cada rampa mantém o próprio matiz do início ao fim.
  * O neutro tem um leve tom entre os dois matizes. O texto tem rampa própria, quase cinza.
  *
  * Coral é clara (L 0,735): texto branco sobre ela mede 2,50:1 e reprova.
- * Por isso o botão coral leva texto escuro (texto-950, 7,52:1).
+ * Texto escuro sobre coral (texto-950) mede 7,52:1.
  * Gerado em 2026-11-12; contrastes medidos em cores.md.
  */
 :root {
@@ -55,43 +55,4 @@
   --texto-600: oklch(0.5 0.005 13.679);           /* #666262 */
   --texto-400: oklch(0.68 0.004 13.679);          /* #9B9797 */
   --texto-50: oklch(0.985 0.003 13.679);         /* #FCF9F9 */
-
-  /* ---- semânticas ---- */
-  /* Superfícies */
-  --cor-fundo-pagina: var(--neutro-50);
-  --cor-fundo-superficie: var(--neutro-100);
-  --cor-fundo-afundado: var(--neutro-200);
-  --cor-fundo-inverso: var(--carmim-800);
-
-  /* Texto */
-  --cor-texto-titulo: var(--texto-950);
-  --cor-texto-corpo: var(--texto-900);
-  --cor-texto-secundario: var(--texto-700);
-  --cor-texto-terciario: var(--texto-600);
-  --cor-texto-desabilitado: var(--texto-400);
-  --cor-texto-inverso: var(--texto-50);
-
-  /* Bordas */
-  --cor-borda-separador: var(--neutro-300);
-  --cor-borda: var(--neutro-600);
-  --cor-borda-forte: var(--neutro-800);
-  --cor-borda-foco: var(--carmim-700);
-
-  /* Principal: coral (ação, destaque) */
-  --cor-principal-sutil: var(--coral-100);
-  --cor-principal-sutil-hover: var(--coral-200);
-  --cor-principal-borda: var(--coral-300);
-  --cor-principal-solido: var(--coral-400);
-  --cor-principal-solido-hover: var(--coral-500);
-  --cor-principal-texto: var(--coral-700);
-  --cor-texto-sobre-principal: var(--texto-950);
-
-  /* Secundária: carmim (marca, links, inverso) */
-  --cor-secundaria-sutil: var(--carmim-100);
-  --cor-secundaria-borda: var(--carmim-300);
-  --cor-secundaria-solido: var(--carmim-800);
-  --cor-secundaria-solido-hover: var(--carmim-900);
-  --cor-secundaria-texto: var(--carmim-800);
-  --cor-secundaria-texto-hover: var(--carmim-950);
-  --cor-texto-sobre-secundaria: var(--texto-50);
 }

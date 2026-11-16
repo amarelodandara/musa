@@ -9,7 +9,7 @@
 // Tudo roda num relógio só (T, em segundos): cada animação do WAAPI fica pausada e recebe
 // currentTime = T; o que é JS (digitação, linha reta) é calculado a partir de T.
 // Assim dá para tocar, pausar e pular para qualquer passo (window.MUSA_ABERTURA, usado no painel de dev).
-// Toca uma vez por sessão. Com "reduzir movimento" ou depois da primeira vez, abre direto no fim.
+// Toca ao abrir e a cada recarregada. Pula (abre no fim) com "reduzir movimento" ou ao voltar de outra página do site na mesma sessão.
 (function () {
   "use strict";
   const abertura = document.querySelector(".abertura");
@@ -17,8 +17,8 @@
   if (!abertura || !palco) return;
 
   const $ = (s) => palco.querySelector(s);
-  const caminho = $("#caminho"), planta = $(".planta"), plantaTraco = $(".planta-traco"), plantaFundo = $(".planta-fundo");
-  const fraseA = $(".frase-a"), fraseB = $(".frase-b"), grifos = [...palco.querySelectorAll(".grifo")];
+  const caminho = $("#caminho"), planta = $(".planta"), plantaTraco = $(".planta-traco"), rotulo = $(".rotulo-museu");
+  const fraseA = $(".frase-a"), fraseB = $(".frase-b");
   const busca = $(".busca"), buscaTexto = $(".busca-texto"), cursor = $(".cursor-texto"), agenda = $(".agenda");
   const agendaCorpo = $(".agenda-corpo"), iconeBusca = $(".icone-busca"), iconeAgenda = $(".icone-agenda");
   const hero = abertura.querySelector(".hero"), pular = abertura.querySelector(".pular");
@@ -29,7 +29,7 @@
 
   // Roteiro (segundos). Os passos aparecem no painel de dev para revisar um a um.
   const R = {
-    planta: 0.2, busca: 1.6, digita: 2.0, caminho: 3.3, caminhoDur: 4.6, fraseB: 4.8, grifo: 5.8,
+    planta: 0.2, busca: 1.6, digita: 2.0, caminho: 3.3, caminhoDur: 4, fraseB: 4.8, grifo: 5.8,
     agenda: 7.5, esmaece: 9.0, reta: 9.6, retaDur: 1.3, texto: 10.7, fim: 11.4
   };
   const PASSOS = [
@@ -41,15 +41,21 @@
   const reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let visto = false;
   try { visto = sessionStorage.getItem("musa-abertura") === "1"; } catch (e) {}
+  // recarregar a página (⌘R) sempre toca de novo; só quem volta de outra página do site, na mesma sessão, pula
+  if (performance.getEntriesByType?.("navigation")[0]?.type === "reload") visto = false;
+  if (window.MUSA_ABERTURA_SEMPRE) visto = false; // página de revisão: sempre do começo
 
-  const comprimento = caminho.getTotalLength();
-  const caminhoOriginal = caminho.getAttribute("d");
+  let comprimento, caminhoOriginal, pontos;
   const tracoLen = plantaTraco.getTotalLength();
-  const alvo = buscaTexto.dataset.texto;
 
-  // pontos do caminho, para a transformação em linha reta
+  // pontos do caminho, para a transformação em linha reta (recalculados se o caminho mudar)
   const N = 260;
-  const pontos = Array.from({ length: N + 1 }, (_, i) => { const p = caminho.getPointAtLength((comprimento * i) / N); return [p.x, p.y]; });
+  function medirCaminho() {
+    comprimento = caminho.getTotalLength();
+    caminhoOriginal = caminho.getAttribute("d");
+    pontos = Array.from({ length: N + 1 }, (_, i) => { const p = caminho.getPointAtLength((comprimento * i) / N); return [p.x, p.y]; });
+  }
+  medirCaminho();
   const linhaD = (t) => "M" + pontos.map(([x, y], i) => {
     const lx = LINHA.x0 + ((LINHA.x1 - LINHA.x0) * i) / N, ly = LINHA.y;
     return (x + (lx - x) * t).toFixed(1) + " " + (y + (ly - y) * t).toFixed(1);
@@ -75,28 +81,52 @@
   const entra = (el, inicio, dur = 0.6, y = 10) => anima(el, [{ opacity: 0, transform: `translateY(${y}px)` }, { opacity: 1, transform: "none" }], inicio, dur);
   const some = (el, inicio, dur = 0.5) => anima(el, [{ opacity: 1 }, { opacity: 0 }], inicio, dur, SAIDA, "forwards");
 
+  // Grifos: um traço do svg sob cada palavra .grifo da frase final, com a mesma classe de traço e cor
+  // do caminho e o mesmo filtro de giz. Posição medida no texto (palco em px → unidades do viewBox).
+  // --grifo-base no .palco (em, relativo à fonte) sobe ou desce o traço.
+  const grifosG = $(".grifos"), NS = "http://www.w3.org/2000/svg";
+  let grifos = [];
+  function sincronizarGiz() {
+    const r = palco.getBoundingClientRect(), s = Math.min(r.width / 1080, r.height / 600) || 1;
+    const ox = (r.width - 1080 * s) / 2, oy = (r.height - 600 * s) / 2;
+    const base = parseFloat(getComputedStyle(palco).getPropertyValue("--grifo-base")) || 0;
+    const classes = [...caminho.classList].filter((c) => /^(traco|stroke)-/.test(c));
+    const palavras = [...palco.querySelectorAll(".grifo")];
+    while (grifos.length < palavras.length) { const g = document.createElementNS(NS, "path"); g.setAttribute("pathLength", "1"); grifosG.appendChild(g); grifos.push(g); }
+    while (grifos.length > palavras.length) grifos.pop().remove();
+    palavras.forEach((w, i) => {
+      const b = w.getBoundingClientRect(), fs = parseFloat(getComputedStyle(w).fontSize);
+      const x0 = (b.left - r.left - ox) / s, x1 = (b.right - r.left - ox) / s;
+      const y = (b.bottom - r.top - oy + base * fs) / s, h = (x1 - x0) * 0.012; // leve curva, como à mão
+      grifos[i].setAttribute("class", ["grifo-traco", ...classes].join(" "));
+      grifos[i].setAttribute("d", `M${x0.toFixed(1)} ${(y + h).toFixed(1)} Q${((x0 + x1) / 2).toFixed(1)} ${(y - h).toFixed(1)} ${x1.toFixed(1)} ${(y + h * 0.4).toFixed(1)}`);
+    });
+  }
+
   function montar() {
-    anims.forEach((a) => a.cancel()); // volta tudo ao lugar do HTML antes de medir os ícones
+    anims.forEach((a) => a.cancel()); // volta tudo ao lugar do HTML antes de medir os ícones e os grifos
+    sincronizarGiz();
     anims = [];
     const [bx, by] = deslocamento(iconeBusca, LINHA.x0 - 26, LINHA.y);
     const [ax, ay] = deslocamento(iconeAgenda, LINHA.x1 + 26, LINHA.y);
     // 1
-    anima(plantaTraco, [{ strokeDashoffset: tracoLen }, { strokeDashoffset: 0 }], R.planta, 1.6, MOVE);
-    anima(plantaFundo, [{ opacity: 0 }, { opacity: 1 }], R.planta + 0.6, 0.9);
+    anima(plantaTraco, [{ strokeDashoffset: tracoLen }, { strokeDashoffset: 0 }], R.planta, 1.8, MOVE);
+    entra(rotulo, R.planta + 1.0, 0.6, 4);
     entra(fraseA, R.planta, 0.7);
     // 2
     entra(busca, R.busca, 0.5, 6);
     // 3 (o traço em velocidade constante, como uma mão desenhando)
     anima(caminho, [{ strokeDashoffset: comprimento }, { strokeDashoffset: 0 }], R.caminho, R.caminhoDur, "linear");
     entra(fraseB, R.fraseB, 0.8, 12);
-    grifos.forEach((g, i) => anima(g, [{ "--grifo": 0 }, { "--grifo": 1 }], R.grifo + i * 0.25, 0.5));
+    // grifos: pathLength 1, então o tracejado não depende do tamanho da palavra; 1.05 esconde a ponta redonda
+    grifos.forEach((g, i) => { g.style.strokeDasharray = "1 2"; anima(g, [{ strokeDashoffset: 1.05 }, { strokeDashoffset: 0 }], R.grifo + i * 0.25, 0.5); });
     // 4
     entra(agenda, R.agenda, 0.5, 6);
     // 5
-    [planta, fraseA, fraseB].forEach((el) => some(el, R.esmaece, 0.6));
+    [planta, rotulo, fraseA, fraseB, grifosG].forEach((el) => some(el, R.esmaece, 0.6));
     [buscaTexto, cursor, agendaCorpo].forEach((el) => some(el, R.esmaece, 0.4));
     [busca, agenda].forEach((c) => anima(c,
-      [{ backgroundColor: "var(--cor-fundo-pagina)", borderColor: "var(--cor-borda-separador)", boxShadow: "0 0.3cqw 1.2cqw var(--cor-fundo-afundado)" },
+      [{ backgroundColor: "var(--neutro-50)", borderColor: "var(--neutro-300)", boxShadow: "0 0.3cqw 1.2cqw var(--neutro-200)" },
        { backgroundColor: "transparent", borderColor: "transparent", boxShadow: "0 0 0 transparent" }], R.esmaece, 0.5));
     anima(iconeBusca, [{ transform: "none" }, { transform: `translate(${bx}px, ${by}px)` }], R.reta, R.retaDur, MOVE);
     anima(iconeAgenda, [{ transform: "none" }, { transform: `translate(${ax}px, ${ay}px)` }], R.reta, R.retaDur, MOVE);
@@ -108,8 +138,9 @@
   function aplicar() {
     anims.forEach((a) => { a.currentTime = T * 1000; });
     // digitação
+    const alvo = buscaTexto.dataset.texto || ""; // lido a cada quadro: o painel pode trocar o texto
     const n = Math.max(0, Math.min(alvo.length, Math.floor((T - R.digita) / DIGITO)));
-    if (buscaTexto.textContent.length !== n) buscaTexto.textContent = alvo.slice(0, n);
+    if (buscaTexto.textContent !== alvo.slice(0, n)) buscaTexto.textContent = alvo.slice(0, n);
     cursor.style.visibility = T >= R.busca && T < R.esmaece && Math.floor(T * 2) % 2 === 0 ? "visible" : "hidden";
     // caminho: desenhando (tracejado) até a linha reta, depois a transformação
     if (T < R.reta) {
@@ -139,6 +170,11 @@
     tocar() { if (T >= R.fim) T = 0; tocando = true; ultimo = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(quadro); avisar(); },
     pausar() { tocando = false; cancelAnimationFrame(raf); avisar(); },
     ir(t) { T = Math.max(0, Math.min(R.fim, t)); aplicar(); avisar(); },
+    // para o painel de revisão: trocar o desenho do caminho e os tempos do roteiro ao vivo
+    roteiro: R,
+    remontar() { montar(); aplicar(); },
+    definirCaminho(d) { caminho.setAttribute("d", d); medirCaminho(); montar(); aplicar(); },
+    sincronizarGiz,
     reiniciar() { API.ir(0); API.tocar(); },
     velocidade(v) { velocidade = v; },
     get tempo() { return T; },
@@ -148,6 +184,7 @@
 
   pular.addEventListener("click", () => { API.pausar(); API.ir(R.fim); });
   addEventListener("resize", () => { montar(); aplicar(); });
+  document.fonts?.ready.then(() => { montar(); aplicar(); }); // a fonte muda a largura das palavras grifadas
 
   plantaTraco.style.strokeDasharray = tracoLen;
   montar();

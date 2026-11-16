@@ -1,7 +1,7 @@
 /*
  * musá — Tailwind v4 (só tema + utilitários, sem preflight; o reset fica em estilo.css).
- * O tema é só o da marca: cores = funções de brand/cores.css, tamanhos = brand/tipografia.css.
- * As cores padrão do Tailwind foram removidas de propósito: só existem as da paleta.
+ * O tema é só o da marca: cores = escalas de brand/cores.css, fontes e tamanhos = brand/tipografia.css.
+ * As cores e fontes padrão do Tailwind foram removidas de propósito: só existem as da marca.
  * Gerar: npx @tailwindcss/cli -i tailwind.src.css -o tailwind.css   (o Solo faz isso sozinho)
  */
 @layer theme, base, components, utilities;
@@ -15,40 +15,12 @@
 @source "./navegacao.js";
 @source "./dev/navbar-dials.js";
 @source "./dev/abertura-dials.js";
+@source "./dev/abertura.html";
 
 @theme inline {
+  /* só as peças: escalas de cor e famílias por nome. Sem papéis (fundo, texto…) por enquanto. */
   --color-*: initial;
   --color-transparente: transparent;
-  --color-fundo-pagina: var(--cor-fundo-pagina);
-  --color-fundo-superficie: var(--cor-fundo-superficie);
-  --color-fundo-afundado: var(--cor-fundo-afundado);
-  --color-fundo-inverso: var(--cor-fundo-inverso);
-  --color-texto-titulo: var(--cor-texto-titulo);
-  --color-texto-corpo: var(--cor-texto-corpo);
-  --color-texto-secundario: var(--cor-texto-secundario);
-  --color-texto-terciario: var(--cor-texto-terciario);
-  --color-texto-desabilitado: var(--cor-texto-desabilitado);
-  --color-texto-inverso: var(--cor-texto-inverso);
-  --color-borda-separador: var(--cor-borda-separador);
-  --color-borda: var(--cor-borda);
-  --color-borda-forte: var(--cor-borda-forte);
-  --color-borda-foco: var(--cor-borda-foco);
-  --color-principal-sutil: var(--cor-principal-sutil);
-  --color-principal-sutil-hover: var(--cor-principal-sutil-hover);
-  --color-principal-borda: var(--cor-principal-borda);
-  --color-principal-solido: var(--cor-principal-solido);
-  --color-principal-solido-hover: var(--cor-principal-solido-hover);
-  --color-principal-texto: var(--cor-principal-texto);
-  --color-texto-sobre-principal: var(--cor-texto-sobre-principal);
-  --color-secundaria-sutil: var(--cor-secundaria-sutil);
-  --color-secundaria-borda: var(--cor-secundaria-borda);
-  --color-secundaria-solido: var(--cor-secundaria-solido);
-  --color-secundaria-solido-hover: var(--cor-secundaria-solido-hover);
-  --color-secundaria-texto: var(--cor-secundaria-texto);
-  --color-secundaria-texto-hover: var(--cor-secundaria-texto-hover);
-  --color-texto-sobre-secundaria: var(--cor-texto-sobre-secundaria);
-
-  /* primitivas das escalas (para testes no painel; componentes usam as funções acima) */
   --color-coral-100: var(--coral-100);
   --color-coral-200: var(--coral-200);
   --color-coral-300: var(--coral-300);
@@ -87,6 +59,7 @@
   --color-texto-50: var(--texto-50);
 
   --text-*: initial;
+  --text-2xs: var(--tamanho-2xs); --text-2xs--line-height: 1.4;
   --text-xs: var(--tamanho-xs);   --text-xs--line-height: 1.4;
   --text-sm: var(--tamanho-sm);   --text-sm--line-height: 1.45;
   --text-md: var(--tamanho-md);   --text-md--line-height: 1.5;
@@ -95,13 +68,15 @@
   --text-2xl: var(--tamanho-2xl); --text-2xl--line-height: 1.2;
   --text-3xl: var(--tamanho-3xl); --text-3xl--line-height: 1.15;
   --text-4xl: var(--tamanho-4xl); --text-4xl--line-height: 1.1;
+  --text-5xl: var(--tamanho-5xl); --text-5xl--line-height: 1.05;
 
   --font-*: initial;
-  --font-titulo: var(--fonte-titulo);
-  --font-texto: var(--fonte-texto);
-  --font-dados: var(--fonte-dados);
+  --font-dm-sans: var(--fonte-dm-sans);
+  --font-inter: var(--fonte-inter);
+  --font-inter-tight: var(--fonte-inter-tight);
+  --font-mono: var(--fonte-mono);
 
-  /* curvas fortes (Emil Kowalski): saída para entradas, entra-sai para o que se move na tela */
+  /* curvas fortes (Emil Kowalski) */
   --ease-forte: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-entra-sai: cubic-bezier(0.77, 0, 0.175, 1);
 }
@@ -114,3 +89,9 @@
   transition-duration: var(--tw-duration, 260ms);
   transition-timing-function: var(--tw-ease, var(--ease-forte));
 }
+
+/* Faixas geradas para os sliders do painel de revisão da abertura (dev/abertura-dials.js).
+   Dentro do palco 1 unidade = 4 px de um palco de 1080 px (ver .palco em estilo.css). */
+@source inline("{left,right,top,w}-{0..270}");
+@source inline("traco-{0.5,0.75,1,1.25,1.5,2,2.5,3,4,5,6,7,8,9,10,12,14}");
+@utility traco-* { stroke-width: --value(number); }

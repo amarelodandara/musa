@@ -27,8 +27,8 @@
     const olho = window.MusaEye.create(marca.querySelector(".nav-olho"), {
       frame: "tile",
       logo: window.MUSA.RING_PRESETS[NAV.aneis] || window.MUSA.RING_PRESETS.lockup,
-      ink: cor("--cor-secundaria-solido", "#930031"),
-      paper: cor("--cor-fundo-pagina", "#FDF9F9"),
+      ink: cor("--carmim-800", "#930031"),
+      paper: cor("--neutro-50", "#FDF9F9"),
       state: 0,
       quality: 0.6
     });

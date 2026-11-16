@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="cores.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="tipografia.css">
 <style>
 /* Layout: uma coluna larga de seções; cada seção = cabeçalho curto + prancha de marca (fundo fixo da marca) + dados medidos. */
@@ -18,8 +18,8 @@
   --brand-crimson: #930031;  /* cores fixas das pranchas, iguais nos dois temas */
   --brand-offwhite: #FFFBFB;
   --guide: #1E5BD8;         /* linhas de construção */
-  --font-display: var(--fonte-titulo);
-  --font-text: var(--fonte-texto);
+  --font-display: var(--fonte-dm-sans);
+  --font-text: var(--fonte-inter-tight);
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --radius: 4px;
 }
@@ -164,8 +164,8 @@ h3.sub { font: 600 16px/1.2 var(--font-display); margin: 40px 0 12px; }
 .tscale { display: grid; gap: 4px; margin: 24px 0 16px; }
 .tscale div { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .tscale small { font: 12px var(--font-mono); color: var(--muted); }
-.tscale span { font-family: var(--fonte-texto); }
-.tscale span.t { font-family: var(--fonte-titulo); line-height: var(--entrelinha-titulo); overflow-wrap: anywhere; min-width: 0; }
+.tscale .fam { display: flex; flex-wrap: wrap; gap: 0.2em 0.9em; }
+.tscale .fam span { line-height: 1.15; overflow-wrap: anywhere; min-width: 0; }
 .cramp { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
 .cramp > span { font: 500 13px var(--font-mono); color: var(--muted); }
 .steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; }
@@ -378,12 +378,6 @@ html { scroll-behavior: smooth; }
   <div class="brand-pair" id="brandPair"></div>
   <h3 class="sub">Escalas</h3>
   <div class="ramps" id="ramps"></div>
-  <h3 class="sub">Funções</h3>
-  <p class="note">Componentes usam só estes nomes, nunca os passos das escalas. Assim um tema escuro só troca para onde cada função aponta.</p>
-  <div class="roles" id="roles"></div>
-  <h3 class="sub">Contrastes medidos</h3>
-  <p class="note">Cada par como aparece na tela, medido em WCAG 2 e APCA. Coral é clara demais para texto branco (2,50:1), então o botão coral leva texto escuro.</p>
-  <div class="ctable-wrap"><table class="ctable" id="ctable"></table></div>
 </section>
 
 <section id="tipografia">
@@ -399,7 +393,7 @@ html { scroll-behavior: smooth; }
     <div class="specimen">
       <p class="eyebrow" style="margin:0">Texto do site</p>
       <div class="big">Aa</div>
-      <p>Títulos em DM Sans, texto em Inter Tight, as duas com licença OFL pelo Google Fonts. Inter Tight entra no lugar do SF Compact do Figma, que a Apple não licencia para a web. Tokens em <span class="mono">brand/tipografia.css</span>.</p>
+      <p>Três famílias, todas OFL pelo Google Fonts: <span style="font-family:var(--fonte-dm-sans)">DM Sans</span>, <span style="font-family:var(--fonte-inter)">Inter</span> e <span style="font-family:var(--fonte-inter-tight)">Inter Tight</span> (no lugar do SF Compact do Figma, que a Apple não licencia para a web). Quem usa cada uma ainda vai ser decidido construindo. Tokens em <span class="mono">brand/tipografia.css</span>.</p>
       <div class="abc">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 áâãàçéêíóôõú</div>
     </div>
   </div>
@@ -740,24 +734,25 @@ window.MUSA_CORES = /* @cores */;
   function renderColors() {
     const K = window.MUSA_CORES; if (!K) return;
     const P = Object.fromEntries(K.prims.map(x => [x.name, x]));
-    const bp = [["coral-400", "Coral", "Principal. Ação e destaque. Leva texto escuro.", "#141111"], ["carmim-800", "Carmim", "Secundária. Marca, links, fundo inverso. Leva texto claro.", "#FCF9F9"]];
+    const bp = [["coral-400", "Coral", "Principal. Texto escuro sobre ela: 7,52:1; branco: 2,50:1.", "#141111"], ["carmim-800", "Carmim", "Secundária. Texto claro sobre ela: 8,78:1.", "#FCF9F9"]];
     $("#brandPair").innerHTML = bp.map(([n, t, r, fg]) => `<button class="brand-sw" type="button" data-hex="${P[n].hex}" style="background:var(--${n});color:${fg}">
       <div><h3>${t}</h3><div class="role">${r}</div></div>
       <dl><dt>HEX</dt><dd>${P[n].hex}</dd><dt>OKLCH</dt><dd>${P[n].oklch}</dd><dt>Escala</dt><dd>${n}</dd></dl></button>`).join("");
     const groups = [...new Set(K.prims.map(x => x.name.split("-")[0]))];
     $("#ramps").innerHTML = groups.map(g => `<div class="cramp"><span>${g}</span><div class="steps">${K.prims.filter(x => x.name.startsWith(g + "-")).map(x =>
       `<button type="button" class="step${x.pinned ? " pin" : ""}" data-hex="${x.hex}" title="${x.name} · ${x.hex} · ${x.oklch}"><i style="background:var(--${x.name})"></i><small>${x.name.split("-")[1]}<br>${x.hex}</small></button>`).join("")}</div></div>`).join("");
-    $("#roles").innerHTML = K.roles.map(r => `<div><i style="background:var(${r.name})"></i><b>${r.name.replace("--cor-", "")}</b><small>${r.ref}</small></div>`).join("");
-    $("#ctable").innerHTML = `<thead><tr><th>Uso</th><th>Amostra</th><th>WCAG</th><th>APCA Lc</th><th>Resultado</th></tr></thead><tbody>` +
-      K.pairs.map(p => `<tr><td>${p.label}</td><td><span class="smp" style="color:${p.fg};background:${p.bg};box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)">Aa musá</span></td><td class="n">${p.wcag}</td><td class="n">${p.apca}</td><td class="${/reprova/.test(p.req) ? "fail" : ""}">${p.req.replace(/\*/g, "")}</td></tr>`).join("") + "</tbody>";
   }
   renderColors();
 
   /* escala tipográfica (brand/tipografia.css) */
   (function renderTypeScale() {
-    const rows = [["4xl", 700, "musá"], ["3xl", 700, "Visitas escolares"], ["2xl", 700, "Antes da visita"], ["xl", 600, "Tende a ajudar"], ["lg", 400, "Um mapa de consulta para quem trabalha em museu."], ["md", 400, "A excursão da escola costuma ser o primeiro contato com um museu."], ["sm", 400, "Fonte: entrevistas com educadores, 2026."], ["xs", 500, "PRÁTICA GERAL"]];
+    const passos = ["5xl", "4xl", "3xl", "2xl", "xl", "lg", "md", "sm", "xs", "2xs"];
+    const familias = [["DM Sans", "--fonte-dm-sans"], ["Inter", "--fonte-inter"], ["Inter Tight", "--fonte-inter-tight"]];
     const cs = getComputedStyle(document.documentElement);
-    $("#tscale").innerHTML = rows.map(([k, w, t]) => { const v = cs.getPropertyValue("--tamanho-" + k).trim(); return `<div><small>--tamanho-${k} · ${Math.round(parseFloat(v) * 16)} px · ${w} · ${["4xl","3xl","2xl","xl"].includes(k) ? "DM Sans" : "Inter Tight"}</small><span class="${["4xl","3xl","2xl","xl"].includes(k) ? "t" : ""}" style="font-size:var(--tamanho-${k});font-weight:${w}">${t}</span></div>`; }).join("");
+    $("#tscale").innerHTML = passos.map((k) => {
+      const px = Math.round(parseFloat(cs.getPropertyValue("--tamanho-" + k)) * 16);
+      return `<div><small>--tamanho-${k} · ${px} px</small><span class="fam">${familias.map(([n, v]) => `<span style="font-family:var(${v});font-size:var(--tamanho-${k})" title="${n}">Jornada</span>`).join("")}</span></div>`;
+    }).join("");
   })();
 
   /* uso */

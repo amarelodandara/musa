@@ -3,7 +3,7 @@ name: musa
 icon: null
 processes:
   Site:
-    command: python3 -m http.server 4321 --bind 127.0.0.1
+    command: python3 dev/servidor.py 4321
     working_dir: null
     auto_start: true
     auto_restart: true

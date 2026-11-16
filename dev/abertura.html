@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Abertura · revisão · musá</title>
+<base href="/">
+<link rel="icon" href="brand/assets/musa-tile-crimson.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap">
+<link rel="stylesheet" href="brand/cores.css" data-fresco>
+<link rel="stylesheet" href="brand/tipografia.css" data-fresco>
+<link rel="stylesheet" href="tailwind.css" data-fresco>
+<link rel="stylesheet" href="estilo.css" data-fresco>
+<style>
+  /* espaço fixo para os painéis à direita, para não cobrirem o palco */
+  @media (min-width: 900px) { body { padding-right: 320px; } }
+</style>
+</head>
+<body>
+<!--
+  Página de revisão da abertura (só para desenvolvimento).
+  A abertura não é copiada: o script busca a seção .abertura direto de index.html,
+  então o que se revisa aqui é exatamente o que vai na página inicial.
+  Painéis: "Abertura" (tocar, pausar, passos, tempo, velocidade) e "Página" (cor de fundo).
+-->
+<div id="slot"></div>
+<script>
+  // o servidor local não manda Cache-Control: sem isto o navegador pode reaproveitar CSS e JS antigos
+  // enquanto index.html vem sempre novo, e as peças deixam de casar
+  window.MUSA_V = Date.now();
+  document.querySelectorAll("link[data-fresco]").forEach((l) => { l.href = l.getAttribute("href") + "?v=" + window.MUSA_V; });
+</script>
+<script type="module">
+  const html = await (await fetch("/index.html", { cache: "no-store" })).text();
+  const secao = new DOMParser().parseFromString(html, "text/html").querySelector(".abertura");
+  document.getElementById("slot").replaceWith(document.importNode(secao, true));
+  window.MUSA_ABERTURA_SEMPRE = true;
+  await new Promise((ok) => { const s = document.createElement("script"); s.src = "abertura.js?v=" + window.MUSA_V; s.onload = ok; document.body.appendChild(s); });
+  await import("/dev/abertura-dials.js?v=" + window.MUSA_V);
+</script>
+</body>
+</html>

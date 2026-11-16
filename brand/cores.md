@@ -1,4 +1,4 @@
-# musá — contrastes medidos
+# musá — contrastes medidos (arquivo histórico: os pares usavam uma proposta de funções que foi retirada; as cores em si continuam valendo)
 
 Pares renderizados de `cores.css`, medidos (WCAG 2 e APCA) a partir dos valores sRGB. Tema claro apenas.
 
