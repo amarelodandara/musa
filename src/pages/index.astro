@@ -1,13 +1,11 @@
 ---
-// Página inicial (decisão Q30): abertura, tese, funcionalidades, uso em equipe, origem do conteúdo, chamada final.
+// Página inicial (decisão Q30): abertura, tese, funcionalidades, uso em equipe, chamada final.
 import Base from "../layouts/Base.astro";
 import Abertura from "../components/Abertura.astro";
 import { conteudo, FASES } from "../lib/conteudo";
 
-const { etapas, praticas, fontes } = conteudo;
+const { etapas } = conteudo;
 const porFase = FASES.map((f) => ({ ...f, etapas: etapas.filter((e) => e.fase === f.nome) }));
-const porOrigem = (o: string) => praticas.filter((p) => p.origem === o).length;
-const documentais = fontes.filter((f) => f.codigo !== "ENT");
 
 const FUNCIONALIDADES = [
   { titulo: "Etapa por etapa", texto: "Percorra a visita na ordem em que a escola a vive, uma etapa aberta por vez, do primeiro contato ao retorno." },
@@ -53,17 +51,6 @@ const FUNCIONALIDADES = [
     </ul>
   </section>
 
-  <section class="bloco">
-    <h2>De onde vem o conteúdo</h2>
-    <p>Cada prática do mapa mostra de onde veio. Elas partem dos documentos do Instituto Brasileiro de Museus e de entrevistas com equipes de museus e professores.</p>
-    <dl class="numeros">
-      <div><dt>{porOrigem("Documento") + porOrigem("Adaptado de documento")}</dt><dd>práticas a partir de documentos oficiais</dd></div>
-      <div><dt>{porOrigem("Pesquisa de campo")}</dt><dd>práticas a partir da pesquisa de campo</dd></div>
-      <div><dt>{etapas.length}</dt><dd>etapas, do primeiro contato ao retorno</dd></div>
-    </dl>
-    <ul class="fontes-lista">{documentais.map((f) => <li>{f.referencia}</li>)}</ul>
-  </section>
-
   <section class="bloco chamada-final">
     <h2>Comece pela etapa que preocupa você</h2>
     <p class="acoes-hero"><a class="botao" href="/mapa">Usar o mapa</a> <a class="botao secundario" href="/baixar">Baixar o mapa</a></p>
@@ -91,11 +78,6 @@ const FUNCIONALIDADES = [
   .cartao-func p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
   .lista-uso { max-width: 62ch; padding-left: 20px; }
   .lista-uso li { margin-bottom: 10px; }
-  .numeros { display: flex; flex-wrap: wrap; gap: 32px; margin: 24px 0; }
-  .numeros div { min-width: 160px; }
-  .numeros dt { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-4xl); font-weight: 700; color: var(--carmim-800); line-height: 1; }
-  .numeros dd { margin: 6px 0 0; font-size: var(--tamanho-sm); color: var(--texto-700); max-width: 20ch; }
-  .fontes-lista { font-size: var(--tamanho-xs); color: var(--texto-600); padding-left: 18px; max-width: 70ch; }
   .chamada-final { text-align: center; }
   .chamada-final > h2 { margin: 0 auto 24px; }
   .chamada-final .acoes-hero { justify-content: center; margin: 0 auto; }
