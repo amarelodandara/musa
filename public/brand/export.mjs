@@ -24,6 +24,14 @@ for (const variant of Object.keys(MUSA.VARIANTS)) {
     console.log(file);
   }
 }
+// Versão pequena (3 anéis, RING_PRESETS.pequeno) das peças que aparecem em tamanho pequeno: ícone e símbolo.
+for (const variant of ["tile", "symbol"]) {
+  for (const [tone, color] of Object.entries(tones)) {
+    const file = `musa-${variant}-${tone}-pequeno.svg`;
+    writeFileSync(join(out, file), MUSA.svg(variant, { color, params: MUSA.RING_PRESETS.pequeno }) + "\n");
+    console.log(file);
+  }
+}
 
 // Página de marca: inlina a geometria no template (o artifact não carrega scripts locais).
 import { readFileSync } from "node:fs";

@@ -1,0 +1,76 @@
+---
+// Playground da marca em tamanho pequeno, só em desenvolvimento (no site publicado redireciona para o início).
+// Testa quantos anéis o logo aguenta: a barra de navegação de verdade no topo, o ícone e o símbolo em tamanhos reais
+// nas duas cores, e o vão entre anéis em pixels em cada tamanho. Ajustes no painel DialKit (public/dev/marca-pequena-dials.js),
+// que pode ser arrastado pelo cabeçalho. Para levar ao código: Copy parameters do painel, colar na conversa com o Claude.
+import Base from "../../layouts/Base.astro";
+const dev = import.meta.env.DEV;
+if (!dev) return Astro.redirect("/");
+const TAMANHOS = [16, 20, 24, 32, 36, 48, 64];
+---
+<Base titulo="Marca pequena · revisão">
+<style is:inline slot="head">
+  /* coluna fixa à direita para o painel: nem a barra nem as peças ficam por baixo dele */
+  @media (min-width: 900px) { body { padding-right: 320px; } }
+</style>
+<main class="mp">
+  <p class="tagline">Revisão da marca</p>
+  <h1>Logo em tamanho pequeno</h1>
+  <p class="mp-nota">A barra lá em cima é a de verdade (36&nbsp;px): passe o mouse na marca para ver o olho abrir. Role até o fim para ver a barra invertida sobre o rodapé.</p>
+
+  <section>
+    <h2>Ícone</h2>
+    {["claro", "carmim"].map((fundo) => (
+      <div class:list={["mp-linha", `mp-${fundo}`]}>
+        {TAMANHOS.map((t) => (
+          <figure>
+            <div class="mp-peca" data-variante="tile" data-fundo={fundo} style={`width:${t}px;height:${t}px`}></div>
+            <figcaption>{t}px <span class="mp-vao" data-variante="tile" data-tamanho={t}></span></figcaption>
+          </figure>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <section>
+    <h2>Símbolo</h2>
+    {["claro", "carmim"].map((fundo) => (
+      <div class:list={["mp-linha", `mp-${fundo}`]}>
+        {TAMANHOS.map((t) => (
+          <figure>
+            <div class="mp-peca" data-variante="symbol" data-fundo={fundo} style={`width:${t}px;height:${t}px`}></div>
+            <figcaption>{t}px <span class="mp-vao" data-variante="symbol" data-tamanho={t}></span></figcaption>
+          </figure>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <section>
+    <h2>Grande, para comparar</h2>
+    <div class="mp-linha mp-claro">
+      <div class="mp-peca" data-variante="tile" data-fundo="claro" style="width:240px;height:240px"></div>
+      <div class="mp-peca" data-variante="symbol" data-fundo="claro" style="width:240px;height:240px"></div>
+    </div>
+  </section>
+  <p class="mp-nota">O número ao lado de cada tamanho é o vão entre dois anéis em pixels de tela. Abaixo de 1&nbsp;px os anéis tendem a se fundir.</p>
+</main>
+
+<Fragment slot="scripts">
+  <script is:inline type="module" src="/dev/marca-pequena-dials.js"></script>
+</Fragment>
+</Base>
+
+<style>
+  .mp { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  .mp h2 { margin: 40px 0 12px; }
+  .mp-nota { max-width: 62ch; color: var(--texto-700); }
+  .mp-linha { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px; padding: 20px; border-radius: 8px; margin-bottom: 8px; }
+  .mp-claro { background: var(--neutro-50); border: 1px solid var(--neutro-300); }
+  .mp-carmim { background: var(--carmim-800); color: var(--neutro-50); }
+  .mp figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .mp figcaption { font-size: var(--tamanho-xs); font-variant-numeric: tabular-nums; opacity: 0.8; white-space: nowrap; }
+  .mp-peca :global(svg) { display: block; width: 100%; height: 100%; }
+  .mp-vao[data-ruim] { font-weight: 700; }
+  .mp-vao[data-ruim]::before { content: "⚠ "; }
+</style>

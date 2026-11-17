@@ -29,8 +29,14 @@
   };
 
   // Parâmetros dos anéis. R (raio externo) é fixo; o resto é livre.
+  // Duas versões do logo, mesma pupila e espessura, só muda a quantidade de anéis:
+  //   lockup  (8 anéis): a versão completa, para peças grandes (lockup, página de marca, impressos, telas grandes).
+  //   pequeno (3 anéis): para peças pequenas (barra de navegação, favicon, avatares). Com 8 anéis o vão entre eles
+  //     fica abaixo de 1 px de tela em ícones menores que ~128 px e os anéis viram uma mancha.
+  //     Regra: ícone (tile) abaixo de 128 px usa "pequeno". Valores do playground /dev/marca-pequena (17 nov 2026).
   const RING_PRESETS = {
     lockup: { label: "Vector.svg (lockup atual)", R: 30.4563, pupilR: 4.2238, pupilGap: 1.2228, count: 8, weight: 0.7586 },
+    pequeno: { label: "Pequeno (3 anéis)", R: 30.4563, pupilR: 4.2238, pupilGap: 1.2228, count: 3, weight: 0.7586 },
     v6: { label: "Playground v6 (musa-mark-logo.svg)", R: 30.4563, pupilR: 3.7, pupilGap: 1.42, count: 8, weight: 0.624 }
   };
   const AVATAR = { R: 30.4563, inner: 8 };
