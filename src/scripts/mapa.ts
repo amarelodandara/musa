@@ -134,8 +134,15 @@ grade.addEventListener("touchend", (ev) => {
 new ResizeObserver(() => requestAnimationFrame(desenharLinha)).observe(grade);
 celular.addEventListener("change", () => definirModo(ler("modo") ?? "etapa", false));
 
-// início: etapa do link (#agendar), modo e linha lembrados
+// início: etapa do link (#agendar), modo e linha lembrados.
+// O link também pode trazer modo e linha (?modo=inteiro&linha=nao): vale como escolha da pessoa e fica lembrado.
+// Atalhos do rodapé: visão resumida = mapa inteiro sem a linha; visão detalhada = etapa por etapa, com a linha.
+const pedido = new URLSearchParams(location.search);
+const modoDoLink = pedido.get("modo"), linhaDoLink = pedido.get("linha");
+if (modoDoLink === "etapa" || modoDoLink === "inteiro") guardar("modo", modoDoLink);
+if (linhaDoLink === "sim" || linhaDoLink === "nao") guardar("linha", linhaDoLink);
 const doLink = etapas.findIndex((e) => "#" + e.dataset.etapa === location.hash);
 atual = doLink >= 0 ? doLink : 0;
-if (ler("linha") === "nao") { raiz.dataset.linha = "nao"; caixaLinha.checked = false; }
+const linhaInicial = ler("linha") === "nao" ? "nao" : "sim";
+raiz.dataset.linha = linhaInicial; caixaLinha.checked = linhaInicial === "sim";
 definirModo(ler("modo") ?? "etapa", false);

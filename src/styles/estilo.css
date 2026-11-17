@@ -27,8 +27,6 @@ a { color: var(--carmim-800); }
 a:hover { color: var(--carmim-950); }
 :focus-visible { outline: 3px solid var(--carmim-700); outline-offset: 2px; }
 
-.rodape { border-top: 1px solid var(--neutro-300); }
-.rodape-dentro { max-width: 1080px; margin: 0 auto; padding: 20px 16px 32px; display: flex; gap: 16px; justify-content: space-between; font-size: var(--tamanho-sm); color: var(--texto-700); }
 
 /* Página inicial */
 .texto { max-width: 680px; margin: 0 auto; padding: 40px 16px 72px; }

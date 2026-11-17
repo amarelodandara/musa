@@ -1,7 +1,11 @@
 ---
 // Marca da navegação: o ícone vira olho e o nome aparece (public/scripts/navegacao.js).
+// invertida: versão clara para a camada da barra que aparece sobre o rodapé carmim (fica fora do teclado e do leitor de tela).
+interface Props { invertida?: boolean }
+const { invertida = false } = Astro.props;
 ---
-<a class="nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline" href="/" aria-label="musá, página inicial">
+<a class:list={["nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline", { "nav-marca-invertida": invertida }]}
+  href="/" aria-label={invertida ? undefined : "musá, página inicial"} tabindex={invertida ? -1 : undefined}>
   <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
-  <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src="/brand/assets/musa-logotype-crimson.svg" alt="" width="68" height="23"></span>
+  <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src={invertida ? "/brand/assets/musa-logotype-offwhite.svg" : "/brand/assets/musa-logotype-crimson.svg"} alt="" width="68" height="23"></span>
 </a>

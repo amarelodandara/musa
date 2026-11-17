@@ -1,3 +1,136 @@
 ---
+// Rodapé de página inteira, em carmim, na largura da navegação. Em cima, os links na metade direita, em duas
+// colunas. Embaixo, o olho ao lado do logotipo, na proporção do lockup; o olho segue o cursor
+// (public/brand/musa-eye.js, opção invert) e sorri quando alguém clica num item da navegação do rodapé.
+// Itens sem href ainda não têm página: aparecem como botão desativado (aria-disabled), que só faz o olho sorrir.
+// Os focos usam contorno claro: o contorno padrão do site (carmim-700) some no fundo carmim.
+// Corte embaixo e tamanho do olho e do logotipo: classes do Tailwind na .rodape-marca, .rodape-olho e .rodape-logotipo.
+interface Item { rotulo: string; href?: string; filhos?: Item[] }
+interface Grupo { titulo: string; itens: Item[] }
+
+// Um grupo por coluna.
+const COLUNAS: Grupo[][] = [
+  [
+    {
+      titulo: "Mapa da Visita",
+      itens: [
+        { rotulo: "Visão resumida", href: "/mapa?modo=inteiro&linha=nao" },
+        { rotulo: "Visão detalhada", href: "/mapa?modo=etapa&linha=sim" },
+        { rotulo: "Para imprimir", href: "/baixar" } // pôster A1/A2/A4 e, depois, os outros materiais impressos
+      ]
+    }
+  ],
+  [
+    {
+      titulo: "musá",
+      itens: [
+        { rotulo: "Sobre", href: "/sobre" },
+        // para quem quer ir além do mapa: os termos (GLOSSARY.md), design de serviços, design da informação,
+        // referências e os bastidores do projeto (com o pré-projeto e o dossiê)
+        { rotulo: "Glossário" },
+        { rotulo: "Marca", href: "/brand/marca.html" },
+        { rotulo: "Licença" }           // o que pode e o que não pode fazer com o código (MIT) e o conteúdo (CC BY 4.0)
+      ]
+    }
+  ]
+];
 ---
-<footer class="rodape"><div class="rodape-dentro"><span>musá</span><a href="/brand/marca.html">Guia da marca</a></div></footer>
+<footer class="rodape">
+  <div class="rodape-dentro">
+    <nav class="rodape-links" aria-label="Rodapé">
+      {COLUNAS.map((grupos) => (
+        <div class="rodape-coluna flex flex-col gap-8">
+          {grupos.map((g) => (
+            <div>
+              <h2 class="rodape-titulo m-0 mb-3.5 font-inter text-sm font-medium normal-case tracking-normal text-neutro-300" translate={g.titulo === "musá" ? "no" : undefined}>{g.titulo}</h2>
+              <ul class="rodape-lista m-0 p-0 list-none flex flex-col gap-1">
+                {g.itens.map((i) => (
+                  <li>
+                    {i.href
+                      ? <a class="rodape-link text-sm font-normal text-neutro-50 no-underline hover:underline underline-offset-4 hover:text-neutro-50 focus-visible:outline-neutro-50" href={i.href}>{i.rotulo}</a>
+                      : <button type="button" class="rodape-pendente m-0 p-0 border-0 bg-transparente font-inter text-left text-sm font-normal text-carmim-300 cursor-default focus-visible:outline-neutro-50" aria-disabled="true">{i.rotulo}</button>}
+                    {i.filhos && (
+                      <ul class="rodape-lista m-0 mt-1 pl-3 list-none flex flex-col gap-1">
+                        {i.filhos.map((f) => <li>{f.href
+                      ? <a class="rodape-link text-sm font-normal text-neutro-50 no-underline hover:underline underline-offset-4 hover:text-neutro-50 focus-visible:outline-neutro-50" href={f.href}>{f.rotulo}</a>
+                      : <button type="button" class="rodape-pendente m-0 p-0 border-0 bg-transparente font-inter text-left text-sm font-normal text-carmim-300 cursor-default focus-visible:outline-neutro-50" aria-disabled="true">{f.rotulo}</button>}</li>)}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ))}
+    </nav>
+    <div class="rodape-marca translate-y-1/3" role="img" aria-label="musá">
+      <svg class="rodape-olho shrink-0 w-3/10" aria-hidden="true"></svg>
+      <img class="rodape-logotipo shrink-0 w-13/20" src="/brand/assets/musa-logotype-offwhite.svg" alt="" width="1024" height="347" loading="lazy" decoding="async">
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Roda depois dos scripts clássicos do Base (musa-geometry.js e musa-eye.js), por ser módulo.
+  const svg = document.querySelector<SVGSVGElement>(".rodape-olho");
+  const w = window as any;
+  if (svg && w.MusaEye && w.MUSA) {
+    const raiz = getComputedStyle(document.documentElement);
+    // Já começa como olho (sem a passagem do símbolo): o tile vira o fundo carmim e o olho fica claro.
+    const olho = w.MusaEye.create(svg, {
+      frame: "symbol",
+      viewBox: "-66 -66 132 132", // folga para o olho não encostar na borda quando olha para o canto
+      logo: w.MUSA.RING_PRESETS.lockup,
+      ink: raiz.getPropertyValue("--neutro-50").trim() || "#FDF9F9",
+      paper: "transparent",
+      invert: raiz.getPropertyValue("--carmim-800").trim() || "#930031",
+      state: 1,
+      still: matchMedia("(prefers-reduced-motion: reduce)").matches // sem seguir o cursor e sem mola no sorriso
+    });
+
+    // Clique em qualquer item da navegação do rodapé: o olho sorri.
+    // Nos links, a ida para a página espera o sorriso aparecer (só no clique simples, sem tecla de nova aba).
+    const SORRISO_MS = 380;
+    const reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let volta = 0;
+    const sorrir = () => {
+      clearTimeout(volta);
+      olho.setMood("happy");
+      volta = window.setTimeout(() => olho.setMood("neutral"), 1600);
+    };
+    document.querySelectorAll<HTMLElement>(".rodape-link, .rodape-pendente").forEach((item) => {
+      item.addEventListener("click", (ev) => {
+        sorrir();
+        if (!(item instanceof HTMLAnchorElement) || reduzir) return;
+        if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.defaultPrevented) return;
+        ev.preventDefault();
+        window.setTimeout(() => { location.href = item.href; }, SORRISO_MS);
+      });
+    });
+  }
+</script>
+
+<style>
+  /* overflow: a marca desce além do fim da página e fica cortada embaixo (quanto: classe translate-y-* na .rodape-marca) */
+  .rodape { background: var(--carmim-800); color: var(--neutro-50); font-family: var(--fonte-inter); overflow: hidden; }
+  /* em cima, 72 px (56 no celular) mais os 48 px da barra de navegação fixa no topo */
+  .rodape-dentro {
+    padding: 120px 24px 0; min-height: 100svh; box-sizing: border-box;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto 1fr; column-gap: 32px; row-gap: 64px;
+  }
+  .rodape-links { grid-column: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+  /* Larguras do olho e do logotipo vêm de classes w-* na marcação; o espaço entre eles é o que sobra (justify-between),
+     para a marca encostar nas duas margens da página.
+     Quem encosta na margem esquerda é o anel do olho: raio 30,46 × zoom 1,576 = 48 unidades num viewBox de 132,
+     folga de 18 = 13,6% da largura.
+     Alinhamento do lockup: o meio da altura-x do logotipo (entre 30,6 e 92,6 do viewBox de 94,1) fica no centro
+     do olho. Centralizado, o logotipo sobe 14,5 unidades = 15,4% da própria altura. */
+  .rodape-marca { grid-column: 1 / -1; align-self: end; display: flex; align-items: center; justify-content: space-between; }
+  .rodape-olho { display: block; aspect-ratio: 1; transform: translateX(-13.6%); }
+  .rodape-logotipo { display: block; height: auto; transform: translateY(-15.4%); }
+  @media (max-width: 720px) {
+    .rodape-dentro { grid-template-columns: minmax(0, 1fr); padding: 104px 16px 0; }
+    .rodape-links { grid-column: 1; }
+  }
+</style>

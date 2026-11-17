@@ -15,7 +15,8 @@
     duracaoS: 3.5          // quanto tempo fica aberto quando acorda sozinho
   }, window.MUSA_NAV || {}));
 
-  const marcas = [...document.querySelectorAll(".nav-marca")];
+  // a marca da camada invertida (sobre o rodapé) não ganha olho próprio: espelha a da camada normal
+  const marcas = [...document.querySelectorAll(".nav-marca:not(.nav-marca-invertida)")];
   if (!marcas.length || !window.MUSA || !window.MusaEye) return;
 
   const raiz = getComputedStyle(document.documentElement);
@@ -48,6 +49,41 @@
     const p = window.MUSA.RING_PRESETS[nome]; if (!p) return;
     NAV.aneis = nome; controles.forEach((c) => c.olho.setLogo(p));
   };
+
+  // Camada invertida da barra (claro sobre carmim): recortada para aparecer só na faixa que já está sobre o rodapé.
+  // O recorte acompanha a borda do rodapé a cada quadro de rolagem. A marca dela espelha o olho da camada normal.
+  const barra = document.querySelector(".nav"), invertida = barra && barra.querySelector(".nav-invertida");
+  const rodape = document.querySelector(".rodape");
+  if (invertida && rodape) {
+    const gemea = invertida.querySelector(".nav-marca-invertida"), original = controles[0];
+    if (gemea && original) {
+      window.MusaEye.create(gemea.querySelector(".nav-olho"), {
+        frame: "tile", logo: window.MUSA.RING_PRESETS[NAV.aneis] || window.MUSA.RING_PRESETS.lockup, mirror: original.olho,
+        ink: cor("--neutro-50", "#FDF9F9"), paper: cor("--carmim-800", "#930031"), quality: 0.6
+      });
+      if (mouse) {
+        gemea.addEventListener("pointerenter", original.abrir);
+        gemea.addEventListener("pointerleave", original.fechar);
+      }
+      // o estado aberto (data-aberto) vale para as duas marcas
+      new MutationObserver(() => gemea.toggleAttribute("data-aberto", original.marca.hasAttribute("data-aberto")))
+        .observe(original.marca, { attributes: true, attributeFilter: ["data-aberto"] });
+    }
+    let pedido = 0, ultimo = -1;
+    const recortar = () => {
+      pedido = 0;
+      const b = barra.getBoundingClientRect(), topo = rodape.getBoundingClientRect().top;
+      const corte = Math.round(Math.min(b.height, Math.max(0, topo - b.top)));
+      if (corte === ultimo) return;
+      ultimo = corte;
+      invertida.style.clipPath = `inset(${corte}px 0 0 0)`;
+      invertida.style.display = corte >= b.height ? "none" : ""; // fora do rodapé: some de vez (e o olho espelho para de desenhar)
+    };
+    const agendar = () => { if (!pedido) pedido = requestAnimationFrame(recortar); };
+    addEventListener("scroll", agendar, { passive: true });
+    addEventListener("resize", agendar);
+    recortar();
+  }
 
   // Ocioso no topo da página inicial: abre, olha em volta, fecha.
   const topo = document.querySelector("[data-hero]");

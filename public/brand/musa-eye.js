@@ -8,6 +8,12 @@
  *   "symbol" (moldura + tile + anéis), "tile" (Ícone) ou "lockup" (símbolo + logotipo). "rings" fica só para uso interno.
  *   Nas peças com tile, os anéis são vazados no tile (como no arquivo da marca). Na transição o tile cresce até virar o fundo,
  *   a moldura sai, o logotipo some, e o olho fica vazado num campo de tinta.
+ * mirror: outro olho (o retorno de create) que este copia quadro a quadro: mesma forma, olhar, piscada e humor,
+ *   com as cores próprias. Serve para uma cópia da peça em outras cores (ex.: a barra invertida sobre o rodapé).
+ * still: olho parado (para prefers-reduced-motion): não segue o cursor nem dá olhadelas, fica no olhar de repouso,
+ *   e as trocas de humor acontecem de uma vez, sem mola.
+ * invert: cor final do campo (ex.: o carmim do fundo). Na transição o tile passa da tinta para essa cor e o olho
+ *   passa a ser desenhado na tinta: a peça clara sobre fundo escuro vira um olho claro solto no fundo.
  */
 (function (root) {
   "use strict";
@@ -24,6 +30,8 @@
     avatar: { rings: 1, pupilR: 0, pupilGap: 8, weight: 0.62 },
     // morph
     morphDur: 0.7, stagger: 0.15,
+    // fases da transição símbolo → olho, como [início, fim] dentro do progresso 0..1 (peças com tile/moldura)
+    phases: { zoom: [0, 1], tile: [0.12, 1], frame: [0, 0.55], invert: [0.15, 0.85], word: [0, 0.45] },
     // repouso (valores do lab, 12 nov 2026): olhar para baixo e para a direita da tela, que é a esquerda do olho
     restGaze: [0.6, 1],
     glance: 0.18,          // amplitude das olhadelas em repouso
@@ -130,7 +138,7 @@
   }
 
   /* ---------- instâncias ---------- */
-  const eyes = [];
+  const eyes = [], internos = new WeakMap();
   let uid = 0, last = 0, running = false;
 
   function create(svg, opts = {}) {
@@ -145,13 +153,14 @@
       const MU = root.MUSA, cx = MU.SPEC.center.x, cy = MU.SPEC.center.y;
       const word = frame === "lockup" ? `<g class="word" fill="currentColor"><g transform="translate(${-cx} ${-cy})">${MU.WORDMARK.map(d => `<path d="${d}"/>`).join("")}</g></g>` : "";
       svg.innerHTML = `<defs><mask id="${id}m" maskUnits="userSpaceOnUse" x="-4000" y="-4000" width="8000" height="8000">
-<rect x="-4000" y="-4000" width="8000" height="8000" fill="#fff"/>${eyeG.replace('class="eye"', 'class="eye" fill="#000"')}</mask></defs>
+<rect x="-4000" y="-4000" width="8000" height="8000" fill="#fff"/><g fill="#000"><g id="${id}e">${eyeG}</g></g></mask></defs>
 <rect class="bg" x="-4000" y="-4000" width="8000" height="8000"/>
-<g class="zoom"><path class="frame" fill-rule="evenodd" fill="currentColor"/><rect class="tile" fill="currentColor" mask="url(#${id}m)"/>${word}</g>`;
+<g class="zoom"><path class="frame" fill-rule="evenodd" fill="currentColor"/><rect class="tile" fill="currentColor" mask="url(#${id}m)"/>${word}${opts.invert ? `<use class="eye-paper" href="#${id}e" opacity="0"/>` : ""}</g>`;
     }
     const e = {
       svg, frame, FR, eyeEl: svg.querySelector(".eye"), outer: svg.querySelector(".outer"), inner: svg.querySelector(".inner"),
       zoom: svg.querySelector(".zoom"), frameEl: svg.querySelector(".frame"), tileEl: svg.querySelector(".tile"), word: svg.querySelector(".word"), bg: svg.querySelector(".bg"),
+      inv: opts.invert, eyePaper: svg.querySelector(".eye-paper"), src: opts.mirror ? internos.get(opts.mirror) : null, still: !!opts.still,
       logo: opts.logo, ink: opts.ink || "#930031", paper: opts.paper || "#FFFBFB", q: opts.quality || 1,
       T: 0, morph: { from: opts.state ?? 0, to: opts.state ?? 0, t0: 0, dur: 0 },
       mood: "neutral", S: { ...NEUTRAL, gx: 0, gy: 0 }, V: {}, sacc: [0, 0], saccNext: 1.5,
@@ -160,7 +169,7 @@
     for (const k in e.S) e.V[k] = 0;
     const paint = () => {
       if (frame === "rings") e.eyeEl.setAttribute("fill", e.ink);
-      else { svg.style.color = e.ink; e.bg.setAttribute("fill", e.paper); }
+      else { svg.style.color = e.ink; e.bg.setAttribute("fill", e.paper); if (e.eyePaper) e.eyePaper.setAttribute("fill", e.ink); }
     };
     paint();
     const api = {
@@ -174,8 +183,9 @@
       setLogo(p) { e.logo = p; },
       destroy() { const i = eyes.indexOf(e); if (i >= 0) eyes.splice(i, 1); }
     };
+    internos.set(api, e);
     eyes.push(e); start();
-    draw(e);
+    if (e.src) copiar(e); draw(e);
     return api;
   }
   // Enquadramento de cada peça (centro dos anéis na origem, medidas de musa-geometry.js).
@@ -187,11 +197,13 @@
     lockup: { viewBox: "-60 -60 426.5 120", zoomEnd: 1, cover: false, hasFrame: true, word: true }
   };
   const sq = (h) => `M${-h} ${-h}H${h}V${h}H${-h}Z`;
+  const fase = (m, [a, b]) => b > a ? clamp((m - a) / (b - a), 0, 1) : (m >= a ? 1 : 0);
   function drawFrame(e, m) {
     const FR = e.FR; if (!FR.zoomEnd) return;
     const vh = parseFloat(FR.viewBox.split(" ")[3]) / 2;
-    const z = lerp(1, FR.zoomEnd, easeIO(m));
-    const g = ease((m - .12) / .88);
+    const P = CONFIG.phases;
+    const z = lerp(1, FR.zoomEnd, easeIO(fase(m, P.zoom)));
+    const g = ease(fase(m, P.tile));
     const end = FR.cover ? vh / FR.zoomEnd * 1.6 : FRAME;
     const t = lerp(TILE, end, g);
     e.zoom.setAttribute("transform", `scale(${z.toFixed(4)})`);
@@ -200,15 +212,25 @@
     if (FR.hasFrame) {
       const fh = FR.cover ? t + (FRAME - TILE) : FRAME;
       e.frameEl.setAttribute("d", sq(fh) + sq(fh - STROKE));
-      e.frameEl.setAttribute("opacity", (1 - ease(m / .55)).toFixed(3));
+      e.frameEl.setAttribute("opacity", (1 - ease(fase(m, P.frame))).toFixed(3));
+    }
+    if (e.inv) {
+      const a = ease(fase(m, P.invert));
+      e.svg.style.color = `color-mix(in oklch, ${e.inv} ${(a * 100).toFixed(1)}%, ${e.ink})`;
+      e.eyePaper.setAttribute("opacity", a.toFixed(3));
     }
     if (e.word) {
-      const a = ease(m / .45);
+      const a = ease(fase(m, P.word));
       e.word.setAttribute("opacity", (1 - a).toFixed(3));
       e.word.setAttribute("transform", `translate(${(-14 * a).toFixed(2)} 0)`);
     }
   }
 
+  // olho espelho: pega o estado do original (o original sempre vem antes na lista e já deu o passo deste quadro)
+  function copiar(e) {
+    const o = e.src;
+    e.T = o.T; e.morph = o.morph; e.mood = o.mood; e.S = o.S; e.blinkT = o.blinkT; e.logo = o.logo;
+  }
   const morphNow = e => { const u = e.morph.dur > 0 ? (e.T - e.morph.t0) / e.morph.dur : 1; return lerp(e.morph.from, e.morph.to, easeIO(u)); };
 
   function gazeToward(e, x, y) {
@@ -226,7 +248,8 @@
     const m = morphNow(e), life = ease(m);
     // alvo do olhar
     let g;
-    if (e.lookAt && e.T < e.lookAt.until) g = gazeToward(e, e.lookAt.x, e.lookAt.y);
+    if (e.still) g = CONFIG.restGaze;
+    else if (e.lookAt && e.T < e.lookAt.until) g = gazeToward(e, e.lookAt.x, e.lookAt.y);
     else if (CONFIG.follow && pointer.known) {
       const p = gazeToward(e, pointer.x, pointer.y), k = CONFIG.followMix;
       g = [p[0] * k + CONFIG.restGaze[0] * (1 - k), p[1] * k + CONFIG.restGaze[1] * (1 - k)];
@@ -241,7 +264,8 @@
     const md = MOODS[e.mood], tgt = { gx: g[0], gy: g[1] };
     for (const k of MOOD_KEYS) tgt[k] = k in md.pose ? md.pose[k] : NEUTRAL[k];
     const n = Math.ceil(dt / (1 / 240)), h = dt / n;
-    for (const k in tgt) {
+    if (e.still) for (const k in tgt) { e.S[k] = tgt[k]; e.V[k] = 0; }
+    else for (const k in tgt) {
       const gaze = k === "gx" || k === "gy";
       const kk = gaze ? CONFIG.stiff * 2.6 : md.stiff, cc = 2 * Math.sqrt(kk) * (gaze ? CONFIG.damp : md.damp);
       for (let i = 0; i < n; i++) { e.V[k] += ((tgt[k] - e.S[k]) * kk - e.V[k] * cc) * h; e.S[k] += e.V[k] * h; }
@@ -282,7 +306,7 @@
       const b = e.svg.getBoundingClientRect();
       const visible = b.bottom > 0 && b.top < innerHeight && b.width > 0;
       if (!visible) continue;
-      step(e, dt);
+      if (e.src) copiar(e); else step(e, dt);
       // parado no estado logo, o desenho não muda: desenha uma vez e pula os quadros seguintes
       if (e.morph.to === 0 && morphNow(e) === 0) { if (!e.parado) { draw(e); e.parado = true; } continue; }
       e.parado = false;
