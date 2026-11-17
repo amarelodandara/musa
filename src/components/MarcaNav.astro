@@ -1,11 +1,17 @@
 ---
-// Marca da navegação: o ícone vira olho e o nome aparece (public/scripts/navegacao.js).
+// Marca da navegação: o ícone (versão pequena, 3 anéis) vira olho sem moldura e o nome aparece (public/scripts/navegacao.js).
+// O nome segue a proporção do lockup aberto: a altura do logotipo é a do olho, e o meio da altura-x fica no centro do olho
+// (sobe 2/13 = 15,4% da própria altura). Entra devagar e depois do olho começar a abrir; sai rápido.
 // invertida: versão clara para a camada da barra que aparece sobre o rodapé carmim (fica fora do teclado e do leitor de tela).
-interface Props { invertida?: boolean }
-const { invertida = false } = Astro.props;
+// sempreNome: o nome fica sempre à vista (variante "lockup" da barra), com mais espaço: o ícone fechado é maior que o olho.
+interface Props { invertida?: boolean; sempreNome?: boolean }
+const { invertida = false, sempreNome = false } = Astro.props;
+const revelar = sempreNome
+  ? "opacity-100"
+  : "transicao-revelar motion-reduce:transition-none ease-forte duration-200 delay-0 group-data-aberto:duration-500 group-data-aberto:delay-150 opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0";
 ---
-<a class:list={["nav-marca group inline-flex items-center gap-2.5 rounded-sm no-underline", { "nav-marca-invertida": invertida }]}
+<a class:list={["nav-marca group inline-flex items-center rounded-sm no-underline", sempreNome ? "gap-2.5" : "gap-1", { "nav-marca-invertida": invertida }]}
   href="/" aria-label={invertida ? undefined : "musá, página inicial"} tabindex={invertida ? -1 : undefined}>
   <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
-  <span class="nav-nome block leading-none transicao-revelar duration-250 ease-forte delay-0 motion-reduce:transition-none opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0" aria-hidden="true"><img class="block w-auto h-5" src={invertida ? "/brand/assets/musa-logotype-offwhite.svg" : "/brand/assets/musa-logotype-crimson.svg"} alt="" width="68" height="23"></span>
+  <span class={`nav-nome block leading-none ${revelar}`} aria-hidden="true"><img class="block w-auto h-7 -translate-y-2/13" src={invertida ? "/brand/assets/musa-logotype-offwhite.svg" : "/brand/assets/musa-logotype-crimson.svg"} alt="" width="83" height="28"></span>
 </a>

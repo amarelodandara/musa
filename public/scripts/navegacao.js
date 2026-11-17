@@ -7,12 +7,12 @@
 (function () {
   "use strict";
   const NAV = (window.MUSA_NAV = Object.assign({
-    aneis: "lockup",       // conjunto de anéis do logo: "lockup" (Vector.svg) ou "v6" (playground)
+    aneis: "pequeno",      // anéis do logo: "pequeno" (3 anéis, para tamanho pequeno como esta barra) ou "lockup" (8)
     ocioso: true,          // olho acorda sozinho quando a pessoa fica parada no topo da página inicial
     esperarS: 5,           // segundos sem mexer até acordar
     repetirMinS: 12,       // intervalo entre uma vez e outra (mínimo e máximo, sorteado)
     repetirMaxS: 20,
-    duracaoS: 3.5          // quanto tempo fica aberto quando acorda sozinho
+    duracaoS: 6            // quanto tempo fica aberto quando acorda sozinho
   }, window.MUSA_NAV || {}));
 
   // a marca da camada invertida (sobre o rodapé) não ganha olho próprio: espelha a da camada normal
@@ -30,6 +30,7 @@
       logo: window.MUSA.RING_PRESETS[NAV.aneis] || window.MUSA.RING_PRESETS.lockup,
       ink: cor("--carmim-800", "#930031"),
       paper: cor("--neutro-50", "#FDF9F9"),
+      invert: cor("--neutro-50", "#FDF9F9"), // aberto, o tile some no fundo da barra e fica só o olho carmim, sem moldura
       state: 0,
       quality: 0.6
     });
@@ -59,7 +60,7 @@
     if (gemea && original) {
       window.MusaEye.create(gemea.querySelector(".nav-olho"), {
         frame: "tile", logo: window.MUSA.RING_PRESETS[NAV.aneis] || window.MUSA.RING_PRESETS.lockup, mirror: original.olho,
-        ink: cor("--neutro-50", "#FDF9F9"), paper: cor("--carmim-800", "#930031"), quality: 0.6
+        ink: cor("--neutro-50", "#FDF9F9"), paper: cor("--carmim-800", "#930031"), invert: cor("--carmim-800", "#930031"), quality: 0.6
       });
       if (mouse) {
         gemea.addEventListener("pointerenter", original.abrir);

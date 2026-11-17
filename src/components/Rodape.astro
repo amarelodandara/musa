@@ -114,9 +114,9 @@ const COLUNAS: Grupo[][] = [
 <style>
   /* overflow: a marca desce além do fim da página e fica cortada embaixo (quanto: classe translate-y-* na .rodape-marca) */
   .rodape { background: var(--carmim-800); color: var(--neutro-50); font-family: var(--fonte-inter); overflow: hidden; }
-  /* em cima, 72 px (56 no celular) mais os 48 px da barra de navegação fixa no topo */
+  /* em cima, 72 px (56 no celular) mais os 80 px da barra de navegação fixa no topo */
   .rodape-dentro {
-    padding: 120px 24px 0; min-height: 100svh; box-sizing: border-box;
+    padding: 152px 24px 0; min-height: 100svh; box-sizing: border-box;
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto 1fr; column-gap: 32px; row-gap: 64px;
   }
   .rodape-links { grid-column: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
@@ -130,7 +130,7 @@ const COLUNAS: Grupo[][] = [
   .rodape-olho { display: block; aspect-ratio: 1; transform: translateX(-13.6%); }
   .rodape-logotipo { display: block; height: auto; transform: translateY(-15.4%); }
   @media (max-width: 720px) {
-    .rodape-dentro { grid-template-columns: minmax(0, 1fr); padding: 104px 16px 0; }
+    .rodape-dentro { grid-template-columns: minmax(0, 1fr); padding: 136px 16px 0; }
     .rodape-links { grid-column: 1; }
   }
 </style>

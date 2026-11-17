@@ -1,37 +1,28 @@
 ---
-// Navegação principal: marca, Sobre, e as duas ações (Baixar o mapa, Usar o mapa).
+// Navegação principal: a marca e as duas ações (Baixar o mapa, Usar o mapa). Fundo opaco na cor da página, sem linha.
 // Duas camadas iguais: a normal e, por cima, a invertida (claro sobre carmim). A invertida é recortada com clip-path
 // para aparecer só na faixa da barra que já está sobre o rodapé, então a troca de cor acompanha a borda do rodapé
 // (public/scripts/navegacao.js). A camada invertida fica fora do teclado e do leitor de tela.
+// variante: "lockup" (nome sempre à vista, a escolhida) ou "olho" (ícone que vira olho e só então mostra o nome). Ver /dev/barra.
+// Altura h-20 (80 px): a marca e os botões respiram longe do topo da janela.
 import MarcaNav from "./MarcaNav.astro";
+interface Props { variante?: "olho" | "lockup"; fixa?: boolean }
+const { variante = "lockup", fixa = true } = Astro.props;
 const atual = Astro.url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
 const camadas = [
-  {
-    invertida: false,
-    faixa: "border-neutro-300",
-    link: "text-texto-900 hover:bg-neutro-100 hover:text-texto-950 data-atual:text-carmim-800",
-    secundario: ""
-  },
-  {
-    invertida: true,
-    faixa: "border-carmim-700",
-    link: "text-neutro-50 hover:bg-carmim-900 hover:text-neutro-50 data-atual:text-neutro-50",
-    secundario: "bg-carmim-800 text-neutro-50 border-neutro-50 hover:bg-carmim-900 hover:border-neutro-50"
-  }
+  { invertida: false, fundo: "bg-neutro-50", secundario: "" },
+  { invertida: true, fundo: "bg-carmim-800", secundario: "bg-carmim-800 text-neutro-50 border-neutro-50 hover:bg-carmim-900 hover:border-neutro-50" }
 ];
 ---
-<header class="nav sticky top-0 z-10 bg-transparente shadow-none">
+<header class:list={["nav z-10 bg-neutro-50", fixa ? "sticky top-0" : "relative"]}>
   {camadas.map((c) => (
     <div
-      class:list={["nav-dentro mx-auto flex items-center h-12 max-w-none px-6 gap-6 border-b box-content", c.faixa, { "nav-invertida absolute inset-x-0 top-0": c.invertida }]}
-      style={c.invertida ? "clip-path: inset(100% 0 0 0)" : undefined}
+      class:list={["nav-dentro mx-auto flex items-center h-20 max-w-none px-6 gap-6", c.fundo, { "nav-invertida absolute inset-x-0 top-0": c.invertida }]}
+      style={c.invertida ? "clip-path: inset(100% 0 0 0); display: none" : undefined}
       aria-hidden={c.invertida ? "true" : undefined}
     >
-      <MarcaNav invertida={c.invertida} />
+      <MarcaNav invertida={c.invertida} sempreNome={variante === "lockup"} />
       <nav class="nav-links ml-auto flex items-center gap-2" aria-label={c.invertida ? undefined : "Principal"}>
-        <a class={`nav-link block px-2.5 py-2 rounded-sm text-sm font-medium font-inter no-underline transition-colors duration-150 ${c.link}`} href="/sobre"
-          tabindex={c.invertida ? -1 : undefined}
-          aria-current={!c.invertida && atual === "/sobre" ? "page" : undefined} data-atual={atual === "/sobre" ? "" : undefined}>Sobre</a>
         <a class={`botao secundario botao-pequeno ${c.secundario}`} href="/baixar" tabindex={c.invertida ? -1 : undefined}
           aria-current={!c.invertida && atual === "/baixar" ? "page" : undefined}>Baixar o mapa</a>
         <a class="botao botao-pequeno" href="/mapa" tabindex={c.invertida ? -1 : undefined}>Usar o mapa</a>

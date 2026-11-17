@@ -1,0 +1,27 @@
+---
+// Comparação das versões da barra de navegação, só em desenvolvimento (no site publicado redireciona para o início).
+//   olho:   o ícone (3 anéis) vira olho ao passar o mouse e o nome aparece (a barra atual)
+//   lockup: o nome fica sempre à vista ao lado do ícone; o ícone ainda vira olho ao passar o mouse
+import Base from "../../layouts/Base.astro";
+import Cabecalho from "../../components/Cabecalho.astro";
+const dev = import.meta.env.DEV;
+if (!dev) return Astro.redirect("/");
+---
+<Base titulo="Barra · revisão" cabecalho={false} rodape={false}>
+<main class="barras">
+  <p class="tagline">Revisão da barra</p>
+  <h1>Duas versões da barra</h1>
+  <p class="nota">Passe o mouse em cada marca.</p>
+  <h2>Olho</h2>
+  <div class="moldura"><Cabecalho variante="olho" fixa={false} /></div>
+  <h2>Lockup (a da barra)</h2>
+  <div class="moldura"><Cabecalho variante="lockup" fixa={false} /></div>
+</main>
+</Base>
+
+<style>
+  .barras { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  .barras h2 { margin: 40px 0 12px; }
+  .nota { color: var(--texto-700); }
+  .moldura { border: 1px dashed var(--neutro-400); }
+</style>
