@@ -4,10 +4,10 @@
   "etapas": [
     {
       "ordem": 1,
-      "id": "descobrir",
-      "nome": "Descobrir o museu",
+      "id": "descoberta",
+      "nome": "Descoberta do museu",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Descobrir o museu\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Descoberta do museu\" do ponto de vista da escola.",
       "acoesEscola": "Procura opções de passeio para a turma. Em geral, ainda não sabem do museu.",
       "sentimento": "Curioso",
       "pensamento": "Onde eu acho um museu que receba escolas?",
@@ -16,22 +16,10 @@
     },
     {
       "ordem": 2,
-      "id": "decidir",
-      "nome": "Decidir pela visita",
+      "id": "agendamento",
+      "nome": "Agendamento da visita",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Decidir pela visita\" do ponto de vista da escola.",
-      "acoesEscola": "Avalia se o museu faz sentido e se a escola consegue ir; pede aprovação. Podem ou não ser ouvidos sobre o passeio.",
-      "sentimento": "Inseguro",
-      "pensamento": "Será que vale o esforço de levar a turma?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
-    },
-    {
-      "ordem": 3,
-      "id": "agendar",
-      "nome": "Agendar",
-      "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Agendar\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Agendamento da visita\" do ponto de vista da escola.",
       "acoesEscola": "Tenta marcar data, horário e tamanho do grupo.",
       "sentimento": "Frustrado",
       "pensamento": "Ninguém responde o e-mail do agendamento…",
@@ -39,11 +27,11 @@
       "fonteSentimento": "ENT"
     },
     {
-      "ordem": 4,
-      "id": "preparar",
-      "nome": "Preparar a visita",
+      "ordem": 3,
+      "id": "preparacao",
+      "nome": "Preparação para visita",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Preparar a visita\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Preparação para visita\" do ponto de vista da escola.",
       "acoesEscola": "Organiza transporte e autorizações; conversa com a turma. Levam a autorização para casa e criam expectativas.",
       "sentimento": "Inseguro",
       "pensamento": "E se chover? E o ônibus?",
@@ -51,11 +39,11 @@
       "fonteSentimento": "ENT"
     },
     {
-      "ordem": 5,
-      "id": "chegar",
-      "nome": "Chegar e ser recebido",
+      "ordem": 4,
+      "id": "recepcao",
+      "nome": "Recepção no museu",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Chegar e ser recebido\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Recepção no museu\" do ponto de vista da escola.",
       "acoesEscola": "Conduz e conta o grupo; procura quem vai recebê-lo. Entram em um lugar que talvez nunca tenham visitado.",
       "sentimento": "Tranquilo",
       "pensamento": "Ufa, tem alguém esperando a gente.",
@@ -63,11 +51,11 @@
       "fonteSentimento": "ENT"
     },
     {
-      "ordem": 6,
-      "id": "visitar",
-      "nome": "Percorrer a exposição",
+      "ordem": 5,
+      "id": "mediacao",
+      "nome": "Mediação no museu",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Percorrer a exposição\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Mediação no museu\" do ponto de vista da escola.",
       "acoesEscola": "Acompanha a turma e ajuda a manter o grupo junto. Olham, perguntam, conversam, se cansam.",
       "sentimento": "Animado",
       "pensamento": "Olha como eles estão prestando atenção!",
@@ -75,23 +63,11 @@
       "fonteSentimento": "ENT"
     },
     {
-      "ordem": 7,
-      "id": "pausar",
-      "nome": "Fazer uma pausa",
+      "ordem": 6,
+      "id": "encerramento",
+      "nome": "Encerramento da visita",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Fazer uma pausa\" do ponto de vista da escola.",
-      "acoesEscola": "Administra banheiro, água e lanche. Comem, descansam, vão ao banheiro.",
-      "sentimento": "Tranquilo",
-      "pensamento": "Onde os alunos podem lanchar?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
-    },
-    {
-      "ordem": 8,
-      "id": "encerrar",
-      "nome": "Encerrar e sair",
-      "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Encerrar e sair\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Encerramento da visita\" do ponto de vista da escola.",
       "acoesEscola": "Reúne o grupo e cuida do horário de volta. Saem com uma impressão do que é um museu.",
       "sentimento": "Confiante",
       "pensamento": "Deu tudo certo, mas foi corrido.",
@@ -99,38 +75,14 @@
       "fonteSentimento": "ENT"
     },
     {
-      "ordem": 9,
-      "id": "retomar",
-      "nome": "Retomar na escola",
+      "ordem": 7,
+      "id": "vinculo",
+      "nome": "Criação de vínculo",
       "fase": "Depois",
-      "descricao": "Exemplo: o que acontece em \"Retomar na escola\" do ponto de vista da escola.",
+      "descricao": "Exemplo: o que acontece em \"Criação de vínculo\" do ponto de vista da escola.",
       "acoesEscola": "Retoma ou não a visita em sala. Contam o que viram, em sala e em casa.",
       "sentimento": "Confiante",
       "pensamento": "Como eu continuo isso em sala?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
-    },
-    {
-      "ordem": 10,
-      "id": "avaliar",
-      "nome": "Dar e receber retorno",
-      "fase": "Depois",
-      "descricao": "Exemplo: o que acontece em \"Dar e receber retorno\" do ponto de vista da escola.",
-      "acoesEscola": "Conta ou não ao museu como foi. Raramente são perguntados.",
-      "sentimento": null,
-      "pensamento": null,
-      "origemSentimento": null,
-      "fonteSentimento": null
-    },
-    {
-      "ordem": 11,
-      "id": "voltar",
-      "nome": "Voltar ao museu",
-      "fase": "Depois",
-      "descricao": "Exemplo: o que acontece em \"Voltar ao museu\" do ponto de vista da escola.",
-      "acoesEscola": "Decide se repete a visita com outra turma. Podem voltar por conta própria, com a família, ou nunca mais.",
-      "sentimento": "Animado",
-      "pensamento": "Quero trazer a próxima turma.",
       "origemSentimento": "Pesquisa de campo",
       "fonteSentimento": "ENT"
     }
@@ -179,119 +131,119 @@
   ],
   "pontosContato": [
     {
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "canal": "Site",
       "descricao": "Exemplo: como a escola usa site nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "canal": "Redes sociais",
       "descricao": "Exemplo: como a escola usa redes sociais nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "canal": "Site",
       "descricao": "Exemplo: como a escola usa site nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "canal": "E-mail",
       "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "canal": "Telefone",
       "descricao": "Exemplo: como a escola usa telefone nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "canal": "E-mail",
       "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "canal": "E-mail",
       "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "canal": "Recepção",
       "descricao": "Exemplo: como a escola usa recepção nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "canal": "Segurança",
       "descricao": "Exemplo: como a escola usa segurança nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "canal": "Mediador",
       "descricao": "Exemplo: como a escola usa mediador nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "canal": "Exposição",
       "descricao": "Exemplo: como a escola usa exposição nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "canal": "Área de convivência",
       "descricao": "Exemplo: como a escola usa área de convivência nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "encerrar",
+      "etapa": "encerramento",
       "canal": "Recepção",
       "descricao": "Exemplo: como a escola usa recepção nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "retomar",
+      "etapa": "vinculo",
       "canal": "Material de apoio",
       "descricao": "Exemplo: como a escola usa material de apoio nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "canal": "Formulário de avaliação",
       "descricao": "Exemplo: como a escola usa formulário de avaliação nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "canal": "Redes sociais",
       "descricao": "Exemplo: como a escola usa redes sociais nesta etapa.",
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "canal": "Newsletter",
       "descricao": "Exemplo: como a escola usa newsletter nesta etapa.",
       "origem": "Pesquisa de campo",
@@ -301,7 +253,7 @@
   "praticas": [
     {
       "id": "p1",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Reservar nos canais do museu um espaço só para as atividades educativas.",
@@ -311,7 +263,7 @@
     },
     {
       "id": "p2",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Divulgar diretamente para escolas e professores.",
@@ -321,7 +273,7 @@
     },
     {
       "id": "p3",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Depender de um único canal e esperar que a escola o encontre.",
@@ -331,7 +283,7 @@
     },
     {
       "id": "p4",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Anunciar só as exposições novas, sem dizer que o museu recebe escolas.",
@@ -341,7 +293,7 @@
     },
     {
       "id": "p5",
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Publicar o essencial para decidir: faixa etária, duração, custo e capacidade.",
@@ -351,7 +303,7 @@
     },
     {
       "id": "p6",
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Informar as condições de acessibilidade em formatos também acessíveis.",
@@ -361,7 +313,7 @@
     },
     {
       "id": "p7",
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Obrigar a escola a telefonar para descobrir o básico.",
@@ -371,7 +323,7 @@
     },
     {
       "id": "p8",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Deixar claro como, com quem e com que antecedência marcar.",
@@ -381,7 +333,7 @@
     },
     {
       "id": "p9",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Manter regras e contatos diferentes em cada canal.",
@@ -391,7 +343,7 @@
     },
     {
       "id": "p10",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Oferecer materiais para a escola usar antes da visita.",
@@ -401,7 +353,7 @@
     },
     {
       "id": "p11",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Enviar apenas regras de conduta, sem nada sobre o que será vivido.",
@@ -411,7 +363,7 @@
     },
     {
       "id": "p12",
-      "etapa": "retomar",
+      "etapa": "vinculo",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Disponibilizar materiais para continuar o assunto em sala.",
@@ -421,7 +373,7 @@
     },
     {
       "id": "p13",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Manter uma lista de contatos para avisar professores sobre novas atividades.",
@@ -431,7 +383,7 @@
     },
     {
       "id": "p14",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "comunicacao",
       "tipo": "boa",
       "titulo": "Convidar estudantes e famílias a voltar por conta própria.",
@@ -441,7 +393,7 @@
     },
     {
       "id": "p15",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "comunicacao",
       "tipo": "evitar",
       "titulo": "Falar com a escola só quando ela procura o museu de novo.",
@@ -451,7 +403,7 @@
     },
     {
       "id": "p16",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Tratar o agendamento como parte do serviço, mesmo fora do planejamento estratégico.",
@@ -461,7 +413,7 @@
     },
     {
       "id": "p17",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Responder dentro do prazo de que a escola precisa para se organizar.",
@@ -471,7 +423,7 @@
     },
     {
       "id": "p18",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Confirmar a visita sem perguntar idade, tamanho do grupo e necessidades de acesso.",
@@ -481,7 +433,7 @@
     },
     {
       "id": "p19",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Aceitar grupos acima do que a equipe consegue receber.",
@@ -491,7 +443,7 @@
     },
     {
       "id": "p20",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Reconfirmar os dados da visita poucos dias antes.",
@@ -501,7 +453,7 @@
     },
     {
       "id": "p21",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Mudar horário ou mediador sem avisar.",
@@ -511,7 +463,7 @@
     },
     {
       "id": "p22",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Receber o grupo como início da experiência: a educação começa já na entrada.",
@@ -521,7 +473,7 @@
     },
     {
       "id": "p23",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Indicar um local sinalizado de embarque e desembarque perto da portaria.",
@@ -531,7 +483,7 @@
     },
     {
       "id": "p24",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Deixar a turma esperando do lado de fora, sem orientação.",
@@ -541,7 +493,7 @@
     },
     {
       "id": "p25",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Sensibilizar e treinar toda a equipe em condutas inclusivas, inclusive quem vigia.",
@@ -551,7 +503,7 @@
     },
     {
       "id": "p26",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Vigiar os estudantes como risco, em vez de combinar a conduta com a mediação.",
@@ -561,7 +513,7 @@
     },
     {
       "id": "p27",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Indicar onde comer, guardar mochilas e ir ao banheiro.",
@@ -571,7 +523,7 @@
     },
     {
       "id": "p28",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Garantir sanitários acessíveis e em rota acessível.",
@@ -581,7 +533,7 @@
     },
     {
       "id": "p29",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Não prever lugar nenhum para o lanche do grupo.",
@@ -591,7 +543,7 @@
     },
     {
       "id": "p30",
-      "etapa": "encerrar",
+      "etapa": "encerramento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "boa",
       "titulo": "Despedir o grupo e dizer como voltar ao museu.",
@@ -601,7 +553,7 @@
     },
     {
       "id": "p31",
-      "etapa": "encerrar",
+      "etapa": "encerramento",
       "funcao": "atendimento-e-vigilancia",
       "tipo": "evitar",
       "titulo": "Apressar a saída para receber a próxima turma.",
@@ -611,7 +563,7 @@
     },
     {
       "id": "p32",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Planejar com o professor o antes, o durante e o depois da visita.",
@@ -621,7 +573,7 @@
     },
     {
       "id": "p33",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Perguntar o que a turma já estudou e o que espera.",
@@ -631,7 +583,7 @@
     },
     {
       "id": "p34",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Definir toda a visita sem ouvir o professor.",
@@ -641,7 +593,7 @@
     },
     {
       "id": "p35",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Apresentar-se e combinar com a turma o que vai acontecer.",
@@ -651,7 +603,7 @@
     },
     {
       "id": "p36",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Começar a visita por uma lista de proibições.",
@@ -661,7 +613,7 @@
     },
     {
       "id": "p37",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Mediar pelo diálogo, partindo do que o público também sabe.",
@@ -671,7 +623,7 @@
     },
     {
       "id": "p38",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Garantir algum momento em que os estudantes escolham percurso e tempo.",
@@ -681,7 +633,7 @@
     },
     {
       "id": "p39",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Adaptar atividades e ferramentas a cada turma.",
@@ -691,7 +643,7 @@
     },
     {
       "id": "p40",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Recitar um roteiro decorado, supondo um público que não sabe.",
@@ -701,7 +653,7 @@
     },
     {
       "id": "p41",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Repetir a escola: testes, avaliações e exposição linear de conteúdo.",
@@ -711,7 +663,7 @@
     },
     {
       "id": "p42",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Contar com a ferramenta, como jogo ou aplicativo, para garantir o caráter educativo.",
@@ -721,7 +673,7 @@
     },
     {
       "id": "p43",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Prever pausas na duração da visita.",
@@ -731,7 +683,7 @@
     },
     {
       "id": "p44",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Ocupar todo o tempo até esgotar a atenção da turma.",
@@ -741,7 +693,7 @@
     },
     {
       "id": "p45",
-      "etapa": "encerrar",
+      "etapa": "encerramento",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Reservar alguns minutos para a turma dizer o que leva da visita.",
@@ -751,7 +703,7 @@
     },
     {
       "id": "p46",
-      "etapa": "encerrar",
+      "etapa": "encerramento",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Terminar porque o tempo acabou, sem nenhum fechamento.",
@@ -761,7 +713,7 @@
     },
     {
       "id": "p47",
-      "etapa": "retomar",
+      "etapa": "vinculo",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Sugerir ao professor caminhos para retomar a visita em sala.",
@@ -771,7 +723,7 @@
     },
     {
       "id": "p48",
-      "etapa": "retomar",
+      "etapa": "vinculo",
       "funcao": "mediacao",
       "tipo": "evitar",
       "titulo": "Considerar que o trabalho termina na saída do museu.",
@@ -781,7 +733,7 @@
     },
     {
       "id": "p49",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "mediacao",
       "tipo": "boa",
       "titulo": "Registrar, a cada visita, o que funcionou e o que não funcionou.",
@@ -791,7 +743,7 @@
     },
     {
       "id": "p50",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "espaco-e-exposicao",
       "tipo": "boa",
       "titulo": "Tornar o acesso legível e livre de barreiras: rampas, sinalização e piso tátil.",
@@ -801,7 +753,7 @@
     },
     {
       "id": "p51",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "espaco-e-exposicao",
       "tipo": "boa",
       "titulo": "Oferecer recursos para públicos diversos: pessoas com deficiência, não alfabetizadas, crianças.",
@@ -811,7 +763,7 @@
     },
     {
       "id": "p52",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "espaco-e-exposicao",
       "tipo": "boa",
       "titulo": "Considerar a circulação de grupos ao planejar circuito e fluxo.",
@@ -821,7 +773,7 @@
     },
     {
       "id": "p53",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "espaco-e-exposicao",
       "tipo": "evitar",
       "titulo": "Deixar exposição e recursos expositivos sem manutenção periódica.",
@@ -831,7 +783,7 @@
     },
     {
       "id": "p54",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "espaco-e-exposicao",
       "tipo": "boa",
       "titulo": "Manter bebedouros e mobiliário acessíveis.",
@@ -841,7 +793,7 @@
     },
     {
       "id": "p55",
-      "etapa": "pausar",
+      "etapa": "mediacao",
       "funcao": "espaco-e-exposicao",
       "tipo": "boa",
       "titulo": "Ter onde o grupo possa sentar e descansar.",
@@ -851,7 +803,7 @@
     },
     {
       "id": "p56",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Mapear quais escolas e faixas etárias vêm e quais não vêm.",
@@ -861,7 +813,7 @@
     },
     {
       "id": "p57",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Avaliar os públicos só pela impressão do dia a dia, sem dados.",
@@ -871,7 +823,7 @@
     },
     {
       "id": "p58",
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Investigar o que as escolas do entorno buscam e como podem se associar ao museu.",
@@ -881,7 +833,7 @@
     },
     {
       "id": "p59",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Definir quantas turmas a equipe consegue receber bem por dia.",
@@ -891,7 +843,7 @@
     },
     {
       "id": "p60",
-      "etapa": "agendar",
+      "etapa": "agendamento",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Encaixar visitas sem olhar a disponibilidade de quem vai mediar.",
@@ -901,7 +853,7 @@
     },
     {
       "id": "p61",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Promover encontros com professores.",
@@ -911,7 +863,7 @@
     },
     {
       "id": "p62",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Formar e treinar quem fará a mediação.",
@@ -921,7 +873,7 @@
     },
     {
       "id": "p63",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Tratar a capacitação como algo eventual, sem planejamento anual.",
@@ -931,7 +883,7 @@
     },
     {
       "id": "p64",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Pensar atividades e ferramentas tanto para visitas mediadas quanto para não mediadas.",
@@ -941,7 +893,7 @@
     },
     {
       "id": "p65",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Conceber atividades junto com outros setores do museu.",
@@ -951,7 +903,7 @@
     },
     {
       "id": "p66",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Considerar que a relação com as escolas cabe só ao setor educativo.",
@@ -961,7 +913,7 @@
     },
     {
       "id": "p67",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Definir, ainda no planejamento, como medir os objetivos da ação.",
@@ -971,7 +923,7 @@
     },
     {
       "id": "p68",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Avaliar com os públicos depois que participam das ações.",
@@ -981,7 +933,7 @@
     },
     {
       "id": "p69",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Reunir a equipe depois das ações para avaliar e registrar.",
@@ -991,7 +943,7 @@
     },
     {
       "id": "p70",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Medir só quantidade, sem indicadores qualitativos.",
@@ -1001,7 +953,7 @@
     },
     {
       "id": "p71",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Mudar os indicadores a cada ciclo e perder a comparação no tempo.",
@@ -1011,7 +963,7 @@
     },
     {
       "id": "p72",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "boa",
       "titulo": "Manter ações contínuas com as escolas da comunidade.",
@@ -1021,7 +973,7 @@
     },
     {
       "id": "p73",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "coordenacao-do-educativo",
       "tipo": "evitar",
       "titulo": "Tratar cada visita como um evento isolado.",
@@ -1031,7 +983,7 @@
     },
     {
       "id": "p74",
-      "etapa": "descobrir",
+      "etapa": "descoberta",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Incluir no estudo de públicos as escolas que ainda não frequentam o museu.",
@@ -1041,7 +993,7 @@
     },
     {
       "id": "p75",
-      "etapa": "decidir",
+      "etapa": "descoberta",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Ouvir professores na elaboração do Plano Museológico.",
@@ -1051,7 +1003,7 @@
     },
     {
       "id": "p76",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Reservar verba específica para as atividades educativas.",
@@ -1061,7 +1013,7 @@
     },
     {
       "id": "p77",
-      "etapa": "preparar",
+      "etapa": "preparacao",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Investir na formação continuada de educadores museais.",
@@ -1071,7 +1023,7 @@
     },
     {
       "id": "p78",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Construir um programa permanente de acessibilidade.",
@@ -1081,7 +1033,7 @@
     },
     {
       "id": "p79",
-      "etapa": "chegar",
+      "etapa": "recepcao",
       "funcao": "gestao",
       "tipo": "evitar",
       "titulo": "Reduzir a acessibilidade a ações pontuais.",
@@ -1091,7 +1043,7 @@
     },
     {
       "id": "p80",
-      "etapa": "visitar",
+      "etapa": "mediacao",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Compor equipes de educação museal multidisciplinares, inclusivas e diversas.",
@@ -1101,7 +1053,7 @@
     },
     {
       "id": "p81",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Usar os resultados do monitoramento para rever projetos e estratégias.",
@@ -1111,7 +1063,7 @@
     },
     {
       "id": "p82",
-      "etapa": "avaliar",
+      "etapa": "vinculo",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Promover diagnósticos e estudos de público com outros setores.",
@@ -1121,7 +1073,7 @@
     },
     {
       "id": "p83",
-      "etapa": "voltar",
+      "etapa": "vinculo",
       "funcao": "gestao",
       "tipo": "boa",
       "titulo": "Buscar parcerias e redes que sustentem a relação com as escolas.",

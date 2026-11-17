@@ -3,7 +3,7 @@
 // Quem desenha a grade é src/scripts/mapa.ts. A conversa é por eventos e pela API window.musaMapa:
 //   mapa.ts → "musa-mapa:estado" { modo, atual, total, celular } e "musa-mapa:detalhe" { id }
 //   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funções) / .mostrarEtapas(etapas)
-// O guia abre sozinho só na primeira visita (localStorage "musa:guia-visto"); depois, só pelo botão.
+// A introdução (o guia) abre sozinha só na primeira visita (localStorage "musa:guia-visto"); depois, só pelo botão.
 import { useCallback, useEffect, useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { Drawer } from "@base-ui/react/drawer";
@@ -36,7 +36,7 @@ const ler = (k: string) => { try { return localStorage.getItem("musa:" + k); } c
 
 // classes comuns: controles pequenos e cinza (é uma ferramenta de uso longo)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";
-const botao = `inline-flex items-center justify-center gap-1.5 h-7 rounded-md border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
+const botao = `inline-flex items-center justify-center gap-1.5 h-7 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
 
 // itens do menu de filtros
 // filtro-*: só ganchos para o painel de ajuste da bancada (dev/estados-menu-filtro/_dials.ts); não têm estilo próprio.
@@ -56,6 +56,10 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
   );
 }
 
+// botão do filtro com filtro ligado: troca borda, fundo e cor do botão (coral; só ícone, sem texto)
+const filtroLigado = (classes: string) => classes
+  .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
+  .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
 // segmento do seletor de visão
 const segmento = `h-6 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap hover:text-texto-950 data-pressed:bg-neutro-50 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
@@ -168,12 +172,12 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
   return (
     <>
       <div className="flex items-center gap-2 min-w-0 flex-1">
-        {/* barra lateral do guia */}
+        {/* barra lateral da introdução (o guia) */}
         <Drawer.Root open={guia} onOpenChange={setGuia} modal={false} disablePointerDismissal swipeDirection="left">
-          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a ajuda" : "Ajuda"}
+          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
             onClick={(ev) => { if (guia) { ev.preventDefault(); setGuia(false); } }}>
             {guia ? <SidebarCollapse {...ic} /> : <SidebarExpand {...ic} />}
-            <Rotulo texto={guia ? "Fechar a ajuda" : "Ajuda"} />
+            <Rotulo texto={guia ? "Fechar a introdução" : "Introdução"} />
           </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Viewport className="fixed inset-x-0 bottom-0 top-(--altura-topo) z-20 flex pointer-events-none">
@@ -181,7 +185,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
                 <Drawer.Content>
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <Drawer.Title className="m-0 font-dm-sans text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
-                    <Drawer.Close className={`${botao} w-7 px-0`} aria-label="Fechar o guia"><Xmark {...ic} /></Drawer.Close>
+                    <Drawer.Close className={`${botao} w-7 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
                   </div>
                   <Drawer.Description className="m-0 mb-2 text-texto-700">
                     O mapa mostra a visita escolar do ponto de vista da escola, do primeiro contato ao retorno.
@@ -197,10 +201,11 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           {/* filtros: um menu com duas seções, Etapas e Funções, cada uma com "todas" e a lista */}
           {/* na bancada (menuFiltroAberto) o menu fica sempre aberto e não modal: a lista de estados e o painel de ajuste ao lado recebem clique */}
           <Menu.Root open={menuFiltroAberto ? true : undefined} modal={!menuFiltroAberto}>
-            <Menu.Trigger aria-label={todasFuncoes && todasEtapas ? "Filtrar visualização" : "Filtrar visualização (há filtros ligados)"} className={`${botaoQueAbre} relative touch-manipulation data-popup-open:bg-neutro-200`}>
+            {/* com filtro ligado o botão fica colorido (coral, a cor principal), no lugar de um ponto */}
+            <Menu.Trigger aria-label={semFiltro ? "Filtrar visualização" : "Filtrar visualização (há filtros ligados)"}
+              className={semFiltro ? `${botaoQueAbre} touch-manipulation data-popup-open:bg-neutro-200` : `${filtroLigado(botaoQueAbre)} touch-manipulation`}>
               <Filter {...ic} />
               <Rotulo texto="Filtrar visualização" />
-              {!(todasFuncoes && todasEtapas) && <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-texto-950 ring-2 ring-neutro-50" aria-hidden="true" />}
             </Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner sideOffset={14} align="end" className="z-30 outline-none">
@@ -252,7 +257,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
               As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
-              className="inline-flex gap-0.5 p-0.5 rounded-md bg-neutro-200">
+              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-200">
               <Toggle value="etapa" className={`${segmento} px-2.5`}>Visão detalhada</Toggle>
               <Toggle value="inteiro" className={`${segmento} px-2.5`}>Visão geral</Toggle>
             </ToggleGroup>

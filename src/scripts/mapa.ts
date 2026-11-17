@@ -171,7 +171,7 @@ grade.addEventListener("touchend", (ev) => {
 new ResizeObserver(() => requestAnimationFrame(desenharLinha)).observe(grade);
 celular.addEventListener("change", () => { definirModo(ler("modo") ?? "etapa", false); avisar(); });
 
-// início: etapa do link (#agendar) e modo lembrado.
+// início: etapa do link (#agendamento) e modo lembrado.
 // O link também pode trazer o modo (?modo=inteiro): vale como escolha da pessoa e fica lembrado.
 // Visão detalhada = modo etapa (a padrão); visão geral = modo inteiro (os nomes que a pessoa vê, no topo e no rodapé).
 const pedido = new URLSearchParams(location.search);
