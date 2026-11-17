@@ -3,8 +3,14 @@
 //   etapa  → uma Etapa aberta por vez, as outras compactas (padrão; único modo no celular)
 //   inteiro → todas as Etapas lado a lado, Camadas alinhadas em linhas
 // O detalhe de uma Etapa abre num painel lateral (folha de baixo no celular), com Origem e Fonte de cada Prática.
+// É uma ferramenta de uso longo: tons de cinza, sem a cor da marca na grade (as cores de destaque vêm depois).
+// Barra fina no topo: o ícone (volta para o início) e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
+// guia, modo, setas das Etapas e filtro. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
+// lateral por cima da grade, aberta sozinha só na primeira visita; o link para baixar o mapa mora nele.
+// A linha dos sentimentos aparece sempre.
 import Base from "../layouts/Base.astro";
 import MarcaNav from "../components/MarcaNav.astro";
+import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import { conteudo, FASES, SENTIMENTOS, AVATAR, fonte, funcao } from "../lib/conteudo";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
@@ -26,32 +32,12 @@ const CAMADAS = [
 const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.nome).length }));
 ---
 <Base titulo="Mapa da Visita" classeCorpo="pagina-mapa-v2" cabecalho={false} rodape={false}>
-<div class="mapa" data-modo="etapa" data-linha="sim" id="mapa">
+<div class="mapa" data-modo="etapa" id="mapa">
   <header class="mapa-topo">
-    <MarcaNav />
-    <h1 class="mapa-titulo">Mapa da Visita</h1>
-    <div class="mapa-controles">
-      <div class="seletor-modo" role="group" aria-label="Como ver o mapa">
-        <button type="button" data-escolher-modo="etapa" aria-pressed="true">Etapa por etapa</button>
-        <button type="button" data-escolher-modo="inteiro" aria-pressed="false">Mapa inteiro</button>
-      </div>
-      <label class="filtro-funcao">
-        <span class="visualmente-oculto">Filtrar por função</span>
-        <select id="filtro-funcao">
-          <option value="">Todas as funções</option>
-          {funcoes.map((f) => <option value={f.id}>{f.nome}</option>)}
-        </select>
-      </label>
-      <label class="alternar-linha"><input type="checkbox" id="mostrar-linha" checked /> Linha dos sentimentos</label>
-      <a class="botao secundario botao-pequeno" href="/baixar">Baixar o mapa</a>
-    </div>
+    <MarcaNav soIcone tamanho="size-7" />
+    <h1 class="visualmente-oculto">Mapa da Visita</h1>
+    <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length} />
   </header>
-
-  <nav class="mapa-passos" aria-label="Etapas">
-    <button type="button" class="passo-seta" data-passo="-1" aria-label="Etapa anterior">←</button>
-    <p class="passo-rotulo" aria-live="polite"><span id="passo-n">1</span> de {etapas.length} · <span id="passo-nome">{rotuloFase(etapas[0].fase)} · {etapas[0].nome}</span></p>
-    <button type="button" class="passo-seta" data-passo="1" aria-label="Próxima etapa">→</button>
-  </nav>
 
   <div class="mapa-rolagem">
     <div class="mapa-grade" style={`--n:${etapas.length}`}>
@@ -70,7 +56,6 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
         return (
           <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
             <header class="etapa-topo">
-              <p class="etapa-fase">{rotuloFase(e.fase)}</p>
               <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}><span class="etapa-n">{e.ordem}</span> {e.nome}</button></h2>
               <button type="button" class="etapa-detalhe" data-detalhe={e.id}><span class="texto-longo">Ver tudo sobre esta etapa</span><span class="texto-curto">Ver tudo</span></button>
             </header>
@@ -155,10 +140,6 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     );
   })}
 
-  <dialog class="detalhe" id="detalhe" aria-labelledby="detalhe-titulo">
-    <div class="detalhe-barra"><button type="button" class="detalhe-fechar" data-fechar aria-label="Fechar">Fechar</button></div>
-    <div class="detalhe-corpo" id="detalhe-corpo"></div>
-  </dialog>
 </div>
 
 <Fragment slot="scripts">
@@ -176,56 +157,34 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
-  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    padding: 8px 24px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
-  .mapa-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 600; color: var(--carmim-800); }
-  .mapa-controles { margin-left: auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: var(--tamanho-sm); }
-  .seletor-modo { display: inline-flex; border: 1px solid var(--neutro-400); border-radius: 6px; padding: 2px; background: var(--neutro-100); }
-  .seletor-modo button { font: inherit; border: 0; background: transparent; color: var(--texto-700); padding: 5px 10px; border-radius: 4px; cursor: pointer;
-    transition: background-color 150ms ease, color 150ms ease; }
-  .seletor-modo button[aria-pressed="true"] { background: var(--neutro-50); color: var(--texto-950); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08); }
-  .filtro-funcao select { font: inherit; padding: 5px 8px; border: 1px solid var(--neutro-400); border-radius: 6px; background: var(--neutro-50); color: var(--texto-900); }
-  .alternar-linha { display: inline-flex; gap: 6px; align-items: center; color: var(--texto-700); cursor: pointer; }
-  .alternar-linha input { accent-color: var(--carmim-800); }
-
-  /* passos (modo etapa) */
-  .mapa-passos { display: flex; align-items: center; gap: 12px; padding: 12px 24px 0; }
-  .mapa[data-modo="inteiro"] .mapa-passos { display: none; }
-  .passo-seta { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--coral-400); background: var(--neutro-50); color: var(--carmim-800);
-    font-size: 18px; cursor: pointer; transition: transform 160ms var(--ease-out), background-color 150ms ease; }
-  .passo-seta:hover { background: var(--coral-100); }
-  .passo-seta:active { transform: scale(0.95); }
-  .passo-seta:disabled { opacity: 0.35; cursor: default; }
-  .passo-rotulo { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
-  .passo-rotulo #passo-nome { color: var(--texto-950); }
-
+  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; height: 44px; box-sizing: border-box;
+    padding: 0 12px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
   /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
-  .mapa-rolagem { overflow-x: auto; padding: 12px 24px 48px; }
+  .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
     grid-template-rows: auto auto minmax(132px, auto) auto auto auto auto; }
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   .fase { padding: 6px 12px; font-size: var(--tamanho-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--neutro-50); background: var(--carmim-800); border-left: 1px solid var(--carmim-600); }
+    color: var(--texto-700); background: var(--neutro-200); border-left: 1px solid var(--neutro-300); }
   .rotulos { grid-column: 1; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; }
-  .rotulo { padding: 12px 12px 12px 0; font-size: var(--tamanho-sm); font-weight: 600; color: var(--texto-950); border-top: 1px solid var(--neutro-300); }
+  .rotulo { padding: 12px; font-size: var(--tamanho-sm); font-weight: 600; color: var(--texto-950); border-top: 1px solid var(--neutro-300); }
   .mapa[data-modo="etapa"] .rotulos { visibility: hidden; }
 
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-left: 1px solid var(--neutro-300); background: var(--neutro-50);
     transition: background-color 200ms ease; }
   .etapa-topo { padding: 10px 12px; border-bottom: 1px solid var(--neutro-300); }
-  .etapa-fase { margin: 0 0 2px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); }
   .etapa-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; }
   .etapa-abrir { all: unset; cursor: pointer; }
-  .etapa-abrir:focus-visible { outline: 2px solid var(--carmim-800); outline-offset: 2px; border-radius: 2px; }
+  .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
   .etapa-n { color: var(--texto-600); font-size: var(--tamanho-sm); }
-  .etapa-detalhe { margin-top: 8px; font: inherit; font-size: var(--tamanho-xs); color: var(--carmim-800); background: none; border: 1px solid var(--carmim-300);
+  .etapa-detalhe { margin-top: 8px; font: inherit; font-size: var(--tamanho-xs); color: var(--texto-900); background: none; border: 1px solid var(--neutro-400);
     border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: background-color 150ms ease; }
-  .etapa-detalhe:hover { background: var(--carmim-100); }
+  .etapa-detalhe:hover { background: var(--neutro-100); }
   .etapa-detalhe .texto-curto { display: none; }
   .mapa[data-modo="inteiro"] .etapa-detalhe .texto-longo { display: none; }
   .mapa[data-modo="inteiro"] .etapa-detalhe .texto-curto { display: inline; }
-  .mapa[data-modo="inteiro"] .camada-titulo, .mapa[data-modo="inteiro"] .etapa-fase { display: none; }
+  .mapa[data-modo="inteiro"] .camada-titulo { display: none; }
   .mapa[data-modo="inteiro"] .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
 
   .camada { padding: 12px; border-top: 1px solid var(--neutro-200); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
@@ -237,19 +196,19 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .praticas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
   .pratica { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; }
   .pratica[hidden] { display: none; }
-  .marcador { font-weight: 700; color: var(--coral-600); }
+  .marcador { font-weight: 700; color: var(--texto-700); }
   .pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
   .pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
 
   /* sentimentos */
   .camada-sentimentos { position: relative; }
   .sentimento { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; position: relative; z-index: 1; }
-  .avatar { width: 40px; height: 40px; grid-row: span 2; }
-  .sentimento-nome { font-weight: 600; color: var(--carmim-800); }
+  /* os rostos são SVGs carmim da marca: em cinza aqui, até a cor de destaque ser decidida */
+  .avatar { width: 40px; height: 40px; grid-row: span 2; filter: grayscale(1); opacity: 0.85; }
+  .sentimento-nome { font-weight: 600; color: var(--texto-950); }
   .pensamento { grid-column: 1 / -1; margin-top: 6px !important; font-style: italic; color: var(--texto-700); }
   .linha-sentimentos { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 0; }
-  .linha-sentimentos path { fill: none; stroke: var(--coral-400); stroke-width: 2.5; stroke-linecap: round; opacity: 0.55; }
-  .mapa[data-linha="nao"] .linha-sentimentos { display: none; }
+  .linha-sentimentos path { fill: none; stroke: var(--neutro-500); stroke-width: 2; stroke-linecap: round; opacity: 0.7; }
 
   /* modo etapa: a aberta mostra tudo; as compactas, só o título e as Práticas */
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
@@ -262,49 +221,33 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .avatar { width: 28px; height: 28px; }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--coral-100); }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-xl); color: var(--carmim-800); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--neutro-100); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-xl); color: var(--texto-950); }
 
   /* modo mapa inteiro */
   .mapa[data-modo="inteiro"] { --rotulos: 148px; --colunas: repeat(var(--n), var(--col-inteira)); }
 
-  /* painel de detalhe */
-  .detalhe { margin: 0 0 0 auto; height: 100dvh; max-height: none; width: min(520px, 100vw); padding: 0; border: 0; border-left: 1px solid var(--neutro-300);
-    background: var(--neutro-50); color: var(--texto-900); box-shadow: -8px 0 32px rgb(0 0 0 / 0.08); }
-  .detalhe::backdrop { background: rgb(40 10 20 / 0.25); }
-  .detalhe[open] { animation: entra-lado 260ms var(--ease-out); }
-  @keyframes entra-lado { from { transform: translateX(24px); opacity: 0; } }
-  .detalhe-barra { position: sticky; top: 0; display: flex; justify-content: flex-end; padding: 10px 16px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-200); }
-  .detalhe-fechar { font: inherit; font-size: var(--tamanho-sm); background: none; border: 1px solid var(--neutro-400); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-  .detalhe-corpo { padding: 20px 24px 48px; font-size: var(--tamanho-sm); line-height: 1.5; }
+  /* conteúdo do painel de detalhe (copiado dos <template> pelo ControlesMapa) */
+  .detalhe-corpo { padding: 16px 24px 48px; font-size: var(--tamanho-sm); line-height: 1.5; }
   .det-fase { margin: 0; font-size: var(--tamanho-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-600); }
-  .det-nome { margin: 4px 0 12px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-2xl); color: var(--carmim-800); font-weight: 600; }
   .det-descricao { color: var(--texto-700); }
   .det-bloco { margin: 24px 0 0; }
   .det-bloco h3 { margin: 0 0 8px; font-size: var(--tamanho-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-600); }
   .det-bloco p { margin: 4px 0 0; }
   .det-sentimento { display: flex; gap: 8px; align-items: center; }
-  .det-bloco blockquote { margin: 8px 0 0; padding-left: 12px; border-left: 2px solid var(--coral-400); font-style: italic; color: var(--texto-700); }
+  .det-sentimento img { filter: grayscale(1); opacity: 0.85; }
+  .det-bloco blockquote { margin: 8px 0 0; padding-left: 12px; border-left: 2px solid var(--neutro-400); font-style: italic; color: var(--texto-700); }
   .det-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
   .det-lista .pratica { display: block; }
   .det-origem { font-size: var(--tamanho-xs); color: var(--texto-600); }
 
-  @media (prefers-reduced-motion: reduce) { .detalhe[open] { animation: none; } }
 
   /* celular: só o modo etapa, uma coluna na tela */
   @media (max-width: 760px) {
-    .mapa-topo { padding: 8px 16px; }
-    .mapa-titulo { font-size: var(--tamanho-sm); }
-    .mapa-controles { width: 100%; margin-left: 0; }
-    .seletor-modo, .alternar-linha { display: none; }
-    .mapa-passos { padding: 12px 16px 0; }
-    .mapa-rolagem { padding: 12px 16px 40px; overflow-x: hidden; }
+    .mapa-rolagem { overflow-x: hidden; }
     .mapa-grade, .mapa[data-modo] .mapa-grade { grid-template-columns: 0 100%; }
     .mapa .etapa:not([data-aberta]) { display: none; }
     .fases { display: none; }
     .linha-sentimentos { display: none; }
-    .detalhe { margin: auto 0 0; width: 100vw; height: auto; max-height: 85dvh; border-left: 0; border-top: 1px solid var(--neutro-300); border-radius: 16px 16px 0 0; }
-    .detalhe[open] { animation: entra-baixo 300ms var(--ease-out); }
-    @keyframes entra-baixo { from { transform: translateY(40px); opacity: 0; } }
   }
 </style>

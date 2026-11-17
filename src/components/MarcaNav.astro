@@ -4,14 +4,15 @@
 // (sobe 2/13 = 15,4% da própria altura). Entra devagar e depois do olho começar a abrir; sai rápido.
 // invertida: versão clara para a camada da barra que aparece sobre o rodapé carmim (fica fora do teclado e do leitor de tela).
 // sempreNome: o nome fica sempre à vista (variante "lockup" da barra), com mais espaço: o ícone fechado é maior que o olho.
-interface Props { invertida?: boolean; sempreNome?: boolean }
-const { invertida = false, sempreNome = false } = Astro.props;
+// soIcone: sem o nome (topo do mapa, onde o espaço é da ferramenta). tamanho: classe size-* do ícone.
+interface Props { invertida?: boolean; sempreNome?: boolean; soIcone?: boolean; tamanho?: string }
+const { invertida = false, sempreNome = false, soIcone = false, tamanho = "size-9" } = Astro.props;
 const revelar = sempreNome
   ? "opacity-100"
   : "transicao-revelar motion-reduce:transition-none ease-forte duration-200 delay-0 group-data-aberto:duration-500 group-data-aberto:delay-150 opacity-0 clip-esconde -translate-x-1 group-data-aberto:opacity-100 group-data-aberto:clip-mostra group-data-aberto:translate-x-0";
 ---
 <a class:list={["nav-marca group inline-flex items-center rounded-sm no-underline", sempreNome ? "gap-2.5" : "gap-1", { "nav-marca-invertida": invertida }]}
   href="/" aria-label={invertida ? undefined : "musá, página inicial"} tabindex={invertida ? -1 : undefined}>
-  <svg class="nav-olho block shrink-0 size-9" aria-hidden="true"></svg>
-  <span class={`nav-nome block leading-none ${revelar}`} aria-hidden="true"><img class="block w-auto h-7 -translate-y-2/13" src={invertida ? "/brand/assets/musa-logotype-offwhite.svg" : "/brand/assets/musa-logotype-crimson.svg"} alt="" width="83" height="28"></span>
+  <svg class={`nav-olho block shrink-0 ${tamanho}`} aria-hidden="true"></svg>
+  {!soIcone && <span class={`nav-nome block leading-none ${revelar}`} aria-hidden="true"><img class="block w-auto h-7 -translate-y-2/13" src={invertida ? "/brand/assets/musa-logotype-offwhite.svg" : "/brand/assets/musa-logotype-crimson.svg"} alt="" width="83" height="28"></span>}
 </a>
