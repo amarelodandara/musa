@@ -1,0 +1,60 @@
+---
+// Playground (1ª tentativa, guardado para o dossiê): três combinações de cor para as Fases, lado a lado, para escolher
+// uma terceira cor para "Antes" no lugar do neutro. Cada combinação mostra a faixa das Fases e o topo das Etapas com
+// cada Fase ativa. Depois a direção mudou para "inativo neutro, só o ativo com cor": ver /dev/cores-fases.
+// Painel: _dials.ts (DialKit). Só em desenvolvimento.
+import Base from "../../../layouts/Base.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const FASES = [
+  { nome: "Antes da visita", chave: "antes", etapas: ["Descoberta do museu", "Agendamento da visita", "Preparação para visita"] },
+  { nome: "Durante a visita", chave: "durante", etapas: ["Recepção no museu", "Mediação no museu", "Encerramento da visita"] },
+  { nome: "Depois da visita", chave: "depois", etapas: ["Criação de vínculo"] }
+];
+const COMBOS = ["a", "b", "c"];
+let n = 0;
+const etapas = FASES.flatMap((f) => f.etapas.map((nome) => ({ nome, fase: f.chave, ordem: ++n })));
+---
+<Base titulo="Cores das fases: matiz" cabecalho={false} rodape={false}>
+<main class="cf">
+  {COMBOS.map((c) => (
+    <section class="cf-combo" data-combo={c}>
+      <h2 class="cf-titulo">Combinação {c.toUpperCase()}</h2>
+      {FASES.map((ativa) => (
+        <div class="cf-faixa" aria-label={`${ativa.nome} ativa`}>
+          {FASES.map((f) => <div class="cf-fase" data-fase={f.chave} data-ativa={f.chave === ativa.chave ? "" : undefined} style={`grid-column: span ${f.etapas.length}`}>{f.nome}</div>)}
+          {etapas.map((e) => {
+            const aberta = e.fase === ativa.chave && e.ordem === etapas.find((x) => x.fase === ativa.chave)!.ordem;
+            return (
+              <div class="cf-etapa" data-fase={e.fase} data-aberta={aberta ? "" : undefined}>
+                <div class="cf-topo"><span class="cf-n">{e.ordem}</span> {e.nome}</div>
+                <div class="cf-corpo"></div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </section>
+  ))}
+</main>
+<script>import "./_dials.ts";</script>
+</Base>
+
+<style is:global>
+  body { background: var(--neutro-50); }
+  .cf { display: grid; gap: 40px; padding: 32px 24px 120px; max-width: 1100px; font-family: var(--fonte-inter); }
+  .cf-titulo { margin: 0 0 12px; font: 600 var(--tamanho-sm) var(--fonte-inter); color: var(--texto-700); }
+  .cf-combo { display: grid; gap: 16px; }
+  .cf-faixa { --linha: 1px solid var(--neutro-300); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: var(--linha); border-left: var(--linha); }
+  /* uma linha só em toda célula: cada uma desenha a da direita e a de baixo; a faixa, a de cima e a da esquerda */
+  .cf-fase, .cf-topo, .cf-corpo { border-right: var(--linha); border-bottom: var(--linha); }
+  .cf-fase { padding: 6px 12px; font: 500 var(--tamanho-xs) var(--fonte-inter-tight); background: var(--f200); color: var(--f900); transition: background-color 200ms ease; }
+  .cf-fase[data-ativa] { background: var(--f400); color: var(--f950); }
+  .cf-etapa { display: grid; grid-row: 2; min-width: 0; }
+  .cf-topo { padding: 10px 12px; min-height: 52px; box-sizing: border-box; background: var(--f200);
+    font: 500 var(--tamanho-sm)/1.2 var(--fonte-dm-sans); color: var(--texto-950); }
+  .cf-n { color: var(--f800); }
+  .cf-etapa[data-aberta] .cf-topo { background: var(--f400); }
+  .cf-etapa[data-aberta] .cf-n { color: var(--f950); }
+  .cf-corpo { height: 36px; background: var(--neutro-50); }
+  .cf-etapa[data-aberta] .cf-corpo { background: var(--f100); }
+</style>

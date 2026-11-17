@@ -170,9 +170,18 @@ for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
 config.botoes.tamanhoDoIconePx = [16, 12, 22, 1];
 config.botoes.espessuraDoIcone = [1.5, 1, 2.5, 0.25];
 
+// colunas da grade: variáveis do CSS da página do mapa (px), postas numa folha de estilo dentro do quadro
+config.colunas = {
+  _collapsed: false,
+  fechadaNaDetalhada: [136, 64, 320, 4],
+  abertaNaDetalhadaMinimo: [420, 240, 900, 10],
+  naVisaoGeral: [232, 120, 480, 4],
+  rotulosNaVisaoGeral: [148, 80, 280, 4]
+};
+
 // embaixo à direita: a barra fica no alto da bancada e o painel não cobre
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Barra do mapa", config, { id: "musa-barra-mapa-v4", persist: true });
+const kit = createDialKit("Barra do mapa", config, { id: "musa-barra-mapa-v5", persist: true });
 
 let v = kit.getValues() as Record<string, any>;
 let aplicando = false;
@@ -198,6 +207,11 @@ function aplicar() {
       }
     }
   }
+  const col = v.colunas;
+  let folha = d!.getElementById("dial-colunas");
+  if (!folha) { folha = d!.createElement("style"); folha.id = "dial-colunas"; d!.head.appendChild(folha); }
+  folha.textContent = `.mapa { --col-compacta: ${col.fechadaNaDetalhada}px !important; --col-aberta: minmax(${col.abertaNaDetalhadaMinimo}px, 1fr) !important; --col-inteira: ${col.naVisaoGeral}px !important; }
+    .mapa[data-modo="inteiro"] { --rotulos: ${col.rotulosNaVisaoGeral}px !important; }`;
   d!.querySelectorAll<SVGElement>(ICONES).forEach((svg) => {
     svg.setAttribute("width", String(v.botoes.tamanhoDoIconePx));
     svg.setAttribute("height", String(v.botoes.tamanhoDoIconePx));

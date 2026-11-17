@@ -22,6 +22,8 @@ function abrirEtapa(i: number, { rolar = true } = {}) {
   if (etapas[atual].hidden) atual = etapas.indexOf(visiveis()[0] ?? etapas[0]);
   etapas.forEach((e, j) => e.toggleAttribute("data-aberta", j === atual));
   const e = etapas[atual];
+  // a Fase da Etapa aberta fica ativa (na visão detalhada ganha um tom mais forte, no CSS)
+  raiz.querySelectorAll<HTMLElement>(".fase").forEach((f) => f.toggleAttribute("data-ativa", f.dataset.fase === e.dataset.fase));
   avisar();
   atualizarSetas();
   if (raiz.dataset.modo === "etapa") {
@@ -34,7 +36,9 @@ function abrirEtapa(i: number, { rolar = true } = {}) {
     const area = grade.parentElement as HTMLElement;
     requestAnimationFrame(() => {
       const r = e.getBoundingClientRect(), a = area.getBoundingClientRect();
-      const alvo = area.scrollLeft + (r.left - a.left) - 24;
+      // a coluna dos rótulos fica presa à esquerda: a Etapa aberta para logo depois dela
+      const rotulos = (raiz.querySelector(".rotulos") as HTMLElement).offsetWidth;
+      const alvo = area.scrollLeft + (r.left - a.left) - rotulos;
       area.scrollTo({ left: Math.max(0, alvo), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
   }

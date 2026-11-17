@@ -36,7 +36,7 @@ const GRUPOS = [
   body { margin: 0; background: #e9e6e5; }
   /* palco: a página do mapa num quadro, na largura de produção, recortada na barra */
   .state-stage { overflow: hidden; border-radius: 8px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08); background: #fff; justify-self: start; }
-  .state-stage iframe { display: block; border: 0; width: 1200px; height: 120px; }
+  .state-stage iframe { display: block; border: 0; width: 1200px; height: 420px; }
 
   /* seletor de estados: fora do sistema visual de propósito (spec da skill state-machine) */
   .state-page { container: state-page / inline-size; padding: 24px; min-height: 100dvh; box-sizing: border-box; }
@@ -103,7 +103,7 @@ const GRUPOS = [
     // memória do navegador que o mapa lê: primeira visita abre a introdução
     try { e.primeiraVisita ? localStorage.removeItem("musa:guia-visto") : localStorage.setItem("musa:guia-visto", "sim"); } catch {}
     quadro.style.width = (e.largura || 1200) + "px";
-    quadro.style.height = (e.altura || 120) + "px";
+    quadro.style.height = (e.altura || 420) + "px";
     quadro.onload = () => {
       if (!e.abrirFiltro) return;
       // abre o menu como a pessoa faria (clique no botão), depois de a ilha hidratar

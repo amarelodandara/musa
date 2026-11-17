@@ -51,7 +51,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
         {grupos.map((g) => <div class="fase" data-fase={g.nome} style={`grid-column: span ${g.n}`}>{g.rotulo}</div>)}
       </div>
       <div class="rotulos" aria-hidden="true">
-        <div class="rotulo-topo"></div>
+        <div class="rotulo rotulo-etapas">Etapas</div>
         {CAMADAS.map((c) => <div class={`rotulo rotulo-${c.id}`}>{c.nome}</div>)}
       </div>
       <svg class="linha-sentimentos" aria-hidden="true"><path /></svg>
@@ -174,7 +174,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .pagina-mapa-v2 { background: var(--neutro-50); }
   .visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .mapa { --col-compacta: 136px; --col-aberta: minmax(420px, 1fr); --col-inteira: 232px; --rotulos: 0px;
+  .mapa { --linha: 1px solid var(--neutro-300); --col-compacta: 136px; --col-aberta: minmax(420px, 1fr); --col-inteira: 232px; --rotulos: 148px;
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
@@ -193,16 +193,38 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
     grid-template-rows: auto auto minmax(132px, auto) auto auto auto auto; }
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
-  .fase { padding: 6px 12px; font-size: var(--tamanho-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--texto-700); background: var(--neutro-200); border-left: 1px solid var(--neutro-300); }
-  .rotulos { grid-column: 1; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; }
-  .rotulo { padding: 12px; font-size: var(--tamanho-sm); font-weight: 600; color: var(--texto-950); border-top: 1px solid var(--neutro-300); }
-  .mapa[data-modo="etapa"] .rotulos { visibility: hidden; }
+  /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
+     cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
+     (Escolhido no playground /dev/cores-fases, combinação A.) */
+  .mapa { --fase-forte: var(--neutro-100); --fase-media: var(--neutro-100); --fase-texto: var(--texto-700); --fase-numero: var(--texto-600);
+    --fase-ativa: var(--coral-300); --fase-texto-ativa: var(--texto-950); --fase-clara: var(--coral-100); }
+  .fase { padding: 6px 12px; font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); font-weight: 500; letter-spacing: 0.04em;
+    color: var(--fase-texto); background: var(--fase-forte); border-right: var(--linha); border-bottom: var(--linha); transition: background-color 200ms ease, color 200ms ease; }
+  .mapa[data-modo="etapa"] .fase[data-ativa] { background: var(--fase-ativa); color: var(--fase-texto-ativa); }
+  /* a Fase ativa termina numa seta arredondada (24px) que avança sobre a vizinha, no lugar do corte reto; a última
+     Fase (fim do mapa) não tem ponta. A seguinte abre espaço para o texto não encostar. (Playground /dev/forma-fases.) */
+  .fase { position: relative; }
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child) { border-right-color: transparent; }
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 0; bottom: 0; right: -24px; width: 24px;
+    background: inherit; clip-path: polygon(0 0, 40% 0, 100% 45%, 100% 55%, 40% 100%, 0 100%); }
+  .mapa[data-modo="etapa"] .fase[data-ativa] + .fase { padding-left: 36px; }
+  /* a cor da Fase ativa desce para o topo da Etapa aberta; as outras Etapas (da mesma Fase e das demais) ficam no tom claro */
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { background: var(--fase-ativa); transition: background-color 200ms ease; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { color: var(--fase-texto-ativa); }
+  .rotulos { grid-column: 1; grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; }
+  /* "Etapas" ocupa as duas linhas do topo: a das Fases e a dos nomes das Etapas */
+  .rotulo-etapas { grid-row: span 2; border-top: 0; }
+  /* linhas da grade: uma só (--linha, 1px neutro-300) em todas as células. Cada célula desenha a de cima e a da direita
+     (a coluna dos rótulos também, a da direita); sem linhas dobradas onde duas se encontram. */
+  .rotulos { border-right: var(--linha); }
+  /* estilo.css (da tabela antiga) dá a todo .rotulo uma borda direita de 2px quase preta e posição grudada: aqui não */
+  .rotulos .rotulo { border-right: 0; position: static; width: auto; min-width: 0; }
+  .rotulo { padding: 12px; font-size: var(--tamanho-sm); font-weight: 600; color: var(--texto-950); border-top: var(--linha); }
 
-  .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-left: 1px solid var(--neutro-300); background: var(--neutro-50);
+  .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
   .etapa[hidden] { display: none; }
-  .etapa-topo { padding: 10px 12px; border-bottom: 1px solid var(--neutro-300); }
+  .etapa-topo { padding: 10px 12px; background: var(--fase-media); }
   .etapa-titulo { display: flex; align-items: flex-start; gap: 8px; }
   .etapa-titulo .etapa-nome { flex: 1; min-width: 0; }
   .etapa-setas { display: none; gap: 4px; margin-left: auto; flex-shrink: 0; }
@@ -215,7 +237,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; }
   .etapa-abrir { all: unset; cursor: pointer; }
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
-  .etapa-n { color: var(--texto-600); font-size: var(--tamanho-sm); }
+  .etapa-n { color: var(--fase-numero); font-size: var(--tamanho-sm); }
   .etapa-detalhe { margin-top: 8px; font: inherit; font-size: var(--tamanho-xs); color: var(--texto-900); background: none; border: 1px solid var(--neutro-400);
     border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: background-color 150ms ease; }
   .etapa-detalhe:hover { background: var(--neutro-100); }
@@ -223,9 +245,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="inteiro"] .etapa-detalhe .texto-longo { display: none; }
   .mapa[data-modo="inteiro"] .etapa-detalhe .texto-curto { display: inline; }
   .mapa[data-modo="inteiro"] .camada-titulo { display: none; }
-  .mapa[data-modo="inteiro"] .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
+  /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
+  .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
 
-  .camada { padding: 12px; border-top: 1px solid var(--neutro-200); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
+  .camada { padding: 12px; border-top: var(--linha); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
   .camada p { margin: 0; }
   .camada-titulo { margin: 0 0 6px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); font-weight: 600; }
   .vazio { color: var(--texto-400); font-style: italic; }
@@ -259,11 +282,12 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .avatar { width: 28px; height: 28px; }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--neutro-100); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-xl); color: var(--texto-950); }
 
   /* modo mapa inteiro */
-  .mapa[data-modo="inteiro"] { --rotulos: 148px; --colunas: repeat(var(--n), var(--col-inteira)); }
+  /* --colunas vai na grade, onde --n existe (no .mapa ela ficaria inválida e as colunas cairiam no tamanho compacto) */
+  .mapa[data-modo="inteiro"] .mapa-grade { --colunas: repeat(var(--n), var(--col-inteira)); }
 
   /* conteúdo do painel de detalhe (copiado dos <template> pelo ControlesMapa) */
   .detalhe-corpo { padding: 16px 24px 48px; font-size: var(--tamanho-sm); line-height: 1.5; }
@@ -286,6 +310,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     .mapa-grade, .mapa[data-modo] .mapa-grade { grid-template-columns: 0 100%; }
     .mapa .etapa:not([data-aberta]) { display: none; }
     .fases { display: none; }
+    .rotulos { visibility: hidden; }
     .linha-sentimentos { display: none; }
   }
 </style>
