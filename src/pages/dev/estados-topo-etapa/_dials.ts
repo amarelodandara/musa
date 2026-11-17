@@ -175,7 +175,8 @@ for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
   for (const [nome, ctrl] of Object.entries(ctrls)) {
     // o padrão lê o código antes de acrescentar "Como no código" (senão a opção vazia faz pular a leitura)
     const def = padrao(primeiro, ctrl);
-    if (!ctrl.opcoes.some((o) => valor(o) === "")) ctrl.opcoes.unshift(["Como no código", ""]);
+    // cópia: as listas de opções são compartilhadas entre controles (mexer nelas mudaria os outros)
+    if (!ctrl.opcoes.some((o) => valor(o) === "")) ctrl.opcoes = [["Como no código", ""], ...ctrl.opcoes];
     config[grupo][nome] = {
       type: "select",
       options: ctrl.opcoes.map((o) => (Array.isArray(o) ? { value: o[1], label: o[0] } : o)),
