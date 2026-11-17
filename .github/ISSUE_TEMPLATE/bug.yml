@@ -1,0 +1,21 @@
+name: Algo não funciona
+description: Um erro no site, no mapa ou nos PDFs.
+labels: [bug, needs-triage]
+body:
+  - type: textarea
+    id: o-que
+    attributes:
+      label: O que aconteceu
+      description: O que você fez, o que esperava e o que aconteceu no lugar.
+    validations:
+      required: true
+  - type: input
+    id: pagina
+    attributes:
+      label: Página
+      placeholder: https://usemusa.app/mapa
+  - type: input
+    id: navegador
+    attributes:
+      label: Navegador e aparelho
+      placeholder: Safari no iPhone, Firefox no Windows…

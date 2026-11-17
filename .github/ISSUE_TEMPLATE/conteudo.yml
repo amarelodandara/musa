@@ -1,0 +1,16 @@
+name: Conteúdo do mapa
+description: Uma Prática, Etapa ou Fonte que está errada, faltando ou pode melhorar.
+labels: [documentation, needs-triage]
+body:
+  - type: input
+    id: etapa
+    attributes:
+      label: Etapa
+      placeholder: Descobrir o museu
+  - type: textarea
+    id: o-que
+    attributes:
+      label: O que mudar
+      description: O texto atual, o que deveria ser e, se tiver, a Fonte.
+    validations:
+      required: true

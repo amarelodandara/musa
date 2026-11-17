@@ -1,0 +1,11 @@
+name: Sugestão
+description: Uma ideia para o site ou para o mapa.
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: ideia
+    attributes:
+      label: A ideia
+      description: O que você gostaria que o musá fizesse, e por quê.
+    validations:
+      required: true
