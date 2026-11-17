@@ -1,58 +1,84 @@
-// Controles do Mapa da Visita, com Base UI (ADR 0006): botão e barra lateral do guia, seletor de modo,
-// setas das Etapas, filtro por Função e o painel de detalhe de uma Etapa.
+// Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo: botão de ajuda (guia) à esquerda;
+// à direita o filtro e a visão (detalhada/geral). A marca fica fora da ilha, na ponta direita da barra (mapa.astro). Mais o painel de detalhe de uma Etapa.
 // Quem desenha a grade é src/scripts/mapa.ts. A conversa é por eventos e pela API window.musaMapa:
 //   mapa.ts → "musa-mapa:estado" { modo, atual, total, celular } e "musa-mapa:detalhe" { id }
-//   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funcao)
+//   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funções) / .mostrarEtapas(etapas)
 // O guia abre sozinho só na primeira visita (localStorage "musa:guia-visto"); depois, só pelo botão.
 import { useCallback, useEffect, useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { Drawer } from "@base-ui/react/drawer";
-import { Select } from "@base-ui/react/select";
+import { Menu } from "@base-ui/react/menu";
 import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
-import { Tooltip } from "@base-ui/react/tooltip";
-import { Check, NavArrowDown, NavArrowLeft, NavArrowRight, SidebarCollapse, SidebarExpand, Xmark } from "iconoir-react";
+import { Check, Filter, SidebarCollapse, SidebarExpand, Xmark } from "iconoir-react";
 
 interface Funcao { id: string; nome: string }
-interface Props { funcoes: Funcao[]; totalEtapas: number }
+interface EtapaInfo { id: string; nome: string; fase: string }
+interface Props {
+  funcoes: Funcao[]; etapas: EtapaInfo[]; totalEtapas: number;
+  // só para a página de estados (/dev/estados-menu-filtro): seleção inicial do filtro e menu já aberto. O mapa não passa.
+  filtroInicial?: { etapas?: string[]; funcoes?: string[] };
+  menuFiltroAberto?: boolean;
+}
 interface Estado { modo: "etapa" | "inteiro"; atual: number; total: number; celular: boolean }
 interface MusaMapa {
   modo(m: string): void;
   passo(d: number): void;
-  filtrar(f: string): void;
+  filtrar(f: string[] | null): void;
+  mostrarEtapas(ids: string[] | null): void;
   estado(): Estado;
 }
 declare global { interface Window { musaMapa?: MusaMapa } }
 
-const TODAS = "todas";
+const slug = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const guardar = (k: string, v: string) => { try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
 // classes comuns: controles pequenos e cinza (é uma ferramenta de uso longo)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";
 const botao = `inline-flex items-center justify-center gap-1.5 h-7 rounded-md border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
-const dica = "rounded-md bg-texto-950 px-2 py-1 text-xs font-inter text-neutro-50 origin-(--transform-origin) transition-[opacity,scale] duration-150 data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-instant:duration-0";
 
-function ComDica({ texto, children }: { texto: string; children: React.ReactElement }) {
+// itens do menu de filtros
+// filtro-*: só ganchos para o painel de ajuste da bancada (dev/estados-menu-filtro/_dials.ts); não têm estilo próprio.
+const rotuloGrupo = "filtro-rotulo px-3 pt-2 pb-1 text-2xs font-normal normal-case tracking-normal text-texto-600 font-inter";
+// implicito: marcado só porque "Todas" está marcado. Mostra um círculo em vez do check; o check fica para as escolhas
+// feitas uma a uma.
+function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = false }: { rotulo: string; marcado: boolean; aoMudar: (m: boolean) => void; forte?: boolean; implicito?: boolean }) {
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger render={children} />
-      <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={6} className="z-30">
-          <Tooltip.Popup className={dica}>{texto}</Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <Menu.CheckboxItem checked={marcado} onCheckedChange={aoMudar}
+      className={`filtro-item ${forte ? "filtro-todas font-medium" : "font-normal"} grid grid-cols-[14px_1fr] items-center gap-2.5 py-2 pl-3 pr-3 mx-0 rounded-none font-inter text-xs text-texto-700 cursor-default outline-none select-none touch-manipulation data-highlighted:bg-neutro-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-texto-950`}>
+      {/* marcado em coral (a cor principal da marca): mostra que está ligado. coral-600 mede ~4:1 sobre o fundo claro. */}
+      <Menu.CheckboxItemIndicator className="filtro-indicador col-start-1 flex items-center justify-center text-coral-600">
+        {implicito ? <span className="filtro-circulo block size-1 rounded-full bg-coral-600" /> : <Check {...icPequeno} strokeWidth={2} className="filtro-check" />}
+      </Menu.CheckboxItemIndicator>
+      <span className="col-start-2">{rotulo}</span>
+    </Menu.CheckboxItem>
   );
 }
+
+// segmento do seletor de visão
+const segmento = `h-6 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap hover:text-texto-950 data-pressed:bg-neutro-50 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
+// Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
+// do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
+function Rotulo({ texto }: { texto: string }) {
+  return (
+    <span aria-hidden="true" className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/abre:grid-cols-[1fr] group-focus-visible/abre:grid-cols-[1fr] group-data-popup-open/abre:grid-cols-[1fr] motion-reduce:transition-none">
+      <span className="overflow-hidden whitespace-nowrap"><span className="block pl-1.5 pr-0.5">{texto}</span></span>
+    </span>
+  );
+}
+// sem o gap do botão: com o rótulo fechado ele sobraria à direita do ícone; o espaço vem do pl-1.5 do próprio rótulo
+const botaoQueAbre = `${botao.replace("gap-1.5 ", "")} group/abre px-1.25`; // 5 + 16 + 5 + 2 de borda = 28, quadrado como os outros
 
 // Ícones: Iconoir (traço de 1,5 px), só onde o controle não tem texto. Tamanho fixo em px, cor herdada.
 const ic = { width: 16, height: 16, strokeWidth: 1.5, "aria-hidden": true } as const;
 const icPequeno = { ...ic, width: 14, height: 14 } as const;
 
-export default function ControlesMapa({ funcoes, totalEtapas }: Props) {
+export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInicial, menuFiltroAberto }: Props) {
   const [estado, setEstado] = useState<Estado>({ modo: "etapa", atual: 0, total: totalEtapas, celular: false });
-  const [funcao, setFuncao] = useState<string>(TODAS);
+  // filtros: o que está à vista. Começa com tudo; nunca fica vazio (desmarcar o último volta para todos).
+  const [funcoesVistas, setFuncoesVistas] = useState<string[]>(() => filtroInicial?.funcoes ?? funcoes.map((f) => f.id));
+  const [etapasVistas, setEtapasVistas] = useState<string[]>(() => filtroInicial?.etapas ?? etapas.map((e) => e.id));
   const [guia, setGuia] = useState(false);
   const [detalhe, setDetalhe] = useState<string | null>(null);
 
@@ -75,11 +101,47 @@ export default function ControlesMapa({ funcoes, totalEtapas }: Props) {
     document.documentElement.toggleAttribute("data-mapa-detalhe", !!detalhe);
   }, [detalhe]);
 
-  const escolherFuncao = (v: string | null) => {
-    const f = v ?? TODAS;
-    setFuncao(f);
-    window.musaMapa?.filtrar(f === TODAS ? "" : f);
+  const todasFuncoes = funcoesVistas.length === funcoes.length;
+  const todasEtapas = etapasVistas.length === etapas.length;
+
+  // Os filtros ficam no endereço (?fases=antes-da-visita&funcoes=mediacao), para a pessoa mandar para a equipe
+  // exatamente o que está vendo. Sem filtro, o parâmetro sai. Ao abrir, o endereço vale.
+  const fasesDe = (ids: string[]) => [...new Set(etapas.filter((e) => ids.includes(e.id)).map((e) => e.fase))];
+  const gravarNoEndereco = (eV: string[], fV: string[]) => {
+    const u = new URL(location.href);
+    if (eV.length === etapas.length) u.searchParams.delete("fases"); else u.searchParams.set("fases", fasesDe(eV).map(slug).join(","));
+    if (fV.length === funcoes.length) u.searchParams.delete("funcoes"); else u.searchParams.set("funcoes", fV.join(","));
+    history.replaceState(history.state, "", u);
   };
+  // aviso para leitor de tela quando o filtro muda (o mapa muda em silêncio)
+  const [aviso, setAviso] = useState("");
+  const avisar = (eV: string[], fV: string[]) =>
+    setAviso(`${eV.length} de ${etapas.length} etapas e ${fV.length} de ${funcoes.length} funções à vista.`);
+
+  const aplicar = (eIds: string[], fIds: string[], { gravar = true, anunciar = true } = {}) => {
+    const eV = eIds.length ? eIds : etapas.map((e) => e.id);
+    const fV = fIds.length ? fIds : funcoes.map((f) => f.id);
+    setEtapasVistas(eV); setFuncoesVistas(fV);
+    window.musaMapa?.mostrarEtapas(eV.length === etapas.length ? null : eV);
+    window.musaMapa?.filtrar(fV.length === funcoes.length ? null : fV);
+    if (gravar && !menuFiltroAberto) gravarNoEndereco(eV, fV);
+    if (anunciar) avisar(eV, fV);
+  };
+  const aplicarFuncoes = (ids: string[]) => aplicar(etapasVistas, ids);
+  const aplicarEtapas = (ids: string[]) => aplicar(ids, funcoesVistas);
+
+  // filtros vindos do endereço (depois de montar, para não divergir do HTML gerado no servidor)
+  useEffect(() => {
+    if (menuFiltroAberto) return;
+    const q = new URLSearchParams(location.search);
+    const fases = q.get("fases")?.split(",").filter(Boolean);
+    const fs = q.get("funcoes")?.split(",").filter((id) => funcoes.some((f) => f.id === id));
+    const eIds = fases ? etapas.filter((e) => fases.includes(slug(e.fase))).map((e) => e.id) : [];
+    if (eIds.length || fs?.length) aplicar(eIds, fs ?? [], { gravar: false, anunciar: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const alternar = (lista: string[], id: string, marcar: boolean, ordem: string[]) =>
+    ordem.filter((x) => (x === id ? marcar : lista.includes(x)));
 
   // conteúdo do detalhe: vem do <template id="detalhe-<etapa>"> que o Astro já gerou
   const [tituloDetalhe, setTituloDetalhe] = useState("");
@@ -91,24 +153,28 @@ export default function ControlesMapa({ funcoes, totalEtapas }: Props) {
     const nome = conteudo.querySelector(".det-nome");
     setTituloDetalhe(nome?.textContent ?? "");
     nome?.remove();
-    if (funcao !== TODAS) conteudo.querySelectorAll<HTMLElement>(".pratica").forEach((p) => { p.hidden = p.dataset.funcao !== funcao; });
+    if (!todasFuncoes) conteudo.querySelectorAll<HTMLElement>(".pratica").forEach((p) => { p.hidden = !funcoesVistas.includes(p.dataset.funcao!); });
     el.replaceChildren(conteudo);
-  }, [detalhe, funcao]);
+  }, [detalhe, funcoesVistas, todasFuncoes]);
 
-  const itens = [{ value: TODAS, label: "Todas as funções" }, ...funcoes.map((f) => ({ value: f.id, label: f.nome }))];
-  const { modo, atual, total, celular } = estado;
+  const ordemFuncoes = funcoes.map((f) => f.id), ordemEtapas = etapas.map((e) => e.id);
+  // "Limpar" desligado (nenhum filtro): ao passar o mouse, uma nota embaixo dele diz por quê.
+  // Embaixo, e não em cima, para o botão não sair do lugar debaixo do cursor.
+  const semFiltro = todasFuncoes && todasEtapas;
+  const [sobreLimpar, setSobreLimpar] = useState(false);
+  const fases = [...new Set(etapas.map((e) => e.fase))];
+  const { modo, celular } = estado;
 
   return (
-    <Tooltip.Provider delay={400}>
+    <>
       <div className="flex items-center gap-2 min-w-0 flex-1">
         {/* barra lateral do guia */}
         <Drawer.Root open={guia} onOpenChange={setGuia} modal={false} disablePointerDismissal swipeDirection="left">
-          <ComDica texto={guia ? "Esconder o guia" : "Como usar o mapa"}>
-            <Drawer.Trigger className={`${botao} w-7 px-0 data-popup-open:bg-neutro-200`} aria-label="Como usar o mapa"
-              onClick={(ev) => { if (guia) { ev.preventDefault(); setGuia(false); } }}>
-              {guia ? <SidebarCollapse {...ic} /> : <SidebarExpand {...ic} />}
-            </Drawer.Trigger>
-          </ComDica>
+          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a ajuda" : "Ajuda"}
+            onClick={(ev) => { if (guia) { ev.preventDefault(); setGuia(false); } }}>
+            {guia ? <SidebarCollapse {...ic} /> : <SidebarExpand {...ic} />}
+            <Rotulo texto={guia ? "Fechar a ajuda" : "Ajuda"} />
+          </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Viewport className="fixed inset-x-0 bottom-0 top-(--altura-topo) z-20 flex pointer-events-none">
               <Drawer.Popup className="pointer-events-auto h-full w-80 max-w-full box-border overflow-y-auto overscroll-contain bg-neutro-50 border-r border-neutro-300 shadow-lg p-5 font-inter text-sm text-texto-900 outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-[translate] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] data-starting-style:-translate-x-full data-ending-style:-translate-x-full data-swiping:select-none motion-reduce:transition-none max-[760px]:w-full max-[760px]:border-r-0">
@@ -128,56 +194,74 @@ export default function ControlesMapa({ funcoes, totalEtapas }: Props) {
         </Drawer.Root>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* modo (no celular só existe etapa por etapa) */}
+          {/* filtros: um menu com duas seções, Etapas e Funções, cada uma com "todas" e a lista */}
+          {/* na bancada (menuFiltroAberto) o menu fica sempre aberto e não modal: a lista de estados e o painel de ajuste ao lado recebem clique */}
+          <Menu.Root open={menuFiltroAberto ? true : undefined} modal={!menuFiltroAberto}>
+            <Menu.Trigger aria-label={todasFuncoes && todasEtapas ? "Filtrar visualização" : "Filtrar visualização (há filtros ligados)"} className={`${botaoQueAbre} relative touch-manipulation data-popup-open:bg-neutro-200`}>
+              <Filter {...ic} />
+              <Rotulo texto="Filtrar visualização" />
+              {!(todasFuncoes && todasEtapas) && <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-texto-950 ring-2 ring-neutro-50" aria-hidden="true" />}
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={14} align="end" className="z-30 outline-none">
+                <Menu.Popup className="filtro-popup w-64 max-h-(--available-height) overflow-y-auto overscroll-contain rounded-sm border border-neutro-300 bg-neutro-50 py-1 shadow-lg outline-none origin-(--transform-origin) transition-[scale,opacity] duration-150 ease-out data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-ending-style:scale-95 motion-reduce:transition-none">
+                  <Menu.Group>
+                    <Menu.GroupLabel className={rotuloGrupo}>Mostrar etapas</Menu.GroupLabel>
+                    <ItemMarcavel rotulo="Todas as etapas" marcado={todasEtapas} aoMudar={(m) => aplicarEtapas(m ? ordemEtapas : [])} forte />
+                    {/* só as Fases (antes, durante, depois): marcar uma mostra todas as Etapas dela */}
+                    {fases.map((fase) => {
+                      const daFase = etapas.filter((e) => e.fase === fase).map((e) => e.id);
+                      const marcada = daFase.every((id) => etapasVistas.includes(id));
+                      return (
+                        <ItemMarcavel key={fase} rotulo={fase} marcado={marcada} implicito={todasEtapas}
+                          aoMudar={(m) => aplicarEtapas(ordemEtapas.filter((id) => (daFase.includes(id) ? m : etapasVistas.includes(id))))} />
+                      );
+                    })}
+                  </Menu.Group>
+                  <Menu.Separator className="filtro-separador my-1 h-px bg-neutro-200" />
+                  <Menu.Group>
+                    <Menu.GroupLabel className={rotuloGrupo}>Mostrar funções</Menu.GroupLabel>
+                    <ItemMarcavel rotulo="Todas as funções" marcado={todasFuncoes} aoMudar={(m) => aplicarFuncoes(m ? ordemFuncoes : [])} forte />
+                    {funcoes.map((f) => (
+                      <ItemMarcavel key={f.id} rotulo={f.nome} marcado={funcoesVistas.includes(f.id)} implicito={todasFuncoes}
+                        aoMudar={(m) => aplicarFuncoes(alternar(funcoesVistas, f.id, m, ordemFuncoes))} />
+                    ))}
+                  </Menu.Group>
+                  {/* limpar: volta tudo à vista de uma vez e fecha o menu; desligado quando não há filtro */}
+                  <Menu.Separator className="filtro-separador mt-1 mb-0 h-px bg-neutro-200" />
+                  <Menu.Item disabled={semFiltro} onClick={() => aplicar(ordemEtapas, ordemFuncoes)}
+                    onPointerEnter={() => setSobreLimpar(true)} onPointerLeave={() => setSobreLimpar(false)}
+                    aria-describedby={semFiltro ? "filtro-nota" : undefined}
+                    className="filtro-limpar m-1 mb-0 flex items-center justify-center rounded py-1.5 font-inter text-xs font-medium text-texto-900 cursor-default outline-none select-none touch-manipulation data-highlighted:bg-neutro-200 data-disabled:text-texto-400 data-disabled:data-highlighted:bg-transparente focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-texto-950">
+                    Limpar filtros
+                  </Menu.Item>
+                  {/* sempre no DOM quando desligado (leitor de tela lê pelo aria-describedby); visível só com o mouse em cima */}
+                  {semFiltro && (
+                    <p id="filtro-nota" role="presentation"
+                      hidden={!sobreLimpar}
+                      className="filtro-nota m-0 px-3 pt-1 pb-1.5 font-inter text-2xs leading-snug text-center text-texto-600 transition-[opacity,translate] duration-150 ease-out starting:opacity-0 starting:-translate-y-0.5 motion-reduce:transition-none">
+                      Nenhum filtro ligado: tudo está à vista.
+                    </p>
+                  )}
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+
+          {/* visão: detalhada = etapa por etapa (a padrão, vem primeiro), geral = mapa inteiro; mesmos nomes do rodapé. No celular só a detalhada.
+              As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
               className="inline-flex gap-0.5 p-0.5 rounded-md bg-neutro-200">
-              {[["etapa", "Etapa por etapa"], ["inteiro", "Mapa inteiro"]].map(([v, rotulo]) => (
-                <Toggle key={v} value={v} className={`h-6 px-2 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none hover:text-texto-950 data-pressed:bg-neutro-50 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`}>
-                  {rotulo}
-                </Toggle>
-              ))}
+              <Toggle value="etapa" className={`${segmento} px-2.5`}>Visão detalhada</Toggle>
+              <Toggle value="inteiro" className={`${segmento} px-2.5`}>Visão geral</Toggle>
             </ToggleGroup>
           )}
 
-          {/* setas das Etapas (só no modo etapa por etapa) */}
-          {modo === "etapa" && (
-            <nav className="flex items-center gap-1" aria-label="Etapas">
-              <ComDica texto="Etapa anterior (←)">
-                <button type="button" className={`${botao} w-7 px-0`} aria-label="Etapa anterior" disabled={atual === 0} onClick={() => window.musaMapa?.passo(-1)}><NavArrowLeft {...ic} /></button>
-              </ComDica>
-              <p className="m-0 min-w-14 text-center text-xs text-texto-700 tabular-nums" aria-live="polite">
-                <span className="sr-only">Etapa </span>{atual + 1} de {total}
-              </p>
-              <ComDica texto="Próxima etapa (→)">
-                <button type="button" className={`${botao} w-7 px-0`} aria-label="Próxima etapa" disabled={atual === total - 1} onClick={() => window.musaMapa?.passo(1)}><NavArrowRight {...ic} /></button>
-              </ComDica>
-            </nav>
-          )}
-
-          {/* filtro por Função */}
-          <Select.Root items={itens} value={funcao} onValueChange={escolherFuncao}>
-            <Select.Trigger aria-label="Filtrar por função" className={`${botao} px-2 min-w-40 justify-between data-popup-open:bg-neutro-100`}>
-              <Select.Value />
-              <Select.Icon className="flex text-texto-600"><NavArrowDown {...icPequeno} /></Select.Icon>
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner sideOffset={4} className="z-30 outline-none select-none">
-                <Select.Popup className="min-w-(--anchor-width) origin-(--transform-origin) rounded-md border border-neutro-300 bg-neutro-50 py-1 shadow-lg outline-none transition-[scale,opacity] duration-150 ease-out data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-ending-style:scale-95 data-[side=none]:data-starting-style:scale-100 data-[side=none]:data-starting-style:opacity-100 data-[side=none]:transition-none">
-                  <Select.List className="max-h-(--available-height) overflow-y-auto">
-                    {itens.map((it) => (
-                      <Select.Item key={it.value} value={it.value} className="grid grid-cols-[14px_1fr] items-center gap-2 py-1.5 pl-2 pr-4 font-inter text-xs text-texto-900 cursor-default outline-none select-none data-highlighted:bg-neutro-200">
-                        <Select.ItemIndicator className="col-start-1 flex"><Check {...icPequeno} /></Select.ItemIndicator>
-                        <Select.ItemText className="col-start-2">{it.label}</Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.List>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
         </div>
       </div>
+
+      <p className="sr-only" aria-live="polite">{aviso}</p>
 
       {/* detalhe de uma Etapa: painel à direita (folha de baixo no celular) */}
       <Dialog.Root open={!!detalhe} onOpenChange={(aberto) => { if (!aberto) setDetalhe(null); }}>
@@ -192,7 +276,7 @@ export default function ControlesMapa({ funcoes, totalEtapas }: Props) {
           </Dialog.Popup>
         </Dialog.Portal>
       </Dialog.Root>
-    </Tooltip.Provider>
+    </>
   );
 }
 
@@ -210,10 +294,10 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       </ul>
       <h3 className={h3}>Como navegar</h3>
       <ul className={ul}>
-        <li><strong>Etapa por etapa</strong> abre uma etapa de cada vez. Passe para a próxima pelas setas no topo ou pelas teclas ← e →.</li>
-        <li><strong>Mapa inteiro</strong> mostra as {totalEtapas} etapas lado a lado.</li>
+        <li><strong>Visão detalhada</strong> abre uma etapa de cada vez. Passe para a próxima ou volte para a anterior pelas setas ao lado do nome da etapa, ou pelas teclas ← e →.</li>
+        <li><strong>Visão geral</strong> mostra as {totalEtapas} etapas lado a lado.</li>
         <li>Clique no nome de uma etapa para ver tudo sobre ela, com a origem de cada prática.</li>
-        <li>Escolha uma função no topo para ver só as práticas de quem cuida daquela parte da visita.</li>
+        <li>No filtro do topo, escolha quais etapas aparecem e de quais funções são as práticas mostradas.</li>
       </ul>
       <h3 className={h3}>Para imprimir</h3>
       <p className="m-0 mb-2.5 leading-normal">O mapa em A1, A2 ou A4, com espaço para a equipe escrever.</p>

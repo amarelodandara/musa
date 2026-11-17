@@ -13,13 +13,19 @@ const ler = (k: string) => { try { return localStorage.getItem("musa:" + k); } c
 
 let atual = 0;
 
+// Etapas à vista (o filtro de Etapas pode esconder algumas)
+const visiveis = () => etapas.filter((e) => !e.hidden);
+
 function abrirEtapa(i: number, { rolar = true } = {}) {
   atual = Math.max(0, Math.min(etapas.length - 1, i));
+  // se a pedida está escondida pelo filtro, abre a primeira à vista
+  if (etapas[atual].hidden) atual = etapas.indexOf(visiveis()[0] ?? etapas[0]);
   etapas.forEach((e, j) => e.toggleAttribute("data-aberta", j === atual));
   const e = etapas[atual];
   avisar();
+  atualizarSetas();
   if (raiz.dataset.modo === "etapa") {
-    const cols = etapas.map((_, j) => (j === atual ? "var(--col-aberta)" : "var(--col-compacta)")).join(" ");
+    const cols = visiveis().map((v) => (v === e ? "var(--col-aberta)" : "var(--col-compacta)")).join(" ");
     grade.style.setProperty("--colunas", cols);
   }
   history.replaceState(null, "", "#" + e.dataset.etapa);
@@ -43,8 +49,46 @@ function definirModo(modo: string, salvar = true) {
   abrirEtapa(atual, { rolar: false });
 }
 
-function filtrar(funcao: string) {
-  raiz.querySelectorAll<HTMLElement>(".etapa .pratica").forEach((p) => { p.hidden = !!funcao && p.dataset.funcao !== funcao; });
+// próxima/anterior entre as Etapas à vista
+function vizinha(d: number) {
+  const v = visiveis(), k = v.indexOf(etapas[atual]);
+  return v[k + d] ?? null;
+}
+// setas no topo da Etapa aberta: somem se não há vizinha à vista; o nome da vizinha vai no rótulo
+function atualizarSetas() {
+  const e = etapas[atual];
+  e.querySelectorAll<HTMLButtonElement>("[data-passo]").forEach((b) => {
+    const d = Number(b.dataset.passo), alvo = vizinha(d);
+    b.hidden = !alvo;
+    if (alvo) {
+      const nome = alvo.querySelector(".etapa-abrir")?.textContent?.replace(/^\s*\d+\s*/, "").trim() ?? "";
+      b.title = nome;
+      b.setAttribute("aria-label", `${d < 0 ? "Etapa anterior" : "Próxima etapa"}: ${nome}`);
+    }
+  });
+}
+function passo(d: number) {
+  const alvo = vizinha(d);
+  if (alvo) abrirEtapa(etapas.indexOf(alvo));
+}
+
+// Filtro de Etapas: ids à vista (null = todas). Ajusta colunas, faixas das Fases e a linha.
+function mostrarEtapas(ids: string[] | null) {
+  etapas.forEach((e) => { e.hidden = !!ids && !ids.includes(e.dataset.etapa!); });
+  const v = visiveis();
+  grade.style.setProperty("--n", String(v.length));
+  raiz.querySelectorAll<HTMLElement>(".fase").forEach((f) => {
+    const n = v.filter((e) => e.dataset.fase === f.dataset.fase).length;
+    f.hidden = n === 0;
+    f.style.gridColumn = `span ${n || 1}`;
+  });
+  abrirEtapa(atual, { rolar: false });
+}
+
+// Filtro de Funções: ids à vista (null ou vazio = todas)
+function filtrar(funcoes: string[] | null) {
+  const so = funcoes && funcoes.length ? funcoes : null;
+  raiz.querySelectorAll<HTMLElement>(".etapa .pratica").forEach((p) => { p.hidden = !!so && !so.includes(p.dataset.funcao!); });
   raiz.querySelectorAll<HTMLElement>(".camada-boas, .camada-evitar").forEach((c) => {
     const total = c.querySelectorAll(".pratica").length;
     const visiveis = c.querySelectorAll(".pratica:not([hidden])").length;
@@ -60,7 +104,7 @@ function desenharLinha() {
   if (celular.matches) { caminho.setAttribute("d", ""); return; }
   const base = grade.getBoundingClientRect();
   let d = "", aberto = false;
-  for (const e of etapas) {
+  for (const e of visiveis()) {
     const camada = e.querySelector(".camada-sentimentos") as HTMLElement;
     const r = camada.getBoundingClientRect();
     const peso = e.dataset.peso === "" ? null : Number(e.dataset.peso);
@@ -81,14 +125,23 @@ function avisar() { document.dispatchEvent(new CustomEvent("musa-mapa:estado", {
 function abrirDetalhe(id: string) { document.dispatchEvent(new CustomEvent("musa-mapa:detalhe", { detail: { id } })); }
 window.musaMapa = {
   modo: (m: string) => definirModo(m),
-  passo: (d: number) => abrirEtapa(atual + d),
+  passo,
   filtrar,
+  mostrarEtapas,
   estado
 };
 
 // eventos da grade
 raiz.addEventListener("click", (ev) => {
   const alvo = ev.target as HTMLElement;
+  const passo = alvo.closest<HTMLElement>("[data-passo]");
+  if (passo && !passo.hidden) {
+    window.musaMapa!.passo(Number(passo.dataset.passo));
+    // o foco segue para a mesma seta na Etapa que abriu (ou a outra, se não houver), para dar para seguir clicando
+    const nova = etapas[atual];
+    (nova.querySelector<HTMLElement>(`[data-passo="${passo.dataset.passo}"]`) ?? nova.querySelector<HTMLElement>("[data-passo]"))?.focus({ preventScroll: true });
+    return;
+  }
   const det = alvo.closest<HTMLElement>("[data-detalhe]");
   if (det) return abrirDetalhe(det.dataset.detalhe!);
   const ir = alvo.closest<HTMLElement>("[data-ir]");
@@ -104,8 +157,8 @@ document.addEventListener("keydown", (ev) => {
   // com o painel de detalhe aberto (atributo posto pela ilha) ou foco num controle, as setas são do controle
   if (document.documentElement.hasAttribute("data-mapa-detalhe") || raiz.dataset.modo !== "etapa") return;
   if ((ev.target as HTMLElement).closest("select, input, [role='listbox'], [role='option'], [role='group'], [role='dialog']")) return;
-  if (ev.key === "ArrowRight") abrirEtapa(atual + 1);
-  if (ev.key === "ArrowLeft") abrirEtapa(atual - 1);
+  if (ev.key === "ArrowRight") passo(1);
+  if (ev.key === "ArrowLeft") passo(-1);
 });
 // deslizar no celular
 let toqueX: number | null = null;
@@ -113,14 +166,14 @@ grade.addEventListener("touchstart", (ev) => { toqueX = ev.touches[0].clientX; }
 grade.addEventListener("touchend", (ev) => {
   if (toqueX === null) return;
   const dx = ev.changedTouches[0].clientX - toqueX; toqueX = null;
-  if (Math.abs(dx) > 50) abrirEtapa(atual + (dx < 0 ? 1 : -1));
+  if (Math.abs(dx) > 50) passo(dx < 0 ? 1 : -1);
 });
 new ResizeObserver(() => requestAnimationFrame(desenharLinha)).observe(grade);
 celular.addEventListener("change", () => { definirModo(ler("modo") ?? "etapa", false); avisar(); });
 
 // início: etapa do link (#agendar) e modo lembrado.
 // O link também pode trazer o modo (?modo=inteiro): vale como escolha da pessoa e fica lembrado.
-// Atalhos do rodapé: visão resumida = mapa inteiro; visão detalhada = etapa por etapa.
+// Visão detalhada = modo etapa (a padrão); visão geral = modo inteiro (os nomes que a pessoa vê, no topo e no rodapé).
 const pedido = new URLSearchParams(location.search);
 const modoDoLink = pedido.get("modo");
 if (modoDoLink === "etapa" || modoDoLink === "inteiro") guardar("modo", modoDoLink);

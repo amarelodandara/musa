@@ -4,13 +4,13 @@
 //   inteiro → todas as Etapas lado a lado, Camadas alinhadas em linhas
 // O detalhe de uma Etapa abre num painel lateral (folha de baixo no celular), com Origem e Fonte de cada Prática.
 // É uma ferramenta de uso longo: tons de cinza, sem a cor da marca na grade (as cores de destaque vêm depois).
-// Barra fina no topo: o ícone (volta para o início) e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
+// Barra fina no topo: botão do guia, o logotipo (volta para o início) e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
 // guia, modo, setas das Etapas e filtro. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
 // lateral por cima da grade, aberta sozinha só na primeira visita; o link para baixar o mapa mora nele.
 // A linha dos sentimentos aparece sempre.
 import Base from "../layouts/Base.astro";
-import MarcaNav from "../components/MarcaNav.astro";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
+import MarcaNav from "../components/MarcaNav.astro";
 import { conteudo, FASES, SENTIMENTOS, AVATAR, fonte, funcao } from "../lib/conteudo";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
@@ -34,15 +34,21 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 <Base titulo="Mapa da Visita" classeCorpo="pagina-mapa-v2" cabecalho={false} rodape={false}>
 <div class="mapa" data-modo="etapa" id="mapa">
   <header class="mapa-topo">
-    <MarcaNav soIcone tamanho="size-7" />
     <h1 class="visualmente-oculto">Mapa da Visita</h1>
-    <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length} />
+    <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length}
+      etapas={etapas.map((e) => ({ id: e.id, nome: e.nome, fase: rotuloFase(e.fase) }))} />
+    {/* A marca, na ponta direita, centralizada na altura da barra. Duas versões em teste (só uma aparece):
+        olho  → o ícone pequeno (3 anéis) que vira olho ao passar o mouse, como no resto do site (padrão)
+        simbolo → o símbolo pequeno parado, com a moldura
+        Em desenvolvimento, troque pelo endereço: /mapa?marca=simbolo ou /mapa?marca=olho (fica lembrado). */}
+    <div class="mapa-marca marca-olho"><MarcaNav soIcone tamanho="size-7" /></div>
+    <a class="mapa-marca marca-simbolo" href="/" aria-label="musá, página inicial"><img src="/brand/assets/musa-symbol-crimson-pequeno.svg" alt="" width="28" height="28" /></a>
   </header>
 
   <div class="mapa-rolagem">
     <div class="mapa-grade" style={`--n:${etapas.length}`}>
       <div class="fases" aria-hidden="true">
-        {grupos.map((g) => <div class="fase" style={`grid-column: span ${g.n}`}>{g.rotulo}</div>)}
+        {grupos.map((g) => <div class="fase" data-fase={g.nome} style={`grid-column: span ${g.n}`}>{g.rotulo}</div>)}
       </div>
       <div class="rotulos" aria-hidden="true">
         <div class="rotulo-topo"></div>
@@ -54,9 +60,16 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
         const d = daEtapa(e.id);
         const h = humor(e.sentimento);
         return (
-          <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
+          <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-fase={e.fase} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
             <header class="etapa-topo">
-              <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}><span class="etapa-n">{e.ordem}</span> {e.nome}</button></h2>
+              <div class="etapa-titulo">
+                <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}><span class="etapa-n">{e.ordem}</span> {e.nome}</button></h2>
+                {/* visão detalhada: setas da Etapa aberta para a anterior e a próxima (ícones Iconoir nav-arrow) */}
+                <div class="etapa-setas">
+                  {i > 0 && <button type="button" class="etapa-seta" data-passo="-1" aria-label={`Etapa anterior: ${etapas[i - 1].nome}`} title={etapas[i - 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6L9 12L15 18" /></svg></button>}
+                  {i < etapas.length - 1 && <button type="button" class="etapa-seta" data-passo="1" aria-label={`Próxima etapa: ${etapas[i + 1].nome}`} title={etapas[i + 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6L15 12L9 18" /></svg></button>}
+                </div>
+              </div>
               <button type="button" class="etapa-detalhe" data-detalhe={e.id}><span class="texto-longo">Ver tudo sobre esta etapa</span><span class="texto-curto">Ver tudo</span></button>
             </header>
             <div class="camada camada-sentimentos" data-camada="sentimentos">
@@ -143,6 +156,14 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 </div>
 
 <Fragment slot="scripts">
+  {import.meta.env.DEV && <script is:inline>
+    // teste das duas versões da marca no topo: ?marca=simbolo | ?marca=olho (lembrado no navegador)
+    (function () {
+      var q = new URLSearchParams(location.search).get("marca");
+      try { if (q) localStorage.setItem("musa:dev-marca", q); q = localStorage.getItem("musa:dev-marca"); } catch (e) {}
+      if (q === "simbolo") document.documentElement.dataset.marca = "simbolo";
+    })();
+  </script>}
   <script>
     import "../scripts/mapa";
   </script>
@@ -157,6 +178,13 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
+  .mapa-marca { flex-shrink: 0; display: flex; align-items: center; height: 28px; }
+  .mapa-marca img { display: block; width: 28px; height: 28px; }
+  a.mapa-marca { border-radius: 4px; }
+  a.mapa-marca:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 3px; }
+  .marca-simbolo { display: none; }
+  :root[data-marca="simbolo"] .marca-simbolo { display: flex; }
+  :root[data-marca="simbolo"] .marca-olho { display: none; }
   .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; height: 44px; box-sizing: border-box;
     padding: 0 12px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
   /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
@@ -173,7 +201,17 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-left: 1px solid var(--neutro-300); background: var(--neutro-50);
     transition: background-color 200ms ease; }
+  .etapa[hidden] { display: none; }
   .etapa-topo { padding: 10px 12px; border-bottom: 1px solid var(--neutro-300); }
+  .etapa-titulo { display: flex; align-items: flex-start; gap: 8px; }
+  .etapa-titulo .etapa-nome { flex: 1; min-width: 0; }
+  .etapa-setas { display: none; gap: 4px; margin-left: auto; flex-shrink: 0; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-setas { display: flex; }
+  .etapa-seta { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border-radius: 6px;
+    border: 1px solid var(--neutro-300); background: var(--neutro-50); color: var(--texto-900); cursor: pointer; transition: background-color 150ms ease, transform 160ms var(--ease-out); }
+  .etapa-seta:hover { background: var(--neutro-200); }
+  .etapa-seta:active { transform: scale(0.95); }
+  .etapa-seta:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
   .etapa-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; }
   .etapa-abrir { all: unset; cursor: pointer; }
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
