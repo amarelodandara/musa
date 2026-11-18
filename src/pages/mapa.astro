@@ -7,11 +7,12 @@
 // Barra fina no topo: botão do guia, o logotipo (volta para o início) e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
 // guia, modo, setas das Etapas e filtro. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
 // lateral por cima da grade, aberta sozinha só na primeira visita; o link para baixar o mapa mora nele.
-// A linha dos sentimentos aparece sempre.
+// Nível de desafio (decidido em /dev/desafio): três níveis fixos, um avatar por Etapa, ligados por um caminho de giz;
+// ao passar o mouse (ou focar) no avatar, o Pensamento do professor sobe num cartão. O desenho fica em src/scripts/mapa.ts.
 import Base from "../layouts/Base.astro";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import MarcaNav from "../components/MarcaNav.astro";
-import { conteudo, FASES, SENTIMENTOS, AVATAR, fonte, funcao } from "../lib/conteudo";
+import { conteudo, FASES, DESAFIOS, desafio, fonte, funcao } from "../lib/conteudo";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
 const daEtapa = (id: string) => ({
@@ -20,11 +21,10 @@ const daEtapa = (id: string) => ({
   evitar: praticas.filter((p) => p.etapa === id && p.tipo === "evitar")
 });
 const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
-const humor = (s: string | null) => (s && SENTIMENTOS[s]?.humor) || null;
-const peso = (s: string | null) => (s && s in SENTIMENTOS ? SENTIMENTOS[s].peso : null);
 const CAMADAS = [
   { id: "acoes", nome: "Ações do professor" },
-  { id: "sentimentos", nome: "Sentimentos" },
+  // id "sentimentos" mantido nas classes (camada-sentimentos, rotulo-sentimentos): a Camada agora é o Nível de desafio
+  { id: "sentimentos", nome: "Nível de desafio" },
   { id: "pontos", nome: "Pontos de contato" },
   { id: "boas", nome: "Boas práticas" },
   { id: "evitar", nome: "O que evitar" }
@@ -52,15 +52,34 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
       </div>
       <div class="rotulos" aria-hidden="true">
         <div class="rotulo rotulo-etapas">Etapas</div>
-        {CAMADAS.map((c) => <div class={`rotulo rotulo-${c.id}`}>{c.nome}</div>)}
+        {CAMADAS.map((c) => (
+          <div class={`rotulo rotulo-${c.id}`}>{c.nome}
+            {/* rótulos dos três níveis, na borda direita, na altura de cada trilha */}
+            {c.id === "sentimentos" && <div class="desafio-niveis" aria-hidden="true">{(["alto", "medio", "baixo"] as const).map((n) => <span data-nivel={n}>{DESAFIOS[n].nome}</span>)}</div>}
+          </div>
+        ))}
       </div>
-      <svg class="linha-sentimentos" aria-hidden="true"><path /></svg>
+      {/* guias dos níveis e caminho de giz entre os avatares (desenhados por mapa.ts). Giz: o mesmo filtro do caminho da abertura */}
+      <svg class="linha-sentimentos" aria-hidden="true">
+        <defs>
+          <filter id="desafio-giz" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula" />
+            <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2" xChannelSelector="R" yChannelSelector="G" result="borda" />
+            <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao" />
+            <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara" />
+            <feComposite in="borda" in2="mascara" operator="in" />
+          </filter>
+          <mask id="desafio-furos" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><rect width="100%" height="100%" fill="white" /><g class="desafio-furos" /></mask>
+        </defs>
+        <g class="desafio-guias" />
+        <g mask="url(#desafio-furos)"><path class="desafio-caminho" filter="url(#desafio-giz)" /></g>
+      </svg>
 
       {etapas.map((e, i) => {
         const d = daEtapa(e.id);
-        const h = humor(e.sentimento);
+        const nv = desafio(e);
         return (
-          <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-fase={e.fase} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
+          <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-fase={e.fase} data-indice={i} data-desafio={nv ?? ""} aria-labelledby={`t-${e.id}`}>
             {/* topo da Etapa (decidido em /dev/titulo-etapa): em cima, o número e os controles nas pontas; embaixo, o nome */}
             <header class="etapa-topo">
               <div class="etapa-linha">
@@ -82,12 +101,12 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
               {e.acoesEscola ? <p>{e.acoesEscola}</p> : <p class="vazio">Sem registro</p>}
             </div>
             <div class="camada camada-sentimentos" data-camada="sentimentos">
-              <span class="ponto-linha"></span>
-              {e.sentimento ? (
-                <div class="sentimento">
-                  {h && <img class="avatar" src={AVATAR[h]} alt="" width="40" height="40" />}
-                  <p class="sentimento-nome">{e.sentimento}</p>
-                  {e.pensamento && <p class="pensamento">“{e.pensamento}”</p>}
+              {nv ? (
+                <div class="desafio" data-nivel={nv}>
+                  <button type="button" class="desafio-avatar" aria-label={`Desafio ${DESAFIOS[nv].nome.toLowerCase()}`}
+                    aria-describedby={e.pensamento ? `pensamentos-${e.id}` : undefined}><img src={DESAFIOS[nv].avatar} alt="" width="24" height="24" /></button>
+                  {/* um cartão por Pensamento (hoje a planilha tem um por Etapa); sobem escalonados ao passar o mouse */}
+                  {e.pensamento && <div class="desafio-cartoes" id={`pensamentos-${e.id}`} role="tooltip">{[e.pensamento].map((t, k) => <p class="desafio-cartao" style={`--i:${k}`}>“{t}”</p>)}</div>}
                 </div>
               ) : <p class="vazio">Sem registro</p>}
             </div>
@@ -125,10 +144,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
         <p class="det-fase">{rotuloFase(e.fase)} · Etapa {e.ordem} de {etapas.length}</p>
         <h2 class="det-nome">{e.nome}</h2>
         {e.descricao && <p class="det-descricao">{e.descricao}</p>}
-        {e.sentimento && (
+        {(desafio(e) || e.pensamento) && (
           <section class="det-bloco">
-            <h3>Sentimentos</h3>
-            <p class="det-sentimento">{humor(e.sentimento) && <img src={AVATAR[humor(e.sentimento)!]} alt="" width="32" height="32" />}<strong>{e.sentimento}</strong></p>
+            <h3>Nível de desafio</h3>
+            {desafio(e) && <p class="det-sentimento"><img src={DESAFIOS[desafio(e)!].avatar} alt="" width="32" height="32" /><strong>{DESAFIOS[desafio(e)!].nome}</strong></p>}
             {e.pensamento && <blockquote>“{e.pensamento}”</blockquote>}
             {e.origemSentimento && <p class="det-origem">{e.origemSentimento}{fonte(e.fonteSentimento) && <> · {fonte(e.fonteSentimento)}</>}</p>}
           </section>
@@ -196,7 +215,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
-    grid-template-rows: auto auto auto minmax(132px, auto) auto auto auto; } /* Fases, Etapas, Ações do professor, Sentimentos (altura mínima para a linha), ... */
+    grid-template-rows: auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, ... */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
@@ -278,27 +297,55 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
   .pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
 
-  /* sentimentos */
-  .camada-sentimentos { position: relative; }
-  .sentimento { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; position: relative; z-index: 1; }
-  /* os rostos são SVGs carmim da marca: em cinza aqui, até a cor de destaque ser decidida */
-  .avatar { width: 40px; height: 40px; grid-row: span 2; filter: grayscale(1); opacity: 0.85; }
-  .sentimento-nome { font-weight: 600; color: var(--texto-950); }
-  .pensamento { grid-column: 1 / -1; margin-top: 6px !important; font-style: italic; color: var(--texto-700); }
+  /* Nível de desafio (valores decididos em /dev/desafio): três trilhas, alto em cima. A célula tem só a altura das trilhas;
+     o avatar fica no centro da coluna, na trilha do nível. Guias e caminho: SVG desenhado por mapa.ts (desenharLinha). */
+  .mapa { --desafio-inicio: 41px; --desafio-espaco: 30px; --desafio-fim: 24px; --desafio-avatar: 24px; }
+  .mapa .etapa .camada.camada-sentimentos { position: relative; padding: 0 !important; /* também nas fechadas, que têm respiro menor */
+    height: calc(var(--desafio-inicio) + 2 * var(--desafio-espaco) + var(--desafio-fim)); box-sizing: border-box; }
+  .mapa .camada-sentimentos .vazio { padding: 12px; }
+  .rotulos .rotulo-sentimentos { position: relative; } /* .rotulos .rotulo põe position: static em todos */
+  .desafio-niveis span { position: absolute; right: 12px; translate: 0 -50%; font-size: 11px; font-weight: 400; color: var(--texto-600); white-space: nowrap; }
+  .desafio-niveis [data-nivel="alto"], .desafio[data-nivel="alto"] { top: var(--desafio-inicio); }
+  .desafio-niveis [data-nivel="medio"], .desafio[data-nivel="medio"] { top: calc(var(--desafio-inicio) + var(--desafio-espaco)); }
+  .desafio-niveis [data-nivel="baixo"], .desafio[data-nivel="baixo"] { top: calc(var(--desafio-inicio) + 2 * var(--desafio-espaco)); }
+  /* ponto de ancoragem: o centro do avatar */
+  .desafio { position: absolute; left: 50%; width: 0; height: 0; z-index: 1; }
+  .desafio[data-visivel] { z-index: 3; }
+  .desafio-avatar { position: absolute; left: 0; top: 0; translate: -50% -50%; width: var(--desafio-avatar); height: var(--desafio-avatar); padding: 0;
+    border: 0; border-radius: 999px; background: none; opacity: 0.8; cursor: default; transition: scale 150ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .desafio-avatar img { display: block; width: 100%; height: 100%; }
+  .desafio[data-visivel] .desafio-avatar { scale: 1.3; }
+  .desafio-avatar:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
+  /* Pensamentos: um cartão cada, empilhados para cima a partir do avatar (o primeiro junto dele). Fechados: o primeiro 4px
+     mais baixo, os outros escondidos atrás do anterior. Abertos: entram um depois do outro (skill emil-design-eng:
+     ease-out forte, 180ms, 60ms entre cartões; saída de 100ms, todos juntos) */
+  .desafio-cartoes { position: absolute; left: 0; bottom: calc(var(--desafio-avatar) / 2 + 8px); translate: -50% 0; display: flex;
+    flex-direction: column-reverse; align-items: center; gap: 6px; width: max-content; pointer-events: none; }
+  .desafio-cartao { position: relative; z-index: calc(10 - var(--i)); margin: 0; box-sizing: border-box; max-width: 240px; padding: 8px 10px;
+    border: 1px solid var(--neutro-100); border-radius: 4px; background: var(--neutro-50); box-shadow: 0 4px 24px rgb(0 0 0 / 0.07);
+    font-size: 12px; font-style: italic; line-height: 1.4; color: var(--texto-900); transform-origin: 50% 100%;
+    opacity: 0; scale: 0.96; translate: 0 calc(100% + 6px); transition: opacity 100ms ease-out, scale 100ms ease-out, translate 100ms ease-out; }
+  .desafio-cartao:first-child { translate: 0 4px; }
+  .desafio[data-visivel] .desafio-cartao { opacity: 1; scale: 1; translate: 0 0; transition-delay: calc(var(--i) * 60ms);
+    transition-duration: 180ms; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+  .desafio[data-instantaneo] .desafio-cartao, .desafio[data-instantaneo] .desafio-avatar { transition: none; }
   .linha-sentimentos { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 0; }
-  .linha-sentimentos path { fill: none; stroke: var(--neutro-500); stroke-width: 2; stroke-linecap: round; opacity: 0.7; }
+  .desafio-guias line { stroke: var(--coral-200); stroke-width: 1; stroke-dasharray: 3 7; }
+  .desafio-caminho { fill: none; stroke: var(--carmim-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  @media (prefers-reduced-motion: reduce) {
+    .desafio-avatar { transition: none; }
+    .desafio-cartao, .desafio-cartao:first-child, .desafio[data-visivel] .desafio-cartao { scale: 1; translate: 0 0; }
+  }
 
   /* modo etapa: a aberta mostra tudo; as compactas, só o título e as Práticas */
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-titulo,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pensamento,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-acoes > p,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-pontos > *,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-funcao,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .avatar { width: 28px; height: 28px; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-lg); font-weight: 400; color: var(--texto-950); }
   /* nomes das Etapas fechadas (e de todas na visão geral): menores e sem peso, para a aberta se destacar */
@@ -317,7 +364,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .det-bloco h3 { margin: 0 0 8px; font-size: var(--tamanho-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-600); }
   .det-bloco p { margin: 4px 0 0; }
   .det-sentimento { display: flex; gap: 8px; align-items: center; }
-  .det-sentimento img { filter: grayscale(1); opacity: 0.85; }
+  .det-sentimento img { opacity: 0.8; }
   .det-bloco blockquote { margin: 8px 0 0; padding-left: 12px; border-left: 2px solid var(--neutro-400); font-style: italic; color: var(--texto-700); }
   .det-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
   .det-lista .pratica { display: block; }

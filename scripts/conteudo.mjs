@@ -64,13 +64,18 @@ const checarOrigem = (abaNome, l, origem, fonte) => {
   if (fonte && !codigos.has(fonte)) erro(abaNome, l.linha, `Fonte "${fonte}" não está na aba Fontes`);
 };
 
+const nivelDesafio = (v) => ({ baixo: "baixo", medio: "medio", "médio": "medio", alto: "alto" })[(limpo(v) ?? "").toLowerCase()] ?? null;
+
 const etapas = etapasBrutas.map((l) => {
   const e = {
     ordem: Number(l["Ordem"]), id: slug(l["Etapa"]), nome: limpo(l["Etapa"]), fase: limpo(l["Fase"]),
     descricao: limpo(l["Descrição"]), acoesEscola: limpo(l["Ações da escola"]),
     sentimento: limpo(l["Sentimento"]), pensamento: limpo(l["Pensamento do professor"]),
-    origemSentimento: limpo(l["Origem do sentimento"]), fonteSentimento: limpo(l["Fonte do sentimento"])
+    origemSentimento: limpo(l["Origem do sentimento"]), fonteSentimento: limpo(l["Fonte do sentimento"]),
+    // coluna opcional: Baixo, Médio ou Alto (sem ela, o mapa usa os níveis provisórios de src/lib/conteudo.ts)
+    desafio: nivelDesafio(l["Desafio"])
   };
+  if (l["Desafio"] && !e.desafio) erro("Etapas", l.linha, `Desafio "${l["Desafio"]}" inválido (use Baixo, Médio ou Alto)`);
   if (!e.nome) erro("Etapas", l.linha, "Etapa sem nome");
   if (!FASES.includes(e.fase)) erro("Etapas", l.linha, `Fase "${e.fase}" inválida`);
   checarOrigem("Etapas", l, e.origemSentimento, e.fonteSentimento);

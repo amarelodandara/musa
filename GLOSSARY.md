@@ -35,12 +35,12 @@ Um papel que alguém cumpre na Visita, como *Mediação* ou *Gestão*. Toda Prá
 _Evitar_: linha, cargo, ator, setor
 
 **Camada**:
-Uma das linhas do mapa, que mostra um tipo de conteúdo em todas as Etapas. São cinco, nesta ordem: Ações do professor, Sentimentos, Pontos de contato, Boas práticas e O que evitar. Ações do professor e Sentimentos formam um grupo (divisão mais clara entre as duas).
+Uma das linhas do mapa, que mostra um tipo de conteúdo em todas as Etapas. São cinco, nesta ordem: Ações do professor, Nível de desafio, Pontos de contato, Boas práticas e O que evitar. Ações do professor e Nível de desafio formam um grupo (divisão mais clara entre as duas).
 _Evitar_: linha, raia, faixa
 
-**Sentimentos**:
-A Camada que mostra como a escola se sente em cada Etapa: o sentimento nomeado, ilustrado pelo avatar do musá, o Pensamento do professor e uma linha que liga as Etapas. A linha pode ser mostrada ou escondida.
-_Evitar_: emoções, humor, experiência
+**Nível de desafio**:
+A Camada que mostra o quanto cada Etapa desafia o professor, em três níveis: baixo, médio e alto. Cada Etapa tem um avatar do musá na trilha do seu nível (feliz, neutro, triste), e uma linha liga os avatares. Ao passar o mouse no avatar, aparecem os Pensamentos do professor. Substituiu a Camada Sentimentos.
+_Evitar_: sentimentos, emoções, humor, dificuldade
 
 **Pensamento do professor**:
 Uma frase curta, em primeira pessoa, com o que o professor está pensando numa Etapa.

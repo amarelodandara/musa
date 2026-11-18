@@ -9,7 +9,10 @@ export interface Etapa {
   descricao: string | null; acoesEscola: string | null;
   sentimento: string | null; pensamento: string | null;
   origemSentimento: string | null; fonteSentimento: string | null;
+  // Nível de desafio da Etapa para o professor; da coluna "Desafio" da planilha, quando existir (ver desafio())
+  desafio?: Desafio | null;
 }
+export type Desafio = "baixo" | "medio" | "alto";
 export interface Funcao { id: string; nome: string; descricao: string | null }
 export interface PontoContato { etapa: string; canal: string; descricao: string | null; origem: string | null; fonte: string | null }
 export interface Pratica { id: string; etapa: string; funcao: string; tipo: "boa" | "evitar"; titulo: string; detalhe: string | null; origem: Origem; fonte: string | null }
@@ -39,3 +42,15 @@ export const SENTIMENTOS: Record<string, { peso: number; humor: "feliz" | "neutr
   Frustrado: { peso: -2, humor: "triste" }
 };
 export const AVATAR = { feliz: "/brand/musa-avatar-happy.svg", neutro: "/brand/musa-mark-avatar.svg", triste: "/brand/musa-avatar-sad.svg" };
+
+// Nível de desafio: o quanto cada Etapa desafia o professor (substitui os Sentimentos na grade). Cada nível tem um avatar.
+export const DESAFIOS: Record<Desafio, { nome: string; avatar: string }> = {
+  baixo: { nome: "Baixo", avatar: AVATAR.feliz },
+  medio: { nome: "Médio", avatar: AVATAR.neutro },
+  alto: { nome: "Alto", avatar: AVATAR.triste }
+};
+// Provisório: níveis decididos em /dev/desafio (18/11/2026), até a planilha ganhar a coluna "Desafio" (que passa na frente)
+const DESAFIO_PROVISORIO: Record<string, Desafio> = {
+  descoberta: "baixo", agendamento: "baixo", preparacao: "alto", recepcao: "alto", mediacao: "medio", encerramento: "alto", vinculo: "baixo"
+};
+export const desafio = (e: Etapa): Desafio | null => e.desafio ?? DESAFIO_PROVISORIO[e.id] ?? null;

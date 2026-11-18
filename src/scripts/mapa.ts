@@ -1,4 +1,4 @@
-// Comportamento da grade do Mapa da Visita: modos, etapa aberta, filtro por Função e linha dos sentimentos.
+// Comportamento da grade do Mapa da Visita: modos, etapa aberta, filtro por Função e a linha do Nível de desafio.
 // Os controles (guia, modo, setas, filtro, painel de detalhe) são a ilha ControlesMapa, com Base UI (ADR 0006).
 // Conversa com ela: emite "musa-mapa:estado" e "musa-mapa:detalhe"; recebe ordens por window.musaMapa.
 // Preferências ficam no navegador (ADR 0001): o modo.
@@ -101,27 +101,81 @@ function filtrar(funcoes: string[] | null) {
   requestAnimationFrame(desenharLinha);
 }
 
-// Linha dos sentimentos: um ponto por Etapa, na camada Sentimentos, altura pelo peso (−2…+2). Etapa sem registro interrompe a linha.
+// Nível de desafio: guias tracejadas dos três níveis e o caminho de giz entre os avatares, em curva suave (cada trecho sai
+// e chega na horizontal), com um furo na máscara em volta de cada avatar para a linha não passar por trás dele.
+// Etapa sem nível interrompe o caminho. No celular (uma coluna só) não há guias nem caminho.
+const NS = "http://www.w3.org/2000/svg";
 function desenharLinha() {
   const svg = grade.querySelector(".linha-sentimentos") as SVGSVGElement;
-  const caminho = svg.querySelector("path") as SVGPathElement;
-  if (celular.matches) { caminho.setAttribute("d", ""); return; }
+  const caminho = svg.querySelector(".desafio-caminho") as SVGPathElement;
+  const guias = svg.querySelector(".desafio-guias") as SVGGElement, furos = svg.querySelector(".desafio-furos") as SVGGElement;
   const base = grade.getBoundingClientRect();
-  let d = "", aberto = false;
-  for (const e of visiveis()) {
-    const camada = e.querySelector(".camada-sentimentos") as HTMLElement;
-    const r = camada.getBoundingClientRect();
-    const peso = e.dataset.peso === "" ? null : Number(e.dataset.peso);
-    if (peso === null) { aberto = false; continue; }
-    const x = r.left - base.left + r.width / 2;
-    // faixa dos avatares (topo da camada), para não cruzar o Pensamento do professor
-    const y = r.top - base.top + 32 - peso * 9;
-    d += (aberto ? " L" : " M") + x.toFixed(1) + " " + y.toFixed(1);
-    aberto = true;
-  }
   svg.setAttribute("viewBox", `0 0 ${base.width} ${base.height}`);
+  const v = visiveis();
+  guias.replaceChildren(); furos.replaceChildren(); caminho.setAttribute("d", "");
+  if (celular.matches || !v.length) return;
+  // guias: da primeira à última Etapa à vista, na altura de cada trilha
+  const css = getComputedStyle(raiz), px = (k: string) => parseFloat(css.getPropertyValue(k));
+  const celula = v[0].querySelector(".camada-sentimentos") as HTMLElement;
+  const topoDaLinha = celula.getBoundingClientRect().top - base.top;
+  const x0 = v[0].getBoundingClientRect().left - base.left, x1 = v[v.length - 1].getBoundingClientRect().right - base.left;
+  for (let n = 0; n < 3; n++) {
+    const y = topoDaLinha + px("--desafio-inicio") + n * px("--desafio-espaco");
+    const l = document.createElementNS(NS, "line");
+    l.setAttribute("x1", String(x0)); l.setAttribute("x2", String(x1)); l.setAttribute("y1", String(y)); l.setAttribute("y2", String(y));
+    guias.append(l);
+  }
+  // caminho e furos: pelo centro de cada avatar (com o tamanho de repouso: o aumento ao passar o mouse não mexe na linha)
+  const raio = px("--desafio-avatar") / 2 + 4;
+  let d = "", ant: [number, number] | null = null;
+  for (const e of v) {
+    const ancora = e.querySelector(".desafio") as HTMLElement | null;
+    if (!ancora) { ant = null; continue; }
+    const r = ancora.getBoundingClientRect(), x = r.left - base.left, y = r.top - base.top;
+    if (!ant) d += ` M${x.toFixed(1)} ${y.toFixed(1)}`;
+    else { const mx = ((ant[0] + x) / 2).toFixed(1); d += ` C${mx} ${ant[1].toFixed(1)} ${mx} ${y.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`; }
+    ant = [x, y];
+    const c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", String(x)); c.setAttribute("cy", String(y)); c.setAttribute("r", String(raio)); c.setAttribute("fill", "black");
+    furos.append(c);
+  }
   caminho.setAttribute("d", d.trim());
 }
+
+// Pensamentos ao passar o mouse (ou focar) no avatar. Espera 100ms antes de abrir (passar pela linha não abre sem querer);
+// indo de um avatar direto a outro, abre na hora e sem animação. Esc fecha.
+let espera = 0, fechouEm = 0, aberto: HTMLElement | null = null;
+function mostrarPensamentos(a: HTMLElement, instantaneo: boolean) {
+  if (aberto && aberto !== a) fecharPensamentos(aberto, true);
+  a.toggleAttribute("data-instantaneo", instantaneo);
+  a.setAttribute("data-visivel", "");
+  aberto = a;
+}
+function fecharPensamentos(a: HTMLElement, trocando = false) {
+  clearTimeout(espera);
+  // a saída é sempre animada (rápida, sem escalonamento), salvo quando outro avatar já está abrindo no lugar
+  a.toggleAttribute("data-instantaneo", trocando);
+  a.removeAttribute("data-visivel");
+  if (aberto === a) { aberto = null; fechouEm = performance.now(); }
+}
+function entrarNoAvatar(a: HTMLElement) {
+  if (aberto === a) return;
+  clearTimeout(espera);
+  if (!a.querySelector(".desafio-cartao")) return;
+  if (aberto || performance.now() - fechouEm < 300) mostrarPensamentos(a, true);
+  else espera = window.setTimeout(() => mostrarPensamentos(a, false), 100);
+}
+for (const ev of ["pointerover", "focusin"]) grade.addEventListener(ev, (e) => {
+  const a = (e.target as HTMLElement).closest<HTMLElement>(".desafio-avatar")?.parentElement;
+  if (a) entrarNoAvatar(a);
+});
+// passar do botão para a imagem dentro dele também dispara pointerout: só fecha ao sair do avatar de fato
+for (const ev of ["pointerout", "focusout"]) grade.addEventListener(ev, (e) => {
+  const b = (e.target as HTMLElement).closest<HTMLElement>(".desafio-avatar");
+  const para = (e as PointerEvent | FocusEvent).relatedTarget as Node | null;
+  if (b && !(para && b.contains(para))) { clearTimeout(espera); if (aberto === b.parentElement) fecharPensamentos(aberto); }
+});
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && aberto) fecharPensamentos(aberto); });
 
 // conversa com a ilha de controles
 const estado = () => ({ modo: raiz.dataset.modo as "etapa" | "inteiro", atual, total: etapas.length, celular: celular.matches });

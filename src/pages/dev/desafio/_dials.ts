@@ -163,6 +163,8 @@ const NOME_DO_NIVEL: Record<Nivel, string> = { baixo: "baixo", medio: "médio", 
 // monta (uma vez por documento): reserva das trilhas nas células, rótulos dos níveis, SVG e camada dos avatares
 function montar(d: Document) {
   if (d.getElementById("desafio-base")) return;
+  // o mapa já tem o Nível de desafio no código (desde 18/11/2026): nada a montar; o painel deixa de mexer no quadro
+  if (d.querySelector(".mapa .desafio")) return;
   const f = d.createElement("style"); f.id = "desafio-base";
   f.textContent = `
     .mapa .linha-sentimentos, .mapa .camada-sentimentos .sentimento, .mapa .camada-sentimentos .vazio { display: none !important; }
