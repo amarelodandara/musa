@@ -112,6 +112,9 @@ const primeiro = await new Promise<Document>((ok) => {
   const t = setInterval(() => { const d = doc(); if (pronto(d)) { clearInterval(t); ok(d!); } }, 100);
 });
 
+// valores escolhidos (colados do Copy parameters em 18/11/2026): padrão do painel no lugar do que o código tem
+const PADROES: Record<string, string> = {"texto.fonte": "font-inter", "texto.peso": "font-normal", "texto.espacamentoDeLetras": "tracking-normal", "naAberta.tamanho": "text-sm", "naAberta.alturaDaLinha": "", "naAberta.cor": "text-texto-900", "naAberta.fundo": "bg-transparente", "naAberta.respiroEmCima": "pt-3", "naAberta.respiroEmbaixo": "pb-3", "naAberta.respiroLados": "px-3", "nasFechadas.texto": "", "nasFechadas.tamanho": "text-xs", "nasFechadas.alturaDaLinha": "", "nasFechadas.cor": "text-texto-700", "nasFechadas.limiteDeLinhas": "", "nasFechadas.fundo": "bg-transparente", "nasFechadas.respiroEmCima": "pt-2", "nasFechadas.respiroEmbaixo": "pb-2", "nasFechadas.respiroLados": "px-2.5", "naVisaoGeral.tamanho": "", "naVisaoGeral.alturaDaLinha": "", "naVisaoGeral.cor": "", "naVisaoGeral.limiteDeLinhas": "", "naVisaoGeral.fundo": "", "naVisaoGeral.respiroEmCima": "", "naVisaoGeral.respiroEmbaixo": "", "naVisaoGeral.respiroLados": "", "linha.alturaMinima": ""};
+
 const config: Record<string, any> = {};
 for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
   config[grupo] = { _collapsed: grupo !== "naAberta" };
@@ -122,7 +125,7 @@ for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
     config[grupo][nome] = {
       type: "select",
       options: ctrl.opcoes.map((o) => (Array.isArray(o) ? { value: o[1], label: o[0] } : o)),
-      default: def
+      default: `${grupo}.${nome}` in PADROES ? PADROES[`${grupo}.${nome}`] : def
     };
   }
 }
