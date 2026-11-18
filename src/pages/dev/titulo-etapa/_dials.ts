@@ -264,7 +264,8 @@ function montar(d: Document) {
   }
   d.querySelector(".mapa")?.setAttribute("data-bancada", "");
   d.querySelectorAll<HTMLElement>(".mapa .etapa-topo").forEach((topo) => {
-    if (topo.querySelector(".bancada-linha")) return;
+    // o mapa já tem o topo empilhado no código (desde 18/11/2026): nada a montar
+    if (topo.querySelector(".bancada-linha") || !topo.querySelector(".etapa-titulo")) return;
     const titulo = topo.querySelector(".etapa-titulo")!, n = topo.querySelector(".etapa-n")!;
     const linha = d.createElement("div"); linha.className = "bancada-linha";
     const ctrls = d.createElement("div"); ctrls.className = "bancada-controles";

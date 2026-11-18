@@ -61,16 +61,21 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
         const h = humor(e.sentimento);
         return (
           <section class="etapa" id={`etapa-${e.id}`} data-etapa={e.id} data-fase={e.fase} data-indice={i} data-peso={peso(e.sentimento) ?? ""} aria-labelledby={`t-${e.id}`}>
+            {/* topo da Etapa (decidido em /dev/titulo-etapa): em cima, o número e os controles nas pontas; embaixo, o nome */}
             <header class="etapa-topo">
-              <div class="etapa-titulo">
-                <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}><span class="etapa-n">{e.ordem}</span> {e.nome}</button></h2>
-                {/* visão detalhada: setas da Etapa aberta para a anterior e a próxima (ícones Iconoir nav-arrow) */}
-                <div class="etapa-setas">
-                  {i > 0 && <button type="button" class="etapa-seta" data-passo="-1" aria-label={`Etapa anterior: ${etapas[i - 1].nome}`} title={etapas[i - 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6L9 12L15 18" /></svg></button>}
-                  {i < etapas.length - 1 && <button type="button" class="etapa-seta" data-passo="1" aria-label={`Próxima etapa: ${etapas[i + 1].nome}`} title={etapas[i + 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6L15 12L9 18" /></svg></button>}
+              <div class="etapa-linha">
+                <span class="etapa-n">{e.ordem}</span>
+                <div class="etapa-controles">
+                  {/* ícone Iconoir open-book */}
+                  <button type="button" class="etapa-acao etapa-detalhe" data-detalhe={e.id}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V7C12 5.89543 12.8954 5 14 5H21.4C21.7314 5 22 5.26863 22 5.6V18.7143" /><path d="M12 21V7C12 5.89543 11.1046 5 10 5H2.6C2.26863 5 2 5.26863 2 5.6V18.7143" /><path d="M14 19L22 19" /><path d="M10 19L2 19" /><path d="M12 21C12 19.8954 12.8954 19 14 19" /><path d="M12 21C12 19.8954 11.1046 19 10 19" /></svg>Ler mais</button>
+                  {/* visão detalhada: setas da Etapa aberta para a anterior e a próxima (ícones Iconoir nav-arrow) */}
+                  <div class="etapa-setas">
+                    {i > 0 && <button type="button" class="etapa-acao etapa-seta" data-passo="-1" aria-label={`Etapa anterior: ${etapas[i - 1].nome}`} title={etapas[i - 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6L9 12L15 18" /></svg></button>}
+                    {i < etapas.length - 1 && <button type="button" class="etapa-acao etapa-seta" data-passo="1" aria-label={`Próxima etapa: ${etapas[i + 1].nome}`} title={etapas[i + 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6L15 12L9 18" /></svg></button>}
+                  </div>
                 </div>
               </div>
-              <button type="button" class="etapa-detalhe" data-detalhe={e.id}><span class="texto-longo">Ver tudo sobre esta etapa</span><span class="texto-curto">Ver tudo</span></button>
+              <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}>{e.nome}</button></h2>
             </header>
             <div class="camada camada-acoes" data-camada="acoes">
               {/* sem título na célula: o rótulo da linha, à esquerda, já diz "Ações da escola" */}
@@ -210,7 +215,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .fase[data-ativa] + .fase { padding-left: 36px; }
   /* a cor da Fase ativa desce para o topo da Etapa aberta; as outras Etapas (da mesma Fase e das demais) ficam no tom claro */
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { background: var(--fase-ativa); transition: background-color 200ms ease; }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { color: var(--fase-texto-ativa); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { color: var(--coral-100); font-variant-numeric: normal; }
   .rotulos { grid-column: 1; grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; }
   /* "Etapas" ocupa as duas linhas do topo: a das Fases e a dos nomes das Etapas */
   .rotulos .rotulo-etapas { grid-row: span 2; border-top: 0; padding-top: 5px; } /* na linha de base de "Antes da visita", ao lado */
@@ -225,30 +230,33 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
   .etapa[hidden] { display: none; }
-  .etapa-topo { padding: 12px 12px 10px; background: var(--fase-media); }
-  .etapa-titulo { display: flex; align-items: flex-start; gap: 8px; }
-  /* alinhamento entre colunas: o número de toda Etapa fica na mesma linha de base. O nome da aberta é maior (20px contra
-     14px) e baixaria a linha 4px; o título dela sobe 4px. As setas (28px) centralizam na primeira linha do nome (24px). */
-  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-titulo { margin-top: -4px; }
-  .etapa-setas { margin-top: -2px; }
-  .etapa-titulo .etapa-nome { flex: 1; min-width: 0; }
-  .etapa-setas { display: none; gap: 4px; margin-left: auto; flex-shrink: 0; }
+  /* topo da Etapa (valores decididos em /dev/titulo-etapa): 90px em todas as colunas; a linha de cima (número e
+     controles) e o nome vão para as pontas, então os nomes de todas as Etapas ficam na mesma linha, embaixo */
+  .etapa-topo { display: flex; flex-direction: column; justify-content: space-between; height: 90px; box-sizing: border-box; overflow: hidden;
+    padding: 12px 12px 10px; background: var(--fase-media); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { padding-bottom: 8px; }
+  .etapa-linha { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .etapa-controles { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .etapa-setas { display: none; gap: 8px; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-setas { display: flex; }
-  .etapa-seta { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border-radius: 6px;
-    border: 1px solid var(--neutro-300); background: var(--neutro-50); color: var(--texto-900); cursor: pointer; transition: background-color 150ms ease, transform 160ms var(--ease-out); }
-  .etapa-seta:hover { background: var(--neutro-200); }
-  .etapa-seta:active { transform: scale(0.95); }
-  .etapa-seta:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
-  .etapa-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; }
+  /* botões de ação do topo (Ler mais e setas): tamanho, espaçamento e cantos dos botões da barra (ControlesMapa):
+     28px de altura, ícone de 16px a 6px da borda, texto 6px depois do ícone e 8px antes da borda, Inter 13px, cantos de 4px.
+     Borda de 0,5px coral-100 (o Chrome desenha 1px; o respiro desconta 1px) e anel interno de 0,5px coral-500 a 30%. */
+  .etapa-acao { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; box-sizing: border-box; margin: 0;
+    padding: 0 7px 0 5px; border: 0.5px solid var(--coral-100); border-radius: 4px; background: var(--neutro-50);
+    box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--coral-500) 30%, transparent);
+    color: var(--coral-900); font-family: var(--fonte-inter); font-size: var(--tamanho-xs); font-weight: 400; line-height: 1; white-space: nowrap;
+    cursor: pointer; user-select: none; transition: background-color 150ms ease, transform 150ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .etapa-acao svg { flex-shrink: 0; }
+  .etapa-acao:hover { background: transparent; }
+  .etapa-acao:active { background: color-mix(in srgb, var(--texto-950) 14%, transparent); transform: scale(0.97); }
+  .etapa-acao:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
+  .etapa-seta { width: 28px; padding: 0; }
+  .etapa-nome { margin: 8px 0 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; letter-spacing: normal;
+    text-wrap: balance; }
   .etapa-abrir { all: unset; cursor: pointer; }
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
-  .etapa-n { margin-right: 4px; color: var(--fase-numero); font-family: var(--fonte-inter-tight); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
-  .etapa-detalhe { margin-top: 8px; font: inherit; font-size: var(--tamanho-xs); color: var(--texto-900); background: none; border: 1px solid var(--neutro-400);
-    border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: background-color 150ms ease; }
-  .etapa-detalhe:hover { background: var(--neutro-100); }
-  .etapa-detalhe .texto-curto { display: none; }
-  .mapa[data-modo="inteiro"] .etapa-detalhe .texto-longo { display: none; }
-  .mapa[data-modo="inteiro"] .etapa-detalhe .texto-curto { display: inline; }
+  .etapa-n { color: var(--fase-numero); font-family: var(--fonte-inter-tight); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
   .mapa[data-modo="inteiro"] .camada-titulo { display: none; }
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
   .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
@@ -291,7 +299,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-lg); font-weight: 400; color: var(--texto-950); }
   /* nomes das Etapas fechadas (e de todas na visão geral): menores e sem peso, para a aberta se destacar */
   .mapa[data-modo="inteiro"] .etapa-nome,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-nome { font-size: var(--tamanho-sm); font-weight: 400; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-nome { font-size: var(--tamanho-sm); font-weight: 400; color: var(--texto-950); }
 
   /* modo mapa inteiro */
   /* --colunas vai na grade, onde --n existe (no .mapa ela ficaria inválida e as colunas cairiam no tamanho compacto) */
