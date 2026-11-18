@@ -1,0 +1,17 @@
+---
+// Palco do playground /dev/bento-desafio: só o segundo bloco do bento (Nível de desafio), com a largura e margens da página inicial.
+// Fica num quadro (index.astro) para dar para testar larguras de tela; o painel (_dials.ts) mexe aqui dentro.
+import Base from "../../../layouts/Base.astro";
+import Funcionalidades from "../../../components/inicio/Funcionalidades.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<Base titulo="Bento: desafio" cabecalho={false} rodape={false}>
+<main class="palco-corpo"><Funcionalidades soOPrimeiro={false} /></main>
+</Base>
+<style>
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  .palco-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  .palco-corpo :global(.func) { border-top: 0; padding-top: 24px; }
+  /* só o bloco 2 (sozinho, o regente não troca estados: fica ativo) */
+  .palco-corpo :global(.func .bento > :not(.b-desafio)) { display: none; }
+</style>

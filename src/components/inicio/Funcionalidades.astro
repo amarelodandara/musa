@@ -35,17 +35,28 @@ const FOLHAS = [
   { formato: "A4", l: 297, a: 210 }
 ];
 const ESCALA = 0.16;
+// Em ajuste, um bloco por vez: enquanto for true, só o primeiro (o mapa) aparece; os outros continuam no código.
+const SO_O_PRIMEIRO = true;
+interface Props { soOPrimeiro?: boolean }
+const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
 ---
-<section class="func" aria-label="Funcionalidades">
-  <div class="bento">
+<section class="func" aria-label="Funcionalidades" data-so-primeiro={soOPrimeiro ? "" : undefined}>
+  <div class="bento" data-tempo="4000" data-progresso="sim">
     <!-- 1. O próprio mapa -->
-    <article class="bloco-b b-visoes" data-revelar>
+    <article class="bloco-b b-visoes" data-revelar data-disposicao="lado" data-tempo="8000">
       <div class="b-texto">
-        <h3>O mapa inteiro, ou uma etapa de cada vez</h3>
-        <p>Na visão geral, as etapas lado a lado. Na detalhada, uma etapa aberta com tudo o que acontece nela. Pode clicar.</p>
-        <a class="b-link" href="/mapa">Abrir o mapa <span aria-hidden="true">→</span></a>
+        <h3>O nível de detalhes que seu planejamento precisa</h3>
+        <p>Analise cada etapa visão detalhada ou tenha um entendimento da jornada completa na visão geral.</p>
+        <!-- os filtros que o mapa tem de verdade (menu "Filtrar visualização") -->
+        <ul class="b-filtros" aria-label="Filtros do mapa">
+          <li>Filtre apenas as etapas que precisa</li>
+          <li>Veja apenas as etapas que envolvem você</li>
+          <li>Imprima a seleção que criou no site</li>
+        </ul>
       </div>
-      <div class="quadro">
+      <!-- ajustes do quadro (lidos pelo script; o playground /dev/bento-mapa muda ao vivo):
+           vista = px do mapa que cabem na largura do quadro; roteiro = o que o cursor mostra -->
+      <div class="quadro" data-vista="800" data-escala-max="0.64" data-demo="sim" data-cursor-ms="750" data-pausa-ms="1900" data-roteiro="tudo" data-modo-inicial="etapa">
         <div class="quadro-palco">
           <iframe src="/mapa?vitrine" title="Mapa da Visita, em miniatura" loading="lazy" tabindex="-1"></iframe>
         </div>
@@ -54,7 +65,7 @@ const ESCALA = 0.16;
     </article>
 
     <!-- 2. Nível de desafio -->
-    <article class="bloco-b b-desafio" data-revelar>
+    <article class="bloco-b b-desafio" data-revelar data-tempo="11000">
       <div class="b-texto">
         <h3>Onde a visita pesa para o professor</h3>
         <p>O nível de desafio de cada etapa mostra onde a escola precisa mais do museu.</p>
@@ -186,17 +197,18 @@ const ESCALA = 0.16;
   const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)", EASE_IN_OUT = "cubic-bezier(0.77, 0, 0.175, 1)";
 
-  // Um laço que só roda com o bloco na tela e a aba à vista, e espera enquanto a pessoa mexe no bloco
-  function laco(bloco: HTMLElement, passo: () => Promise<void>, { pausaAoMexer = true, retomarEm = 4000 } = {}) {
+  // Um laço de animação que só roda no bloco ativo (o regente, abaixo, escolhe qual), com ele na tela e a aba à vista.
+  // A zona (opcional) é a parte em que a pessoa mexe de verdade (o mapa, os avatares, as fichas): ali o laço espera.
+  function laco(bloco: HTMLElement, passo: () => Promise<void>, { zona = null as HTMLElement | null, retomarEm = 1500 } = {}) {
     let visivel = false, mexendo = false, ultimoToque = 0, rodando = false;
-    const pode = () => visivel && !document.hidden && !mexendo && Date.now() - ultimoToque > retomarEm;
+    const pode = () => visivel && bloco.hasAttribute("data-ativo") && !document.hidden && !mexendo && Date.now() - ultimoToque > retomarEm;
     new IntersectionObserver(([it]) => { visivel = it.isIntersecting; girar(); }, { threshold: 0.35 }).observe(bloco);
-    if (pausaAoMexer) {
-      bloco.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") mexendo = true; });
-      bloco.addEventListener("pointerleave", () => { mexendo = false; ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
-      bloco.addEventListener("pointerdown", () => { ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
-      bloco.addEventListener("focusin", () => { ultimoToque = Date.now() + 10_000; });
+    if (zona) {
+      zona.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") mexendo = true; });
+      zona.addEventListener("pointerleave", () => { mexendo = false; ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
+      zona.addEventListener("pointerdown", () => { ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
     }
+    bloco.addEventListener("musa-bento:ativo", girar);
     document.addEventListener("visibilitychange", girar);
     async function girar() {
       if (rodando || calmo) return;
@@ -218,22 +230,74 @@ const ESCALA = 0.16;
   }, { rootMargin: "0px 0px -80px 0px" });
   blocos.forEach((b, i) => { b.style.setProperty("--ordem", String(i % 3)); obs.observe(b); });
 
+  // ---------- Regente: um bloco ativo por vez, contando a história em sequência ----------
+  // Cada bloco fica ativo por data-tempo (ou o tempo do bento) e passa a vez ao seguinte. Passar o mouse (ou o foco)
+  // num bloco o deixa ativo enquanto a pessoa está nele; ao sair, a sequência segue dali. Com movimento reduzido, nada roda.
+  const bento = document.querySelector<HTMLElement>(".func .bento");
+  if (bento && !calmo) {
+    const lista = () => [...bento.children].filter((b): b is HTMLElement => b instanceof HTMLElement && getComputedStyle(b).display !== "none");
+    let i = 0, timer: number | undefined, visivel = false, segurando: HTMLElement | null = null;
+    const ativar = (el: HTMLElement) => {
+      lista().forEach((b) => { if (b !== el) b.removeAttribute("data-ativo"); });
+      // tira e põe de novo para a barra de progresso recomeçar
+      el.removeAttribute("data-ativo"); void el.offsetWidth; el.setAttribute("data-ativo", "");
+      el.dispatchEvent(new Event("musa-bento:ativo"));
+    };
+    const agendar = () => {
+      clearTimeout(timer);
+      const l = lista();
+      bento.toggleAttribute("data-unico", l.length < 2);
+      if (!visivel || segurando || document.hidden || l.length < 2 || bento.dataset.sequencia === "nao") return;
+      const el = l[i % l.length];
+      const t = Number(el.dataset.tempo || bento.dataset.tempo || 4000);
+      el.style.setProperty("--tempo", t + "ms");
+      timer = window.setTimeout(() => { i = (i + 1) % lista().length; ativar(lista()[i]); agendar(); }, t);
+    };
+    const reger = () => { const l = lista(); if (!l.length) return; i %= l.length; ativar(l[i]); agendar(); };
+    new IntersectionObserver(([it]) => {
+      visivel = it.isIntersecting;
+      if (visivel && !bento.hasAttribute("data-regendo")) { bento.dataset.regendo = ""; reger(); } else agendar();
+    }, { threshold: 0.2 }).observe(bento);
+    const segurar = (el: HTMLElement) => {
+      if (segurando === el) return;
+      segurando = el; bento.dataset.segurando = "";
+      i = lista().indexOf(el);
+      if (!el.hasAttribute("data-ativo")) ativar(el);
+      clearTimeout(timer);
+    };
+    const soltar = () => { if (!segurando) return; const el = segurando; segurando = null; delete bento.dataset.segurando; ativar(el); agendar(); };
+    lista().forEach((b) => {
+      b.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") segurar(b); });
+      b.addEventListener("pointerleave", (ev) => { if (ev.pointerType === "mouse") soltar(); });
+      b.addEventListener("focusin", () => segurar(b));
+      b.addEventListener("focusout", (ev) => { if (!b.contains(ev.relatedTarget as Node)) soltar(); });
+    });
+    document.addEventListener("visibilitychange", agendar);
+    // o playground muda tempos e estados e avisa
+    bento.addEventListener("musa-bento:reger", reger);
+  }
+
   // ---------- 1. O próprio mapa, em escala, com um cursor que mostra o que dá para fazer ----------
   const quadro = document.querySelector<HTMLElement>(".func .quadro");
   const frame = quadro?.querySelector("iframe");
   const cursor = quadro?.querySelector<SVGElement>(".cursor");
-  const ALTURA = 900, VISTA = 1130; // px do mapa; VISTA = quanto dele cabe na largura do quadro
+  const ALTURA = 900; // px do mapa
   if (quadro && frame && cursor) {
     const palco = quadro.querySelector<HTMLElement>(".quadro-palco")!;
+    const cfg = quadro.dataset;
     let escala = 1;
-    new ResizeObserver(() => {
-      escala = Math.min(0.8, Math.max(0.42, quadro.clientWidth / VISTA));
+    const ajustar = () => {
+      escala = Math.min(Number(cfg.escalaMax), Math.max(0.42, quadro.clientWidth / Number(cfg.vista)));
       palco.style.setProperty("--escala", String(escala));
       quadro.style.setProperty("--topo", 44 * escala + "px");
       // o mapa tem a largura do quadro: a barra de cima termina na borda, com os botões à vista; as colunas é que ficam cortadas
       frame.style.width = Math.ceil(quadro.clientWidth / escala) + "px";
-      frame.style.height = ALTURA + "px";
-    }).observe(quadro);
+      frame.style.height = Math.max(ALTURA, Math.ceil(quadro.clientHeight / escala)) + "px";
+    };
+    new ResizeObserver(ajustar).observe(quadro);
+    // o playground muda os data-* e avisa
+    quadro.addEventListener("musa-bento:ajustar", () => { ajustar(); k = 0; mapa()?.modo(cfg.modoInicial!); });
+    frame.addEventListener("load", () => { const m = mapa(); if (m && cfg.modoInicial !== "etapa") m.modo(cfg.modoInicial!); });
 
     const doc = () => frame.contentDocument;
     const mapa = () => (frame.contentWindow as (Window & { musaMapa?: { modo(m: string): void; passo(d: number): void; estado(): { modo: string; atual: number } } }) | null)?.musaMapa;
@@ -250,29 +314,33 @@ const ESCALA = 0.16;
       const x = (r.left + r.width / 2) * escala, y = (r.top + r.height / 2) * escala;
       if (x > quadro!.clientWidth - 12 || y > quadro!.clientHeight - 12) return;
       cursor!.dataset.visivel = "";
-      await cursor!.animate([{ translate: `${cx}px ${cy}px` }, { translate: `${x}px ${y}px` }], { duration: 750, easing: EASE_IN_OUT, fill: "forwards" }).finished;
+      await cursor!.animate([{ translate: `${cx}px ${cy}px` }, { translate: `${x}px ${y}px` }], { duration: Number(cfg.cursorMs), easing: EASE_IN_OUT, fill: "forwards" }).finished;
       cx = x; cy = y;
       await cursor!.animate([{ scale: "1" }, { scale: "0.82" }, { scale: "1" }], { duration: 220, easing: EASE_OUT }).finished.catch(() => {});
       alvo.click();
     }
-    const roteiro: (() => HTMLElement | null | undefined)[] = [
-      () => seta(1), () => seta(1), () => botaoModo("Visão geral"), () => botaoModo("Visão detalhada"), () => seta(-1), () => seta(-1)
-    ];
+    const ROTEIROS: Record<string, (() => HTMLElement | null | undefined)[]> = {
+      tudo: [() => seta(1), () => seta(1), () => botaoModo("Visão geral"), () => botaoModo("Visão detalhada"), () => seta(-1), () => seta(-1)],
+      setas: [() => seta(1), () => seta(1), () => seta(-1), () => seta(-1)],
+      visoes: [() => botaoModo("Visão geral"), () => botaoModo("Visão detalhada")]
+    };
+    const roteiro = () => ROTEIROS[cfg.roteiro!] ?? ROTEIROS.tudo;
     let k = 0;
     const l = laco(quadro.closest<HTMLElement>(".b-visoes")!, async () => {
-      if (!mapa()) { await dormir(400); return; }
+      if (!mapa() || cfg.demo !== "sim") { delete cursor.dataset.visivel; await dormir(400); return; }
       if (k === 0) {
-        // começa sempre do mesmo lugar: visão detalhada, primeira etapa
+        // começa sempre do mesmo lugar: o modo inicial, primeira etapa
         const m = mapa()!;
-        if (m.estado().modo !== "etapa") m.modo("etapa");
+        if (m.estado().modo !== cfg.modoInicial) m.modo(cfg.modoInicial!);
         for (let i = m.estado().atual; i > 0; i--) m.passo(-1);
         cx = quadro.clientWidth * 0.6; cy = quadro.clientHeight * 0.8;
       }
-      if (!(await l.esperar(k === 0 ? 1200 : 1900))) { delete cursor.dataset.visivel; return; }
-      await clicar(roteiro[k]());
-      k = (k + 1) % roteiro.length;
+      if (!(await l.esperar(k === 0 ? 1200 : Number(cfg.pausaMs)))) { delete cursor.dataset.visivel; return; }
+      const r = roteiro();
+      await clicar(r[k % r.length]());
+      k = (k + 1) % r.length;
       if (k === 0) { await l.esperar(1600); delete cursor.dataset.visivel; await l.esperar(2400); }
-    });
+    }, { zona: quadro });
     quadro.addEventListener("pointerenter", () => { delete cursor.dataset.visivel; });
   }
 
@@ -328,7 +396,7 @@ const ESCALA = 0.16;
       await grafico.querySelector(".giz")!.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, easing: "ease", fill: "forwards" }).finished;
       pontosSvg.forEach((p) => p.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease", fill: "forwards" }));
       await dormir(500);
-    });
+    }, { zona: grafico });
   }
 
   // ---------- 3. Funções: liga e desliga as fichas e soma as práticas visíveis ----------
@@ -354,10 +422,10 @@ const ESCALA = 0.16;
     let c = 0;
     const l = laco(bFuncoes, async () => {
       if (mexeu) { await dormir(1000); return; }
-      if (!(await l.esperar(2200))) return;
+      if (!(await l.esperar(1400))) return;
       if (!mexeu) marcar(cenas[c]);
       c = (c + 1) % cenas.length;
-    });
+    }, { zona: bFuncoes.querySelector<HTMLElement>(".fichas") });
   }
 
   // ---------- 4. Práticas: os exemplos vão se revezando ----------
@@ -367,7 +435,7 @@ const ESCALA = 0.16;
     const ems = lista.querySelectorAll("em");
     let i = 0;
     const l = laco(lista.closest<HTMLElement>(".b-praticas")!, async () => {
-      if (!(await l.esperar(4200))) return;
+      if (!(await l.esperar(1800))) return;
       i = (i + 1) % ex.length;
       for (const [j, em] of [...ems].entries()) {
         await em.animate([{ opacity: 1, filter: "none" }, { opacity: 0, filter: "blur(3px)" }], { duration: 160, easing: "ease", fill: "forwards" }).finished;
@@ -388,43 +456,105 @@ const ESCALA = 0.16;
       setTimeout(() => delete anterior.dataset.aceso, 900);
       i = (i + 1) % chips.length;
       await l.esperar(i === 0 ? 2400 : 260);
-    }, { pausaAoMexer: false });
+    });
   }
 </script>
 
 <style>
+  /* cores registradas como <color> para a troca entre ativo e inativo ser animada */
+  @property --cor-borda-topo { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cor-borda-pe { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cor-titulo { syntax: "<color>"; inherits: true; initial-value: black; }
+  @property --cor-descricao { syntax: "<color>"; inherits: true; initial-value: black; }
+  @property --cor-lista { syntax: "<color>"; inherits: true; initial-value: black; }
+  @property --cor-pontos { syntax: "<color>"; inherits: true; initial-value: black; }
+  @property --cor-fundo { syntax: "<color>"; inherits: true; initial-value: transparent; }
   .func { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); padding: 72px 0; border-top: 1px solid var(--neutro-300); margin: 0; }
 
+  .func[data-so-primeiro] .bento > :not(.b-visoes) { display: none; }
   .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-  .bloco-b { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 20px; background: var(--neutro-100); border: 1px solid var(--neutro-200); overflow: hidden; min-width: 0; color: inherit; text-decoration: none; }
-  .b-texto h3 { margin: 0 0 6px; font-size: var(--tamanho-lg); letter-spacing: -0.01em; }
-  .b-texto p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); max-width: 46ch; text-wrap: pretty; }
+  .bloco-b { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border: 1px solid transparent; overflow: hidden; min-width: 0; color: inherit; text-decoration: none; }
+  .b-texto h3 { margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+  .b-texto p { margin: 0; text-wrap: pretty; }
   .b-link { display: inline-block; margin-top: 12px; font: 600 var(--tamanho-sm)/1 var(--fonte-inter); color: var(--carmim-800); text-decoration: none; }
   .b-link span { display: inline-block; transition: transform 200ms var(--ease-out); }
   .b-link:hover span, .b-imprimir:hover .b-link span { transform: translateX(3px); }
 
-  .b-visoes { grid-column: span 4; grid-row: span 2; padding: 28px 0 0 28px; min-height: 680px; }
+  /* Sistema de todos os blocos (decidido no primeiro bloco, em /dev/bento-mapa e /dev/bento-estados, 18/11/2026):
+     cantos de 0.375rem, borda em degradê de cima para baixo, e as cores do bloco ativo e do inativo
+     (o regente troca uma pela outra; entre os estados só mudam as cores). */
+  .bloco-b { border-radius: 0.375rem;
+    --ativo-borda-topo: var(--coral-200); --ativo-borda-pe: var(--neutro-50); --ativo-titulo: var(--texto-900); --ativo-descricao: var(--texto-700); --ativo-lista: var(--texto-700); --ativo-pontos: var(--coral-600); --ativo-fundo: var(--coral-100);
+    --inativo-borda-topo: var(--neutro-200); --inativo-borda-pe: var(--neutro-50); --inativo-titulo: var(--texto-600); --inativo-descricao: var(--texto-600); --inativo-lista: var(--texto-700); --inativo-pontos: var(--neutro-400); --inativo-fundo: var(--neutro-100);
+    --cor-borda-topo: var(--ativo-borda-topo); --cor-borda-pe: var(--ativo-borda-pe); --cor-titulo: var(--ativo-titulo); --cor-descricao: var(--ativo-descricao); --cor-lista: var(--ativo-lista); --cor-pontos: var(--ativo-pontos); --cor-fundo: var(--ativo-fundo);
+    /* borda em degradê (fundo no padding-box, degradê no border-box) */
+    border-color: transparent;
+    background: linear-gradient(var(--cor-fundo), var(--cor-fundo)) padding-box, linear-gradient(to bottom, var(--cor-borda-topo), var(--cor-borda-pe)) border-box;
+    color: var(--cor-lista);
+    transition: --cor-borda-topo var(--estado-ms) ease, --cor-borda-pe var(--estado-ms) ease, --cor-titulo var(--estado-ms) ease, --cor-descricao var(--estado-ms) ease, --cor-lista var(--estado-ms) ease, --cor-pontos var(--estado-ms) ease, --cor-fundo var(--estado-ms) ease; }
+  .bento[data-regendo]:not([data-unico]) > .bloco-b:not([data-ativo]), .bloco-b[data-estado="inativo"] {
+    --cor-borda-topo: var(--inativo-borda-topo); --cor-borda-pe: var(--inativo-borda-pe); --cor-titulo: var(--inativo-titulo); --cor-descricao: var(--inativo-descricao); --cor-lista: var(--inativo-lista); --cor-pontos: var(--inativo-pontos); --cor-fundo: var(--inativo-fundo); }
+  .b-texto h3 { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 700; color: var(--cor-titulo); }
+  .b-texto p { font-size: var(--tamanho-md); font-weight: 400; color: var(--cor-descricao); max-width: 20rem; }
+
+  /* 1. O mapa (valores de /dev/bento-mapa, 18/11/2026) */
+  .b-visoes { grid-column: span 4; grid-row: span 2; padding: 28px 0 0 28px; min-height: 360px; }
   .b-visoes .b-texto { padding-right: 28px; }
-  .b-desafio { grid-column: span 2; grid-row: span 2; background: var(--neutro-50); }
-  .b-funcoes { grid-column: span 2; background: var(--coral-100); border-color: var(--coral-200); }
-  .b-praticas { grid-column: span 2; background: var(--carmim-900); border-color: var(--carmim-900); color: var(--texto-50); }
+  /* texto ao lado do mapa: o quadro encosta em cima, na direita e embaixo */
+  .b-visoes[data-disposicao="lado"] { flex-direction: row; gap: 28px; padding: 0 0 0 28px; }
+  .b-visoes[data-disposicao="lado"] .b-texto { flex: 1 1 0; min-width: 0; padding: 28px 0; display: flex; flex-direction: column; }
+  /* lista de filtros: no pé da coluna de texto, embaixo à esquerda */
+  .b-filtros { list-style: none; margin: auto 0 0; padding: 20px 0 0; display: flex; flex-direction: column; gap: 8px; font: 400 var(--tamanho-sm)/1.3 var(--fonte-inter); color: var(--cor-lista); }
+  /* ponto em em: acompanha o tamanho do texto e fica no meio da primeira linha (line-height 1.3 → meio em 0.65em) */
+  .b-filtros li { position: relative; padding-left: 0.9em; }
+  .b-filtros li::before { content: ""; position: absolute; left: 0; top: calc(0.65em - 0.15em); width: 0.3em; height: 0.3em; border-radius: 50%; background: var(--cor-pontos); }
+  .b-visoes[data-disposicao="lado"] .quadro { margin-top: var(--quadro-espaco); flex: 0 0 54%; height: 280px; min-height: 0; align-self: flex-end; }
+  /* valores do quadro escolhidos em /dev/bento-mapa (18/11/2026) */
+  .b-visoes .quadro { --quadro-fade-x: 64%; --quadro-fade-y: 48%; --quadro-raio: 4px; --quadro-espaco: 26px; --quadro-min: 460px; --quadro-borda: var(--neutro-50); }
+  .b-desafio { grid-column: span 2; grid-row: span 2; }
+  .b-funcoes { grid-column: span 2; }
+  .b-praticas { grid-column: span 2; }
   .b-contato { grid-column: span 2; }
   .b-imprimir { grid-column: span 3; }
-  .b-origem { grid-column: span 3; background: var(--neutro-50); }
+  .b-origem { grid-column: span 3; }
+
+  /* Estados do regente: um bloco ativo, os outros quietos (só com a sequência rodando; ajustáveis em /dev/bento-sequencia) */
+  /* entre ativo e inativo só mudam as cores (18/11/2026): opacidade, saturação, escala e sombra ficam neutras */
+  .bento { --inativo-opacidade: 1; --inativo-saturacao: 1; --inativo-escala: 1; --inativo-desfoque: 0px;
+    --ativo-escala: 1; --ativo-sombra: none; --estado-ms: 500ms;
+    --progresso-cor: var(--coral-500); --progresso-altura: 3px; }
+  .bento[data-regendo]:not([data-unico]) > .bloco-b[data-visivel] {
+    transition: opacity var(--estado-ms) ease, filter var(--estado-ms) ease, scale var(--estado-ms) var(--ease-out), box-shadow var(--estado-ms) ease, border-color var(--estado-ms) ease, transform 600ms var(--ease-out),
+      --cor-borda-topo var(--estado-ms) ease, --cor-borda-pe var(--estado-ms) ease, --cor-titulo var(--estado-ms) ease, --cor-descricao var(--estado-ms) ease, --cor-lista var(--estado-ms) ease, --cor-pontos var(--estado-ms) ease, --cor-fundo var(--estado-ms) ease; }
+  .bento[data-regendo]:not([data-unico]) > .bloco-b[data-visivel]:not([data-ativo]) {
+    opacity: var(--inativo-opacidade); filter: saturate(var(--inativo-saturacao)) blur(var(--inativo-desfoque)); scale: var(--inativo-escala); }
+  .bento[data-regendo]:not([data-unico]) > .bloco-b[data-ativo] { scale: var(--ativo-escala); box-shadow: var(--ativo-sombra); }
+  /* barra que mostra quanto falta para o próximo bloco */
+  .bloco-b::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--progresso-altura); background: var(--progresso-cor);
+    transform-origin: left; transform: scaleX(0); opacity: 0; pointer-events: none; z-index: 3; }
+  .bento[data-regendo][data-progresso="sim"]:not([data-unico]) > .bloco-b[data-ativo]::after { opacity: 1; animation: progresso var(--tempo, 4000ms) linear forwards; }
+  .bento[data-segurando] > .bloco-b[data-ativo]::after { opacity: 0 !important; animation: none !important; }
+  @keyframes progresso { to { transform: scaleX(1); } }
+  /* blocos sem laço próprio: as folhas só flutuam e as barras de origem crescem de novo quando o bloco é o ativo */
+  .bento[data-regendo]:not([data-unico]) .b-imprimir:not([data-ativo]) .folha { animation-play-state: paused; }
+  .bento[data-regendo]:not([data-unico]) .b-origem[data-ativo] .origem-barra::after { animation: crescer 900ms var(--ease-out) both; animation-delay: calc(var(--i) * 120ms); }
+  @keyframes crescer { from { transform: scaleX(0); } to { transform: scaleX(var(--p)); } }
 
   /* entrada em cascata, uma vez */
   [data-revelar] { opacity: 0; transform: translateY(16px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--ordem, 0) * 80ms); }
   [data-revelar][data-visivel] { opacity: 1; transform: none; }
 
   /* 1. O mapa num quadro: encostado na direita e embaixo do bloco, sumindo num degradê */
-  .quadro { position: relative; flex: 1; min-height: 420px; margin-top: 8px; border-top-left-radius: 12px; overflow: hidden;
-    border: 1px solid var(--neutro-300); border-right: 0; border-bottom: 0; background: var(--neutro-50);
+  /* ajustáveis no playground /dev/bento-mapa */
+  .quadro { --quadro-fade-x: 74%; --quadro-fade-y: 70%; --quadro-raio: 12px; --quadro-espaco: 8px; --quadro-min: 420px; --quadro-borda: var(--neutro-300); }
+  .quadro { position: relative; flex: 1; min-height: var(--quadro-min); margin-top: var(--quadro-espaco); border-top-left-radius: var(--quadro-raio); overflow: hidden;
+    border: 1px solid var(--quadro-borda); border-right: 0; border-bottom: 0; background: var(--neutro-50);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -16px rgb(0 0 0 / 0.16);
     /* degradê para a direita (menos na barra do topo, para os botões ficarem à vista) e para baixo */
     --topo: 31px;
-    mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 74%, transparent);
+    mask-image: linear-gradient(to bottom, #000 var(--quadro-fade-y), transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 var(--quadro-fade-x), transparent);
     mask-size: 100% 100%, 100% var(--topo), 100% 100%; mask-repeat: no-repeat; mask-composite: intersect, add;
-    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 74%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 var(--quadro-fade-y), transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 var(--quadro-fade-x), transparent);
     -webkit-mask-size: 100% 100%, 100% var(--topo), 100% 100%; -webkit-mask-repeat: no-repeat; -webkit-mask-composite: source-in, source-over; }
   .quadro-palco { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--escala, 0.7)); }
   .quadro-palco iframe { display: block; border: 0; background: var(--neutro-50); }
@@ -447,7 +577,7 @@ const ESCALA = 0.16;
   .ponto-n { font: 600 8px var(--fonte-inter); fill: var(--texto-400); transition: fill 150ms ease; }
   .ponto[data-ativo] .ponto-n { fill: var(--carmim-800); }
   .ponto-alvo { position: absolute; width: 36px; height: 36px; translate: -50% -50%; border: 0; border-radius: 50%; background: transparent; cursor: pointer; padding: 0; }
-  .fala { margin: 0; padding: 16px; border-radius: 12px; background: var(--neutro-100); border: 1px solid var(--neutro-200); min-height: 96px; transition: opacity 120ms ease, filter 120ms ease, transform 120ms ease; }
+  .fala { margin: 0; padding: 16px; border-radius: 0.375rem; background: var(--neutro-100); border: 1px solid var(--neutro-200); min-height: 96px; transition: opacity 120ms ease, filter 120ms ease, transform 120ms ease; }
   .fala[data-trocando] { opacity: 0; filter: blur(3px); transform: translateY(3px); }
   .fala blockquote { margin: 0 0 6px; font: 500 var(--tamanho-md)/1.35 var(--fonte-dm-sans); color: var(--texto-950); text-wrap: balance; hyphens: manual; }
   .fala figcaption { font-size: var(--tamanho-xs); color: var(--texto-600); }
@@ -462,15 +592,14 @@ const ESCALA = 0.16;
   .fichas button:active { transform: scale(0.96); }
 
   /* 4. Práticas */
-  .b-praticas h3 { color: var(--texto-50); }
   .placar { display: flex; gap: 24px; margin-top: auto; }
-  .placar p { margin: 0; font-size: var(--tamanho-xs); color: var(--carmim-200); }
-  .placar strong { display: block; font: 700 var(--tamanho-4xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--texto-50); }
+  .placar p { margin: 0; font-size: var(--tamanho-xs); color: var(--cor-descricao); }
+  .placar strong { display: block; font: 700 var(--tamanho-4xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--cor-titulo); }
   .barra-dupla { display: flex; gap: 3px; height: 8px; }
   .barra-dupla span { border-radius: 4px; background: var(--coral-400); transform-origin: left; transform: scaleX(0); transition: transform 900ms var(--ease-out) 200ms; }
   .barra-dupla span + span { background: var(--carmim-500); transform-origin: right; }
   .b-praticas[data-visivel] .barra-dupla span { transform: none; }
-  .exemplos { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-height: 4.4lh; align-content: start; font-size: var(--tamanho-xs); line-height: 1.4; color: var(--carmim-100); }
+  .exemplos { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-height: 4.4lh; align-content: start; font-size: var(--tamanho-xs); line-height: 1.4; color: var(--cor-lista); }
   .exemplos li { display: grid; grid-template-columns: 14px 1fr; }
   .exemplos em { font-style: normal; display: block; }
   .exemplos span { font-weight: 700; color: var(--coral-400); }
@@ -486,7 +615,6 @@ const ESCALA = 0.16;
   .canais li[data-aceso] { background: var(--coral-200); border-color: var(--coral-400); color: var(--texto-950); transition-duration: 300ms, 300ms, 120ms, 120ms, 120ms; }
 
   /* 6. Imprimir */
-  .b-imprimir:hover { border-color: var(--neutro-400); }
   .folhas { display: flex; align-items: flex-end; justify-content: flex-end; gap: 14px; margin-top: auto; padding: 8px 4px 0; }
   .folha { position: relative; flex: none; width: var(--l); height: var(--a); padding: 4px; border-radius: 2px; background: var(--neutro-50); border: 1px solid var(--neutro-300); box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.2);
     rotate: calc((var(--i) - 1) * -2deg); animation: flutuar 5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.6s); transition: rotate 300ms var(--ease-out); }
@@ -519,6 +647,9 @@ const ESCALA = 0.16;
     .bloco-b { grid-column: 1 / -1 !important; padding: 24px; }
     .b-visoes { padding: 24px 0 0 24px; min-height: 520px; }
     .b-visoes .b-texto { padding-right: 24px; }
+    .b-visoes[data-disposicao="lado"] { flex-direction: column; gap: 20px; padding: 24px 0 0 24px; }
+    .b-visoes[data-disposicao="lado"] .b-texto { flex: none; padding: 0 24px 0 0; }
+    .b-visoes[data-disposicao="lado"] .quadro { flex: 1; height: auto; min-height: var(--quadro-min); align-self: stretch; }
   }
   @media (prefers-reduced-motion: reduce) {
     .func *, .func [data-revelar] { transition-duration: 0ms !important; transition-delay: 0ms !important; animation: none !important; }
