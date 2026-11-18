@@ -23,8 +23,8 @@ const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
 const humor = (s: string | null) => (s && SENTIMENTOS[s]?.humor) || null;
 const peso = (s: string | null) => (s && s in SENTIMENTOS ? SENTIMENTOS[s].peso : null);
 const CAMADAS = [
-  { id: "sentimentos", nome: "Sentimentos" },
   { id: "acoes", nome: "Ações da escola" },
+  { id: "sentimentos", nome: "Sentimentos" },
   { id: "pontos", nome: "Pontos de contato" },
   { id: "boas", nome: "Boas práticas" },
   { id: "evitar", nome: "O que evitar" }
@@ -72,6 +72,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
               </div>
               <button type="button" class="etapa-detalhe" data-detalhe={e.id}><span class="texto-longo">Ver tudo sobre esta etapa</span><span class="texto-curto">Ver tudo</span></button>
             </header>
+            <div class="camada camada-acoes" data-camada="acoes">
+              {/* sem título na célula: o rótulo da linha, à esquerda, já diz "Ações da escola" */}
+              {e.acoesEscola ? <p>{e.acoesEscola}</p> : <p class="vazio">Sem registro</p>}
+            </div>
             <div class="camada camada-sentimentos" data-camada="sentimentos">
               <span class="ponto-linha"></span>
               {e.sentimento ? (
@@ -81,10 +85,6 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                   {e.pensamento && <p class="pensamento">“{e.pensamento}”</p>}
                 </div>
               ) : <p class="vazio">Sem registro</p>}
-            </div>
-            <div class="camada camada-acoes" data-camada="acoes">
-              <h3 class="camada-titulo">Ações da escola</h3>
-              {e.acoesEscola ? <p>{e.acoesEscola}</p> : <p class="vazio">Sem registro</p>}
             </div>
             <div class="camada camada-pontos" data-camada="pontos">
               <h3 class="camada-titulo">Pontos de contato</h3>
@@ -191,7 +191,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
-    grid-template-rows: auto auto minmax(132px, auto) auto auto auto auto; }
+    grid-template-rows: auto auto auto minmax(132px, auto) auto auto auto; } /* Fases, Etapas, Ações da escola, Sentimentos (altura mínima para a linha), ... */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
