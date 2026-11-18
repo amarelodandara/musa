@@ -213,6 +213,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     padding: 0 12px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
   /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
+  :root[data-vitrine], :root[data-vitrine] body { overflow: hidden; }
+  :root[data-vitrine] .mapa-rolagem { overflow-x: hidden; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
     grid-template-rows: auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, ... */

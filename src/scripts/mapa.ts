@@ -8,8 +8,15 @@ const etapas = [...raiz.querySelectorAll<HTMLElement>(".etapa")];
 const topo = raiz.querySelector(".mapa-topo") as HTMLElement;
 const celular = matchMedia("(max-width: 760px)");
 
-const guardar = (k: string, v: string) => { try { localStorage.setItem("musa:" + k, v); } catch {} };
-const ler = (k: string) => { try { return localStorage.getItem("musa:" + k); } catch { return null; } };
+// Vitrine (?vitrine): o mapa dentro do bloco da página inicial. Não guarda nem lê preferências (para não mexer no mapa
+// de quem visita), não rola sozinho (a roda do mouse passa para a página) e os links abrem fora do quadro.
+const vitrine = new URLSearchParams(location.search).has("vitrine");
+const guardar = (k: string, v: string) => { if (vitrine) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
+const ler = (k: string) => { if (vitrine) return null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
+if (vitrine) {
+  document.documentElement.dataset.vitrine = "";
+  document.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((a) => { a.target = "_top"; });
+}
 
 let atual = 0;
 

@@ -31,8 +31,10 @@ interface MusaMapa {
 declare global { interface Window { musaMapa?: MusaMapa } }
 
 const slug = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const guardar = (k: string, v: string) => { try { localStorage.setItem("musa:" + k, v); } catch {} };
-const ler = (k: string) => { try { return localStorage.getItem("musa:" + k); } catch { return null; } };
+// na vitrine da página inicial (?vitrine) nada é guardado e a introdução não abre sozinha
+const naVitrine = () => typeof location !== "undefined" && new URLSearchParams(location.search).has("vitrine");
+const guardar = (k: string, v: string) => { if (naVitrine()) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
+const ler = (k: string) => { if (naVitrine()) return k === "guia-visto" ? "sim" : null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
 // classes comuns: controles pequenos e cinza (é uma ferramenta de uso longo)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";

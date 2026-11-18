@@ -1,0 +1,526 @@
+---
+// Funcionalidades da página inicial em bento: cada bloco mostra uma parte do musá funcionando, com os dados reais do mapa.
+// O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
+// enquanto estão na tela e param quando a pessoa mexe neles.
+import { conteudo, DESAFIOS, desafio, type Desafio } from "../../lib/conteudo";
+
+const { etapas, praticas, pontosContato, funcoes, fontes } = conteudo;
+const doMuseu = funcoes.filter((f) => praticas.some((p) => p.funcao === f.id));
+const total = praticas.length;
+const boas = praticas.filter((p) => p.tipo === "boa");
+const evitar = praticas.filter((p) => p.tipo === "evitar");
+const exemplos = Array.from({ length: 6 }, (_, i) => [boas[i * 3]?.titulo, evitar[i * 2]?.titulo]).filter(([b, e]) => b && e);
+const canais = [...new Set(pontosContato.map((p) => p.canal))];
+const porOrigem = ["Pesquisa de campo", "Adaptado de documento", "Documento"].map((o) => ({ nome: o, n: praticas.filter((p) => p.origem === o).length }));
+
+// Bloco "Nível de desafio": a mesma linha de giz do mapa, desenhada trecho a trecho, de etapa em etapa
+const L = 340, A = 176, X0 = 26, X1 = 294, R = 13;
+const NIVEL_Y: Record<Desafio, number> = { alto: 34, medio: 84, baixo: 134 };
+const pontos = etapas.map((e, i) => {
+  const nivel = desafio(e) ?? "medio";
+  return { e, nivel, x: X0 + (i * (X1 - X0)) / (etapas.length - 1), y: NIVEL_Y[nivel] };
+});
+// curva suave (Catmull-Rom convertida em Bézier), igual à do mapa, um trecho por par de etapas
+const trechos = pontos.slice(1).map((c, k) => {
+  const i = k + 1, a = pontos[i - 2] ?? pontos[i - 1], b = pontos[i - 1], n = pontos[i + 1] ?? c;
+  const f = (v: number) => v.toFixed(1);
+  return `M${f(b.x)} ${f(b.y)} C${f(b.x + (c.x - a.x) / 6)} ${f(b.y + (c.y - a.y) / 6)} ${f(c.x - (n.x - b.x) / 6)} ${f(c.y - (n.y - b.y) / 6)} ${f(c.x)} ${f(c.y)}`;
+});
+const fala0 = pontos[0];
+
+// Bloco "Imprimir": folhas na proporção real (mm)
+const FOLHAS = [
+  { formato: "A1", l: 841, a: 594 },
+  { formato: "A2", l: 594, a: 420 },
+  { formato: "A4", l: 297, a: 210 }
+];
+const ESCALA = 0.16;
+---
+<section class="func" aria-label="Funcionalidades">
+  <div class="bento">
+    <!-- 1. O próprio mapa -->
+    <article class="bloco-b b-visoes" data-revelar>
+      <div class="b-texto">
+        <h3>O mapa inteiro, ou uma etapa de cada vez</h3>
+        <p>Na visão geral, as etapas lado a lado. Na detalhada, uma etapa aberta com tudo o que acontece nela. Pode clicar.</p>
+        <a class="b-link" href="/mapa">Abrir o mapa <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="quadro">
+        <div class="quadro-palco">
+          <iframe src="/mapa?vitrine" title="Mapa da Visita, em miniatura" loading="lazy" tabindex="-1"></iframe>
+        </div>
+        <svg class="cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6.2 1.6L10 19z" /></svg>
+      </div>
+    </article>
+
+    <!-- 2. Nível de desafio -->
+    <article class="bloco-b b-desafio" data-revelar>
+      <div class="b-texto">
+        <h3>Onde a visita pesa para o professor</h3>
+        <p>O nível de desafio de cada etapa mostra onde a escola precisa mais do museu.</p>
+      </div>
+      <div class="desafio-grafico">
+        <svg viewBox={`0 0 ${L} ${A}`} aria-hidden="true">
+          <defs>
+            <filter id="func-giz" filterUnits="userSpaceOnUse" x="-20" y="-20" width={L + 40} height={A + 40} color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula" />
+              <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda" />
+              <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao" />
+              <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara" />
+              <feComposite in="borda" in2="mascara" operator="in" />
+            </filter>
+            <mask id="func-furos" maskUnits="userSpaceOnUse" x="0" y="0" width={L} height={A}>
+              <rect width={L} height={A} fill="#fff" />
+              {pontos.map((p) => <circle cx={p.x} cy={p.y} r={R + 4} fill="#000" />)}
+            </mask>
+          </defs>
+          {(Object.entries(NIVEL_Y) as [Desafio, number][]).map(([n, y]) => (
+            <g class="trilha">
+              <line x1="0" x2={L} y1={y} y2={y} />
+              <text x={L} y={y - 6} text-anchor="end">{DESAFIOS[n].nome}</text>
+            </g>
+          ))}
+          <g class="giz" filter="url(#func-giz)" mask="url(#func-furos)">
+            {trechos.map((d) => <path class="trecho" d={d} pathLength="1" />)}
+          </g>
+          {pontos.map((p) => (
+            <g class="ponto" data-etapa={p.e.id}>
+              <image href={DESAFIOS[p.nivel].avatar} x={p.x - R} y={p.y - R} width={R * 2} height={R * 2} />
+              <text class="ponto-n" x={p.x} y={A - 6} text-anchor="middle">{String(p.e.ordem).padStart(2, "0")}</text>
+            </g>
+          ))}
+        </svg>
+        {pontos.map((p) => (
+          <button type="button" class="ponto-alvo" style={`left:${(p.x / L) * 100}%;top:${(p.y / A) * 100}%`}
+            data-etapa={p.e.id} data-nome={p.e.nome} data-nivel={DESAFIOS[p.nivel].nome} data-fala={p.e.pensamento ?? ""}
+            aria-label={`${p.e.nome}: desafio ${DESAFIOS[p.nivel].nome.toLowerCase()}`}></button>
+        ))}
+      </div>
+      <figure class="fala" aria-live="polite">
+        <blockquote>“{fala0.e.pensamento}”</blockquote>
+        <figcaption><span class="fala-nome">{fala0.e.nome}</span> · desafio <span class="fala-nivel">{DESAFIOS[fala0.nivel].nome.toLowerCase()}</span></figcaption>
+      </figure>
+    </article>
+
+    <!-- 3. Filtrar por função -->
+    <article class="bloco-b b-funcoes" data-revelar>
+      <div class="b-texto">
+        <h3>Cada pessoa vê o que é dela</h3>
+        <p>Filtre por função e o mapa mostra só as práticas ao alcance de quem está lendo.</p>
+      </div>
+      <p class="contador"><span class="contador-n">{total}</span> <span class="contador-r">práticas</span></p>
+      <ul class="fichas">
+        {doMuseu.map((f) => (
+          <li><button type="button" aria-pressed="true" data-funcao={f.id} data-n={praticas.filter((p) => p.funcao === f.id).length}>{f.nome}</button></li>
+        ))}
+      </ul>
+    </article>
+
+    <!-- 4. Boas práticas e o que evitar -->
+    <article class="bloco-b b-praticas" data-revelar>
+      <div class="b-texto">
+        <h3>O que fazer, e o que evitar</h3>
+      </div>
+      <div class="placar">
+        <p><strong>{boas.length}</strong> boas práticas</p>
+        <p><strong>{evitar.length}</strong> coisas a evitar</p>
+      </div>
+      <div class="barra-dupla" aria-hidden="true">
+        <span style={`flex:${boas.length}`}></span><span style={`flex:${evitar.length}`}></span>
+      </div>
+      <ul class="exemplos" data-exemplos={JSON.stringify(exemplos)}>
+        <li><span>+</span><em>{exemplos[0][0]}</em></li>
+        <li class="evitar"><span>−</span><em>{exemplos[0][1]}</em></li>
+      </ul>
+    </article>
+
+    <!-- 5. Pontos de contato -->
+    <article class="bloco-b b-contato" data-revelar>
+      <div class="b-texto">
+        <h3>Todo lugar onde a escola encontra o museu</h3>
+        <p>{pontosContato.length} pontos de contato, do site à newsletter.</p>
+      </div>
+      <ul class="canais">
+        {canais.map((k, i) => <li style={`--i:${i}`}>{k}</li>)}
+      </ul>
+    </article>
+
+    <!-- 6. Imprimir -->
+    <a class="bloco-b b-imprimir" href="/baixar" data-revelar>
+      <div class="b-texto">
+        <h3>Do navegador para a parede</h3>
+        <p>Baixe em A1, A2 ou A4, com linhas em branco para a equipe escrever o que é do seu museu.</p>
+        <span class="b-link">Baixar o mapa <span aria-hidden="true">→</span></span>
+      </div>
+      <div class="folhas" aria-hidden="true">
+        {FOLHAS.map((f, i) => (
+          <div class="folha" style={`--l:${f.l * ESCALA}px;--a:${f.a * ESCALA}px;--i:${i}`}>
+            <span class="folha-grade">{Array.from({ length: 7 }, () => <i></i>)}</span>
+            <span class="folha-rotulo">{f.formato}</span>
+          </div>
+        ))}
+      </div>
+    </a>
+
+    <!-- 7. Origem das práticas -->
+    <article class="bloco-b b-origem" data-revelar>
+      <div class="b-texto">
+        <h3>Cada prática diz de onde veio</h3>
+        <p>Pesquisa de campo com professores e equipes de museu, e {fontes.length} documentos de referência citados um a um.</p>
+      </div>
+      <div class="origens-func">
+        {porOrigem.map((o, i) => (
+          <div class="origem" style={`--p:${o.n / total};--i:${i}`}>
+            <span class="origem-barra"></span>
+            <span class="origem-n">{o.n}</span>
+            <span class="origem-nome">{o.nome}</span>
+          </div>
+        ))}
+      </div>
+    </article>
+  </div>
+</section>
+
+<script>
+  const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)", EASE_IN_OUT = "cubic-bezier(0.77, 0, 0.175, 1)";
+
+  // Um laço que só roda com o bloco na tela e a aba à vista, e espera enquanto a pessoa mexe no bloco
+  function laco(bloco: HTMLElement, passo: () => Promise<void>, { pausaAoMexer = true, retomarEm = 4000 } = {}) {
+    let visivel = false, mexendo = false, ultimoToque = 0, rodando = false;
+    const pode = () => visivel && !document.hidden && !mexendo && Date.now() - ultimoToque > retomarEm;
+    new IntersectionObserver(([it]) => { visivel = it.isIntersecting; girar(); }, { threshold: 0.35 }).observe(bloco);
+    if (pausaAoMexer) {
+      bloco.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") mexendo = true; });
+      bloco.addEventListener("pointerleave", () => { mexendo = false; ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
+      bloco.addEventListener("pointerdown", () => { ultimoToque = Date.now(); setTimeout(girar, retomarEm + 50); });
+      bloco.addEventListener("focusin", () => { ultimoToque = Date.now() + 10_000; });
+    }
+    document.addEventListener("visibilitychange", girar);
+    async function girar() {
+      if (rodando || calmo) return;
+      rodando = true;
+      while (pode()) await passo();
+      rodando = false;
+    }
+    return { pode, esperar: async (ms: number) => { const fim = Date.now() + ms; while (Date.now() < fim) { await dormir(Math.min(100, fim - Date.now())); if (!pode()) return false; } return true; } };
+  }
+
+  // Revela os blocos uma vez, em cascata, quando entram na tela
+  const blocos = document.querySelectorAll<HTMLElement>(".func [data-revelar]");
+  const obs = new IntersectionObserver((itens) => {
+    itens.forEach((it) => {
+      if (!it.isIntersecting) return;
+      (it.target as HTMLElement).dataset.visivel = "";
+      obs.unobserve(it.target);
+    });
+  }, { rootMargin: "0px 0px -80px 0px" });
+  blocos.forEach((b, i) => { b.style.setProperty("--ordem", String(i % 3)); obs.observe(b); });
+
+  // ---------- 1. O próprio mapa, em escala, com um cursor que mostra o que dá para fazer ----------
+  const quadro = document.querySelector<HTMLElement>(".func .quadro");
+  const frame = quadro?.querySelector("iframe");
+  const cursor = quadro?.querySelector<SVGElement>(".cursor");
+  const ALTURA = 900, VISTA = 1130; // px do mapa; VISTA = quanto dele cabe na largura do quadro
+  if (quadro && frame && cursor) {
+    const palco = quadro.querySelector<HTMLElement>(".quadro-palco")!;
+    let escala = 1;
+    new ResizeObserver(() => {
+      escala = Math.min(0.8, Math.max(0.42, quadro.clientWidth / VISTA));
+      palco.style.setProperty("--escala", String(escala));
+      quadro.style.setProperty("--topo", 44 * escala + "px");
+      // o mapa tem a largura do quadro: a barra de cima termina na borda, com os botões à vista; as colunas é que ficam cortadas
+      frame.style.width = Math.ceil(quadro.clientWidth / escala) + "px";
+      frame.style.height = ALTURA + "px";
+    }).observe(quadro);
+
+    const doc = () => frame.contentDocument;
+    const mapa = () => (frame.contentWindow as (Window & { musaMapa?: { modo(m: string): void; passo(d: number): void; estado(): { modo: string; atual: number } } }) | null)?.musaMapa;
+    const botaoModo = (texto: string) => [...(doc()?.querySelectorAll<HTMLElement>("button") ?? [])].find((b) => b.textContent?.trim() === texto);
+    const seta = (d: 1 | -1) => {
+      const m = mapa(); if (!m) return null;
+      return doc()?.querySelectorAll<HTMLElement>(".etapa")[m.estado().atual]?.querySelector<HTMLElement>(`[data-passo="${d}"]:not([hidden])`) ?? null;
+    };
+    // leva o cursor até o alvo (coordenadas do mapa vezes a escala) e clica
+    let cx = 0, cy = 0;
+    async function clicar(alvo: HTMLElement | null | undefined) {
+      if (!alvo) return;
+      const r = alvo.getBoundingClientRect();
+      const x = (r.left + r.width / 2) * escala, y = (r.top + r.height / 2) * escala;
+      if (x > quadro!.clientWidth - 12 || y > quadro!.clientHeight - 12) return;
+      cursor!.dataset.visivel = "";
+      await cursor!.animate([{ translate: `${cx}px ${cy}px` }, { translate: `${x}px ${y}px` }], { duration: 750, easing: EASE_IN_OUT, fill: "forwards" }).finished;
+      cx = x; cy = y;
+      await cursor!.animate([{ scale: "1" }, { scale: "0.82" }, { scale: "1" }], { duration: 220, easing: EASE_OUT }).finished.catch(() => {});
+      alvo.click();
+    }
+    const roteiro: (() => HTMLElement | null | undefined)[] = [
+      () => seta(1), () => seta(1), () => botaoModo("Visão geral"), () => botaoModo("Visão detalhada"), () => seta(-1), () => seta(-1)
+    ];
+    let k = 0;
+    const l = laco(quadro.closest<HTMLElement>(".b-visoes")!, async () => {
+      if (!mapa()) { await dormir(400); return; }
+      if (k === 0) {
+        // começa sempre do mesmo lugar: visão detalhada, primeira etapa
+        const m = mapa()!;
+        if (m.estado().modo !== "etapa") m.modo("etapa");
+        for (let i = m.estado().atual; i > 0; i--) m.passo(-1);
+        cx = quadro.clientWidth * 0.6; cy = quadro.clientHeight * 0.8;
+      }
+      if (!(await l.esperar(k === 0 ? 1200 : 1900))) { delete cursor.dataset.visivel; return; }
+      await clicar(roteiro[k]());
+      k = (k + 1) % roteiro.length;
+      if (k === 0) { await l.esperar(1600); delete cursor.dataset.visivel; await l.esperar(2400); }
+    });
+    quadro.addEventListener("pointerenter", () => { delete cursor.dataset.visivel; });
+  }
+
+  // ---------- 2. Nível de desafio: a linha de giz se desenha de etapa em etapa ----------
+  const bDesafio = document.querySelector<HTMLElement>(".func .b-desafio");
+  const grafico = bDesafio?.querySelector<HTMLElement>(".desafio-grafico");
+  const fala = bDesafio?.querySelector<HTMLElement>(".fala");
+  if (bDesafio && grafico && fala) {
+    const citacao = fala.querySelector("blockquote")!, nome = fala.querySelector(".fala-nome")!, nivel = fala.querySelector(".fala-nivel")!;
+    const alvos = [...grafico.querySelectorAll<HTMLElement>(".ponto-alvo")];
+    const pontosSvg = [...grafico.querySelectorAll<SVGGElement>(".ponto")];
+    const trechos = [...grafico.querySelectorAll<SVGPathElement>(".trecho")];
+    const ativar = (i: number) => pontosSvg.forEach((p, j) => p.toggleAttribute("data-ativo", i === j));
+    let trocando: number | undefined;
+    const mostrar = (i: number) => {
+      ativar(i);
+      const b = alvos[i];
+      if (nome.textContent === b.dataset.nome) return;
+      fala.dataset.trocando = "";
+      clearTimeout(trocando);
+      trocando = window.setTimeout(() => {
+        citacao.textContent = `“${b.dataset.fala}”`;
+        nome.textContent = b.dataset.nome!;
+        nivel.textContent = b.dataset.nivel!.toLowerCase();
+        delete fala.dataset.trocando;
+      }, 120);
+    };
+    alvos.forEach((b, i) => {
+      b.addEventListener("pointerenter", () => { mostrarTudo(); mostrar(i); });
+      b.addEventListener("focus", () => { mostrarTudo(); mostrar(i); });
+      b.addEventListener("click", () => mostrar(i));
+    });
+    // se a pessoa interrompe, a linha aparece inteira na hora
+    function mostrarTudo() {
+      grafico!.getAnimations({ subtree: true }).forEach((a) => a.finish());
+      delete grafico!.dataset.vazio;
+    }
+    const l = laco(bDesafio, async () => {
+      grafico.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+      grafico.dataset.vazio = "";
+      for (let i = 0; i < pontosSvg.length; i++) {
+        if (i > 0) {
+          const t = trechos[i - 1].animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 650, easing: EASE_IN_OUT, fill: "forwards" });
+          await t.finished.catch(() => {});
+          if (!l.pode()) return mostrarTudo();
+        }
+        pontosSvg[i].animate([{ opacity: 0, transform: "scale(0.5)" }, { opacity: 1, transform: "scale(1.15)", offset: 0.6 }, { opacity: 1, transform: "scale(1)" }],
+          { duration: 360, easing: EASE_OUT, fill: "forwards" });
+        mostrar(i);
+        if (!(await l.esperar(i === 0 ? 900 : 1100))) return mostrarTudo();
+      }
+      if (!(await l.esperar(3500))) return mostrarTudo();
+      await grafico.querySelector(".giz")!.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, easing: "ease", fill: "forwards" }).finished;
+      pontosSvg.forEach((p) => p.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease", fill: "forwards" }));
+      await dormir(500);
+    });
+  }
+
+  // ---------- 3. Funções: liga e desliga as fichas e soma as práticas visíveis ----------
+  const bFuncoes = document.querySelector<HTMLElement>(".func .b-funcoes");
+  if (bFuncoes) {
+    const fichas = [...bFuncoes.querySelectorAll<HTMLButtonElement>(".fichas button")];
+    const n = bFuncoes.querySelector<HTMLElement>(".contador-n")!, r = bFuncoes.querySelector<HTMLElement>(".contador-r")!;
+    const contar = () => {
+      const soma = fichas.filter((f) => f.getAttribute("aria-pressed") === "true").reduce((s, f) => s + Number(f.dataset.n), 0);
+      if (n.textContent === String(soma)) return;
+      n.textContent = String(soma);
+      r.textContent = soma === 1 ? "prática" : "práticas";
+      n.animate([{ transform: "translateY(6px)", opacity: 0.4, filter: "blur(2px)" }, { transform: "none", opacity: 1, filter: "none" }], { duration: 220, easing: EASE_OUT });
+    };
+    const marcar = (ids: string[] | null) => { fichas.forEach((f) => f.setAttribute("aria-pressed", String(!ids || ids.includes(f.dataset.funcao!)))); contar(); };
+    let mexeu = false;
+    fichas.forEach((f) => f.addEventListener("click", () => {
+      mexeu = true;
+      f.setAttribute("aria-pressed", String(f.getAttribute("aria-pressed") !== "true"));
+      contar();
+    }));
+    const cenas = [["mediacao"], ["comunicacao", "atendimento-e-vigilancia"], ["gestao"], ["coordenacao-do-educativo", "mediacao"], null];
+    let c = 0;
+    const l = laco(bFuncoes, async () => {
+      if (mexeu) { await dormir(1000); return; }
+      if (!(await l.esperar(2200))) return;
+      if (!mexeu) marcar(cenas[c]);
+      c = (c + 1) % cenas.length;
+    });
+  }
+
+  // ---------- 4. Práticas: os exemplos vão se revezando ----------
+  const lista = document.querySelector<HTMLElement>(".func .exemplos");
+  if (lista) {
+    const ex: [string, string][] = JSON.parse(lista.dataset.exemplos!);
+    const ems = lista.querySelectorAll("em");
+    let i = 0;
+    const l = laco(lista.closest<HTMLElement>(".b-praticas")!, async () => {
+      if (!(await l.esperar(4200))) return;
+      i = (i + 1) % ex.length;
+      for (const [j, em] of [...ems].entries()) {
+        await em.animate([{ opacity: 1, filter: "none" }, { opacity: 0, filter: "blur(3px)" }], { duration: 160, easing: "ease", fill: "forwards" }).finished;
+        em.textContent = ex[i][j];
+        em.animate([{ opacity: 0, filter: "blur(3px)", transform: "translateY(4px)" }, { opacity: 1, filter: "none", transform: "none" }], { duration: 260, easing: EASE_OUT, fill: "forwards" });
+      }
+    });
+  }
+
+  // ---------- 5. Pontos de contato: uma onda passa pelos canais ----------
+  const bContato = document.querySelector<HTMLElement>(".func .b-contato");
+  if (bContato) {
+    const chips = [...bContato.querySelectorAll<HTMLElement>(".canais li")];
+    let i = 0;
+    const l = laco(bContato, async () => {
+      chips[i].dataset.aceso = "";
+      const anterior = chips[i];
+      setTimeout(() => delete anterior.dataset.aceso, 900);
+      i = (i + 1) % chips.length;
+      await l.esperar(i === 0 ? 2400 : 260);
+    }, { pausaAoMexer: false });
+  }
+</script>
+
+<style>
+  .func { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); padding: 72px 0; border-top: 1px solid var(--neutro-300); margin: 0; }
+
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .bloco-b { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 20px; background: var(--neutro-100); border: 1px solid var(--neutro-200); overflow: hidden; min-width: 0; color: inherit; text-decoration: none; }
+  .b-texto h3 { margin: 0 0 6px; font-size: var(--tamanho-lg); letter-spacing: -0.01em; }
+  .b-texto p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); max-width: 46ch; text-wrap: pretty; }
+  .b-link { display: inline-block; margin-top: 12px; font: 600 var(--tamanho-sm)/1 var(--fonte-inter); color: var(--carmim-800); text-decoration: none; }
+  .b-link span { display: inline-block; transition: transform 200ms var(--ease-out); }
+  .b-link:hover span, .b-imprimir:hover .b-link span { transform: translateX(3px); }
+
+  .b-visoes { grid-column: span 4; grid-row: span 2; padding: 28px 0 0 28px; min-height: 680px; }
+  .b-visoes .b-texto { padding-right: 28px; }
+  .b-desafio { grid-column: span 2; grid-row: span 2; background: var(--neutro-50); }
+  .b-funcoes { grid-column: span 2; background: var(--coral-100); border-color: var(--coral-200); }
+  .b-praticas { grid-column: span 2; background: var(--carmim-900); border-color: var(--carmim-900); color: var(--texto-50); }
+  .b-contato { grid-column: span 2; }
+  .b-imprimir { grid-column: span 3; }
+  .b-origem { grid-column: span 3; background: var(--neutro-50); }
+
+  /* entrada em cascata, uma vez */
+  [data-revelar] { opacity: 0; transform: translateY(16px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--ordem, 0) * 80ms); }
+  [data-revelar][data-visivel] { opacity: 1; transform: none; }
+
+  /* 1. O mapa num quadro: encostado na direita e embaixo do bloco, sumindo num degradê */
+  .quadro { position: relative; flex: 1; min-height: 420px; margin-top: 8px; border-top-left-radius: 12px; overflow: hidden;
+    border: 1px solid var(--neutro-300); border-right: 0; border-bottom: 0; background: var(--neutro-50);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -16px rgb(0 0 0 / 0.16);
+    /* degradê para a direita (menos na barra do topo, para os botões ficarem à vista) e para baixo */
+    --topo: 31px;
+    mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 74%, transparent);
+    mask-size: 100% 100%, 100% var(--topo), 100% 100%; mask-repeat: no-repeat; mask-composite: intersect, add;
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(#000, #000), linear-gradient(to right, #000 74%, transparent);
+    -webkit-mask-size: 100% 100%, 100% var(--topo), 100% 100%; -webkit-mask-repeat: no-repeat; -webkit-mask-composite: source-in, source-over; }
+  .quadro-palco { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--escala, 0.7)); }
+  .quadro-palco iframe { display: block; border: 0; background: var(--neutro-50); }
+  .cursor { position: absolute; left: 0; top: 0; width: 22px; height: 22px; margin: -3px 0 0 -5px; pointer-events: none; z-index: 2; opacity: 0; transition: opacity 250ms ease;
+    filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.25)); }
+  .cursor path { fill: var(--texto-950); stroke: var(--neutro-50); stroke-width: 1.5; stroke-linejoin: round; }
+  .cursor[data-visivel] { opacity: 1; }
+
+  /* 2. Nível de desafio */
+  .desafio-grafico { position: relative; margin: auto 0 0; }
+  .desafio-grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .trilha line { stroke: var(--neutro-300); stroke-width: 1; stroke-dasharray: 2 3; }
+  .trilha text { font: 500 9px var(--fonte-inter); fill: var(--texto-600); }
+  .trecho { fill: none; stroke: var(--carmim-800); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .ponto { transform-box: fill-box; transform-origin: center; }
+  .desafio-grafico[data-vazio] .trecho { stroke-dashoffset: 1; }
+  .desafio-grafico[data-vazio] .ponto { opacity: 0; }
+  .ponto image { transform-box: fill-box; transform-origin: center; transition: transform 200ms var(--ease-out); }
+  .ponto[data-ativo] image { transform: scale(1.25); }
+  .ponto-n { font: 600 8px var(--fonte-inter); fill: var(--texto-400); transition: fill 150ms ease; }
+  .ponto[data-ativo] .ponto-n { fill: var(--carmim-800); }
+  .ponto-alvo { position: absolute; width: 36px; height: 36px; translate: -50% -50%; border: 0; border-radius: 50%; background: transparent; cursor: pointer; padding: 0; }
+  .fala { margin: 0; padding: 16px; border-radius: 12px; background: var(--neutro-100); border: 1px solid var(--neutro-200); min-height: 96px; transition: opacity 120ms ease, filter 120ms ease, transform 120ms ease; }
+  .fala[data-trocando] { opacity: 0; filter: blur(3px); transform: translateY(3px); }
+  .fala blockquote { margin: 0 0 6px; font: 500 var(--tamanho-md)/1.35 var(--fonte-dm-sans); color: var(--texto-950); text-wrap: balance; hyphens: manual; }
+  .fala figcaption { font-size: var(--tamanho-xs); color: var(--texto-600); }
+
+  /* 3. Funções */
+  .contador { margin: auto 0 0; display: flex; align-items: baseline; gap: 8px; }
+  .contador-n { font: 700 var(--tamanho-5xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--carmim-900); font-variant-numeric: tabular-nums; display: inline-block; }
+  .contador-r { font-size: var(--tamanho-sm); color: var(--texto-700); }
+  .fichas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .fichas button { font: 500 var(--tamanho-xs)/1 var(--fonte-inter); padding: 7px 10px; border-radius: 999px; border: 1px solid var(--coral-300); background: transparent; color: var(--texto-700); cursor: pointer; transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 160ms var(--ease-out); }
+  .fichas button[aria-pressed="true"] { background: var(--coral-500); border-color: var(--coral-500); color: var(--texto-950); }
+  .fichas button:active { transform: scale(0.96); }
+
+  /* 4. Práticas */
+  .b-praticas h3 { color: var(--texto-50); }
+  .placar { display: flex; gap: 24px; margin-top: auto; }
+  .placar p { margin: 0; font-size: var(--tamanho-xs); color: var(--carmim-200); }
+  .placar strong { display: block; font: 700 var(--tamanho-4xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--texto-50); }
+  .barra-dupla { display: flex; gap: 3px; height: 8px; }
+  .barra-dupla span { border-radius: 4px; background: var(--coral-400); transform-origin: left; transform: scaleX(0); transition: transform 900ms var(--ease-out) 200ms; }
+  .barra-dupla span + span { background: var(--carmim-500); transform-origin: right; }
+  .b-praticas[data-visivel] .barra-dupla span { transform: none; }
+  .exemplos { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-height: 4.4lh; align-content: start; font-size: var(--tamanho-xs); line-height: 1.4; color: var(--carmim-100); }
+  .exemplos li { display: grid; grid-template-columns: 14px 1fr; }
+  .exemplos em { font-style: normal; display: block; }
+  .exemplos span { font-weight: 700; color: var(--coral-400); }
+  .exemplos .evitar span { color: var(--carmim-400); }
+
+  /* 5. Pontos de contato */
+  .canais { display: flex; flex-wrap: wrap; gap: 6px; margin: auto 0 0; padding: 0; list-style: none; }
+  .canais li { padding: 4px 10px; border-radius: 999px; background: var(--neutro-50); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs);
+    opacity: 0; transform: translateY(6px) scale(0.96);
+    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), background-color 500ms ease, border-color 500ms ease, color 500ms ease;
+    transition-delay: calc(200ms + var(--i) * 40ms), calc(200ms + var(--i) * 40ms), 0ms, 0ms, 0ms; }
+  .b-contato[data-visivel] .canais li { opacity: 1; transform: none; }
+  .canais li[data-aceso] { background: var(--coral-200); border-color: var(--coral-400); color: var(--texto-950); transition-duration: 300ms, 300ms, 120ms, 120ms, 120ms; }
+
+  /* 6. Imprimir */
+  .b-imprimir:hover { border-color: var(--neutro-400); }
+  .folhas { display: flex; align-items: flex-end; justify-content: flex-end; gap: 14px; margin-top: auto; padding: 8px 4px 0; }
+  .folha { position: relative; flex: none; width: var(--l); height: var(--a); padding: 4px; border-radius: 2px; background: var(--neutro-50); border: 1px solid var(--neutro-300); box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.2);
+    rotate: calc((var(--i) - 1) * -2deg); animation: flutuar 5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.6s); transition: rotate 300ms var(--ease-out); }
+  .b-imprimir:hover .folha { rotate: calc((var(--i) - 1) * -5deg); }
+  @keyframes flutuar { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+  .folha-grade { display: flex; gap: 2px; height: 100%; }
+  .folha-grade i { flex: 1; border-top: 2px solid var(--carmim-800); background: repeating-linear-gradient(to bottom, var(--neutro-200) 0 2px, transparent 2px 6px); }
+  .folha-rotulo { position: absolute; left: 6px; bottom: 6px; padding: 1px 4px; border-radius: 3px; background: var(--neutro-50); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--carmim-800); }
+
+  /* 7. Origem */
+  .origens-func { display: grid; gap: 10px; margin: auto 0 0; }
+  .origem { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 12px; row-gap: 4px; }
+  .origem-barra { grid-column: 1 / -1; height: 10px; border-radius: 5px; background: var(--neutro-200); position: relative; overflow: hidden; }
+  .origem-barra::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--carmim-800); transform-origin: left; transform: scaleX(0); transition: transform 900ms var(--ease-out); transition-delay: calc(200ms + var(--i) * 120ms); }
+  .origem:nth-child(2) .origem-barra::after { background: var(--carmim-600); }
+  .origem:nth-child(3) .origem-barra::after { background: var(--coral-500); }
+  .b-origem[data-visivel] .origem-barra::after { transform: scaleX(var(--p)); }
+  .origem-n { order: 2; font: 700 var(--tamanho-md)/1 var(--fonte-dm-sans); font-variant-numeric: tabular-nums; }
+  .origem-nome { order: 1; font-size: var(--tamanho-xs); color: var(--texto-700); }
+
+  @media (max-width: 1080px) {
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .b-visoes, .b-desafio, .b-imprimir, .b-origem, .b-contato { grid-column: 1 / -1; grid-row: auto; }
+    .b-funcoes, .b-praticas { grid-column: span 1; }
+    .b-visoes { min-height: 600px; }
+  }
+  @media (max-width: 640px) {
+    .func { padding: 48px 0; }
+    .bento { grid-template-columns: 1fr; }
+    .bloco-b { grid-column: 1 / -1 !important; padding: 24px; }
+    .b-visoes { padding: 24px 0 0 24px; min-height: 520px; }
+    .b-visoes .b-texto { padding-right: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .func *, .func [data-revelar] { transition-duration: 0ms !important; transition-delay: 0ms !important; animation: none !important; }
+  }
+</style>

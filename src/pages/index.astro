@@ -2,17 +2,12 @@
 // Página inicial (decisão Q30): abertura, tese, funcionalidades, uso em equipe, chamada final.
 import Base from "../layouts/Base.astro";
 import Abertura from "../components/Abertura.astro";
+import Funcionalidades from "../components/inicio/Funcionalidades.astro";
 import { conteudo, FASES } from "../lib/conteudo";
 
 const { etapas } = conteudo;
 const porFase = FASES.map((f) => ({ ...f, etapas: etapas.filter((e) => e.fase === f.nome) }));
 
-const FUNCIONALIDADES = [
-  { titulo: "Etapa por etapa", texto: "Percorra a visita na ordem em que a escola a vive, uma etapa aberta por vez, do primeiro contato ao retorno." },
-  { titulo: "O mapa inteiro", texto: "Veja as sete etapas lado a lado e compare onde o museu já cuida bem da escola e onde ela fica sozinha." },
-  { titulo: "Filtrar por função", texto: "Mediação, comunicação, gestão: cada pessoa da equipe vê só o que está ao seu alcance em cada etapa." },
-  { titulo: "Baixar para imprimir", texto: "Leve o mapa para a parede da sala de reuniões em A1, A2 ou A4, com espaço para a equipe escrever." }
-];
 ---
 <Base classeCorpo="inicio">
 <Abertura />
@@ -32,14 +27,7 @@ const FUNCIONALIDADES = [
     </ol>
   </section>
 
-  <section class="bloco">
-    <h2>O que dá para fazer com o mapa</h2>
-    <ul class="cartoes">
-      {FUNCIONALIDADES.map((f) => (
-        <li class="cartao-func"><h3>{f.titulo}</h3><p>{f.texto}</p></li>
-      ))}
-    </ul>
-  </section>
+  <Funcionalidades />
 
   <section class="bloco">
     <h2>Um ponto de partida para conversar em equipe</h2>
@@ -63,7 +51,7 @@ const FUNCIONALIDADES = [
 </Base>
 
 <style>
-  .inicio-corpo { max-width: 1080px; margin: 0 auto; padding: 24px 16px 96px; }
+  .inicio-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
   .bloco { margin: 0; padding: 72px 0; border-top: 1px solid var(--neutro-300); }
   .bloco > h2 { font-size: var(--tamanho-2xl); max-width: 22ch; margin-bottom: 16px; }
   .bloco > p { max-width: 62ch; margin: 0 0 12px; }
@@ -72,10 +60,6 @@ const FUNCIONALIDADES = [
   .fases-resumo li { padding: 16px; border-top: 3px solid var(--carmim-800); background: var(--neutro-100); font-size: var(--tamanho-sm); }
   .fases-resumo strong { display: block; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); color: var(--carmim-800); margin-bottom: 6px; }
   .fases-resumo span { color: var(--texto-700); }
-  .cartoes { list-style: none; padding: 0; margin: 24px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-  .cartao-func { padding: 20px; border: 1px solid var(--neutro-300); border-radius: 8px; background: var(--neutro-50); }
-  .cartao-func h3 { margin: 0 0 8px; font-size: var(--tamanho-lg); color: var(--carmim-800); }
-  .cartao-func p { margin: 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
   .lista-uso { max-width: 62ch; padding-left: 20px; }
   .lista-uso li { margin-bottom: 10px; }
   .chamada-final { text-align: center; }
