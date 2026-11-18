@@ -14,7 +14,7 @@
 
 O **musá** é uma ferramenta gratuita que mostra para equipes de museus a visita escolar inteira: antes, durante e depois do dia no museu, com as práticas que tendem a ajudar ou atrapalhar em cada etapa.
 
-A peça principal é o **Mapa da Visita**, uma grade que cruza as Etapas da visita com cinco Camadas de conteúdo (Sentimentos, Ações da escola, Pontos de contato, Boas práticas e O que evitar). O mapa pode ser filtrado por Função e baixado em PDF para impressão em A1, A2 e A4.
+A peça principal é o **Mapa da Visita**, uma grade que cruza as Etapas da visita com cinco Camadas de conteúdo (Ações do professor, Sentimentos, Pontos de contato, Boas práticas e O que evitar). O mapa pode ser filtrado por Função e baixado em PDF para impressão em A1, A2 e A4.
 
 Não tem cadastro nem backend: o site é estático e o que a pessoa marca fica só no navegador dela.
 

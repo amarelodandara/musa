@@ -293,7 +293,7 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       <h3 className={h3}>Como ler</h3>
       <ul className={ul}>
         <li>Cada coluna é uma etapa da visita. As etapas estão agrupadas em antes, durante e depois.</li>
-        <li>Cada linha é uma camada: Ações da escola, Sentimentos, Pontos de contato, Boas práticas e O que evitar.</li>
+        <li>Cada linha é uma camada: Ações do professor, Sentimentos, Pontos de contato, Boas práticas e O que evitar.</li>
         <li>A linha que liga os rostos mostra como a escola se sente ao longo da visita.</li>
         <li><strong>+</strong> marca o que tende a ajudar; <strong>−</strong>, o que tende a atrapalhar.</li>
       </ul>

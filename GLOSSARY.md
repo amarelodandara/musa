@@ -35,7 +35,7 @@ Um papel que alguém cumpre na Visita, como *Mediação* ou *Gestão*. Toda Prá
 _Evitar_: linha, cargo, ator, setor
 
 **Camada**:
-Uma das linhas do mapa, que mostra um tipo de conteúdo em todas as Etapas. São cinco, nesta ordem: Sentimentos, Ações da escola, Pontos de contato, Boas práticas e O que evitar.
+Uma das linhas do mapa, que mostra um tipo de conteúdo em todas as Etapas. São cinco, nesta ordem: Ações do professor, Sentimentos, Pontos de contato, Boas práticas e O que evitar. Ações do professor e Sentimentos formam um grupo (divisão mais clara entre as duas).
 _Evitar_: linha, raia, faixa
 
 **Sentimentos**:
@@ -46,9 +46,9 @@ _Evitar_: emoções, humor, experiência
 Uma frase curta, em primeira pessoa, com o que o professor está pensando numa Etapa.
 _Evitar_: citação, fala, depoimento
 
-**Ações da escola**:
-A Camada com o que a escola (professor e turma juntos) faz em cada Etapa.
-_Evitar_: ações do cliente, jornada do professor
+**Ações do professor**:
+A Camada com o que o professor (com a turma) faz em cada Etapa. Na planilha de conteúdo, a coluna ainda se chama "Ações da escola".
+_Evitar_: ações da escola (nome antigo), ações do cliente, jornada do professor
 
 **Ponto de contato**:
 Um canal onde a escola encontra o museu numa Etapa (site, telefone, recepção, mediador), com uma frase que descreve o que acontece ali, sem julgar. O que é bom ou ruim fica em Boas práticas e O que evitar.

@@ -23,7 +23,7 @@ const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
 const humor = (s: string | null) => (s && SENTIMENTOS[s]?.humor) || null;
 const peso = (s: string | null) => (s && s in SENTIMENTOS ? SENTIMENTOS[s].peso : null);
 const CAMADAS = [
-  { id: "acoes", nome: "Ações da escola" },
+  { id: "acoes", nome: "Ações do professor" },
   { id: "sentimentos", nome: "Sentimentos" },
   { id: "pontos", nome: "Pontos de contato" },
   { id: "boas", nome: "Boas práticas" },
@@ -78,7 +78,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
               <h2 id={`t-${e.id}`} class="etapa-nome"><button type="button" class="etapa-abrir" data-ir={i}>{e.nome}</button></h2>
             </header>
             <div class="camada camada-acoes" data-camada="acoes">
-              {/* sem título na célula: o rótulo da linha, à esquerda, já diz "Ações da escola" */}
+              {/* sem título na célula: o rótulo da linha, à esquerda, já diz "Ações do professor" */}
               {e.acoesEscola ? <p>{e.acoesEscola}</p> : <p class="vazio">Sem registro</p>}
             </div>
             <div class="camada camada-sentimentos" data-camada="sentimentos">
@@ -133,7 +133,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
             {e.origemSentimento && <p class="det-origem">{e.origemSentimento}{fonte(e.fonteSentimento) && <> · {fonte(e.fonteSentimento)}</>}</p>}
           </section>
         )}
-        {e.acoesEscola && <section class="det-bloco"><h3>Ações da escola</h3><p>{e.acoesEscola}</p></section>}
+        {e.acoesEscola && <section class="det-bloco"><h3>Ações do professor</h3><p>{e.acoesEscola}</p></section>}
         {d.pontos.length > 0 && (
           <section class="det-bloco">
             <h3>Pontos de contato</h3>
@@ -196,7 +196,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
-    grid-template-rows: auto auto auto minmax(132px, auto) auto auto auto; } /* Fases, Etapas, Ações da escola, Sentimentos (altura mínima para a linha), ... */
+    grid-template-rows: auto auto auto minmax(132px, auto) auto auto auto; } /* Fases, Etapas, Ações do professor, Sentimentos (altura mínima para a linha), ... */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
@@ -226,6 +226,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* estilo.css (da tabela antiga) dá a todo .rotulo uma borda direita de 2px quase preta e posição grudada: aqui não */
   .rotulos .rotulo { border-right: 0; position: static; width: auto; min-width: 0; }
   .rotulo { padding: 12px; font-size: var(--tamanho-sm); line-height: 1.45; /* igual às células: mesma linha de base */ font-weight: 600; color: var(--texto-950); border-top: var(--linha); }
+  /* Ações do professor e Sentimentos formam um grupo: entre as duas, a divisão (mais clara, neutro-200) fica só na coluna
+     dos rótulos; nas Etapas não há linha (transparente, e não 0, para o texto não subir 1px e sair da linha de base do rótulo) */
+  .mapa .rotulo-sentimentos { border-top-color: var(--neutro-200); }
+  .mapa .camada-sentimentos { border-top-color: transparent; }
 
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
