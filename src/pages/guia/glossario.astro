@@ -23,6 +23,17 @@ import { gruposGlossario as secoes } from "../../lib/glossario";
           <div class="termo" id={t.id}>
             <dt><a href={`#${t.id}`}>{t.nome}</a></dt>
             {t.paragrafos.map((p) => <dd set:html={p} />)}
+            {/* os subtermos, embaixo do termo a que pertencem (cada um com a sua âncora, /guia/glossario#fase) */}
+            {t.subtermos.length > 0 && (
+              <dd class="subtermos"><dl>
+                {t.subtermos.map((st) => (
+                  <div class="termo subtermo" id={st.id}>
+                    <dt><a href={`#${st.id}`}>{st.nome}</a></dt>
+                    {st.paragrafos.map((p) => <dd set:html={p} />)}
+                  </div>
+                ))}
+              </dl></dd>
+            )}
           </div>
         ))}
       </dl>
@@ -32,20 +43,43 @@ import { gruposGlossario as secoes } from "../../lib/glossario";
 </Guia>
 
 <style>
-  .glossario { max-width: 44rem; }
-  .glossario h1 { font-size: var(--tamanho-3xl); }
+  /* Valores ajustáveis em /dev/guia-glossario (variáveis --glo-* no .glossario) */
+  .glossario { --glo-largura: 44rem; --glo-titulo-tamanho: var(--tamanho-3xl);
+    --glo-indice-tamanho: var(--tamanho-sm); --glo-indice-cor: var(--texto-700); --glo-indice-borda: var(--neutro-300); --glo-indice-fundo: transparent;
+    --glo-indice-hover-borda: var(--coral-400); --glo-indice-hover-cor: var(--texto-900); --glo-indice-raio: 999px;
+    --glo-secao-espaco: 0px; --glo-secao-tamanho: var(--tamanho-xl); --glo-secao-cor: var(--texto-950); --glo-secao-ate-termos: 16px;
+    --glo-termo-py: 16px; --glo-divisor: var(--neutro-200); --glo-divisor-espessura: 1px;
+    --glo-termo-tamanho: var(--tamanho-md); --glo-termo-peso: 600; --glo-termo-cor: var(--carmim-800); --glo-termo-ate-texto: 6px;
+    --glo-coluna-termo: 200px; --glo-colunas-gap: 24px;
+    --glo-texto-tamanho: var(--tamanho-md); --glo-texto-cor: var(--texto-700); --glo-entre-paragrafos: 8px;
+    --glo-destaque: var(--coral-100); }
+  .glossario { max-width: var(--glo-largura); }
+  .glossario h1 { font-size: var(--glo-titulo-tamanho); }
+  .glossario[data-sem-indice] .glossario-indice { display: none; }
   .glossario-indice ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; padding: 0; list-style: none; }
   .glossario-indice li { margin: 0; }
-  .glossario-indice a { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--neutro-300); font-size: var(--tamanho-sm); color: var(--texto-700); text-decoration: none;
-    transition: border-color 150ms ease, color 150ms ease; }
-  .glossario-indice a:hover { border-color: var(--coral-400); color: var(--texto-900); }
-  .termos { margin: 16px 0 0; }
-  .termo { padding: 16px 0; border-top: 1px solid var(--neutro-200); scroll-margin-top: 96px; }
-  .termo dt { margin: 0 0 6px; font: 600 var(--tamanho-md)/1.3 var(--fonte-dm-sans); }
-  .termo dt a { color: var(--carmim-800); text-decoration: none; }
-  .termo dt a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  .termo dd { margin: 0; color: var(--texto-700); text-wrap: pretty; }
-  .termo dd + dd { margin-top: 8px; }
+  .glossario-indice a { display: inline-block; padding: 6px 12px; border-radius: var(--glo-indice-raio); border: 1px solid var(--glo-indice-borda); background: var(--glo-indice-fundo);
+    font-size: var(--glo-indice-tamanho); color: var(--glo-indice-cor); text-decoration: none; transition: border-color 150ms ease, color 150ms ease; }
+  .glossario-indice a:hover, .glossario-indice a[data-forcar-hover] { border-color: var(--glo-indice-hover-borda); color: var(--glo-indice-hover-cor); }
+  .glossario section { margin-top: var(--glo-secao-espaco); }
+  .glossario h2 { font-size: var(--glo-secao-tamanho); color: var(--glo-secao-cor); scroll-margin-top: 96px; }
+  .termos { margin: var(--glo-secao-ate-termos) 0 0; }
+  .termo { padding: var(--glo-termo-py) 0; border-top: var(--glo-divisor-espessura) solid var(--glo-divisor); scroll-margin-top: 96px; }
+  .termo dt { margin: 0 0 var(--glo-termo-ate-texto); font: var(--glo-termo-peso) var(--glo-termo-tamanho)/1.3 var(--fonte-dm-sans); }
+  .termo dt a { color: var(--glo-termo-cor); text-decoration: none; }
+  .termo dt a:hover, .termo dt a[data-forcar-hover] { text-decoration: underline; text-underline-offset: 3px; }
+  .termo dd { margin: 0; font-size: var(--glo-texto-tamanho); color: var(--glo-texto-cor); text-wrap: pretty; }
+  .termo dd + dd { margin-top: var(--glo-entre-paragrafos); }
+  /* lado a lado: o termo numa coluna à esquerda, a explicação à direita (no celular, volta a empilhar) */
+  .glossario[data-lado-a-lado] .termo { display: grid; grid-template-columns: var(--glo-coluna-termo) minmax(0, 1fr); column-gap: var(--glo-colunas-gap); }
+  .glossario[data-lado-a-lado] .termo dt { grid-row: 1 / span 20; margin: 0; }
+  .glossario[data-lado-a-lado] .termo dd { grid-column: 2; }
+  @media (max-width: 640px) { .glossario[data-lado-a-lado] .termo { display: block; } .glossario[data-lado-a-lado] .termo dt { margin: 0 0 var(--glo-termo-ate-texto); } }
+  /* subtermos: recuados, com uma linha à esquerda no lugar do divisor, e o nome um passo menor */
+  .termo dd.subtermos { margin-top: 12px; }
+  .subtermos dl { margin: 0; }
+  .termo.subtermo { padding: 8px 0 8px 16px; border-top: 0; border-left: var(--glo-divisor-espessura) solid var(--glo-divisor); }
+  .termo.subtermo dt { font-size: var(--tamanho-sm); }
   /* o termo aberto por link (/glossario#etapa) ganha um fundo para achar no meio da lista */
-  .termo:target { background: var(--coral-100); box-shadow: -12px 0 0 var(--coral-100), 12px 0 0 var(--coral-100); }
+  .termo:target, .termo[data-forcar-destaque] { background: var(--glo-destaque); box-shadow: -12px 0 0 var(--glo-destaque), 12px 0 0 var(--glo-destaque); }
 </style>

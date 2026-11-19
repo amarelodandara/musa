@@ -1,0 +1,202 @@
+---
+// Playground: a lista do glossário na entrada do Guia (src/pages/guia/index.astro, os cartões dos grupos com os termos).
+// À esquerda, a estrutura: grupos (nome, ícone, ordem) e termos (nome, ordem, grupo), com o resultado ao vivo no quadro.
+// "Copiar glossário" copia o src/data/glossario.md reescrito (os textos dos termos vão junto) e os ícones dos grupos,
+// para colar na conversa com o Claude. O visual da lista fica no painel (_dials.ts, variáveis --termos-* no .guia-entrada).
+// Fora do sistema visual de propósito, como os outros playgrounds.
+import { gruposGlossario, cabecalhoGlossario } from "../../../lib/glossario";
+import { icone } from "../../../lib/pontos-contato";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+
+// ícones que um grupo pode ter: os de hoje e outros do Iconoir que cabem num glossário (sem repetir os das pills de contato)
+const CANDIDATOS = [...new Set([...gruposGlossario.map((g) => g.icone), "Community", "ViewColumns3", "TableRows", "DocMagnifyingGlass",
+  "Book", "OpenBook", "BookmarkBook", "Compass", "Map", "Puzzle", "LightBulb", "GraduationCap", "Brain", "Eye", "Search", "Leaf",
+  "Palette", "Building", "Bank", "Journal", "Notes", "List", "Hashtag", "Language", "Label", "Flag", "Path", "Route", "Timer",
+  "Calendar", "Group", "UserCircle", "HeartSolid", "Star", "Clipboard", "Folder", "Network", "GitFork", "Lifebelt", "Sparks"])]
+  .filter((n) => icone(n));
+const dados = gruposGlossario.map((g) => ({ titulo: g.titulo, icone: g.icone, termos: g.termos.map((t) => ({ nome: t.nome, texto: t.texto })) }));
+const LARGURAS = [{ id: "grande", rotulo: "1440", largura: 1440 }, { id: "tablet", rotulo: "900", largura: 900 }, { id: "celular", rotulo: "390", largura: 390 }];
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guia: lista do glossário</title>
+<style>
+  body { margin: 0; background: #e9e6e5; }
+  .pagina { display: grid; grid-template-columns: 360px auto; gap: 24px; align-items: start; padding: 24px; }
+  .palco { overflow: hidden; border-radius: 8px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08); background: #fff; justify-self: start; }
+  .palco iframe { display: block; border: 0; width: 1440px; height: 960px; }
+
+  /* editor: escuro, fora do sistema visual (como o seletor de estados dos outros playgrounds) */
+  .editor { position: sticky; top: 24px; max-height: calc(100dvh - 48px); overflow-y: auto; scrollbar-width: thin; box-sizing: border-box; padding: 12px;
+    border-radius: 14px; background: rgb(20 20 20 / 0.94); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); color: rgb(255 255 255 / 0.9);
+    font: 13px/1.3 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .editor h2 { margin: 4px 4px 10px; font-size: 11px; font-weight: 500; color: rgb(255 255 255 / 0.45); }
+  .linha { display: flex; align-items: center; gap: 4px; }
+  .barra { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; }
+  .editor button { all: unset; box-sizing: border-box; padding: 6px 9px; border-radius: 7px; color: rgb(255 255 255 / 0.65); cursor: pointer; white-space: nowrap; transition: color 150ms ease-out, background-color 150ms ease-out; }
+  .editor button:hover { color: #fff; background: rgb(255 255 255 / 0.08); }
+  .editor button:focus-visible, .editor input:focus-visible, .editor select:focus-visible { outline: 2px solid rgb(255 255 255 / 0.7); outline-offset: 1px; }
+  .editor button[aria-pressed="true"] { background: rgb(255 255 255 / 0.14); color: #fff; }
+  .editor button.forte { background: #fff; color: #141414; font-weight: 600; }
+  .editor button.forte:hover { background: rgb(255 255 255 / 0.85); }
+  .editor button.icone-so { padding: 4px 6px; color: rgb(255 255 255 / 0.45); }
+  .editor button:disabled { opacity: 0.25; pointer-events: none; }
+  .editor input, .editor select { all: unset; box-sizing: border-box; min-width: 0; padding: 6px 8px; border-radius: 7px; background: rgb(255 255 255 / 0.07); color: #fff; }
+  .editor input { flex: 1; }
+  .editor select { max-width: 120px; cursor: pointer; font-size: 12px; color: rgb(255 255 255 / 0.75); }
+  .grupo { margin-bottom: 12px; padding: 8px; border-radius: 10px; background: rgb(255 255 255 / 0.05); }
+  .grupo > .linha input { font-weight: 600; }
+  .grupo .icone { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: #ff8a6b; }
+  .grupo .icone svg { width: 18px; height: 18px; }
+  .termos { display: flex; flex-direction: column; gap: 3px; margin: 8px 0 0 32px; }
+  .termos input { padding: 4px 8px; }
+  .termos .novo input { box-shadow: inset 0 0 0 1px #ff8a6b; }
+  .mais { margin: 6px 0 0 32px; font-size: 12px; }
+  .aviso { margin: 8px 4px 0; font-size: 12px; color: rgb(255 255 255 / 0.5); }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <aside class="editor" aria-label="Estrutura do glossário">
+    <h2>Largura do quadro</h2>
+    <div class="barra" role="group" aria-label="Largura">
+      {LARGURAS.map((l) => <button type="button" data-largura={l.largura} aria-pressed={l.id === "grande" ? "true" : "false"}>{l.rotulo}</button>)}
+      <button type="button" data-hover aria-pressed="false">Mouse em cima</button>
+    </div>
+    <h2>Grupos e termos</h2>
+    <div class="grupos"></div>
+    <div class="barra">
+      <button type="button" data-acao="grupo">+ grupo</button>
+      <button type="button" data-acao="recomecar">Recomeçar do arquivo</button>
+      <button type="button" class="forte" data-acao="copiar">Copiar glossário</button>
+    </div>
+    <p class="aviso">Termos novos (contorno coral) entram com o texto "A escrever."; os renomeados mantêm o texto. O menu lateral só muda depois de levar ao código.</p>
+  </aside>
+  <div class="palco"><iframe title="Guia: lista do glossário" src="/guia#glossario-titulo"></iframe></div>
+</div>
+<!-- os ícones possíveis, desenhados aqui para o editor e o quadro usarem -->
+<div hidden>
+  {CANDIDATOS.map((n) => { const I = icone(n); return <template data-icone={n}><I width="1.5em" height="1.5em" strokeWidth={1.6} aria-hidden="true" /></template>; })}
+</div>
+
+<script is:inline define:vars={{ dados, cabecalho: cabecalhoGlossario, CANDIDATOS }}>
+  const CHAVE = "musa-glossario-lista";
+  const quadro = document.querySelector(".palco iframe");
+  const lista = document.querySelector(".grupos");
+  const svgDe = (n) => document.querySelector(`template[data-icone="${n}"]`)?.innerHTML ?? "";
+  const ancora = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const copia = (x) => JSON.parse(JSON.stringify(x));
+  let estado;
+  try { estado = JSON.parse(localStorage.getItem(CHAVE) || "null"); } catch {}
+  if (!Array.isArray(estado)) estado = copia(dados);
+  const guardar = () => { try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch {} };
+  const mover = (arr, i, d) => { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; };
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+  // o editor: um bloco por grupo (nome, ícone, subir/descer, apagar) com os termos dentro (nome, subir/descer, grupo, apagar)
+  function desenharEditor() {
+    lista.innerHTML = estado.map((g, gi) => `
+      <div class="grupo" data-g="${gi}">
+        <div class="linha">
+          <span class="icone">${svgDe(g.icone)}</span>
+          <input value="${esc(g.titulo)}" data-campo="grupo" aria-label="Nome do grupo">
+          <select data-campo="icone" aria-label="Ícone do grupo">${CANDIDATOS.map((n) => `<option ${n === g.icone ? "selected" : ""}>${n}</option>`).join("")}</select>
+          <button type="button" class="icone-so" data-acao="grupo-sobe" aria-label="Subir grupo" ${gi === 0 ? "disabled" : ""}>↑</button>
+          <button type="button" class="icone-so" data-acao="grupo-desce" aria-label="Descer grupo" ${gi === estado.length - 1 ? "disabled" : ""}>↓</button>
+          <button type="button" class="icone-so" data-acao="grupo-apaga" aria-label="Apagar grupo">✕</button>
+        </div>
+        <div class="termos">${g.termos.map((t, ti) => `
+          <div class="linha ${t.texto ? "" : "novo"}" data-t="${ti}">
+            <input value="${esc(t.nome)}" data-campo="termo" aria-label="Nome do termo">
+            <button type="button" class="icone-so" data-acao="termo-sobe" aria-label="Subir termo" ${ti === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" class="icone-so" data-acao="termo-desce" aria-label="Descer termo" ${ti === g.termos.length - 1 ? "disabled" : ""}>↓</button>
+            <select data-campo="mover" aria-label="Mover para o grupo">${estado.map((o, oi) => `<option value="${oi}" ${oi === gi ? "selected" : ""}>${esc(o.titulo || "(sem nome)")}</option>`).join("")}</select>
+            <button type="button" class="icone-so" data-acao="termo-apaga" aria-label="Apagar termo">✕</button>
+          </div>`).join("")}
+        </div>
+        <button type="button" class="mais" data-acao="termo">+ termo</button>
+      </div>`).join("");
+  }
+
+  // o quadro: refaz os cartões do glossário a partir de clones dos que a página já tem (mantém os atributos do Astro)
+  let moldeCartao = null, moldeTermo = null;
+  function desenharQuadro() {
+    const d = quadro.contentDocument, ul = d?.querySelector("#glossario-titulo")?.closest("section")?.querySelector(".cartoes");
+    if (!ul) return false;
+    moldeCartao ??= ul.querySelector(".cartao.grupo")?.cloneNode(true);
+    moldeTermo ??= moldeCartao?.querySelector(".grupo-termos li")?.cloneNode(true);
+    if (!moldeCartao || !moldeTermo) return false;
+    ul.replaceChildren(...estado.map((g) => {
+      const c = moldeCartao.cloneNode(true), id = ancora(g.titulo);
+      const svgVelho = c.querySelector(":scope > svg"), tmp = d.createElement("div"); tmp.innerHTML = svgDe(g.icone);
+      if (svgVelho && tmp.firstElementChild) svgVelho.replaceWith(tmp.firstElementChild);
+      const a = c.querySelector(".grupo-titulo"); a.href = `/guia/glossario#${id}`; a.querySelector("strong").textContent = g.titulo;
+      c.querySelector(".grupo-termos").replaceChildren(...g.termos.map((t) => {
+        const li = moldeTermo.cloneNode(true), ta = li.querySelector("a"); ta.textContent = t.nome; ta.href = `/guia/glossario#${ancora(t.nome)}`; return li;
+      }));
+      return c;
+    }));
+    return true;
+  }
+  const atualizar = () => { guardar(); desenharEditor(); desenharQuadro(); };
+
+  lista.addEventListener("input", (ev) => {
+    const el = ev.target, g = estado[el.closest("[data-g]")?.dataset.g];
+    if (!g) return;
+    if (el.dataset.campo === "grupo") g.titulo = el.value;
+    if (el.dataset.campo === "termo") g.termos[el.closest("[data-t]").dataset.t].nome = el.value;
+    guardar(); desenharQuadro();
+  });
+  lista.addEventListener("change", (ev) => {
+    const el = ev.target, gi = +el.closest("[data-g]")?.dataset.g, g = estado[gi];
+    if (el.dataset.campo === "icone") { g.icone = el.value; atualizar(); }
+    if (el.dataset.campo === "mover") { const ti = +el.closest("[data-t]").dataset.t; estado[+el.value].termos.push(...g.termos.splice(ti, 1)); atualizar(); }
+  });
+  document.querySelector(".editor").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    if (b.dataset.largura) {
+      document.querySelectorAll("[data-largura]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      quadro.style.width = b.dataset.largura + "px"; quadro.style.height = (+b.dataset.largura < 600 ? 1400 : 960) + "px"; return;
+    }
+    if (b.hasAttribute("data-hover")) { const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on)); marcarHover(); return; }
+    const acao = b.dataset.acao, gi = +b.closest("[data-g]")?.dataset.g, g = estado[gi], ti = +b.closest("[data-t]")?.dataset.t;
+    if (acao === "grupo") estado.push({ titulo: "Novo grupo", icone: "Book", termos: [] });
+    if (acao === "grupo-sobe") mover(estado, gi, -1);
+    if (acao === "grupo-desce") mover(estado, gi, 1);
+    if (acao === "grupo-apaga" && (g.termos.length === 0 || confirmarApagar(b))) estado.splice(gi, 1);
+    if (acao === "termo") g.termos.push({ nome: "Novo termo", texto: "" });
+    if (acao === "termo-sobe") mover(g.termos, ti, -1);
+    if (acao === "termo-desce") mover(g.termos, ti, 1);
+    if (acao === "termo-apaga") g.termos.splice(ti, 1);
+    if (acao === "recomecar") estado = copia(dados);
+    if (acao === "copiar") { await navigator.clipboard.writeText(exportar()); b.textContent = "Copiado"; setTimeout(() => (b.textContent = "Copiar glossário"), 1400); return; }
+    atualizar();
+  });
+  // apagar um grupo com termos pede um segundo clique (sem diálogo do navegador)
+  function confirmarApagar(b) {
+    if (b.dataset.certeza) return true;
+    b.dataset.certeza = "1"; b.textContent = "apagar?"; setTimeout(() => { delete b.dataset.certeza; b.textContent = "✕"; }, 2000);
+    return false;
+  }
+
+  // o glossario.md reescrito e os ícones dos grupos (para ICONES_GRUPO em src/lib/glossario.ts)
+  function exportar() {
+    const md = estado.map((g) => `## ${g.titulo}\n\n` + g.termos.map((t) => `### ${t.nome}\n${t.texto || "A escrever."}\n`).join("\n")).join("\n");
+    const icones = estado.map((g) => `  "${ancora(g.titulo)}": "${g.icone}"`).join(",\n");
+    return `Atualize o glossário com esta estrutura (vinda de /dev/guia-glossario-lista).\n\nsrc/data/glossario.md:\n\n${cabecalho}\n\n${md}\nICONES_GRUPO:\n{\n${icones}\n}\n`;
+  }
+
+  // "Mouse em cima": cada cartão, o título e o primeiro termo com o hover
+  function marcarHover() {
+    const on = document.querySelector("[data-hover]").getAttribute("aria-pressed") === "true";
+    quadro.contentDocument?.querySelectorAll(".grupo-termos li:first-child a, .grupo-titulo, .cartao.grupo").forEach((a) => a.toggleAttribute("data-forcar-hover", on));
+  }
+  desenharEditor();
+  quadro.addEventListener("load", () => { moldeCartao = moldeTermo = null; (function tentar() { if (desenharQuadro()) marcarHover(); else setTimeout(tentar, 100); })(); });
+</script>
+<!-- painel de ajuste do visual (DialKit) -->
+<script>import "./_dials.ts";</script>
+</body>
+</html>

@@ -30,7 +30,6 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   <TracoGiz class="divisor" />
   <section class="secao" aria-labelledby="glossario-titulo">
     <h2 id="glossario-titulo"><a href="/guia/glossario">Glossário</a></h2>
-    <p>Cada palavra do mapa explicada, para a equipe toda entender a mesma coisa.</p>
     <ul class="cartoes">
       {gruposGlossario.map((g) => { const Icone = icone(g.icone); return (
         <li class="cartao grupo">
@@ -57,7 +56,15 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
     --cartao-fundo-topo: var(--neutro-100); --cartao-fundo-pe: var(--neutro-100); --cartao-borda-topo: var(--coral-100); --cartao-borda-pe: var(--neutro-50);
     --cartao-hover-fundo-topo: var(--coral-100); --cartao-hover-fundo-pe: var(--coral-100); --cartao-hover-borda-topo: var(--coral-200); --cartao-hover-borda-pe: var(--neutro-50);
     --cartao-icone: 2.5em; --cartao-icone-cor: var(--carmim-700); --cartao-titulo: var(--tamanho-lg); --cartao-titulo-peso: 600; --cartao-titulo-cor: var(--texto-900);
-    --cartao-texto: var(--tamanho-md); --cartao-texto-cor: var(--texto-700); --cartao-espaco: 6px; --cartao-termos: var(--tamanho-sm); --cartao-termos-cor: var(--carmim-800); }
+    --cartao-texto: var(--tamanho-md); --cartao-texto-cor: var(--texto-700); --cartao-espaco: 6px; --cartao-termos: var(--tamanho-sm); --cartao-termos-cor: var(--carmim-800);
+    /* a lista de termos nos cartões do glossário (ajustável em /dev/guia-glossario-lista): linha corrida, lista ou chips */
+    /* o título dos cartões do glossário, à parte do dos cartões de partida (parte dos mesmos valores) */
+    --grupo-titulo: var(--cartao-titulo); --grupo-titulo-peso: var(--cartao-titulo-peso); --grupo-titulo-cor: var(--cartao-titulo-cor); --grupo-titulo-hover-cor: var(--cartao-titulo-cor);
+    --termos-peso: 400;
+    /* o ícone dos cartões do glossário puxado para a esquerda: o Iconoir deixa uma folga em volta do desenho, então o traço
+       começava depois da linha do texto */
+    --grupo-icone-recuo: -4px; --termos-hover-cor: var(--carmim-800); --termos-gap-x: 14px; --termos-gap-y: 4px; --termos-acima: 8px; --termos-separador: none;
+    --termos-chip-fundo: var(--neutro-50); --termos-chip-hover-fundo: var(--coral-100); --termos-chip-raio: 999px; --termos-chip-px: 8px; --termos-chip-py: 2px; }
   .cartoes { display: grid; grid-template-columns: repeat(auto-fill, var(--cartao-largura)); gap: var(--cartao-gap); margin: 24px 0 0; padding: 0; list-style: none; }
   .cartoes > li { margin: 0; }
   /* quadrado (cresce se o texto não couber); ícone em cima, texto embaixo */
@@ -75,19 +82,27 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   .cartao :global(svg) { flex: none; width: var(--cartao-icone); height: var(--cartao-icone); margin-bottom: auto; padding-bottom: 12px; color: var(--cartao-icone-cor); }
   .cartao strong { font: var(--cartao-titulo-peso) var(--cartao-titulo)/1.25 var(--fonte-dm-sans); color: var(--cartao-titulo-cor); text-wrap: balance; }
   .cartao span { font-size: var(--cartao-texto); color: var(--cartao-texto-cor); text-wrap: pretty; }
-  a.cartao:hover, .guia-entrada[data-hover] a.cartao {
+  /* os cartões do glossário não são um link só (título e termos), mas mudam de cor do mesmo jeito: com o mouse ou o foco dentro */
+  a.cartao:hover, .guia-entrada[data-hover] a.cartao, .cartao.grupo:hover, .cartao.grupo:focus-within, .guia-entrada[data-hover] .cartao.grupo, .cartao.grupo[data-forcar-hover] {
     --c-fundo-topo: var(--cartao-hover-fundo-topo); --c-fundo-pe: var(--cartao-hover-fundo-pe); --c-borda-topo: var(--cartao-hover-borda-topo); --c-borda-pe: var(--cartao-hover-borda-pe); }
   /* entre as seções, o traço de giz (TracoGiz) no lugar da linha */
   :global(.traco-giz.divisor) { margin: 72px 0 40px; }
   .secao h2 { margin: 0 0 8px; font-size: var(--tamanho-2xl); }
   .secao h2 a { color: inherit; text-decoration: none; }
   .secao h2 a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .secao > p { margin: 0; color: var(--texto-700); }
+  .cartao.grupo > :global(svg) { margin-left: var(--grupo-icone-recuo); }
   .grupo-titulo { color: inherit; text-decoration: none; }
-  .grupo-titulo:hover strong { text-decoration: underline; text-underline-offset: 3px; }
-  .grupo-termos { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; padding: 0; list-style: none; }
-  .grupo-termos li { margin: 0; }
-  .grupo-termos a { font-size: var(--cartao-termos); color: var(--cartao-termos-cor); text-decoration: none; }
-  .grupo-termos a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .grupo .grupo-titulo strong { font: var(--grupo-titulo-peso) var(--grupo-titulo)/1.25 var(--fonte-dm-sans); color: var(--grupo-titulo-cor); transition: color 150ms ease; }
+  .grupo-titulo:hover strong, .grupo-titulo[data-forcar-hover] strong { color: var(--grupo-titulo-hover-cor); text-decoration: underline; text-underline-offset: 3px; }
+  .grupo-termos { display: flex; flex-wrap: wrap; gap: var(--termos-gap-y) var(--termos-gap-x); margin: var(--termos-acima) 0 0; padding: 0; list-style: none; }
+  .grupo-termos li { margin: 0; font-size: var(--cartao-termos); color: var(--cartao-termos-cor); }
+  /* separador entre os termos (na linha corrida), metade do espaço de cada lado */
+  .grupo-termos li + li::before { content: var(--termos-separador); margin-right: var(--termos-gap-x); }
+  .grupo-termos a { font-size: var(--cartao-termos); font-weight: var(--termos-peso); color: var(--cartao-termos-cor); text-decoration: none; transition: color 150ms ease, background-color 150ms ease; }
+  .grupo-termos a:hover, .grupo-termos a[data-forcar-hover] { color: var(--termos-hover-cor); text-decoration: underline; text-underline-offset: 3px; }
+  .guia-entrada[data-termos="lista"] .grupo-termos { flex-direction: column; }
+  .guia-entrada[data-termos="lista"] .grupo-termos li + li::before, .guia-entrada[data-termos="chips"] .grupo-termos li + li::before { content: none; }
+  .guia-entrada[data-termos="chips"] .grupo-termos a { display: inline-block; padding: var(--termos-chip-py) var(--termos-chip-px); border-radius: var(--termos-chip-raio); background: var(--termos-chip-fundo); }
+  .guia-entrada[data-termos="chips"] .grupo-termos a:hover, .guia-entrada[data-termos="chips"] .grupo-termos a[data-forcar-hover] { background: var(--termos-chip-hover-fundo); text-decoration: none; }
   @media (max-width: 560px) { .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cartao { padding: 16px; } }
 </style>
