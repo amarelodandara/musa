@@ -51,7 +51,8 @@ const EXEMPLOS = {
   .state-stage iframe { display: block; border: 0; width: 1440px; height: 960px; }
 
   /* seletor de estados: fora do sistema visual de propósito (spec da skill state-machine) */
-  .state-page { container: state-page / inline-size; padding: 24px; min-height: 100dvh; box-sizing: border-box; }
+  /* à direita, o espaço do painel DialKit (fixo no canto, não dá para arrastar): o quadro nunca fica embaixo dele */
+  .state-page { container: state-page / inline-size; padding: 24px 344px 24px 24px; min-height: 100dvh; box-sizing: border-box; }
   .state-layout { display: flex; flex-direction: column; gap: 16px; }
   .state-switcher { all: unset; display: none; flex-direction: column; gap: 16px; max-height: calc(100dvh - 48px); overflow-y: auto; scrollbar-width: none; padding: 6px;
     border-radius: 14px; background: rgb(20 20 20 / 0.92); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
@@ -68,9 +69,9 @@ const EXEMPLOS = {
   .state-switcher-select select { all: unset; box-sizing: border-box; max-width: 100%; padding: 10px 36px 10px 16px; border-radius: 999px; background: rgb(20 20 20 / 0.92);
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); font: 500 13px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; cursor: pointer; }
   .state-switcher-select svg { position: absolute; top: 50%; right: 14px; translate: 0 -50%; pointer-events: none; color: rgb(255 255 255 / 0.6); }
-  /* 208px lista + 24px + 1440px do palco */
-  @container state-page (min-width: 1672px) {
-    .state-layout { display: grid; grid-template-columns: 208px auto; gap: 24px; align-items: start; }
+  /* a lista ao lado do quadro a partir de 900px; o quadro encolhe (zoom) para caber no que sobra */
+  @container state-page (min-width: 900px) {
+    .state-layout { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 24px; align-items: start; }
     .state-switcher { display: flex; position: sticky; top: 24px; }
     .state-switcher-select { display: none; }
   }
@@ -112,6 +113,7 @@ const EXEMPLOS = {
     lista.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === e.id)));
     select.value = e.id;
     quadro.style.width = e.largura + "px";
+    encaixar();
     // a grade inteira precisa de altura para caber as doze fontes
     quadro.style.height = (e.cartoes ? 560 : e.largura < 600 ? 2200 : 1100) + "px";
     if (!quadro.src.endsWith("/guia")) quadro.src = "/guia";
@@ -129,7 +131,9 @@ const EXEMPLOS = {
       grade.querySelectorAll(".cartao.leia[data-tipo]").forEach((c) => { icones[c.dataset.tipo] ??= c.querySelector(":scope > svg").cloneNode(true); });
       moldes = { link: grade.querySelector("a.cartao.leia").cloneNode(true), sem: grade.querySelector("div.cartao.leia").cloneNode(true), icones,
         // as fontes da página, para o estado "Grade inteira"
-        todas: [...grade.children].map((li) => li.cloneNode(true)) };
+        todas: [...grade.children].map((li) => li.cloneNode(true)),
+        // o <li> vazio da página (com o atributo de escopo do Astro, que as regras da lista usam)
+        li: grade.firstElementChild.cloneNode(false) };
       // só a seção Leia mais, no topo
       const estilo = d.createElement("style");
       estilo.textContent = ".guia-entrada > :not(section:has(#leia-mais)) { display: none !important; } .guia { padding-top: 24px !important; } footer { display: none !important; }";
@@ -147,10 +151,18 @@ const EXEMPLOS = {
       if (c.link) { cartao.href = x.href; cartao.querySelector(".leia-link-dominio").textContent = new URL(x.href).hostname; }
       cartao.toggleAttribute("data-forcar-hover", !!c.hover);
       cartao.toggleAttribute("data-forcar-foco", !!c.foco);
-      const li = d.createElement("li"); li.append(cartao); return li;
+      const li = moldes.li.cloneNode(false); li.append(cartao); return li;
     }));
     d.defaultView.scrollTo(0, 0);
   }
+  // o quadro na largura de verdade, encolhido (zoom) para caber entre a lista e o espaço do painel
+  function encaixar() {
+    const palco = document.querySelector(".state-stage");
+    palco.style.zoom = "1";
+    const livre = palco.parentElement.getBoundingClientRect().right - palco.getBoundingClientRect().left;
+    palco.style.zoom = String(Math.min(1, livre / parseFloat(quadro.style.width || "1440")));
+  }
+  addEventListener("resize", encaixar);
   quadro.addEventListener("load", () => { moldes = null; montar(); });
   lista.addEventListener("click", (ev) => { const b = ev.target.closest("[data-state]"); if (b) mostrar(b.dataset.state); });
   select.addEventListener("change", () => mostrar(select.value));

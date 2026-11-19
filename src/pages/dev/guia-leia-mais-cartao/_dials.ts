@@ -83,6 +83,8 @@ function aplicar() {
     "--leia-link": TAMANHOS[L.tamanho], "--leia-link-cor": cor(L.cor)
   };
   Object.entries(vars).forEach(([k, x]) => p.style.setProperty(k, x));
+  // este playground mostra os cartões: tira a lista que a página usa hoje
+  delete p.dataset.leiaLayout;
   if (C.icone === "em cima") p.dataset.leiaIcone = "cima"; else delete p.dataset.leiaIcone;
   p.toggleAttribute("data-leia-tipo", C.nomeDoTipo);
   p.toggleAttribute("data-leia-ano", C.ano);

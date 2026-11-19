@@ -16,7 +16,7 @@ const dominio = (href: string) => { try { return new URL(href).hostname.replace(
 const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hidden": "true" };
 ---
 <Guia titulo="Guia">
-<div class="guia-entrada" data-termos="lista" data-leia-link="seta">
+<div class="guia-entrada" data-termos="lista" data-leia-link="seta" data-leia-layout="lista" data-lista-autoria="linha" data-lista-tipo="nome">
   <h1>Como musá?</h1>
   <p class="lead">Entenda como usar essa ferramenta e mergulhe fundo nos conceitos pesquisados pela equipe.</p>
 
@@ -47,11 +47,13 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   </section>
 
   <TracoGiz class="divisor" />
-  {/* Leia mais: fontes de fora para aprofundar os assuntos do site (dados de exemplo em src/lib/leia-mais.ts), em duas
-      colunas, com os mesmos cartões da página: o ícone diz o tipo; com link, o cartão inteiro leva à fonte, em outra aba */}
+  {/* Leia mais: fontes de fora para aprofundar os assuntos do site (dados de exemplo em src/lib/leia-mais.ts), em lista
+      (data-leia-layout="lista" no .guia-entrada): título e autoria à esquerda, tipo e seta à direita; com link, a linha
+      inteira leva à fonte, em outra aba. A versão em cartões continua no CSS, em teste em /dev/guia-leia-mais-cartao */}
   <section class="secao" aria-labelledby="leia-mais">
     {/* scroll-margin: ao chegar pelo menu lateral (/guia#leia-mais), o título não fica colado no topo */}
     <h2 id="leia-mais" class="secao-ancora">Leia mais</h2>
+    <p class="secao-descricao">Aprofunde os assuntos do mapa com livros, artigos e documentos sobre educação em museus, públicos escolares e design de serviços.</p>
     <ul class="cartoes cartoes-leia">
       {/* partes que só aparecem conforme os ajustes (em teste em /dev/guia-leia-mais-cartao): o nome do tipo (leia-tipo),
           o ano (leia-ano) e três jeitos de mostrar o link (o domínio, "Acesse" ou só a seta, no canto) */}
@@ -116,6 +118,7 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   :global(.traco-giz.divisor) { margin: 72px 0 40px; }
   .secao h2 { margin: 0 0 8px; font-size: var(--tamanho-2xl); }
   .secao-ancora { scroll-margin-top: 104px; }
+  .secao-descricao { max-width: 36rem; margin: 0; color: var(--texto-700); text-wrap: pretty; }
   .secao h2 a { color: inherit; text-decoration: none; }
   .secao h2 a:hover { text-decoration: underline; text-underline-offset: 4px; }
   .cartao.grupo > :global(svg) { margin-left: var(--grupo-icone-recuo); }
@@ -175,6 +178,56 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   .guia-entrada[data-leia-link="seta"] .cartao.leia .leia-link { position: absolute; top: var(--leia-respiro); right: var(--leia-respiro); margin: 0; }
   .guia-entrada[data-leia-link="seta"] .cartao.leia .leia-link-dominio { display: none; }
   .guia-entrada[data-leia-link="seta"] .cartao.leia { padding-right: calc(var(--leia-respiro) + 1.25em); }
+  /* ---------- Leia mais em lista (data-leia-layout="lista" no .guia-entrada, em teste em /dev/guia-leia-mais-lista) ----------
+     cada fonte numa linha da largura toda: título e autoria à esquerda; à direita o tipo (ícone e nome) e a seta do link.
+     A coluna da seta tem largura fixa, então o tipo alinha também nas linhas sem link. */
+  /* valores de /dev/guia-leia-mais-lista (19/11/2026); a arrumação escolhida lá é autoria na mesma linha e o tipo só com o
+     nome (data-lista-autoria="linha" e data-lista-tipo="nome", junto com data-leia-layout="lista") */
+  .guia-entrada { --lista-py: 12px; --lista-gap: 8px; --lista-divisor: var(--coral-100); --lista-divisor-espessura: 1px;
+    --lista-titulo: var(--tamanho-md); --lista-titulo-peso: 500; --lista-titulo-cor: var(--texto-900); --lista-hover-cor: var(--carmim-700); --lista-hover-fundo: transparent;
+    --lista-autoria: var(--tamanho-sm); --lista-autoria-cor: var(--texto-600); --lista-autoria-hover-cor: var(--texto-400);
+    --lista-tipo: var(--tamanho-sm); --lista-tipo-cor: var(--texto-600); --lista-tipo-largura: 6.5em; --lista-icone: 1.25em; --lista-icone-traco: 1.6; --lista-icone-cor: var(--neutro-600);
+    --lista-seta-cor: var(--neutro-800); }
+  .guia-entrada[data-leia-layout="lista"] .cartoes.cartoes-leia { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia { grid-template-columns: minmax(0, 1fr) auto var(--lista-tipo-largura) 1.25em; column-gap: var(--lista-gap); row-gap: 2px;
+    align-items: center; height: auto; padding: var(--lista-py) 0; border: 0; border-radius: 0; background: transparent;
+    transition: background-color 150ms ease; }
+  /* divisor só entre os itens: nada antes do primeiro nem depois do último */
+  .guia-entrada[data-leia-layout="lista"] .cartoes-leia > li + li > .cartao.leia { border-top: var(--lista-divisor-espessura) solid var(--lista-divisor); }
+  .guia-entrada[data-leia-layout="lista"] a.cartao.leia:hover, .guia-entrada[data-leia-layout="lista"] a.cartao.leia[data-forcar-hover] { background: var(--lista-hover-fundo); }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-titulo { grid-column: 1; grid-row: 1; font: var(--lista-titulo-peso) var(--lista-titulo)/1.3 var(--fonte-dm-sans); color: var(--lista-titulo-cor); transition: color 150ms ease; }
+  .guia-entrada[data-leia-layout="lista"] a.cartao.leia:hover .leia-titulo, .guia-entrada[data-leia-layout="lista"] a.cartao.leia[data-forcar-hover] .leia-titulo { color: var(--lista-hover-cor); }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-autoria { grid-column: 1; grid-row: 2; font-size: var(--lista-autoria); color: var(--lista-autoria-cor); transition: color 150ms ease; }
+  /* com o mouse, a autoria clareia (cinza mais claro, não o carmim do resto), para o título aparecer sozinho */
+  .guia-entrada[data-leia-layout="lista"] a.cartao.leia:is(:hover, [data-forcar-hover]) .leia-autoria { color: var(--lista-autoria-hover-cor); }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia > :global(svg) { grid-column: 2; grid-row: 1 / span 2; align-self: center; width: var(--lista-icone); height: var(--lista-icone);
+    stroke-width: var(--lista-icone-traco); margin: 0; color: var(--lista-icone-cor); }
+  /* o nome do tipo alinhado à direita da coluna dele, encostado na seta */
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-tipo { display: block; grid-column: 3; grid-row: 1 / span 2; justify-self: end; text-align: right; font: 400 var(--lista-tipo)/1.3 var(--fonte-inter); color: var(--lista-tipo-cor); }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-link { position: static; grid-column: 4; grid-row: 1 / span 2; justify-self: end; margin: 0; color: var(--lista-seta-cor); }
+  /* com o mouse, o tipo, o ícone e a seta vão para a mesma cor do título */
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-tipo, .guia-entrada[data-leia-layout="lista"] .cartao.leia > :global(svg), .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-link { transition: color 150ms ease; }
+  .guia-entrada[data-leia-layout="lista"] a.cartao.leia:is(:hover, [data-forcar-hover]) :is(.leia-tipo, .leia-link),
+  .guia-entrada[data-leia-layout="lista"] a.cartao.leia:is(:hover, [data-forcar-hover]) > :global(svg) { color: var(--lista-hover-cor); }
+  .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-link-dominio, .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-link-texto { display: none; }
+  /* autoria na mesma linha do título, depois dele */
+  /* na mesma linha, o texto se alinha pela linha de base (título e autoria têm tamanhos diferentes; centralizados, a autoria
+     subia); o ícone continua no meio */
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia { grid-template-columns: auto minmax(0, 1fr) auto var(--lista-tipo-largura) 1.25em; align-items: baseline; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia > :global(svg) { align-self: center; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia .leia-autoria { grid-column: 2; grid-row: 1; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia > :global(svg) { grid-column: 3; grid-row: 1; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia .leia-tipo { grid-column: 4; grid-row: 1; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-autoria="linha"] .cartao.leia .leia-link { grid-column: 5; grid-row: 1; }
+  /* o tipo: ícone e nome (padrão), só o nome ou só o ícone */
+  .guia-entrada[data-leia-layout="lista"][data-lista-tipo="nome"] .cartao.leia > :global(svg) { display: none; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-tipo="icone"] .cartao.leia .leia-tipo { display: none; }
+  .guia-entrada[data-leia-layout="lista"][data-lista-tipo="icone"] .cartao.leia { grid-template-columns: minmax(0, 1fr) auto 0 1.25em; }
+  /* celular: o tipo vira só o ícone, para o título ter espaço */
+  @media (max-width: 560px) {
+    .guia-entrada[data-leia-layout="lista"] .cartao.leia { grid-template-columns: minmax(0, 1fr) auto 0 1.25em; column-gap: 12px; padding: var(--lista-py) 0; }
+    .guia-entrada[data-leia-layout="lista"] .cartao.leia .leia-tipo { display: none; }
+  }
   .visualmente-escondido { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   @media (max-width: 700px) { .cartoes.cartoes-leia { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 560px) { .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cartao { padding: 16px; } }

@@ -65,6 +65,8 @@ function aplicar() {
     "--leia-link": TAMANHOS[L.tamanho], "--leia-link-cor": cor(L.cor)
   };
   Object.entries(vars).forEach(([k, x]) => p.style.setProperty(k, x));
+  // este playground mostra os cartões: tira a lista que a página usa hoje
+  delete p.dataset.leiaLayout;
 }
 kit.subscribe((novo: Record<string, any>) => { v = novo; aplicar(); });
 
