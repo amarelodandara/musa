@@ -256,4 +256,18 @@ body.foco-nav .topo > :not(.nav-marca) { display: none !important; }
 .palco[data-giz="nao"] .caminho, .palco[data-giz="nao"] .grifo-traco { filter: none; }
 .abertura[data-estado="tocando"] .hero { opacity: 0; visibility: hidden; }
 .abertura[data-estado="fim"] .pular { opacity: 0; pointer-events: none; }
+
+/* Cartão de pensamento: o mesmo no mapa (.desafio-cartao, mapa.astro) e no bento da página inicial (.rolo-cartao).
+   Só a aparência mora aqui; posição, largura e animação ficam em cada lugar. Ajustável em /dev/bento-desafio-cartoes. */
+:root {
+  --cartao-fundo: var(--neutro-50); --cartao-borda: var(--neutro-100); --cartao-raio: 2px; --cartao-sombra: 0 4px 24px rgb(0 0 0 / 0.07);
+  --cartao-respiro-y: 8px; --cartao-respiro-x: 13px;
+  --cartao-fonte: var(--fonte-inter-tight); --cartao-tamanho: 12px; --cartao-peso: 400; --cartao-estilo: normal; --cartao-altura-linha: 1.4; --cartao-cor: var(--texto-900);
+}
+.cartao-pensamento {
+  box-sizing: border-box; margin: 0; padding: var(--cartao-respiro-y) var(--cartao-respiro-x);
+  border: 1px solid var(--cartao-borda); border-radius: var(--cartao-raio); background: var(--cartao-fundo); box-shadow: var(--cartao-sombra);
+  font-family: var(--cartao-fonte); font-size: var(--cartao-tamanho); font-weight: var(--cartao-peso); font-style: var(--cartao-estilo);
+  line-height: var(--cartao-altura-linha); color: var(--cartao-cor);
+}
 }

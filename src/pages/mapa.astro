@@ -106,7 +106,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                   <button type="button" class="desafio-avatar" aria-label={`Desafio ${DESAFIOS[nv].nome.toLowerCase()}`}
                     aria-describedby={e.pensamento ? `pensamentos-${e.id}` : undefined}><img src={DESAFIOS[nv].avatar} alt="" width="24" height="24" /></button>
                   {/* um cartão por Pensamento (hoje a planilha tem um por Etapa); sobem escalonados ao passar o mouse */}
-                  {e.pensamento && <div class="desafio-cartoes" id={`pensamentos-${e.id}`} role="tooltip">{[e.pensamento].map((t, k) => <p class="desafio-cartao" style={`--i:${k}`}>“{t}”</p>)}</div>}
+                  {e.pensamento && <div class="desafio-cartoes" id={`pensamentos-${e.id}`} role="tooltip">{[e.pensamento].map((t, k) => <p class="desafio-cartao cartao-pensamento" style={`--i:${k}`}>“{t}”</p>)}</div>}
                 </div>
               ) : <p class="vazio">Sem registro</p>}
             </div>
@@ -323,9 +323,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
      ease-out forte, 180ms, 60ms entre cartões; saída de 100ms, todos juntos) */
   .desafio-cartoes { position: absolute; left: 0; bottom: calc(var(--desafio-avatar) / 2 + 8px); translate: -50% 0; display: flex;
     flex-direction: column-reverse; align-items: center; gap: 6px; width: max-content; pointer-events: none; }
-  .desafio-cartao { position: relative; z-index: calc(10 - var(--i)); margin: 0; box-sizing: border-box; max-width: 240px; padding: 8px 10px;
-    border: 1px solid var(--neutro-100); border-radius: 4px; background: var(--neutro-50); box-shadow: 0 4px 24px rgb(0 0 0 / 0.07);
-    font-size: 12px; font-style: italic; line-height: 1.4; color: var(--texto-900); transform-origin: 50% 100%;
+  /* aparência: .cartao-pensamento (estilo.css), a mesma do bento da página inicial */
+  .desafio-cartao { position: relative; z-index: calc(10 - var(--i)); max-width: 240px; transform-origin: 50% 100%;
     opacity: 0; scale: 0.96; translate: 0 calc(100% + 6px); transition: opacity 100ms ease-out, scale 100ms ease-out, translate 100ms ease-out; }
   .desafio-cartao:first-child { translate: 0 4px; }
   .desafio[data-visivel] .desafio-cartao { opacity: 1; scale: 1; translate: 0 0; transition-delay: calc(var(--i) * 60ms);

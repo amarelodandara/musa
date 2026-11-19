@@ -6,7 +6,7 @@ import Funcionalidades from "../../../components/inicio/Funcionalidades.astro";
 if (!import.meta.env.DEV) return Astro.redirect("/");
 ---
 <Base titulo="Bento: desafio" cabecalho={false} rodape={false}>
-<main class="palco-corpo"><Funcionalidades soOPrimeiro={false} /></main>
+<main class="palco-corpo"><Funcionalidades soOPrimeiro={false} desafio="linha" /></main>
 </Base>
 <style>
   /* igual a .inicio-corpo em src/pages/index.astro */

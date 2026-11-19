@@ -15,6 +15,10 @@ const GRUPOS = [
   ]},
   { titulo: "Estado do bloco", estados: [
     { id: "inativo", rotulo: "Inativo (1440)", largura: 1440 }
+  ]},
+  // o mesmo cartão no mapa: visão geral com todos os pensamentos abertos (o painel mexe nos dois)
+  { titulo: "No mapa", estados: [
+    { id: "mapa", rotulo: "Mapa, cartões abertos", largura: 1440 }
   ]}
 ];
 ---
@@ -92,15 +96,24 @@ const GRUPOS = [
     select.value = e.id;
     quadro.style.width = e.largura + "px";
     quadro.style.height = (e.largura < 600 ? 1100 : 960) + "px";
-    if (!quadro.src.endsWith("/dev/bento-desafio-cartoes/palco")) quadro.src = "/dev/bento-desafio-cartoes/palco";
+    const alvo = e.id === "mapa" ? "/mapa" : "/dev/bento-desafio-cartoes/palco";
+    if (!quadro.src.endsWith(alvo)) quadro.src = alvo;
     marcar();
   }
   // o estado vai para o bloco como data-estado ("inativo" usa as cores de inativo); espera o quadro carregar
   function marcar() {
     const id = new URLSearchParams(location.search).get("__state") || todos[0].id;
+    if (id === "mapa") return abrirCartoesDoMapa();
     const bloco = quadro.contentDocument?.querySelector(".func .b-desafio");
     if (!bloco) { setTimeout(marcar, 100); return; }
     if (id === "inativo") bloco.dataset.estado = "inativo"; else delete bloco.dataset.estado;
+  }
+  // no mapa: visão geral e todos os cartões de pensamento abertos, para ver o cartão editado no lugar dele
+  function abrirCartoesDoMapa() {
+    const w = quadro.contentWindow, d = quadro.contentDocument;
+    if (!d?.querySelector(".desafio") || !w?.musaMapa) { setTimeout(abrirCartoesDoMapa, 150); return; }
+    w.musaMapa.modo("inteiro");
+    setTimeout(() => d.querySelectorAll(".desafio").forEach((el) => { if (el.querySelector(".desafio-cartao")) el.setAttribute("data-visivel", ""); }), 400);
   }
   quadro.addEventListener("load", marcar);
 
