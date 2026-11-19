@@ -9,13 +9,13 @@ import { icone } from "../lib/pontos-contato";
 import { gruposGlossario } from "../lib/glossario";
 interface Props { titulo: string; atual?: string }
 const { titulo, atual } = Astro.props;
-// migalhas: musá › Guia › página (na entrada do Guia, só musá › Guia)
+// migalhas: musá › guia › página (na entrada do Guia, só musá › guia), em minúscula como musá
 // subitens da página aberta: no glossário, os grupos de termos (com os ícones da grade da entrada do Guia);
 // num guia, os títulos "## " do texto, sem ícone
 const subitens = (slug: string) => slug === "glossario"
   ? gruposGlossario.map((g) => ({ titulo: g.titulo, href: `/guia/glossario#${g.id}`, icone: g.icone as string | undefined }))
   : (guias.find((g) => g.slug === slug)?.secoes ?? []).map((s) => ({ titulo: s.titulo, href: `/guia/${slug}#${s.id}`, icone: undefined as string | undefined }));
-const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "Guia", href: "/guia" }, ...(atual ? [{ rotulo: titulo, href: `/guia/${atual}` }] : [])];
+const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia" }, ...(atual ? [{ rotulo: titulo, href: `/guia/${atual}` }] : [])];
 ---
 <Base titulo={titulo}>
 <div class="guia">
