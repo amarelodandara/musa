@@ -1,0 +1,20 @@
+---
+// Palco do playground /dev/bento-desafio-cartoes: o segundo bloco do bento na versão em cartões (os pensamentos do mapa
+// num rolo), ao lado do primeiro, com a largura e margens da página inicial.
+// Fica num quadro (index.astro) para dar para testar larguras de tela; o painel (_dials.ts) mexe aqui dentro.
+import Base from "../../../layouts/Base.astro";
+import Funcionalidades from "../../../components/inicio/Funcionalidades.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<Base titulo="Bento: desafio em cartões" cabecalho={false} rodape={false}>
+<main class="palco-corpo"><Funcionalidades soOPrimeiro={false} desafio="cartoes" /></main>
+</Base>
+<style>
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  .palco-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  .palco-corpo :global(.func) { border-top: 0; padding-top: 24px; }
+  /* o bloco 2 ao lado do primeiro, como na página inicial: a altura dele é a do primeiro */
+  .palco-corpo :global(.func .bento > :not(.b-visoes):not(.b-desafio)) { display: none; }
+  /* o bloco 2 vai para a esquerda, longe do painel (que fica embaixo à direita); o primeiro fica de referência à direita */
+  .palco-corpo :global(.func .b-desafio) { order: -1; }
+</style>

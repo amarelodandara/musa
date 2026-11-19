@@ -39,8 +39,11 @@ const FOLHAS = [
 const ESCALA = 0.16;
 // Em ajuste, um bloco por vez: enquanto for true, só o primeiro (o mapa) aparece; os outros continuam no código.
 const SO_O_PRIMEIRO = false;
-interface Props { soOPrimeiro?: boolean }
-const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
+// desafio: como o bloco 2 mostra o nível de desafio. "linha" (a da página) = a linha de giz com os avatares;
+// "cartoes" (experimento em /dev/bento-desafio-cartoes) = os pensamentos do mapa num rolo de cartões.
+interface Props { soOPrimeiro?: boolean; desafio?: "linha" | "cartoes" }
+const { soOPrimeiro = SO_O_PRIMEIRO, desafio: modoDesafio = "linha" } = Astro.props;
+const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!);
 ---
 <section class="func" aria-label="Funcionalidades" data-so-primeiro={soOPrimeiro ? "" : undefined}>
   <div class="bento" data-tempo="4000" data-progresso="nao">
@@ -74,6 +77,7 @@ const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
       </div>
       <!-- a área ocupa o que sobra do bloco; o gráfico cabe nela sem distorcer (altura do bloco vem do primeiro bloco) -->
       <!-- ajustes (lidos pelo script; o playground /dev/bento-desafio muda ao vivo): duracao = ms do traço; ondas e hesitacao = o ritmo da mão -->
+      {modoDesafio === "linha" ? (
       <div class="desafio-area">
         <div class="desafio-grafico" data-duracao="3600" data-ondas="3" data-hesitacao="0.6">
           <svg viewBox={`0 0 ${L} ${A}`} role="img" aria-label={descricaoGrafico}>
@@ -97,6 +101,16 @@ const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
           </svg>
         </div>
       </div>
+      ) : (
+      /* rolo de cartões: os pensamentos do mapa (o mesmo cartão de .desafio-cartao em mapa.astro), um entrando na frente
+         por vez; os de trás vão para o fundo do bloco, menores, mais apagados e desfocados.
+         ajustes (lidos pelo script; o playground /dev/bento-desafio-cartoes muda ao vivo): intervalo = ms entre cartões */
+      <div class="desafio-area">
+        <ul class="rolo" data-intervalo="1400" aria-label="O que o professor pensa em cada etapa">
+          {pensamentos.map((t, k) => <li class="rolo-cartao" style={`--pos:${(pensamentos.length - k) % pensamentos.length}`}>“{t}”</li>)}
+        </ul>
+      </div>
+      )}
     </article>
 
     <!-- 3. Filtrar por função -->
@@ -389,6 +403,27 @@ const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
     }, { aoParar: tudoParado });
   }
 
+  // ---------- 2b. Nível de desafio em cartões (experimento): um pensamento entra na frente, os outros recuam ----------
+  const rolo = document.querySelector<HTMLElement>(".func .b-desafio .rolo");
+  if (rolo) {
+    const cartoes = [...rolo.querySelectorAll<HTMLElement>(".rolo-cartao")];
+    const n = cartoes.length;
+    let frente = 0; // índice do cartão que está na frente
+    // posição de cada cartão: 0 = na frente, 1, 2… = mais para o fundo
+    const posicionar = () => cartoes.forEach((c, k) => c.style.setProperty("--pos", String((frente - k + n) % n)));
+    posicionar();
+    const l = laco(rolo.closest<HTMLElement>(".b-desafio")!, async () => {
+      if (!(await l.esperar(Number(rolo.dataset.intervalo || 1400)))) return;
+      // o próximo entra por baixo: vai, sem transição, para a posição de entrada e só então vem para a frente
+      frente = (frente + 1) % n;
+      const novo = cartoes[frente];
+      novo.dataset.entrando = "";
+      void novo.offsetWidth;
+      delete novo.dataset.entrando;
+      posicionar();
+    });
+  }
+
   // ---------- 3. Funções: liga e desliga as fichas e soma as práticas visíveis ----------
   const bFuncoes = document.querySelector<HTMLElement>(".func .b-funcoes");
   if (bFuncoes) {
@@ -564,6 +599,24 @@ const { soOPrimeiro = SO_O_PRIMEIRO } = Astro.props;
   .trecho { fill: none; stroke: var(--carmim-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
   .desafio-grafico[data-vazio] .trecho { stroke-dashoffset: 1; }
   .desafio-grafico[data-vazio] .ponto { opacity: 0; }
+
+  /* 2b. Rolo de cartões (experimento): o cartão é o .desafio-cartao do mapa; a profundidade vem de --pos */
+  .rolo { --rolo-passo: 16px; --rolo-escala: 0.07; --rolo-desfoque: 0.9px; --rolo-apagar: 0.2; --rolo-visiveis: 5; --rolo-ms: 700ms;
+    --rolo-curva: cubic-bezier(0.22, 1, 0.36, 1);
+    /* todos os cartões com a mesma largura, seja qual for o tamanho do texto */
+    --rolo-largura: 240px;
+    position: relative; flex: 1; align-self: stretch; min-height: 150px; margin: 0; padding: 0; list-style: none; }
+  .rolo-cartao { position: absolute; left: 50%; bottom: 0; box-sizing: border-box; width: var(--rolo-largura); max-width: 100%; margin: 0; padding: 8px 10px;
+    border: 1px solid var(--neutro-100); border-radius: 4px; background: var(--neutro-50); box-shadow: 0 4px 24px rgb(0 0 0 / 0.07);
+    font-size: 12px; font-style: italic; line-height: 1.4; color: var(--texto-900); text-wrap: pretty;
+    z-index: calc(20 - var(--pos)); transform-origin: 50% 0;
+    translate: -50% calc(var(--pos) * var(--rolo-passo) * -1);
+    scale: max(0, 1 - var(--pos) * var(--rolo-escala));
+    filter: blur(calc(max(0, var(--pos)) * var(--rolo-desfoque)));
+    opacity: clamp(0, 1 - var(--pos) * var(--rolo-apagar), 1);
+    transition: translate var(--rolo-ms) var(--rolo-curva), scale var(--rolo-ms) var(--rolo-curva), filter var(--rolo-ms) var(--rolo-curva), opacity var(--rolo-ms) var(--rolo-curva); }
+  /* entrando: um pouco abaixo da frente e apagado; vai para lá sem transição e de lá vem para a frente */
+  .rolo-cartao[data-entrando] { transition: none; translate: -50% var(--rolo-passo); scale: 1; filter: none; opacity: 0; }
 
   /* 3. Funções */
   .contador { margin: auto 0 0; display: flex; align-items: baseline; gap: 8px; }
