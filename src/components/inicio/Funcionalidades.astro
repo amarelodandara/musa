@@ -3,15 +3,19 @@
 // O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
 // enquanto estão na tela e param quando a pessoa mexe neles.
 import { conteudo, DESAFIOS, desafio, type Desafio } from "../../lib/conteudo";
+import glossario from "../../../GLOSSARY.md?raw";
+import { icone, pillsContato } from "../../lib/pontos-contato";
 
-const { etapas, praticas, pontosContato, funcoes, fontes } = conteudo;
-const doMuseu = funcoes.filter((f) => praticas.some((p) => p.funcao === f.id));
-const total = praticas.length;
-const boas = praticas.filter((p) => p.tipo === "boa");
-const evitar = praticas.filter((p) => p.tipo === "evitar");
-const exemplos = Array.from({ length: 6 }, (_, i) => [boas[i * 3]?.titulo, evitar[i * 2]?.titulo]).filter(([b, e]) => b && e);
+const { etapas, pontosContato } = conteudo;
 const canais = [...new Set(pontosContato.map((p) => p.canal))];
-const porOrigem = ["Pesquisa de campo", "Adaptado de documento", "Documento"].map((o) => ({ nome: o, n: praticas.filter((p) => p.origem === o).length }));
+
+// Bloco "Glossário": termos do mapa tirados do GLOSSARY.md (a primeira frase de cada definição)
+const TERMOS = ["Etapa", "Fase", "Camada", "Prática", "Ponto de contato"];
+const termos = TERMOS.map((nome) => {
+  const m = glossario.match(new RegExp(`\\*\\*${nome}\\*\\*:\\s*\\n([^\\n]+)`));
+  const def = (m?.[1] ?? "").replace(/\*/g, "").match(/^.*?[.!?](?=\s|$)/)?.[0] ?? "";
+  return { nome, def };
+}).filter((t) => t.def);
 
 // Bloco "Nível de desafio": a mesma linha de giz do mapa, desenhada à mão livre da primeira etapa à última,
 // num ritmo que acelera e hesita (ver o script); os avatares de cada nível aparecem quando a linha chega neles
@@ -41,8 +45,16 @@ const ESCALA = 0.16;
 const SO_O_PRIMEIRO = false;
 // desafio: como o bloco 2 mostra o nível de desafio. "cartoes" (o da página, de /dev/bento-desafio-cartoes) = os
 // pensamentos do mapa num rolo de cartões; "linha" (de /dev/bento-desafio) = a linha de giz com os avatares.
-interface Props { soOPrimeiro?: boolean; desafio?: "linha" | "cartoes" }
-const { soOPrimeiro = SO_O_PRIMEIRO, desafio: modoDesafio = "cartoes" } = Astro.props;
+// contato: como o bloco 3 mostra os pontos de contato (os três em /dev/bento-contato). "marquee" (o da página, 19/11/2026)
+// = as pills com ícone em duas filas que correm em cima do texto; "chips" = os canais numa fileira, uma onda acende
+// um por vez; "etapas" = os canais empilhados na etapa da jornada em que aparecem.
+interface Props { soOPrimeiro?: boolean; desafio?: "linha" | "cartoes"; contato?: "chips" | "etapas" | "marquee" }
+const { soOPrimeiro = SO_O_PRIMEIRO, desafio: modoDesafio = "cartoes", contato: modoContato = "marquee" } = Astro.props;
+// marquee: todas as pills de src/lib/pontos-contato.ts (as do mapa e as sugestões), na ordem da jornada,
+// alternadas entre as duas filas para as etapas se misturarem nas duas
+const pills = pillsContato(etapas, pontosContato);
+const filasMarquee = [pills.filter((_, i) => i % 2 === 0), pills.filter((_, i) => i % 2 === 1)];
+const contatoPorEtapa = etapas.map((e) => ({ e, canais: [...new Set(pontosContato.filter((p) => p.etapa === e.id).map((p) => p.canal))] }));
 const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!);
 ---
 <section class="func" aria-label="Funcionalidades" data-so-primeiro={soOPrimeiro ? "" : undefined}>
@@ -73,7 +85,6 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     <article class="bloco-b b-desafio" data-revelar data-tempo="8500">
       <div class="b-texto">
         <h3>Entenda onde a visita pesa para o professor</h3>
-        <p>Seja proativo se informando das preocupações que acompanham seu visitante em cada etapa da jornada.</p>
       </div>
       <!-- a área ocupa o que sobra do bloco; o gráfico cabe nela sem distorcer (altura do bloco vem do primeiro bloco) -->
       <!-- ajustes (lidos pelo script; o playground /dev/bento-desafio muda ao vivo): duracao = ms do traço; ondas e hesitacao = o ritmo da mão -->
@@ -113,47 +124,60 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       )}
     </article>
 
-    <!-- 3. Filtrar por função -->
-    <article class="bloco-b b-funcoes" data-revelar>
-      <div class="b-texto">
-        <h3>Cada pessoa vê o que é dela</h3>
-        <p>Filtre por função e o mapa mostra só as práticas ao alcance de quem está lendo.</p>
-      </div>
-      <p class="contador"><span class="contador-n">{total}</span> <span class="contador-r">práticas</span></p>
-      <ul class="fichas">
-        {doMuseu.map((f) => (
-          <li><button type="button" aria-pressed="true" data-funcao={f.id} data-n={praticas.filter((p) => p.funcao === f.id).length}>{f.nome}</button></li>
-        ))}
-      </ul>
-    </article>
-
-    <!-- 4. Boas práticas e o que evitar -->
-    <article class="bloco-b b-praticas" data-revelar>
-      <div class="b-texto">
-        <h3>O que fazer, e o que evitar</h3>
-      </div>
-      <div class="placar">
-        <p><strong>{boas.length}</strong> boas práticas</p>
-        <p><strong>{evitar.length}</strong> coisas a evitar</p>
-      </div>
-      <div class="barra-dupla" aria-hidden="true">
-        <span style={`flex:${boas.length}`}></span><span style={`flex:${evitar.length}`}></span>
-      </div>
-      <ul class="exemplos" data-exemplos={JSON.stringify(exemplos)}>
-        <li><span>+</span><em>{exemplos[0][0]}</em></li>
-        <li class="evitar"><span>−</span><em>{exemplos[0][1]}</em></li>
-      </ul>
-    </article>
-
     <!-- 5. Pontos de contato -->
-    <article class="bloco-b b-contato" data-revelar>
+    <article class="bloco-b b-contato" data-revelar data-contato={modoContato}>
+      {modoContato === "marquee" && (
+        <div class="marquee">
+          {filasMarquee.map((fila, f) => (
+            <div class="marquee-fila" data-fila={f}>
+              <div class="marquee-trilho">
+                {/* duas cópias da fila: o trilho anda uma cópia e volta ao começo sem emenda */}
+                {[0, 1].map((copia) => (
+                  <ul class="marquee-grupo" aria-hidden={copia ? "true" : undefined}>
+                    {fila.map((p, i) => { const Icone = icone(p.icone); return (
+                      <li class="contato-chip" style={`--i:${i}`}><Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />{p.rotulo}</li>
+                    ); })}
+                  </ul>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div class="b-texto">
-        <h3>Todo lugar onde a escola encontra o museu</h3>
-        <p>{pontosContato.length} pontos de contato, do site à newsletter.</p>
+        <h3>Todos os encontros da escola com seu museu</h3>
+        <p>Não basta ter uma boa exposição, é preciso também ter uma boa apresentação, ser encontrável no mundo digital e alinhado no mundo físico.</p>
       </div>
-      <ul class="canais">
-        {canais.map((k, i) => <li style={`--i:${i}`}>{k}</li>)}
-      </ul>
+      {modoContato === "marquee" ? null : modoContato === "etapas" ? (
+        <ol class="contato-etapas">
+          {contatoPorEtapa.map(({ e, canais: cs }, i) => (
+            <li class="contato-passo" style={`--i:${i}`}>
+              <ul>{cs.map((k) => <li class="contato-chip">{k}</li>)}</ul>
+              <span class="contato-etapa-nome">{e.nome}</span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <ul class="canais">
+          {canais.map((k, i) => <li class="contato-chip" style={`--i:${i}`}>{k}</li>)}
+        </ul>
+      )}
+    </article>
+
+    <!-- 5b. Glossário -->
+    <article class="bloco-b b-glossario" data-revelar>
+      <div class="b-texto">
+        <h3>Fale a mesma língua da sua equipe</h3>
+        <p>O glossário explica cada palavra do mapa, para todo mundo entender a mesma coisa.</p>
+      </div>
+      <dl class="verbetes">
+        {termos.map((t, i) => (
+          <div class="verbete" data-aberto={i === 0 ? "" : undefined}>
+            <dt>{t.nome}</dt>
+            <dd>{t.def}</dd>
+          </div>
+        ))}
+      </dl>
     </article>
 
     <!-- 6. Imprimir -->
@@ -173,22 +197,6 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       </div>
     </a>
 
-    <!-- 7. Origem das práticas -->
-    <article class="bloco-b b-origem" data-revelar>
-      <div class="b-texto">
-        <h3>Cada prática diz de onde veio</h3>
-        <p>Pesquisa de campo com professores e equipes de museu, e {fontes.length} documentos de referência citados um a um.</p>
-      </div>
-      <div class="origens-func">
-        {porOrigem.map((o, i) => (
-          <div class="origem" style={`--p:${o.n / total};--i:${i}`}>
-            <span class="origem-barra"></span>
-            <span class="origem-n">{o.n}</span>
-            <span class="origem-nome">{o.nome}</span>
-          </div>
-        ))}
-      </div>
-    </article>
   </div>
 </section>
 
@@ -427,63 +435,47 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     }, { aoParar: () => {} });
   }
 
-  // ---------- 3. Funções: liga e desliga as fichas e soma as práticas visíveis ----------
-  const bFuncoes = document.querySelector<HTMLElement>(".func .b-funcoes");
-  if (bFuncoes) {
-    const fichas = [...bFuncoes.querySelectorAll<HTMLButtonElement>(".fichas button")];
-    const n = bFuncoes.querySelector<HTMLElement>(".contador-n")!, r = bFuncoes.querySelector<HTMLElement>(".contador-r")!;
-    const contar = () => {
-      const soma = fichas.filter((f) => f.getAttribute("aria-pressed") === "true").reduce((s, f) => s + Number(f.dataset.n), 0);
-      if (n.textContent === String(soma)) return;
-      n.textContent = String(soma);
-      r.textContent = soma === 1 ? "prática" : "práticas";
-      n.animate([{ transform: "translateY(6px)", opacity: 0.4, filter: "blur(2px)" }, { transform: "none", opacity: 1, filter: "none" }], { duration: 220, easing: EASE_OUT });
+  // ---------- 5. Pontos de contato, marquee: velocidade constante em px/s, qualquer que seja o tamanho da fila ----------
+  // data-velocidade no bloco (px/s, padrão 24); refaz a conta quando a fila muda de largura ou a velocidade muda
+  const bMarquee = document.querySelector<HTMLElement>('.func .b-contato[data-contato="marquee"]');
+  if (bMarquee) {
+    const trilhos = [...bMarquee.querySelectorAll<HTMLElement>(".marquee-trilho")];
+    const medir = () => {
+      const v = Number(bMarquee.dataset.velocidade || 24);
+      trilhos.forEach((t) => { t.style.animationDuration = `${t.scrollWidth / 2 / v}s`; });
     };
-    const marcar = (ids: string[] | null) => { fichas.forEach((f) => f.setAttribute("aria-pressed", String(!ids || ids.includes(f.dataset.funcao!)))); contar(); };
-    let mexeu = false;
-    fichas.forEach((f) => f.addEventListener("click", () => {
-      mexeu = true;
-      f.setAttribute("aria-pressed", String(f.getAttribute("aria-pressed") !== "true"));
-      contar();
-    }));
-    const cenas = [["mediacao"], ["comunicacao", "atendimento-e-vigilancia"], ["gestao"], ["coordenacao-do-educativo", "mediacao"], null];
-    let c = 0;
-    const l = laco(bFuncoes, async () => {
-      if (mexeu) { await dormir(1000); return; }
-      if (!(await l.esperar(1400))) return;
-      if (!mexeu) marcar(cenas[c]);
-      c = (c + 1) % cenas.length;
-    }, { zona: bFuncoes.querySelector<HTMLElement>(".fichas") });
+    new ResizeObserver(medir).observe(trilhos[0]);
+    new MutationObserver(medir).observe(bMarquee, { attributes: true, attributeFilter: ["data-velocidade"] });
+    medir();
   }
 
-  // ---------- 4. Práticas: os exemplos vão se revezando ----------
-  const lista = document.querySelector<HTMLElement>(".func .exemplos");
-  if (lista) {
-    const ex: [string, string][] = JSON.parse(lista.dataset.exemplos!);
-    const ems = lista.querySelectorAll("em");
+  // ---------- 5. Pontos de contato: uma onda passa pelos canais (ou pelas etapas, no experimento "etapas") ----------
+  // ritmo em data-passo / data-pausa / data-aceso (ms), lidos a cada passo para o playground mexer ao vivo
+  const bContato = document.querySelector<HTMLElement>(".func .b-contato");
+  if (bContato && bContato.dataset.contato !== "marquee") {
+    const porEtapa = bContato.dataset.contato === "etapas";
+    const itens = [...bContato.querySelectorAll<HTMLElement>(porEtapa ? ".contato-passo" : ".canais li")];
+    const ms = (chave: string, padrao: number) => Number(bContato.dataset[chave] || padrao);
     let i = 0;
-    const l = laco(lista.closest<HTMLElement>(".b-praticas")!, async () => {
-      if (!(await l.esperar(1800))) return;
-      i = (i + 1) % ex.length;
-      for (const [j, em] of [...ems].entries()) {
-        await em.animate([{ opacity: 1, filter: "none" }, { opacity: 0, filter: "blur(3px)" }], { duration: 160, easing: "ease", fill: "forwards" }).finished;
-        em.textContent = ex[i][j];
-        em.animate([{ opacity: 0, filter: "blur(3px)", transform: "translateY(4px)" }, { opacity: 1, filter: "none", transform: "none" }], { duration: 260, easing: EASE_OUT, fill: "forwards" });
-      }
+    const l = laco(bContato, async () => {
+      const atual = itens[i];
+      atual.dataset.aceso = "";
+      setTimeout(() => delete atual.dataset.aceso, ms("aceso", porEtapa ? 1100 : 900));
+      i = (i + 1) % itens.length;
+      await l.esperar(i === 0 ? ms("pausa", 2400) : ms("passo", porEtapa ? 700 : 260));
     });
   }
 
-  // ---------- 5. Pontos de contato: uma onda passa pelos canais ----------
-  const bContato = document.querySelector<HTMLElement>(".func .b-contato");
-  if (bContato) {
-    const chips = [...bContato.querySelectorAll<HTMLElement>(".canais li")];
+  // ---------- 5b. Glossário: os verbetes se revezam, um aberto por vez ----------
+  const bGlossario = document.querySelector<HTMLElement>(".func .b-glossario");
+  if (bGlossario) {
+    const verbetes = [...bGlossario.querySelectorAll<HTMLElement>(".verbete")];
     let i = 0;
-    const l = laco(bContato, async () => {
-      chips[i].dataset.aceso = "";
-      const anterior = chips[i];
-      setTimeout(() => delete anterior.dataset.aceso, 900);
-      i = (i + 1) % chips.length;
-      await l.esperar(i === 0 ? 2400 : 260);
+    const l = laco(bGlossario, async () => {
+      if (!(await l.esperar(2800))) return;
+      verbetes[i].removeAttribute("data-aberto");
+      i = (i + 1) % verbetes.length;
+      verbetes[i].setAttribute("data-aberto", "");
     });
   }
 </script>
@@ -505,7 +497,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
   .bloco-b { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border: 1px solid transparent; overflow: hidden; min-width: 0; color: inherit; text-decoration: none; }
   .b-texto h3 { margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
-  .b-texto p { margin: 0; text-wrap: pretty; }
+  .b-texto p { margin: 0; text-wrap: balance; }
   .b-link { display: inline-block; margin-top: 12px; font: 600 var(--tamanho-sm)/1 var(--fonte-inter); color: var(--carmim-800); text-decoration: none; }
   .b-link span { display: inline-block; transition: transform 200ms var(--ease-out); }
   .b-link:hover span, .b-imprimir:hover .b-link span { transform: translateX(3px); }
@@ -524,8 +516,8 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     transition: --cor-borda-topo var(--estado-ms) ease, --cor-borda-pe var(--estado-ms) ease, --cor-titulo var(--estado-ms) ease, --cor-descricao var(--estado-ms) ease, --cor-lista var(--estado-ms) ease, --cor-pontos var(--estado-ms) ease, --cor-fundo var(--estado-ms) ease; }
   .bento[data-regendo]:not([data-unico]) > .bloco-b:not([data-ativo]), .bloco-b[data-estado="inativo"] {
     --cor-borda-topo: var(--inativo-borda-topo); --cor-borda-pe: var(--inativo-borda-pe); --cor-titulo: var(--inativo-titulo); --cor-descricao: var(--inativo-descricao); --cor-lista: var(--inativo-lista); --cor-pontos: var(--inativo-pontos); --cor-fundo: var(--inativo-fundo); }
-  .b-texto h3 { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 700; color: var(--cor-titulo); }
-  .b-texto p { font-size: var(--tamanho-md); font-weight: 400; color: var(--cor-descricao); max-width: 20rem; }
+  .b-texto h3 { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 600; color: var(--cor-titulo); }
+  .b-texto p { font-size: var(--tamanho-sm); font-weight: 400; color: var(--cor-descricao); max-width: 20rem; }
 
   /* 1. O mapa (valores de /dev/bento-mapa, 18/11/2026) */
   .b-visoes { grid-column: span 4; grid-row: span 2; padding: 28px 0 0 28px; min-height: 360px; }
@@ -542,11 +534,10 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   /* valores do quadro escolhidos em /dev/bento-mapa (18/11/2026) */
   .b-visoes .quadro { --quadro-fade-x: 64%; --quadro-fade-y: 48%; --quadro-raio: 4px; --quadro-espaco: 26px; --quadro-min: 460px; --quadro-borda: var(--neutro-50); }
   .b-desafio { grid-column: span 2; grid-row: span 2; }
-  .b-funcoes { grid-column: span 2; }
-  .b-praticas { grid-column: span 2; }
-  .b-contato { grid-column: span 2; }
-  .b-imprimir { grid-column: span 3; }
-  .b-origem { grid-column: span 3; }
+  /* contato e glossário dividem uma linha; imprimir ocupa a linha inteira */
+  .b-contato { grid-column: span 3; }
+  .b-glossario { grid-column: span 3; }
+  .b-imprimir { grid-column: span 6; }
 
   /* Estados do regente: um bloco ativo, os outros quietos (só com a sequência rodando; ajustáveis em /dev/bento-sequencia) */
   /* entre ativo e inativo só mudam as cores (18/11/2026): opacidade, saturação, escala e sombra ficam neutras */
@@ -565,10 +556,8 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .bento[data-regendo][data-progresso="sim"]:not([data-unico]) > .bloco-b[data-ativo]::after { opacity: 1; animation: progresso var(--tempo, 4000ms) linear forwards; }
   .bento[data-segurando] > .bloco-b[data-ativo]::after { opacity: 0 !important; animation: none !important; }
   @keyframes progresso { to { transform: scaleX(1); } }
-  /* blocos sem laço próprio: as folhas só flutuam e as barras de origem crescem de novo quando o bloco é o ativo */
+  /* bloco sem laço próprio: as folhas só flutuam quando o bloco é o ativo */
   .bento[data-regendo]:not([data-unico]) .b-imprimir:not([data-ativo]) .folha { animation-play-state: paused; }
-  .bento[data-regendo]:not([data-unico]) .b-origem[data-ativo] .origem-barra::after { animation: crescer 900ms var(--ease-out) both; animation-delay: calc(var(--i) * 120ms); }
-  @keyframes crescer { from { transform: scaleX(0); } to { transform: scaleX(var(--p)); } }
 
   /* entrada em cascata, uma vez */
   [data-revelar] { opacity: 0; transform: translateY(16px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--ordem, 0) * 80ms); }
@@ -630,37 +619,71 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   /* entrando: vai sem transição para a posição -1 (um passo acima no arco, apagado) e de lá vem para a frente */
   .rolo-cartao[data-entrando] { transition: none; }
 
-  /* 3. Funções */
-  .contador { margin: auto 0 0; display: flex; align-items: baseline; gap: 8px; }
-  .contador-n { font: 700 var(--tamanho-5xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--carmim-900); font-variant-numeric: tabular-nums; display: inline-block; }
-  .contador-r { font-size: var(--tamanho-sm); color: var(--texto-700); }
-  .fichas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-  .fichas button { font: 500 var(--tamanho-xs)/1 var(--fonte-inter); padding: 7px 10px; border-radius: 999px; border: 1px solid var(--coral-300); background: transparent; color: var(--texto-700); cursor: pointer; transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 160ms var(--ease-out); }
-  .fichas button[aria-pressed="true"] { background: var(--coral-500); border-color: var(--coral-500); color: var(--texto-950); }
-  .fichas button:active { transform: scale(0.96); }
-
-  /* 4. Práticas */
-  .placar { display: flex; gap: 24px; margin-top: auto; }
-  .placar p { margin: 0; font-size: var(--tamanho-xs); color: var(--cor-descricao); }
-  .placar strong { display: block; font: 700 var(--tamanho-4xl)/1 var(--fonte-dm-sans); letter-spacing: -0.03em; color: var(--cor-titulo); }
-  .barra-dupla { display: flex; gap: 3px; height: 8px; }
-  .barra-dupla span { border-radius: 4px; background: var(--coral-400); transform-origin: left; transform: scaleX(0); transition: transform 900ms var(--ease-out) 200ms; }
-  .barra-dupla span + span { background: var(--carmim-500); transform-origin: right; }
-  .b-praticas[data-visivel] .barra-dupla span { transform: none; }
-  .exemplos { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; min-height: 4.4lh; align-content: start; font-size: var(--tamanho-xs); line-height: 1.4; color: var(--cor-lista); }
-  .exemplos li { display: grid; grid-template-columns: 14px 1fr; }
-  .exemplos em { font-style: normal; display: block; }
-  .exemplos span { font-weight: 700; color: var(--coral-400); }
-  .exemplos .evitar span { color: var(--carmim-400); }
-
-  /* 5. Pontos de contato */
-  .canais { display: flex; flex-wrap: wrap; gap: 6px; margin: auto 0 0; padding: 0; list-style: none; }
-  .canais li { padding: 4px 10px; border-radius: 999px; background: var(--neutro-50); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs);
+  /* 5. Pontos de contato (as variáveis --contato-* são mexidas em /dev/bento-contato) */
+  .b-contato { --contato-gap: 6px; --contato-chip-py: 4px; --contato-chip-px: 10px; --contato-chip-raio: 999px; --contato-chip-tamanho: var(--tamanho-xs);
+    /* fundo e borda das pills em cada estado; o texto e o ícone seguem --cor-lista e --cor-pontos do sistema dos blocos */
+    --contato-ativo-chip-fundo: var(--neutro-50); --contato-ativo-chip-borda: var(--coral-200);
+    --contato-inativo-chip-fundo: var(--neutro-50); --contato-inativo-chip-borda: var(--neutro-300);
+    --contato-chip-fundo: var(--contato-ativo-chip-fundo); --contato-chip-borda: var(--contato-ativo-chip-borda); --contato-chip-texto: var(--cor-lista);
+    --contato-aceso-fundo: var(--coral-200); --contato-aceso-borda: var(--coral-400); --contato-aceso-texto: var(--texto-950);
+    --contato-acende-ms: 120ms; --contato-apaga-ms: 500ms;
+    --contato-coluna-gap: 8px; --contato-trilho: var(--neutro-300); --contato-trilho-aceso: var(--coral-500); --contato-nome-tamanho: var(--tamanho-2xs); --contato-nome-cor: var(--cor-descricao); }
+  .bento[data-regendo]:not([data-unico]) > .b-contato:not([data-ativo]), .b-contato[data-estado="inativo"] {
+    --contato-chip-fundo: var(--contato-inativo-chip-fundo); --contato-chip-borda: var(--contato-inativo-chip-borda); }
+  .b-contato[data-sem-descricao] .b-texto p { display: none; }
+  /* título e descrição vão até uns 3/4 da largura do bloco (o título quebra em linhas equilibradas; valores de /dev/bento-contato) */
+  .b-contato .b-texto h3 { max-width: var(--contato-titulo-largura, 76%); }
+  /* descrição em pretty, não balance: balance iguala as linhas e a largura só muda aos saltos, quando a contagem de linhas muda;
+     pretty enche as linhas até a largura e ainda evita uma palavra sozinha na última */
+  .b-contato .b-texto p { max-width: var(--contato-descricao-largura, 74%); text-wrap: pretty; }
+  .canais { display: flex; flex-wrap: wrap; gap: var(--contato-gap); margin: auto 0 0; padding: 0; list-style: none; }
+  .contato-chip { padding: var(--contato-chip-py) var(--contato-chip-px); border-radius: var(--contato-chip-raio); background: var(--contato-chip-fundo); border: 1px solid var(--contato-chip-borda);
+    color: var(--contato-chip-texto); font-size: var(--contato-chip-tamanho);
     opacity: 0; transform: translateY(6px) scale(0.96);
-    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), background-color 500ms ease, border-color 500ms ease, color 500ms ease;
+    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), background-color var(--contato-apaga-ms) ease, border-color var(--contato-apaga-ms) ease, color var(--contato-apaga-ms) ease;
     transition-delay: calc(200ms + var(--i) * 40ms), calc(200ms + var(--i) * 40ms), 0ms, 0ms, 0ms; }
-  .b-contato[data-visivel] .canais li { opacity: 1; transform: none; }
-  .canais li[data-aceso] { background: var(--coral-200); border-color: var(--coral-400); color: var(--texto-950); transition-duration: 300ms, 300ms, 120ms, 120ms, 120ms; }
+  .b-contato[data-visivel] .contato-chip { opacity: 1; transform: none; }
+  .canais li[data-aceso], .contato-passo[data-aceso] .contato-chip { background: var(--contato-aceso-fundo); border-color: var(--contato-aceso-borda); color: var(--contato-aceso-texto);
+    transition-duration: 300ms, 300ms, var(--contato-acende-ms), var(--contato-acende-ms), var(--contato-acende-ms); }
+  /* experimento "etapas": uma coluna por etapa, os canais empilhados em cima do nome dela */
+  .contato-etapas { display: grid; grid-template-columns: repeat(var(--contato-colunas, 7), minmax(0, 1fr)); gap: var(--contato-coluna-gap); align-items: end; margin: auto 0 0; padding: 0; list-style: none; }
+  .contato-passo { display: flex; flex-direction: column; justify-content: flex-end; gap: var(--contato-gap); min-width: 0; height: 100%; }
+  .contato-passo ul { display: flex; flex-direction: column; gap: var(--contato-gap); margin: 0; padding: 0; list-style: none; }
+  .contato-passo .contato-chip { text-align: center; overflow-wrap: anywhere; }
+  .contato-etapa-nome { padding-top: 6px; border-top: 2px solid var(--contato-trilho); font-size: var(--contato-nome-tamanho); line-height: 1.25; color: var(--contato-nome-cor);
+    transition: border-color var(--contato-apaga-ms) ease; }
+  /* experimento "marquee": duas filas de canais correndo em cima do texto; o texto fica no pé do bloco
+     e as filas no meio do espaço que sobra em cima dele.
+     Só corre com o bloco ativo (bloco inativo fica parado); com movimento reduzido, parado. */
+  /* a duração de cada fila vem do script (largura da fila ÷ --contato-velocidade em px/s); 80s até ele medir */
+  .b-contato { --contato-marquee-s: 80s; --contato-filas-gap: 14px; --contato-marquee-fade: 48px; --contato-sangra: 28px; --contato-marquee-escala: 1.12; }
+  .marquee { display: flex; flex-direction: column; gap: var(--contato-filas-gap); margin: auto calc(-1 * var(--contato-sangra)); }
+  /* pills um pouco maiores que as do conceito "chips" (texto e respiro juntos) */
+  .marquee .contato-chip { font-size: calc(var(--contato-chip-tamanho) * var(--contato-marquee-escala));
+    padding: calc(var(--contato-chip-py) * var(--contato-marquee-escala)) calc(var(--contato-chip-px) * var(--contato-marquee-escala)); }
+  .marquee-fila { display: flex; overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 var(--contato-marquee-fade), #000 calc(100% - var(--contato-marquee-fade)), transparent); }
+  .marquee-trilho { display: flex; flex: none; animation: marquee var(--contato-marquee-s) linear infinite; }
+  .marquee-fila[data-fila="1"] .marquee-trilho { animation-direction: var(--contato-fila2-direcao, reverse); }
+  /* espaço depois de cada pill (inclusive a última): as duas cópias ficam iguais e o -50% fecha certinho */
+  .marquee-grupo { display: flex; flex: none; gap: var(--contato-gap); padding: 0 var(--contato-gap) 0 0; margin: 0; list-style: none; }
+  .marquee-grupo .contato-chip { flex: none; display: inline-flex; align-items: center; gap: 0.45em; white-space: nowrap; }
+  /* o ícone segue a cor dos pontos do bloco (coral ativo, cinza inativo) */
+  .marquee .contato-chip :global(svg) { flex: none; color: var(--cor-pontos); transition: color var(--estado-ms) ease; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .bento[data-regendo]:not([data-unico]) > .b-contato:not([data-ativo]) .marquee-trilho, .b-contato[data-estado="inativo"] .marquee-trilho,
+  .b-contato[data-pausa-hover] .marquee:hover .marquee-trilho { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .marquee-trilho { animation: none; } }
+  .contato-passo[data-aceso] .contato-etapa-nome { border-color: var(--contato-trilho-aceso); transition-duration: var(--contato-acende-ms); }
+
+  /* 5b. Glossário: a lista de termos; o aberto mostra a definição (só aparece, sem movimento) */
+  .verbetes { margin: auto 0 0; display: grid; gap: 0; }
+  .verbete { display: grid; grid-template-rows: auto 0fr; padding: 8px 0; border-top: 1px solid var(--neutro-200); transition: grid-template-rows 400ms var(--ease-out); }
+  .verbete dt { font: 600 var(--tamanho-sm)/1.3 var(--fonte-inter); color: var(--texto-600); transition: color 300ms ease; }
+  .verbete dd { margin: 0; overflow: hidden; min-height: 0; font-size: var(--tamanho-sm); line-height: 1.4; color: var(--cor-descricao); opacity: 0; transition: opacity 300ms ease; text-wrap: pretty; }
+  .verbete[data-aberto] { grid-template-rows: auto 1fr; }
+  .verbete[data-aberto] dt { color: var(--cor-titulo); }
+  .verbete[data-aberto] dd { opacity: 1; padding-top: 4px; }
 
   /* 6. Imprimir */
   .folhas { display: flex; align-items: flex-end; justify-content: flex-end; gap: 14px; margin-top: auto; padding: 8px 4px 0; }
@@ -672,25 +695,14 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .folha-grade i { flex: 1; border-top: 2px solid var(--carmim-800); background: repeating-linear-gradient(to bottom, var(--neutro-200) 0 2px, transparent 2px 6px); }
   .folha-rotulo { position: absolute; left: 6px; bottom: 6px; padding: 1px 4px; border-radius: 3px; background: var(--neutro-50); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--carmim-800); }
 
-  /* 7. Origem */
-  .origens-func { display: grid; gap: 10px; margin: auto 0 0; }
-  .origem { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 12px; row-gap: 4px; }
-  .origem-barra { grid-column: 1 / -1; height: 10px; border-radius: 5px; background: var(--neutro-200); position: relative; overflow: hidden; }
-  .origem-barra::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--carmim-800); transform-origin: left; transform: scaleX(0); transition: transform 900ms var(--ease-out); transition-delay: calc(200ms + var(--i) * 120ms); }
-  .origem:nth-child(2) .origem-barra::after { background: var(--carmim-600); }
-  .origem:nth-child(3) .origem-barra::after { background: var(--coral-500); }
-  .b-origem[data-visivel] .origem-barra::after { transform: scaleX(var(--p)); }
-  .origem-n { order: 2; font: 700 var(--tamanho-md)/1 var(--fonte-dm-sans); font-variant-numeric: tabular-nums; }
-  .origem-nome { order: 1; font-size: var(--tamanho-xs); color: var(--texto-700); }
-
   @media (max-width: 1080px) {
     .bento { grid-template-columns: repeat(2, 1fr); }
-    .b-visoes, .b-desafio, .b-imprimir, .b-origem, .b-contato { grid-column: 1 / -1; grid-row: auto; }
+    .b-visoes, .b-desafio, .b-imprimir { grid-column: 1 / -1; grid-row: auto; }
+    .b-contato, .b-glossario { grid-column: span 1; }
     /* empilhado, cada bloco tem a própria altura */
     .b-desafio { contain: none; }
     .desafio-area { flex: none; container-type: normal; }
     .desafio-grafico { width: 100%; }
-    .b-funcoes, .b-praticas { grid-column: span 1; }
     .b-visoes { min-height: 600px; }
   }
   @media (max-width: 640px) {

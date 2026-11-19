@@ -1,0 +1,66 @@
+---
+// Palco do playground /dev/bento-contato: o terceiro bloco do bento (Pontos de contato) ao lado do glossário,
+// que divide a linha com ele na página inicial, com a largura e margens da página inicial.
+// Uma página por conceito: /dev/bento-contato/chips, /etapas e /marquee (o painel troca o quadro de uma para a outra).
+// Fica num quadro (index.astro) para dar para testar larguras de tela; o painel (_dials.ts) mexe aqui dentro.
+import Base from "../../../layouts/Base.astro";
+import Funcionalidades from "../../../components/inicio/Funcionalidades.astro";
+import { conteudo } from "../../../lib/conteudo";
+import { CANAIS, FORA, SUGESTOES, icone } from "../../../lib/pontos-contato";
+export function getStaticPaths() { return [{ params: { conceito: "chips" } }, { params: { conceito: "etapas" } }, { params: { conceito: "marquee" } }]; }
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const contato = Astro.params.conceito as "chips" | "etapas" | "marquee";
+// lista de pills: os canais do mapa (com as etapas onde aparecem) e as sugestões de pontos de contato novos
+const nomeEtapa = (id: string) => conteudo.etapas.find((e) => e.id === id)?.nome ?? id;
+const noMapa = Object.entries(CANAIS).map(([canal, c]) => ({
+  canal: c.rotulo ?? canal, icone: c.icone,
+  etapas: [...new Set(conteudo.pontosContato.filter((p) => p.canal === canal).map((p) => nomeEtapa(p.etapa)))]
+}));
+const semIcone = [...new Set(conteudo.pontosContato.map((p) => p.canal))].filter((c) => !CANAIS[c] && !FORA.includes(c));
+const sugestoes = SUGESTOES.map((s) => ({ ...s, etapas: [nomeEtapa(s.etapa)] }));
+---
+<Base titulo="Bento: pontos de contato" cabecalho={false} rodape={false}>
+<main class="palco-corpo">
+  <Funcionalidades soOPrimeiro={false} contato={contato} />
+  <!-- sem sequência: o bloco 3 é o primeiro visível, o regente o deixa ativo e não passa a vez -->
+  <script is:inline>document.querySelector(".func .bento").dataset.sequencia = "nao";</script>
+
+  <!-- lista de pills com ícone: o que está no mapa e o que pode entrar -->
+  <section class="lista-pills" aria-labelledby="lista-pills-titulo">
+    <h2 id="lista-pills-titulo">Pills dos pontos de contato</h2>
+    {[{ titulo: `No mapa hoje (${noMapa.length})`, itens: noMapa }, { titulo: `Sugestões (${sugestoes.length})`, itens: sugestoes }].map((g) => (
+      <div class="lista-grupo">
+        <h3>{g.titulo}</h3>
+        <ul>
+          {g.itens.map(({ canal, icone: nome, etapas }) => { const Icone = icone(nome); return (
+            <li>
+              <span class="pill"><Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />{canal}</span>
+              <span class="etapas">{etapas.join(", ")}</span>
+              <code>{nome}</code>
+            </li>
+          ); })}
+        </ul>
+      </div>
+    ))}
+    {semIcone.length > 0 && <p class="aviso">Sem ícone ainda: {semIcone.join(", ")}</p>}
+  </section>
+</main>
+</Base>
+<style>
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  .palco-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  .palco-corpo :global(.func) { border-top: 0; padding-top: 24px; }
+  /* só a linha do bloco 3: ele e o glossário, lado a lado como na página inicial */
+  .palco-corpo :global(.func .bento > :not(.b-contato):not(.b-glossario)) { display: none; }
+  .lista-pills { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--neutro-300); font-family: var(--fonte-inter); color: var(--texto-900); }
+  .lista-pills h2 { margin: 0 0 24px; font: 600 var(--tamanho-lg)/1.2 var(--fonte-dm-sans); }
+  .lista-pills h3 { margin: 0 0 12px; font: 600 var(--tamanho-sm)/1.2 var(--fonte-inter); color: var(--texto-600); }
+  .lista-grupo + .lista-grupo { margin-top: 32px; }
+  .lista-pills ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 8px 24px; margin: 0; padding: 0; list-style: none; }
+  .lista-pills li { display: grid; grid-template-columns: 220px 1fr auto; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--neutro-200); font-size: var(--tamanho-sm); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; justify-self: start; padding: 5px 12px 5px 10px; border-radius: 999px; background: var(--neutro-50); border: 1px solid var(--neutro-300); font-size: var(--tamanho-sm); white-space: nowrap; }
+  .pill :global(svg) { flex: none; color: var(--coral-600); }
+  .etapas { color: var(--texto-600); font-size: var(--tamanho-xs); }
+  .lista-pills code { font-size: var(--tamanho-2xs); color: var(--texto-400); }
+  .aviso { margin-top: 16px; color: var(--carmim-700); font-size: var(--tamanho-sm); }
+</style>
