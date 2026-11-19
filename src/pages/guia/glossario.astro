@@ -1,0 +1,51 @@
+---
+// Glossário (página do Guia): as palavras do mapa explicadas para quem trabalha em museus. Texto em src/data/glossario.md
+// (versão pública do GLOSSARY.md, que é o glossário interno do projeto). Cada termo tem âncora (/guia/glossario#etapa)
+// para o mapa e a página inicial apontarem direto para ele.
+import Guia from "../../layouts/Guia.astro";
+import { gruposGlossario as secoes } from "../../lib/glossario";
+---
+<Guia titulo="Glossário" atual="glossario">
+<div class="glossario">
+  <p class="tagline">Guia</p>
+  <h1>As palavras do mapa, explicadas</h1>
+  <p class="lead">Cada termo que aparece no Mapa da Visita, para a equipe toda entender a mesma coisa. Consulte quando bater a dúvida.</p>
+
+  <nav class="glossario-indice" aria-label="Seções do glossário">
+    <ul>{secoes.map((s) => <li><a href={`#${s.id}`}>{s.titulo}</a></li>)}</ul>
+  </nav>
+
+  {secoes.map((s) => (
+    <section aria-labelledby={s.id}>
+      <h2 id={s.id}>{s.titulo}</h2>
+      <dl class="termos">
+        {s.termos.map((t) => (
+          <div class="termo" id={t.id}>
+            <dt><a href={`#${t.id}`}>{t.nome}</a></dt>
+            {t.paragrafos.map((p) => <dd set:html={p} />)}
+          </div>
+        ))}
+      </dl>
+    </section>
+  ))}
+</div>
+</Guia>
+
+<style>
+  .glossario { max-width: 44rem; }
+  .glossario h1 { font-size: var(--tamanho-3xl); }
+  .glossario-indice ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; padding: 0; list-style: none; }
+  .glossario-indice li { margin: 0; }
+  .glossario-indice a { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--neutro-300); font-size: var(--tamanho-sm); color: var(--texto-700); text-decoration: none;
+    transition: border-color 150ms ease, color 150ms ease; }
+  .glossario-indice a:hover { border-color: var(--coral-400); color: var(--texto-900); }
+  .termos { margin: 16px 0 0; }
+  .termo { padding: 16px 0; border-top: 1px solid var(--neutro-200); scroll-margin-top: 96px; }
+  .termo dt { margin: 0 0 6px; font: 600 var(--tamanho-md)/1.3 var(--fonte-dm-sans); }
+  .termo dt a { color: var(--carmim-800); text-decoration: none; }
+  .termo dt a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .termo dd { margin: 0; color: var(--texto-700); text-wrap: pretty; }
+  .termo dd + dd { margin-top: 8px; }
+  /* o termo aberto por link (/glossario#etapa) ganha um fundo para achar no meio da lista */
+  .termo:target { background: var(--coral-100); box-shadow: -12px 0 0 var(--coral-100), 12px 0 0 var(--coral-100); }
+</style>

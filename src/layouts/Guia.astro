@@ -1,0 +1,263 @@
+---
+// Moldura das páginas do Guia, na largura do conteúdo da página inicial (1360px, mesmas margens):
+// uma coluna estreita para a navegação (migalhas no topo, começando por musá, depois as páginas com o ícone de cada uma; a entrada do Guia fica só nas migalhas;
+// fixa ao rolar) e o resto para o conteúdo.
+// No celular, a navegação vai para o topo.
+import Base from "./Base.astro";
+import { paginasGuia, guias } from "../lib/guia";
+import { icone } from "../lib/pontos-contato";
+import { gruposGlossario } from "../lib/glossario";
+interface Props { titulo: string; atual?: string }
+const { titulo, atual } = Astro.props;
+// migalhas: musá › Guia › página (na entrada do Guia, só musá › Guia)
+// subitens da página aberta: no glossário, os grupos de termos (com os ícones da grade da entrada do Guia);
+// num guia, os títulos "## " do texto, sem ícone
+const subitens = (slug: string) => slug === "glossario"
+  ? gruposGlossario.map((g) => ({ titulo: g.titulo, href: `/guia/glossario#${g.id}`, icone: g.icone as string | undefined }))
+  : (guias.find((g) => g.slug === slug)?.secoes ?? []).map((s) => ({ titulo: s.titulo, href: `/guia/${slug}#${s.id}`, icone: undefined as string | undefined }));
+const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "Guia", href: "/guia" }, ...(atual ? [{ rotulo: titulo, href: `/guia/${atual}` }] : [])];
+---
+<Base titulo={titulo}>
+<div class="guia">
+  <aside class="guia-lado">
+    <nav class="migalhas" aria-label="Você está em">
+      <ol>
+        {migalhas.map((m, i) => (
+          <li>{i === migalhas.length - 1 ? <span aria-current="page">{m.rotulo}</span> : <a href={m.href}>{m.rotulo}</a>}</li>
+        ))}
+      </ol>
+    </nav>
+    <nav class="guia-menu" aria-label="Páginas do Guia">
+      {/* o filtro de giz dos dois traços (o das páginas e o do submenu), num svg à parte para valer mesmo com um dos traços escondido */}
+      <svg class="giz-defs" width="0" height="0" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="giz-menu" filterUnits="userSpaceOnUse" x="-10" y="-40" width="80" height="2000" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula" />
+            <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda" />
+            <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao" />
+            <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara" />
+            <feComposite in="borda" in2="mascara" operator="in" />
+          </filter>
+        </defs>
+      </svg>
+      {/* traço das páginas: a estrutura, ao lado dos itens, reto, da altura do meio do ícone do primeiro à do último;
+          desenha ao abrir e não muda mais. O desenho (d) é feito pelo script no fim, medindo a tela. */}
+      <svg class="menu-traco" width="6" height="100%" aria-hidden="true" focusable="false">
+        <path class="traco-base" d="" pathLength="1" filter="url(#giz-menu)" />
+      </svg>
+      <ul>
+        {paginasGuia.map((p) => { const Icone = icone(p.icone); return (
+          <li>
+            <a href={`/guia/${p.slug}`} aria-current={p.slug === atual ? "page" : undefined}><Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />{p.titulo}</a>
+            {/* a página aberta mostra os subitens dela embaixo; na entrada do Guia, os grupos do glossário também aparecem
+                (cada grupo leva direto ao trecho dele). Ao lado, um traço de giz vertical (o mesmo filtro do TracoGiz),
+                saindo de baixo do ícone da página e alinhado com o meio dele: o cinza (a estrutura) desenha reto ao abrir até o meio
+                do último subitem e não muda mais; a marca, na cor da marca, diz em que trecho a pessoa está: desce reta até o
+                subitem e, quando ela para ali (clicou, ou parou de rolar), termina numa curva que aponta para ele (script no fim) */}
+            {(p.slug === atual || (p.slug === "glossario" && !atual)) && subitens(p.slug).length > 0 && (
+              <div class="guia-submenu-caixa">
+                <svg class="submenu-traco" width="6" height="100%" aria-hidden="true" focusable="false">
+                  <path class="traco-base" d="" pathLength="1" filter="url(#giz-menu)" />
+                  <g class="traco-marca" filter="url(#giz-menu)"><line class="marca-reta" x1="3" x2="3" y1="0" y2="0" pathLength="1" /><path class="marca-gancho" d="" pathLength="1" /></g>
+                </svg>
+                <ul class="guia-submenu">
+                  {subitens(p.slug).map((s) => { const IconeSub = s.icone ? icone(s.icone) : null; return (
+                    <li><a href={s.href}>{IconeSub && <IconeSub width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />}{s.titulo}</a></li>
+                  ); })}
+                </ul>
+              </div>
+            )}
+          </li>
+        ); })}
+      </ul>
+    </nav>
+  </aside>
+  <main class="guia-conteudo"><slot /></main>
+</div>
+</Base>
+
+<style>
+  /* Valores ajustáveis em /dev/guia-menu (variáveis --menu-* no .guia) */
+  .guia { --menu-largura: 240px; --menu-gap: 40px; --menu-topo: 104px; --menu-espaco-migalhas: 24px;
+    --migalhas-tamanho: var(--tamanho-sm); --migalhas-cor: var(--texto-600); --migalhas-atual-cor: var(--texto-900); --migalhas-separador-cor: var(--neutro-400);
+    --menu-tamanho: var(--tamanho-sm); --menu-peso: 400; --menu-py: 6px; --menu-px: 10px; --menu-raio: 6px; --menu-entre: 2px; --menu-icone-gap: 8px;
+    --menu-cor: var(--texto-700); --menu-hover-fundo: var(--neutro-100); --menu-hover-cor: var(--texto-900);
+    --menu-atual-fundo: var(--coral-100); --menu-atual-cor: var(--texto-900); --menu-atual-peso: 500;
+    --menu-icone: 1.15em; --menu-icone-cor: var(--texto-600); --menu-icone-hover: var(--coral-600); --menu-icone-atual: var(--coral-600);
+    --submenu-recuo: 14px; --submenu-linha: var(--neutro-300); --submenu-marca: var(--carmim-600); --submenu-espessura: 2.5px;
+    --submenu-desenha-ms: 700ms; --menu-traco-afastamento: 6px; }
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  /* navegação numa coluna estreita (a largura do menu), o resto para o conteúdo */
+  .guia { display: grid; grid-template-columns: var(--menu-largura) minmax(0, 1fr); gap: var(--menu-gap);
+    max-width: 1360px; margin: 0 auto; padding: 40px clamp(16px, 3vw, 40px) 96px; }
+  .guia-lado { position: sticky; top: var(--menu-topo); align-self: start; display: flex; flex-direction: column; gap: var(--menu-espaco-migalhas); }
+  .migalhas ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; font-size: var(--migalhas-tamanho); color: var(--migalhas-cor); }
+  .migalhas li { margin: 0; }
+  .migalhas li + li::before { content: "/"; margin: 0 8px; color: var(--migalhas-separador-cor); }
+  .migalhas a { color: var(--migalhas-cor); text-decoration: none; transition: color 150ms ease; }
+  .migalhas a:hover { color: var(--migalhas-atual-cor); text-decoration: underline; text-underline-offset: 3px; }
+  .migalhas [aria-current] { color: var(--migalhas-atual-cor); font-weight: 500; }
+  .guia-menu ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--menu-entre); }
+  .guia-menu li { margin: 0; }
+  .guia-menu li a { display: flex; align-items: center; gap: var(--menu-icone-gap); padding: var(--menu-py) var(--menu-px); margin-left: calc(-1 * var(--menu-px)); border-radius: var(--menu-raio);
+    font-size: var(--menu-tamanho); font-weight: var(--menu-peso); color: var(--menu-cor); text-decoration: none;
+    transition: background-color 150ms ease, color 150ms ease; }
+  .guia-menu li a:hover, .guia-menu li a[data-forcar-hover] { background: var(--menu-hover-fundo); color: var(--menu-hover-cor); }
+  .guia-menu li a[aria-current="page"] { background: var(--menu-atual-fundo); color: var(--menu-atual-cor); font-weight: var(--menu-atual-peso); }
+  .guia-submenu-caixa { position: relative; margin: var(--menu-entre) 0 0 var(--submenu-recuo); }
+  .guia-submenu { padding-left: var(--menu-px) !important; }
+  .guia[data-sem-submenu] .guia-submenu-caixa { display: none; }
+  /* traços de giz (páginas e submenu): cinza desenhado ao abrir; a marca (cor da marca) desenha por cima até o item escolhido.
+     Antes de desenhar, o traço fica escondido: com o traçado vazio, a ponta redonda ainda pintava um pingo no começo. */
+  .guia-menu { position: relative; }
+  .giz-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .menu-traco { position: absolute; left: calc(-1 * var(--menu-px) - var(--menu-traco-afastamento) - 3px); top: 0; height: 100%; overflow: visible; pointer-events: none; }
+  .guia[data-sem-traco-paginas] .menu-traco { display: none; }
+  .submenu-traco { position: absolute; left: -3px; top: 0; height: 100%; overflow: visible; pointer-events: none; }
+  .menu-traco :is(path, line), .submenu-traco :is(path, line) { fill: none; stroke-width: var(--submenu-espessura); stroke-linecap: round; stroke-linejoin: round; }
+  /* traço escondido = um só traço (1) seguido de um vão maior que o caminho (2), empurrado um pouco além do começo (1.01):
+     com "1" sozinho o padrão se repetia e um traço de comprimento zero nascia na ponta do caminho, e a ponta redonda pintava
+     um pingo ali (o mesmo do começo) */
+  .traco-base, .marca-reta { stroke-dasharray: 1 2; stroke-dashoffset: 1.01; }
+  .traco-base { stroke: var(--submenu-linha); animation: desenhar-traco var(--submenu-desenha-ms) cubic-bezier(0.23, 1, 0.32, 1) 150ms both; }
+  /* a marca (só no submenu): uma reta com o comprimento todo, mostrada só até a altura certa (stroke-dashoffset), e a curva do
+     fim (o gancho), que desce junto (translate) com a mesma duração e a mesma curva. Enquanto a pessoa rola, a reta acompanha
+     e a curva fica recolhida; quando ela para (ou clica), a curva desenha (data-curva). Tudo interrompível. */
+  .traco-marca { stroke: var(--submenu-marca); opacity: 0; transition: opacity 200ms ease-out; }
+  .traco-marca[data-desenha] { opacity: 1; }
+  .marca-reta { transition: stroke-dashoffset var(--submenu-desenha-ms) cubic-bezier(0.23, 1, 0.32, 1); }
+  .marca-gancho { stroke-dasharray: 1 2; stroke-dashoffset: 1.01;
+    transition: translate var(--submenu-desenha-ms) cubic-bezier(0.23, 1, 0.32, 1), stroke-dashoffset 120ms ease-out; }
+  .marca-gancho[data-curva] { stroke-dashoffset: 0; transition: translate var(--submenu-desenha-ms) cubic-bezier(0.23, 1, 0.32, 1), stroke-dashoffset 300ms cubic-bezier(0.23, 1, 0.32, 1) 150ms; }
+  @keyframes desenhar-traco { 0% { stroke-dashoffset: 1.01; opacity: 0; } 0.1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .traco-base { animation: none; stroke-dashoffset: 0; }
+    .marca-reta, .marca-gancho, .marca-gancho[data-curva] { transition: none; }
+  }
+  .guia-menu li a :global(svg) { flex: none; width: var(--menu-icone); height: var(--menu-icone); color: var(--menu-icone-cor); transition: color 150ms ease; }
+  .guia-menu li a:hover :global(svg), .guia-menu li a[data-forcar-hover] :global(svg) { color: var(--menu-icone-hover); }
+  .guia-menu li a[aria-current="page"] :global(svg) { color: var(--menu-icone-atual); }
+  .guia[data-sem-icones] .guia-menu li a :global(svg) { display: none; }
+  .guia-conteudo { min-width: 0; }
+  @media (max-width: 860px) {
+    .guia { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
+    .guia-lado { position: static; gap: 16px; }
+    .guia-menu ul { flex-direction: row; flex-wrap: wrap; gap: 6px; max-width: none; }
+    .guia-menu li a { margin: 0; border: 1px solid var(--neutro-300); border-radius: 999px; padding: 4px 12px; }
+    .guia-submenu-caixa { margin: 0; }
+    .submenu-traco, .menu-traco { display: none; }
+  }
+</style>
+
+<script>
+  // Traços de giz do menu. O cinza é a estrutura: reto, desenha ao abrir a página e não muda mais.
+  // - páginas: ao lado dos itens, da altura do meio do ícone do primeiro à do último. Só cinza.
+  // - submenu: sai de logo abaixo do ícone da página, alinhado com o meio dele, até o meio do último subitem.
+  //   Na página aberta, a marca (cor da marca) diz em que trecho a pessoa está: ancorada reta no começo, desce até o subitem
+  //   do trecho na tela enquanto ela rola, sem curva; quando ela para (fim da rolagem) ou clica num subitem, a marca termina
+  //   numa curva que aponta para ele. Antes do primeiro trecho, não aparece.
+  // As posições são medidas na tela e refeitas quando o menu muda de tamanho.
+  const guia = document.querySelector<HTMLElement>(".guia");
+  const nav = document.querySelector<HTMLElement>(".guia-menu");
+  const meio = (el: Element) => { const r = el.getBoundingClientRect(); return r.top + r.height / 2; };
+  const medidas: (() => void)[] = [];
+  const medirTudo = () => medidas.forEach((m) => m());
+  const ganchos: Record<string, unknown> = {};
+
+  // Um traço, reto, em x=3 do svg: `inicio` é a altura (na tela) onde ele começa; o cinza vai até o meio do último item.
+  // Se o svg tem marca, ela vai até o meio de `alvo` (nenhum: escondida); com `curva`, termina numa curva que para um pouco
+  // antes de `ate(alvo)`, o x (na tela) do ícone (ou do texto) do item.
+  const R = 6, FOLGA = 4;
+  function traco(svg: SVGSVGElement, caixa: HTMLElement, itens: HTMLElement[], o: { inicio: () => number; ate?: (a: HTMLElement) => number; posicionar?: () => void }) {
+    const base = svg.querySelector<SVGPathElement>(".traco-base")!, marca = svg.querySelector<SVGGElement>(".traco-marca");
+    const reta = marca?.querySelector<SVGLineElement>(".marca-reta"), gancho = marca?.querySelector<SVGPathElement>(".marca-gancho");
+    let alvo: HTMLElement | null = null, curva = false;
+    const medir = () => {
+      o.posicionar?.();
+      const c = caixa.getBoundingClientRect().top, sx = svg.getBoundingClientRect().left + 3;
+      const topo = o.inicio() - c, fim = meio(itens[itens.length - 1]) - c;
+      base.setAttribute("d", `M 3 ${topo} V ${fim}`);
+      if (!marca || !reta || !gancho) return;
+      reta.setAttribute("y1", String(topo)); reta.setAttribute("y2", String(fim));
+      // a curva, desenhada em volta de y=0 e descida até o meio do alvo; a reta para onde ela começa
+      const y = alvo ? meio(alvo) - c : topo, r = Math.max(0, Math.min(R, y - topo));
+      const largura = alvo && o.ate ? Math.max(r, o.ate(alvo) - FOLGA - sx) : R;
+      gancho.setAttribute("d", `M 3 ${-r} Q 3 0 ${3 + r} 0 H ${3 + largura}`);
+      gancho.style.translate = `0 ${y}px`;
+      gancho.toggleAttribute("data-curva", !!alvo && curva);
+      // sem a curva, a reta vai até o meio do subitem; com ela, até onde a curva começa
+      const ponta = alvo && curva ? y - r : y;
+      const f = alvo && fim > topo ? Math.min(1, Math.max(0, (ponta - topo) / (fim - topo))) : 0;
+      reta.style.strokeDashoffset = String(f > 0 ? 1 - f : 1.01);
+      marca.toggleAttribute("data-desenha", !!alvo);
+    };
+    medidas.push(medir); medir();
+    return { ir: (a: HTMLElement | null, comCurva = false) => { if (a === alvo && comCurva === curva) return; alvo = a; curva = comCurva; medir(); } };
+  }
+  const iconeOuTexto = (a: HTMLElement) => {
+    const i = a.querySelector("svg");
+    return i ? i.getBoundingClientRect().left : a.getBoundingClientRect().left + parseFloat(getComputedStyle(a).paddingLeft);
+  };
+
+  // traço das páginas
+  const svgPaginas = nav?.querySelector<SVGSVGElement>(":scope > .menu-traco");
+  const itens = nav ? [...nav.querySelectorAll<HTMLAnchorElement>(":scope > ul > li > a")] : [];
+  if (nav && svgPaginas && itens.length) traco(svgPaginas, nav, itens, { inicio: () => meio(itens[0].querySelector("svg") ?? itens[0]) });
+
+  // traço do submenu
+  const caixa = document.querySelector<HTMLElement>(".guia-submenu-caixa");
+  const svg = caixa?.querySelector<SVGSVGElement>(".submenu-traco");
+  const paiLink = caixa?.parentElement?.querySelector<HTMLAnchorElement>(":scope > a");
+  const iconePai = paiLink?.querySelector<SVGElement>("svg");
+  if (caixa && svg && paiLink && iconePai) {
+    const grupos = [...caixa.querySelectorAll<HTMLAnchorElement>(".guia-submenu a")];
+    const t = traco(svg, caixa, grupos, {
+      // um pouco abaixo do ícone da página, para não encostar nele
+      inicio: () => iconePai.getBoundingClientRect().bottom + 7,
+      ate: iconeOuTexto,
+      // o svg tem a reta em x=3: posiciona para ela cair no meio do ícone da página
+      posicionar: () => {
+        const i = iconePai.getBoundingClientRect();
+        svg.style.left = `${i.left + i.width / 2 - caixa.getBoundingClientRect().left - 3}px`;
+      }
+    });
+    ganchos.desenhar = (i = 0) => { t.ir(null); setTimeout(() => t.ir(grupos[i], true), 50); };
+
+    // na página aberta, cada subitem tem o seu trecho (o título com o id do link)
+    const aberta = paiLink.getAttribute("aria-current") === "page";
+    const trechos = aberta ? grupos.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1)))) : [];
+    if (aberta && trechos.every(Boolean)) {
+      // o trecho na tela: o último cujo título já passou de 30% da altura da janela (no fim da página, o último)
+      const naTela = () => {
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) return grupos[grupos.length - 1];
+        let achado: HTMLAnchorElement | null = null;
+        for (let i = 0; i < trechos.length; i++) if (trechos[i]!.getBoundingClientRect().top <= innerHeight * 0.3) achado = grupos[i];
+        return achado;
+      };
+      // rolando: a marca acompanha, reta; parou (scrollend, ou 180ms sem rolar onde não há scrollend): a curva desenha
+      let travado = false, espera = 0;
+      const parar = () => { clearTimeout(espera); if (travado) { travado = false; return; } t.ir(naTela(), true); };
+      addEventListener("scroll", () => {
+        if (travado) return;
+        t.ir(naTela());
+        clearTimeout(espera); espera = setTimeout(parar, 180);
+      }, { passive: true });
+      addEventListener("scrollend", parar);
+      // ao clicar, a pessoa já escolheu: a marca vai direto ao subitem, com a curva, e a rolagem até lá não a muda
+      grupos.forEach((a) => a.addEventListener("click", () => {
+        travado = true; t.ir(a, true);
+        clearTimeout(espera); espera = setTimeout(() => (travado = false), 1200);
+      }));
+      // ao abrir (inclusive já num trecho, /guia/glossario#a-visita), espera o cinza começar
+      setTimeout(() => t.ir(naTela(), true), 450);
+    }
+  }
+
+  if (guia && medidas.length) {
+    // para o playground /dev/guia-menu repetir os desenhos sem clicar (clicar navegaria)
+    (window as any).musaSubmenu = { ...ganchos, medir: medirTudo };
+    new ResizeObserver(medirTudo).observe(guia.querySelector(".guia-lado")!);
+    // o playground /dev/guia-menu muda as variáveis no .guia: mede de novo
+    new MutationObserver(() => requestAnimationFrame(medirTudo)).observe(guia, { attributes: true, attributeFilter: ["style"] });
+  }
+</script>

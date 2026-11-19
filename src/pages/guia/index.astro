@@ -1,0 +1,93 @@
+---
+// Guia: entrada. Título, os dois pontos de partida (começar e imprimir), os grupos do glossário e, depois, as fontes
+// (layout das fontes ainda em aberto). Ícones do Iconoir, sem repetir os das pills de pontos de contato.
+import Guia from "../../layouts/Guia.astro";
+import TracoGiz from "../../components/TracoGiz.astro";
+import { icone } from "../../lib/pontos-contato";
+import { gruposGlossario } from "../../lib/glossario";
+import { paginasGuia } from "../../lib/guia";
+
+// os dois pontos de partida: título, texto e ícone vêm dos próprios guias (os mesmos do menu lateral)
+const PARTIDAS = ["como-comecar", "como-imprimir"].map((slug) => paginasGuia.find((p) => p.slug === slug)!)
+  .map((p) => ({ titulo: p.titulo, texto: p.resumo, href: `/guia/${p.slug}`, Icone: icone(p.icone) }));
+const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hidden": "true" };
+---
+<Guia titulo="Guia">
+<div class="guia-entrada">
+  <h1>Como musá?</h1>
+  <p class="lead">Entenda como usar essa ferramenta e mergulhe fundo nos conceitos pesquisados pela equipe.</p>
+
+  <ul class="cartoes cartoes-partida">
+    {PARTIDAS.map(({ titulo, texto, href, Icone }) => (
+      <li><a class="cartao" href={href}>
+        <Icone {...iconeProps} />
+        <strong>{titulo}</strong>
+        <span>{texto}</span>
+      </a></li>
+    ))}
+  </ul>
+
+  <TracoGiz class="divisor" />
+  <section class="secao" aria-labelledby="glossario-titulo">
+    <h2 id="glossario-titulo"><a href="/guia/glossario">Glossário</a></h2>
+    <p>Cada palavra do mapa explicada, para a equipe toda entender a mesma coisa.</p>
+    <ul class="cartoes">
+      {gruposGlossario.map((g) => { const Icone = icone(g.icone); return (
+        <li class="cartao grupo">
+          <Icone {...iconeProps} />
+          <a class="grupo-titulo" href={`/guia/glossario#${g.id}`}><strong>{g.titulo}</strong></a>
+          <ul class="grupo-termos">
+            {g.termos.map((t) => <li><a href={`/guia/glossario#${t.id}`}>{t.nome}</a></li>)}
+          </ul>
+        </li>
+      ); })}
+    </ul>
+  </section>
+</div>
+</Guia>
+
+<style>
+  h1 { margin: 0 0 12px; font-size: var(--tamanho-3xl); text-wrap: balance; }
+  .lead { max-width: 36rem; text-wrap: pretty; }
+  /* Cartões das grades (ajustáveis em /dev/guia-cartoes pelas variáveis --cartao-*): quase quadrados, de largura fixa;
+     a grade não precisa ocupar a largura toda. Sistema do bento: cantos de 0.375rem, fundo claro, ícone coral. */
+  /* valores de /dev/guia-cartoes (19/11/2026) */
+  .guia-entrada { --cartao-largura: 300px; --cartao-gap: 24px; --cartao-proporcao: 1; --cartao-respiro: 20px; --cartao-raio: 4px;
+    /* fundo e borda em degradê de cima para baixo, como os blocos do bento (parado e com o mouse em cima) */
+    --cartao-fundo-topo: var(--neutro-100); --cartao-fundo-pe: var(--neutro-100); --cartao-borda-topo: var(--coral-100); --cartao-borda-pe: var(--neutro-50);
+    --cartao-hover-fundo-topo: var(--coral-100); --cartao-hover-fundo-pe: var(--coral-100); --cartao-hover-borda-topo: var(--coral-200); --cartao-hover-borda-pe: var(--neutro-50);
+    --cartao-icone: 2.5em; --cartao-icone-cor: var(--carmim-700); --cartao-titulo: var(--tamanho-lg); --cartao-titulo-peso: 600; --cartao-titulo-cor: var(--texto-900);
+    --cartao-texto: var(--tamanho-md); --cartao-texto-cor: var(--texto-700); --cartao-espaco: 6px; --cartao-termos: var(--tamanho-sm); --cartao-termos-cor: var(--carmim-800); }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, var(--cartao-largura)); gap: var(--cartao-gap); margin: 24px 0 0; padding: 0; list-style: none; }
+  .cartoes > li { margin: 0; }
+  /* quadrado (cresce se o texto não couber); ícone em cima, texto embaixo */
+  /* as quatro cores registradas como <color> para o degradê transicionar no hover */
+  @property --c-fundo-topo { syntax: "<color>"; inherits: false; initial-value: transparent; }
+  @property --c-fundo-pe { syntax: "<color>"; inherits: false; initial-value: transparent; }
+  @property --c-borda-topo { syntax: "<color>"; inherits: false; initial-value: transparent; }
+  @property --c-borda-pe { syntax: "<color>"; inherits: false; initial-value: transparent; }
+  .cartao { display: flex; flex-direction: column; align-items: flex-start; gap: var(--cartao-espaco); aspect-ratio: var(--cartao-proporcao); box-sizing: border-box; padding: var(--cartao-respiro);
+    --c-fundo-topo: var(--cartao-fundo-topo); --c-fundo-pe: var(--cartao-fundo-pe); --c-borda-topo: var(--cartao-borda-topo); --c-borda-pe: var(--cartao-borda-pe);
+    /* borda em degradê: fundo no padding-box, degradê da borda no border-box */
+    border: 1px solid transparent; border-radius: var(--cartao-raio); color: inherit; text-decoration: none;
+    background: linear-gradient(var(--c-fundo-topo), var(--c-fundo-pe)) padding-box, linear-gradient(var(--c-borda-topo), var(--c-borda-pe)) border-box;
+    transition: --c-fundo-topo 200ms ease, --c-fundo-pe 200ms ease, --c-borda-topo 200ms ease, --c-borda-pe 200ms ease; }
+  .cartao :global(svg) { flex: none; width: var(--cartao-icone); height: var(--cartao-icone); margin-bottom: auto; padding-bottom: 12px; color: var(--cartao-icone-cor); }
+  .cartao strong { font: var(--cartao-titulo-peso) var(--cartao-titulo)/1.25 var(--fonte-dm-sans); color: var(--cartao-titulo-cor); text-wrap: balance; }
+  .cartao span { font-size: var(--cartao-texto); color: var(--cartao-texto-cor); text-wrap: pretty; }
+  a.cartao:hover, .guia-entrada[data-hover] a.cartao {
+    --c-fundo-topo: var(--cartao-hover-fundo-topo); --c-fundo-pe: var(--cartao-hover-fundo-pe); --c-borda-topo: var(--cartao-hover-borda-topo); --c-borda-pe: var(--cartao-hover-borda-pe); }
+  /* entre as seções, o traço de giz (TracoGiz) no lugar da linha */
+  :global(.traco-giz.divisor) { margin: 72px 0 40px; }
+  .secao h2 { margin: 0 0 8px; font-size: var(--tamanho-2xl); }
+  .secao h2 a { color: inherit; text-decoration: none; }
+  .secao h2 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .secao > p { margin: 0; color: var(--texto-700); }
+  .grupo-titulo { color: inherit; text-decoration: none; }
+  .grupo-titulo:hover strong { text-decoration: underline; text-underline-offset: 3px; }
+  .grupo-termos { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .grupo-termos li { margin: 0; }
+  .grupo-termos a { font-size: var(--cartao-termos); color: var(--cartao-termos-cor); text-decoration: none; }
+  .grupo-termos a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 560px) { .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cartao { padding: 16px; } }
+</style>
