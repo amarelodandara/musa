@@ -28,25 +28,25 @@ const config: Record<string, any> = {
   recuoDoIcone: [-4, -12, 4, 0.5],
   titulo: {
     _collapsed: false,
-    tamanho: select(Object.keys(TAMANHOS), "text-lg"),
-    peso: select(Object.keys(PESOS), "font-semibold"),
+    tamanho: select(Object.keys(TAMANHOS), "text-md"),
+    peso: select(Object.keys(PESOS), "font-medium"),
     cor: select(cores("text"), "text-texto-900"),
     corComMouse: select(cores("text"), "text-texto-900")
   },
   // a lista de termos
-  arrumacao: select(["linha corrida", "lista", "chips"], "linha corrida"),
+  arrumacao: select(["linha corrida", "lista", "chips"], "lista"),
   texto: {
     _collapsed: false,
     tamanho: select(Object.keys(TAMANHOS), "text-sm"),
     peso: select(Object.keys(PESOS), "font-normal"),
-    cor: select(cores("text"), "text-carmim-800"),
-    corComMouse: select(cores("text"), "text-carmim-800")
+    cor: select(cores("text"), "text-texto-700"),
+    corComMouse: select(cores("text"), "text-carmim-700")
   },
   espacos: {
     _collapsed: false,
-    entreTermos: [14, 0, 32, 1],
+    entreTermos: [12, 0, 32, 1],
     entreLinhas: [4, 0, 20, 1],
-    acimaDaLista: [8, 0, 32, 1]
+    acimaDaLista: [0, 0, 32, 1]
   },
   separador: select(Object.keys(SEPARADORES), "nenhum"),
   chips: {

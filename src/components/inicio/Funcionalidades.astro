@@ -3,17 +3,19 @@
 // O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
 // enquanto estão na tela e param quando a pessoa mexe neles.
 import { conteudo, DESAFIOS, desafio, type Desafio } from "../../lib/conteudo";
-import glossario from "../../../GLOSSARY.md?raw";
+import { gruposGlossario } from "../../lib/glossario";
 import { icone, pillsContato } from "../../lib/pontos-contato";
 
 const { etapas, pontosContato } = conteudo;
 const canais = [...new Set(pontosContato.map((p) => p.canal))];
 
-// Bloco "Glossário": termos do mapa tirados do GLOSSARY.md (a primeira frase de cada definição)
+// Bloco "Glossário": termos do mapa tirados do glossário público (src/data/glossario.md, o mesmo de /guia/glossario),
+// termos principais ou subtermos, com a primeira frase de cada definição
 const TERMOS = ["Etapa", "Fase", "Camada", "Prática", "Ponto de contato"];
+const todosTermos = gruposGlossario.flatMap((g) => g.termos.flatMap((t) => [t, ...t.subtermos]));
 const termos = TERMOS.map((nome) => {
-  const m = glossario.match(new RegExp(`\\*\\*${nome}\\*\\*:\\s*\\n([^\\n]+)`));
-  const def = (m?.[1] ?? "").replace(/\*/g, "").match(/^.*?[.!?](?=\s|$)/)?.[0] ?? "";
+  const t = todosTermos.find((x) => x.nome === nome);
+  const def = (t?.paragrafos[0] ?? "").replace(/<[^>]+>/g, "").match(/^.*?[.!?](?=\s|$)/)?.[0] ?? "";
   return { nome, def };
 }).filter((t) => t.def);
 
@@ -165,10 +167,11 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     </article>
 
     <!-- 5b. Glossário -->
-    <article class="bloco-b b-glossario" data-revelar>
+    <a class="bloco-b b-glossario" href="/guia/glossario" data-revelar>
       <div class="b-texto">
         <h3>Fale a mesma língua da sua equipe</h3>
         <p>O glossário explica cada palavra do mapa, para todo mundo entender a mesma coisa.</p>
+        <span class="b-link">Abrir o glossário <span aria-hidden="true">→</span></span>
       </div>
       <dl class="verbetes">
         {termos.map((t, i) => (
@@ -178,7 +181,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
           </div>
         ))}
       </dl>
-    </article>
+    </a>
 
     <!-- 6. Imprimir -->
     <a class="bloco-b b-imprimir" href="/baixar" data-revelar>
@@ -500,7 +503,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .b-texto p { margin: 0; text-wrap: balance; }
   .b-link { display: inline-block; margin-top: 12px; font: 600 var(--tamanho-sm)/1 var(--fonte-inter); color: var(--carmim-800); text-decoration: none; }
   .b-link span { display: inline-block; transition: transform 200ms var(--ease-out); }
-  .b-link:hover span, .b-imprimir:hover .b-link span { transform: translateX(3px); }
+  .b-link:hover span, .b-imprimir:hover .b-link span, .b-glossario:hover .b-link span { transform: translateX(3px); }
 
   /* Sistema de todos os blocos (decidido no primeiro bloco, em /dev/bento-mapa e /dev/bento-estados, 18/11/2026):
      cantos de 0.375rem, borda em degradê de cima para baixo, e as cores do bloco ativo e do inativo

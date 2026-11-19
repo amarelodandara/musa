@@ -9,6 +9,7 @@ import { icone } from "../lib/pontos-contato";
 import { gruposGlossario } from "../lib/glossario";
 interface Props { titulo: string; atual?: string }
 const { titulo, atual } = Astro.props;
+const IconeLeiaMais = icone("BookmarkBook");
 // migalhas: musá › guia › página (na entrada do Guia, só musá › guia), em minúscula como musá
 // subitens da página aberta: no glossário, os grupos de termos (com os ícones da grade da entrada do Guia);
 // num guia, os títulos "## " do texto, sem ícone
@@ -69,6 +70,8 @@ const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia
             )}
           </li>
         ); })}
+        {/* Leia mais: não é uma página, é a última seção da entrada do Guia (/guia#leia-mais), no mesmo nível das páginas */}
+        <li><a href="/guia#leia-mais"><IconeLeiaMais width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />Leia mais</a></li>
       </ul>
     </nav>
   </aside>
@@ -81,9 +84,11 @@ const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia
   .guia { --menu-largura: 240px; --menu-gap: 40px; --menu-topo: 104px; --menu-espaco-migalhas: 24px;
     --migalhas-tamanho: var(--tamanho-sm); --migalhas-cor: var(--texto-600); --migalhas-atual-cor: var(--texto-900); --migalhas-separador-cor: var(--neutro-400);
     --menu-tamanho: var(--tamanho-sm); --menu-peso: 400; --menu-py: 6px; --menu-px: 10px; --menu-raio: 6px; --menu-entre: 2px; --menu-icone-gap: 8px;
-    --menu-cor: var(--texto-700); --menu-hover-fundo: var(--neutro-100); --menu-hover-cor: var(--texto-900);
+    --menu-cor: var(--texto-700);
+    /* com o mouse: sem fundo, texto e ícone em carmim; o ícone um passo mais escuro, porque o traço fino dele parece mais claro que as letras */
+    --menu-hover-fundo: transparent; --menu-hover-cor: var(--carmim-700);
     --menu-atual-fundo: var(--coral-100); --menu-atual-cor: var(--texto-900); --menu-atual-peso: 500;
-    --menu-icone: 1.15em; --menu-icone-cor: var(--texto-600); --menu-icone-hover: var(--coral-600); --menu-icone-atual: var(--coral-600);
+    --menu-icone: 1.15em; --menu-icone-cor: var(--texto-600); --menu-icone-hover: var(--carmim-800); --menu-icone-atual: var(--coral-600);
     --submenu-recuo: 14px; --submenu-linha: var(--neutro-300); --submenu-marca: var(--carmim-600); --submenu-espessura: 2.5px;
     --submenu-desenha-ms: 700ms; --menu-traco-afastamento: 6px; }
   /* igual a .inicio-corpo em src/pages/index.astro */

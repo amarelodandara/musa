@@ -66,7 +66,7 @@ const config: Record<string, any> = {
   termos: {
     _collapsed: false,
     tamanho: select(Object.keys(TAMANHOS), "text-sm"),
-    cor: select(cores("text"), "text-carmim-800")
+    cor: select(cores("text"), "text-texto-700")
   }
 };
 

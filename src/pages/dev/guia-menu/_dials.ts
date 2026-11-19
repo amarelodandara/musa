@@ -47,8 +47,8 @@ const config: Record<string, any> = {
     espacoEntreItens: [2, 0, 16, 1],
     espacoIconeTexto: [8, 0, 20, 1],
     cor: select(cores("text"), "text-texto-700"),
-    fundoComMouse: select(cores("bg"), "bg-neutro-100"),
-    corComMouse: select(cores("text"), "text-texto-900"),
+    fundoComMouse: select(cores("bg"), "bg-transparente"),
+    corComMouse: select(cores("text"), "text-carmim-700"),
     fundoAtual: select(cores("bg"), "bg-coral-100"),
     corAtual: select(cores("text"), "text-texto-900"),
     pesoAtual: select(Object.keys(PESOS), "font-medium")
@@ -58,7 +58,7 @@ const config: Record<string, any> = {
     mostrar: true,
     tamanho: [1.15, 0.8, 2, 0.05],
     cor: select(cores("text"), "text-texto-600"),
-    corComMouse: select(cores("text"), "text-coral-600"),
+    corComMouse: select(cores("text"), "text-carmim-800"),
     corAtual: select(cores("text"), "text-coral-600")
   },
   submenu: {
