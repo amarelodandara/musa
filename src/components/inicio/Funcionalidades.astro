@@ -44,9 +44,9 @@ const descricaoGrafico = "Nível de desafio de cada etapa: " + pontos.map((p) =>
 // Bloco "Imprimir": as três folhas em leque, com a prévia de verdade de cada PDF (public/arquivos/previa-*.png, feitas
 // por scripts/pdfs.mjs junto com os PDFs). A ordem é a do leque, da esquerda para a direita; a A1 fica na frente, no meio.
 const FOLHAS = [
-  { formato: "A4", previa: "/arquivos/previa-a4.png" },
-  { formato: "A1", previa: "/arquivos/previa-a1.png" },
-  { formato: "A2", previa: "/arquivos/previa-a2.png" }
+  { formato: "A4", previa: "/arquivos/previa-a4.png", l: 1403, a: 992 },
+  { formato: "A1", previa: "/arquivos/previa-a1.png", l: 2119, a: 1497 },
+  { formato: "A2", previa: "/arquivos/previa-a2.png", l: 2041, a: 1443 }
 ];
 // Em ajuste, um bloco por vez: enquanto for true, só o primeiro (o mapa) aparece; os outros continuam no código.
 const SO_O_PRIMEIRO = false;
@@ -262,7 +262,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       <div class="folhas" aria-hidden="true">
         {FOLHAS.map((f, i) => (
           <div class="folha" style={`--i:${i}`}>
-            <img src={f.previa} alt="" loading="lazy" decoding="async" />
+            <img src={f.previa} alt="" width={f.l} height={f.a} loading="lazy" decoding="async" />
             <span class="folha-rotulo">{f.formato}</span>
           </div>
         ))}
@@ -565,6 +565,8 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       });
     }
     desenhar();
+    // movimento reduzido: o laço não roda; os três círculos já aparecem desenhados, parados
+    if (calmo) termosCelula.forEach((t) => { t.dataset.circulado = ""; });
     new ResizeObserver(desenhar).observe(cel);
     new MutationObserver(desenhar).observe(cel, { attributes: true, attributeFilter: ["data-volta", "style"] });
     let i = 0;
@@ -579,7 +581,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       }
       if (!(await l.esperar(num("pausa", 2600)))) return;
       termosCelula.forEach((t) => { t.dataset.apagando = ""; delete t.dataset.circulado; });
-      await l.esperar(320);
+      await l.esperar(220);
       termosCelula.forEach((t) => delete t.dataset.apagando);
       i = 0;
     }, { aoParar: () => {} });
@@ -803,8 +805,12 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   /* o link desce para o pé do bloco, à esquerda da célula (no celular, empilhado, fica no fluxo) */
   .b-botao { margin-top: 16px; align-self: flex-start; }
   /* o bloco inteiro é o link: o botão (só desenho) acende com o mouse em qualquer parte dele */
-  .b-glossario:hover .b-botao, .b-imprimir:hover .b-botao { color: var(--b-texto-passar); }
-  .b-glossario:hover .b-botao::after, .b-imprimir:hover .b-botao::after { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) {
+    .b-glossario:hover .b-botao, .b-imprimir:hover .b-botao { color: var(--b-texto-passar); }
+    .b-glossario:hover .b-botao::after, .b-imprimir:hover .b-botao::after { opacity: 1; }
+  }
+  /* apertar em qualquer parte do bloco aperta o botão (o bloco é o link) */
+  .b-glossario:active .b-botao, .b-imprimir:active .b-botao { scale: 0.97; }
   @media (min-width: 641px) { .b-glossario[data-glossario="celula"] .b-botao { position: absolute; left: 28px; bottom: 28px; margin: 0; } }
   /* a célula vem de src/styles/mapa-celula.css (a mesma do mapa); aqui só o recorte (largura da coluna em repouso,
      fundo e linhas da Etapa fechada, degradê embaixo), o borrado e os termos que acendem */
@@ -822,8 +828,9 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .circulo path { fill: none; stroke: var(--circulo-cor); stroke-width: var(--circulo-espessura); stroke-linecap: round; stroke-linejoin: round;
     stroke-dasharray: 1; stroke-dashoffset: 1; }
   .celula-g[data-giz="sim"] .circulo path { filter: url(#circulo-giz); }
-  .celula-g mark[data-circulado] .circulo path { stroke-dashoffset: 0; transition: stroke-dashoffset var(--circulo-ms) cubic-bezier(0.65, 0, 0.35, 1); }
-  .celula-g mark[data-apagando] .circulo path { stroke-dashoffset: 0; opacity: 0; transition: opacity 300ms ease-out; }
+  .celula-g mark[data-circulado] .circulo path { stroke-dashoffset: 0; transition: stroke-dashoffset var(--circulo-ms) var(--ease-in-out); }
+  /* sair é mais rápido que entrar */
+  .celula-g mark[data-apagando] .circulo path { stroke-dashoffset: 0; opacity: 0; transition: opacity 200ms ease-out; }
   @media (max-width: 640px) { .celula-g { margin-right: -24px; } }
 
   /* 6. Imprimir */
@@ -831,11 +838,11 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
      frente. O bloco recorta embaixo. Ao passar o mouse, o leque abre um pouco mais. */
   .b-imprimir { padding-bottom: 0; }
   .folhas { --folha-l: min(440px, 62%); --abertura: 11deg; position: relative; height: 300px; margin: 8px -28px 0; }
-  .b-imprimir:hover .folhas { --abertura: 15deg; }
+  @media (hover: hover) and (pointer: fine) { .b-imprimir:hover .folhas { --abertura: 15deg; } }
   .folha { position: absolute; left: 50%; top: 24px; width: var(--folha-l); aspect-ratio: 297 / 210; translate: -50% 0;
     transform-origin: 50% 160%; rotate: calc((var(--i) - 1) * var(--abertura)); z-index: calc(2 - (var(--i) - 1) * (var(--i) - 1));
     border-radius: 3px; background: var(--neutro-50); box-shadow: 0 0 0 1px var(--neutro-300), 0 10px 28px -12px rgb(0 0 0 / 0.28);
-    overflow: hidden; transition: rotate 400ms var(--ease-out); }
+    overflow: hidden; transition: rotate 250ms var(--ease-out); }
   .folha img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .folha-rotulo { position: absolute; right: 8px; top: 8px; padding: 2px 6px; border-radius: 3px; background: var(--carmim-800); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--texto-50); }
   @media (max-width: 640px) { .folhas { height: 200px; margin-inline: -24px; --folha-l: 70%; } }

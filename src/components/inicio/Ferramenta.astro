@@ -4,16 +4,16 @@
 // Os ajustes ficam em variáveis --fe-* no .ferramenta; o playground /dev/inicio-ferramenta muda tudo ao vivo
 // (valores de lá em 21/11/2026).
 // As razões copiam a estrutura de uma Etapa do mapa (mapa.astro: .etapa-topo, .etapa-n, .etapa-nome, .camada), só com
-// as linhas e a hierarquia de texto, sem as cores de fundo.
+// as linhas e a hierarquia de texto, sem as cores de fundo. A marca (musá) vai com translate="no".
 const RAZOES = [
   { titulo: "A musa da sua visita", texto: "Use essa jornada como inspiração e ponto de conversa com o seu time, não como checklist. Escreva por cima, imprima e rabisque. Construa a sua jornada ideal." },
   { titulo: "Começando pela visita mais impactante", texto: "Visita a museus ainda é um dos primeiros passeios escolares por todo o país, uma boa visitação aqui estimula toda uma geração a continuar visitando museus." },
-  { titulo: "Leve essa base para qualquer jornada", texto: "Comece com a visitação escolar e expanda o que aprender para os outros serviços do museu.", nota: "E, sim, documentar as outras jornadas está nos planos do musá." }
+  { titulo: "Leve essa base para qualquer jornada", texto: "Comece com a visitação escolar e expanda o que aprender para os outros serviços do museu.", nota: "E, sim, documentar as outras jornadas está nos planos do" }
 ];
 ---
 <section class="ferramenta">
   <div class="ferramenta-ideia">
-    <h2>Nem só de exposição vive o museu, por isso criamos o musá</h2>
+    <h2>Nem só de exposição vive o museu, por isso criamos o <span translate="no">musá</span></h2>
     <p class="ferramenta-abertura">Não é só do tema que seus visitantes vão lembrar. Entenda tudo que importa para uma visita memorável e positiva.</p>
   </div>
   {/* cada razão com a estrutura de uma Etapa do mapa: topo com o número em cima e o título embaixo, uma linha, e o texto */}
@@ -21,12 +21,12 @@ const RAZOES = [
     {RAZOES.map((r, i) => (
       <li class="razao">
         <div class="razao-topo">
-          <span class="razao-n">{i + 1}</span>
+          <span class="razao-n" aria-hidden="true">{i + 1}</span>
           <h3 class="razao-nome">{r.titulo}</h3>
         </div>
         <div class="razao-corpo">
           <p>{r.texto}</p>
-          {r.nota && <p class="razao-nota">{r.nota}</p>}
+          {r.nota && <p class="razao-nota">{r.nota} <span translate="no">musá</span>.</p>}
         </div>
       </li>
     ))}
