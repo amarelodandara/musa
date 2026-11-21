@@ -1,0 +1,61 @@
+---
+// Chamada final da página inicial: frase grande e os dois botões, em quase uma tela de altura.
+// O fim da frase (.grifo) ganha o mesmo grifo de giz da abertura, desenhado na primeira vez que
+// a seção entra na tela; as palavras do trecho ficam carmim conforme o traço passa. Os traços são montados por /scripts/chamada-final.js, um por linha da frase.
+---
+<section class="chamada-final" aria-labelledby="chamada-final-titulo" data-chamada-final>
+  <svg class="chamada-giz" aria-hidden="true">
+    <defs>
+      <!-- Mesmo giz de cera da abertura (#giz em Abertura.astro), com os valores em px.
+           Na abertura os valores estão em unidades do viewBox, e lá o texto 3xl vale 39 unidades;
+           aqui o texto 3xl vale 39 px, então os números coincidem. -->
+      <filter id="giz-chamada" filterUnits="userSpaceOnUse" x="-40" y="-40" width="4000" height="4000" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+        <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+        <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+        <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+        <feComposite in="borda" in2="mascara" operator="in"/>
+      </filter>
+    </defs>
+    <g class="chamada-grifos"></g>
+  </svg>
+  <h2 id="chamada-final-titulo">Cuide da maior exposição permanente do seu museu: <span class="grifo">o&nbsp;serviço que ele oferece</span></h2>
+  <p class="acoes-hero"><a class="botao" href="/mapa">Usar mapa</a> <a class="botao secundario" href="/baixar">Baixar mapa</a></p>
+</section>
+
+<script is:inline src="/scripts/chamada-final.js"></script>
+
+<style>
+  /* Valores em variáveis --cf-* (e --grifo-*), com o padrão de hoje no fallback; o playground /dev/chamada-final mexe nelas. */
+  .chamada-final {
+    position: relative;
+    min-height: var(--cf-altura, 80svh);
+    display: flex; flex-direction: column; justify-content: center; align-items: var(--cf-alinhar, center);
+    gap: var(--cf-espaco, 3rem); padding: var(--cf-respiro, 2rem) 0; text-align: var(--cf-alinhar-texto, center);
+    background: var(--cf-fundo, transparent);
+    border-top: 1px solid var(--cf-linha, var(--neutro-300));
+  }
+  .chamada-final > h2 {
+    position: relative; z-index: 1;
+    margin: 0; max-width: var(--cf-titulo-largura, 25ch);
+    font-family: var(--cf-titulo-fonte, var(--fonte-dm-sans));
+    font-size: var(--cf-titulo-tamanho, var(--tamanho-3xl)); font-weight: var(--cf-titulo-peso, 600);
+    line-height: var(--cf-titulo-entrelinha, 1.25); letter-spacing: var(--cf-titulo-tracking, 0em);
+    text-wrap: balance; color: var(--cf-titulo-cor, var(--texto-900));
+  }
+  /* .grifo é nowrap no estilo global (abertura); aqui o trecho pode quebrar, com um traço por linha */
+  .chamada-final .grifo { white-space: normal; }
+  .chamada-final .acoes-hero { justify-content: var(--cf-alinhar, center); gap: var(--cf-botoes-espaco, 1rem); margin: 0; }
+  /* o svg cobre a seção; os traços ficam sob o texto, como na abertura */
+  .chamada-giz { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  /* altura do grifo em relação à base da linha; ritmo do traço e cor que as palavras ganham (lidos por chamada-final.js) */
+  .chamada-final { --grifo-base: -0.05em; --grifo-ms: 1100; --grifo-pausa-ms: 120; --grifo-curva: cubic-bezier(0.37, 0, 0.63, 1); --cf-grifo-texto: var(--carmim-800); }
+  .chamada-final :global(.chamada-grifo) {
+    fill: none; stroke: var(--grifo-cor, var(--carmim-600)); stroke-width: var(--grifo-espessura, 4); stroke-linecap: round;
+    stroke-dasharray: 1 2; stroke-dashoffset: 1.05; filter: url(#giz-chamada);
+  }
+  @media (max-width: 720px) {
+    .chamada-final > h2 { font-size: var(--cf-titulo-tamanho-celular, var(--tamanho-2xl)); }
+    .chamada-final :global(.chamada-grifo) { stroke-width: var(--grifo-espessura-celular, 3); }
+  }
+</style>

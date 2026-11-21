@@ -1,0 +1,60 @@
+---
+// Palco do playground /dev/bento-glossario-celula: o bloco do glossário em modo "celula" (uma célula do mapa borrada,
+// só os termos do glossário à vista), ao lado do bloco de pontos de contato, como na página inicial.
+// Uma página por célula (/palco/preparacao-boa); o painel (_dials.ts) troca o endereço (?destaques=) e mexe nas variáveis aqui dentro.
+import Base from "../../../../layouts/Base.astro";
+import Funcionalidades from "../../../../components/inicio/Funcionalidades.astro";
+import { conteudo } from "../../../../lib/conteudo";
+export function getStaticPaths() {
+  return conteudo.etapas.flatMap((e) => (["boa", "evitar"] as const).map((tipo) => ({ params: { celula: `${e.id}-${tipo}` }, props: { etapa: e.id, tipo } })));
+}
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const { etapa, tipo } = Astro.props;
+---
+<Base titulo="Bento: glossário numa célula" cabecalho={false} rodape={false}>
+<main class="palco-corpo"><Funcionalidades soOPrimeiro={false} glossario="celula" celulaEtapa={etapa} celulaTipo={tipo} /></main>
+{/* as palavras circuladas vêm do painel (?destaques=a|b|c; o Astro não passa a query a páginas pré-renderizadas, então
+    a troca é aqui, antes do script do bento, que é módulo e roda depois). Mesma regra de destacar() em Funcionalidades. */}
+<script is:inline>
+  (() => {
+    const q = new URLSearchParams(location.search).get("destaques");
+    if (q === null) return;
+    const destaques = q.split("|").filter(Boolean);
+    const sem = (x) => x.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+    const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const vistos = new Set();
+    // o CSS do bento é escopado: os elementos novos levam o mesmo data-astro-cid-*
+    const cid = [...(document.querySelector(".celula-g")?.attributes ?? [])].find((a) => a.name.startsWith("data-astro-cid-"))?.name;
+    const escopar = (n) => { if (cid) [n, ...n.querySelectorAll("*")].forEach((x) => x.setAttribute(cid, "")); return n; };
+    document.querySelectorAll(".celula-g .pratica-titulo").forEach((el) => {
+      const texto = el.textContent;
+      const faltam = destaques.filter((d) => !vistos.has(sem(d)));
+      el.textContent = "";
+      const span = (t) => { const s = document.createElement("span"); s.textContent = t; el.append(escopar(s)); };
+      if (!faltam.length) { span(texto); return; }
+      const fonte = new RegExp(faltam.map((d) => `(?<![\\p{L}])${esc(d)}(?![\\p{L}])`).join("|"), "giu");
+      let ultimo = 0;
+      for (const m of texto.matchAll(fonte)) {
+        if (vistos.has(sem(m[0]))) continue;
+        vistos.add(sem(m[0]));
+        if (m.index > ultimo) span(texto.slice(ultimo, m.index));
+        const mark = document.createElement("mark");
+        mark.innerHTML = '<svg class="circulo"><path pathLength="1" /></svg>';
+        mark.prepend(m[0]);
+        el.append(escopar(mark));
+        ultimo = m.index + m[0].length;
+      }
+      if (ultimo < texto.length) span(texto.slice(ultimo));
+    });
+  })();
+</script>
+</Base>
+<style>
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  .palco-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  .palco-corpo :global(.func) { border-top: 0; padding-top: 24px; }
+  /* só a linha do glossário, com o bloco de contato ao lado (a altura da linha é a dos dois) */
+  .palco-corpo :global(.func .bento > :not(.b-glossario):not(.b-contato)) { display: none; }
+  /* o glossário vai para a esquerda, longe do painel (embaixo à direita) */
+  .palco-corpo :global(.func .b-glossario) { order: -1; }
+</style>

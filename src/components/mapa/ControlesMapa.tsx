@@ -32,7 +32,7 @@ declare global { interface Window { musaMapa?: MusaMapa } }
 
 const slug = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 // na vitrine da página inicial (?vitrine) nada é guardado e a introdução não abre sozinha
-const naVitrine = () => typeof location !== "undefined" && new URLSearchParams(location.search).has("vitrine");
+const naVitrine = () => typeof location !== "undefined" && ["vitrine", "impressao"].some((k) => new URLSearchParams(location.search).has(k));
 const guardar = (k: string, v: string) => { if (naVitrine()) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { if (naVitrine()) return k === "guia-visto" ? "sim" : null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
@@ -308,7 +308,7 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       </ul>
       <h3 className={h3}>Para imprimir</h3>
       <p className="m-0 mb-2.5 leading-normal">O mapa em A1, A2 ou A4, com espaço para a equipe escrever.</p>
-      <a className={`${botao} px-2.5 no-underline`} href="/baixar">Baixar o mapa</a>
+      <a className={`${botao} px-2.5 no-underline`} href="/baixar">Baixar mapa</a>
     </>
   );
 }

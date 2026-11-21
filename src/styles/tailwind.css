@@ -16,6 +16,7 @@
   /* só as peças: escalas de cor e famílias por nome. Sem papéis (fundo, texto…) por enquanto. */
   --color-*: initial;
   --color-transparente: transparent;
+  --color-coral-50: var(--coral-50);
   --color-coral-100: var(--coral-100);
   --color-coral-200: var(--coral-200);
   --color-coral-300: var(--coral-300);

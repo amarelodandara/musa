@@ -40,24 +40,77 @@ h2 { font-size: var(--tamanho-xl); font-weight: 700; margin: 0 0 12px; }
 .texto li { margin-bottom: 8px; }
 .texto ul { padding-left: 20px; }
 
-/* Botões: um principal (coral, texto escuro) por vista; o resto é secundário */
+/* Botões: um principal (coral, texto escuro) por vista; o resto é secundário. Valores de /dev/botoes-bento (21/11/2026).
+   Três degradês de cima para baixo, com a luz vindo de cima: o fundo, a borda (border-box, por trás do fundo) e um
+   anel interno (::before, uma moldura por dentro da borda, recortada por máscara). Cada um lê variáveis --b-*;
+   as variantes (secundário, camada invertida do cabeçalho) só trocam as variáveis.
+   Mouse em cima: os degradês de hover ficam prontos numa camada própria (::after, atrás do texto) que aparece por
+   opacidade. Opacidade anima em qualquer navegador; trocar a cor dentro de um degradê não anima no Safari. */
 .botao {
-  display: inline-block;
-  padding: 11px 18px;
-  background: var(--coral-400);
-  color: var(--texto-950);
-  border: 2px solid var(--coral-400);
-  border-radius: 4px;
-  font: inherit;
-  font-weight: 600;
-  text-decoration: none;
+  --b-fundo: var(--coral-400); --b-fundo-baixo: var(--coral-400);
+  --b-topo: var(--coral-300); --b-pe: var(--coral-600); --b-texto: var(--texto-950);
+  --b-fundo-passar: var(--coral-400); --b-fundo-baixo-passar: var(--coral-500);
+  --b-topo-passar: var(--coral-400); --b-pe-passar: var(--coral-700); --b-texto-passar: var(--neutro-950);
+  --b-anel-topo: color-mix(in oklch, var(--coral-200) 60%, transparent); --b-anel-pe: color-mix(in oklch, var(--coral-400) 0%, transparent);
+  --b-borda-w: 0.75px; --b-anel-w: 1px; --b-raio: 0.25rem;
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  height: 2.75rem; padding: 0 1.25rem;
+  background: linear-gradient(var(--b-fundo), var(--b-fundo-baixo)) padding-box, linear-gradient(to bottom, var(--b-topo), var(--b-pe)) border-box;
+  color: var(--b-texto);
+  border: var(--b-borda-w) solid transparent;
+  border-radius: var(--b-raio);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  font: inherit; font-family: var(--fonte-inter); font-size: var(--tamanho-md); font-weight: 500; line-height: 1;
+  text-decoration: none; white-space: nowrap;
   cursor: pointer;
-  transition: transform 160ms var(--ease-out), background-color 150ms ease, border-color 150ms ease;
+  transition: color 150ms ease, scale 150ms var(--ease-out);
 }
-.botao:active { transform: scale(0.97); }
-.botao:hover { background: var(--coral-500); border-color: var(--coral-500); color: var(--texto-950); }
-.botao.secundario { background: var(--neutro-50); color: var(--texto-900); border-color: var(--neutro-600); }
-.botao.secundario:hover { background: var(--neutro-100); border-color: var(--neutro-800); }
+/* anel interno: moldura de --b-anel-w por dentro da borda, em degradê; a máscara recorta o miolo */
+.botao::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-radius: max(0px, calc(var(--b-raio) - var(--b-borda-w)));
+  padding: var(--b-anel-w);
+  background: linear-gradient(to bottom, var(--b-anel-topo), var(--b-anel-pe));
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* hover: fundo e borda do mouse em cima, do tamanho do botão inteiro (borda incluída), atrás do texto e do anel */
+.botao::after {
+  content: ""; position: absolute; inset: calc(-1 * var(--b-borda-w)); z-index: -1; pointer-events: none;
+  border: var(--b-borda-w) solid transparent; border-radius: inherit;
+  background: linear-gradient(var(--b-fundo-passar), var(--b-fundo-baixo-passar)) padding-box, linear-gradient(to bottom, var(--b-topo-passar), var(--b-pe-passar)) border-box;
+  opacity: 0; transition: opacity 150ms ease;
+}
+.botao:hover { color: var(--b-texto-passar); }
+.botao:hover::after { opacity: 1; }
+.botao:active { scale: 0.97; }
+.botao.botao-pequeno { height: 2.25rem; padding: 0 0.875rem; font-size: var(--tamanho-sm); }
+.botao.secundario {
+  --b-fundo: transparent; --b-fundo-baixo: transparent;
+  --b-topo: var(--neutro-50); --b-pe: var(--neutro-100); --b-texto: var(--neutro-950);
+  --b-fundo-passar: var(--coral-100); --b-fundo-baixo-passar: var(--coral-100);
+  --b-topo-passar: var(--neutro-200); --b-pe-passar: var(--neutro-300); --b-texto-passar: var(--texto-900);
+  --b-anel-topo: var(--neutro-100); --b-anel-pe: color-mix(in oklch, var(--neutro-200) 25%, transparent);
+}
+/* Cabeçalho em tela estreita: marca + duas ações não cabem abaixo de ~470 px; fica só a principal
+   (o "Baixar mapa" continua na abertura, logo abaixo) */
+@media (max-width: 480px) { .nav-links .botao.secundario { display: none; } }
+/* Camada invertida do cabeçalho (sobre o rodapé carmim-800): a mesma estrutura, com a luz de cima vinda de tons
+   mais claros do carmim. O principal segue coral, com a borda de baixo sem escurecer para não sumir no carmim;
+   o secundário é o espelho do claro: transparente, borda e anel um passo acima e abaixo do fundo, texto claro. */
+.nav-invertida .botao {
+  --b-topo: var(--coral-300); --b-pe: var(--coral-500);
+  --b-topo-passar: var(--coral-300); --b-pe-passar: var(--coral-600);
+  --b-anel-topo: color-mix(in oklch, var(--coral-200) 70%, transparent);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+}
+.nav-invertida .botao.secundario {
+  --b-fundo: transparent; --b-fundo-baixo: transparent;
+  --b-topo: var(--carmim-700); --b-pe: var(--carmim-900); --b-texto: var(--neutro-50);
+  --b-fundo-passar: var(--carmim-700); --b-fundo-baixo-passar: var(--carmim-800);
+  --b-topo-passar: var(--carmim-600); --b-pe-passar: var(--carmim-800); --b-texto-passar: var(--neutro-50);
+  --b-anel-topo: var(--carmim-700); --b-anel-pe: color-mix(in oklch, var(--carmim-600) 25%, transparent);
+}
 
 .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
 .atalhos h3 { font-size: var(--tamanho-sm); color: var(--texto-700); margin: 0 0 6px; font-weight: 600; }
@@ -209,8 +262,6 @@ th.foco { background: var(--carmim-900) !important; color: var(--texto-50); }
   cursor: pointer;
 }
 .fechar:hover { background: var(--neutro-100); }
-.acoes { margin-top: 24px; }
-.acoes .botao, .botao.botao-pequeno { font-size: var(--tamanho-sm); padding: 6px 12px; }
 .navegar { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
 .navegar button { flex: 1; padding: 8px; background: var(--neutro-50); color: var(--texto-900); border: 1px solid var(--neutro-600); border-radius: 4px; font: inherit; font-size: var(--tamanho-sm); cursor: pointer; }
 .navegar button:hover:not(:disabled) { background: var(--neutro-100); }

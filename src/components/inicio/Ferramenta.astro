@@ -1,0 +1,91 @@
+---
+// Página inicial, logo abaixo da abertura: a ferramenta em uma seção, em duas colunas. À esquerda a ideia (título e
+// abertura), à direita as três razões numeradas. Separada das vizinhas só por espaço (--secao-espaco, de index.astro).
+// Os ajustes ficam em variáveis --fe-* no .ferramenta; o playground /dev/inicio-ferramenta muda tudo ao vivo
+// (valores de lá em 21/11/2026).
+// As razões copiam a estrutura de uma Etapa do mapa (mapa.astro: .etapa-topo, .etapa-n, .etapa-nome, .camada), só com
+// as linhas e a hierarquia de texto, sem as cores de fundo.
+const RAZOES = [
+  { titulo: "A musa da sua visita", texto: "Use essa jornada como inspiração e ponto de conversa com o seu time, não como checklist. Escreva por cima, imprima e rabisque. Construa a sua jornada ideal." },
+  { titulo: "Começando pela visita mais impactante", texto: "Visita a museus ainda é um dos primeiros passeios escolares por todo o país, uma boa visitação aqui estimula toda uma geração a continuar visitando museus." },
+  { titulo: "Leve essa base para qualquer jornada", texto: "Comece com a visitação escolar e expanda o que aprender para os outros serviços do museu.", nota: "E, sim, documentar as outras jornadas está nos planos do musá." }
+];
+---
+<section class="ferramenta">
+  <div class="ferramenta-ideia">
+    <h2>Nem só de exposição vive o museu, por isso criamos o musá</h2>
+    <p class="ferramenta-abertura">Não é só do tema que seus visitantes vão lembrar. Entenda tudo que importa para uma visita memorável e positiva.</p>
+  </div>
+  {/* cada razão com a estrutura de uma Etapa do mapa: topo com o número em cima e o título embaixo, uma linha, e o texto */}
+  <ol class="razoes" data-disposicao="empilhado">
+    {RAZOES.map((r, i) => (
+      <li class="razao">
+        <div class="razao-topo">
+          <span class="razao-n">{i + 1}</span>
+          <h3 class="razao-nome">{r.titulo}</h3>
+        </div>
+        <div class="razao-corpo">
+          <p>{r.texto}</p>
+          {r.nota && <p class="razao-nota">{r.nota}</p>}
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .ferramenta {
+    /* seção */
+    --fe-espaco: var(--secao-espaco, 96px); --fe-colunas: minmax(0, 5fr) minmax(0, 6fr); --fe-entre-colunas: 128px; --fe-alinhar: center;
+    /* ideia */
+    --fe-titulo-tamanho: var(--tamanho-2xl); --fe-titulo-cor: var(--carmim-800); --fe-titulo-peso: 600; --fe-titulo-largura: 30ch; --fe-titulo-abertura: 16px;
+    --fe-abertura-tamanho: var(--tamanho-lg); --fe-abertura-peso: 400; --fe-abertura-cor: var(--texto-700); --fe-abertura-largura: 35ch;
+    /* razões: estrutura do mapa (número em cima, nome embaixo, linha, texto). Linhas de 0,5px: as horizontais são
+       contínuas, de ponta a ponta; as dos lados esfumam em cima e embaixo (de transparente à cor e de volta), como se a
+       seção sumisse nas bordas (--fe-esfumado = o trecho que esfuma em cada ponta). Sem linha em cima da primeira nem
+       embaixo da última. */
+    --fe-entre-razoes: 0px; --fe-razao-borda: var(--carmim-300); --fe-razao-borda-interna: var(--carmim-200); --fe-linha: 0.5px; --fe-esfumado: 24%; --fe-razoes-largura: 480px; --fe-recuo: 24px; --fe-numero-ate-titulo: 4px;
+    --fe-numero-tamanho: var(--tamanho-xs); --fe-numero-cor: var(--carmim-300);
+    --fe-razao-titulo-tamanho: var(--tamanho-md); --fe-razao-titulo-peso: 500; --fe-razao-titulo-cor: var(--neutro-800);
+    --fe-razao-texto-tamanho: var(--tamanho-sm); --fe-razao-texto-cor: var(--texto-900);
+    --fe-nota-tamanho: var(--tamanho-xs); --fe-nota-cor: var(--texto-600); --fe-nota-espaco: 8px;
+    margin: 0; padding: var(--fe-espaco) 0;
+    display: grid; grid-template-columns: var(--fe-colunas);
+    gap: 48px var(--fe-entre-colunas); align-items: var(--fe-alinhar);
+  }
+  .ferramenta-ideia h2 { margin: 0 0 var(--fe-titulo-abertura); max-width: var(--fe-titulo-largura); font-size: var(--fe-titulo-tamanho); font-weight: var(--fe-titulo-peso);
+    color: var(--fe-titulo-cor); text-wrap: balance; }
+  /* texto grande em Inter 400 pesa demais: peso mais leve e suavização de fonte em tons de cinza (macOS) */
+  .ferramenta-abertura { margin: 0; max-width: var(--fe-abertura-largura); font-size: var(--fe-abertura-tamanho); font-weight: var(--fe-abertura-peso); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: var(--fe-abertura-cor); text-wrap: pretty; }
+  .razoes { --fe-linha-v: linear-gradient(to bottom, transparent, var(--fe-razao-borda) var(--fe-esfumado), var(--fe-razao-borda) calc(100% - var(--fe-esfumado)), transparent);
+    /* lista mais estreita que a coluna, centrada no lado direito */
+    width: 100%; max-width: var(--fe-razoes-largura); justify-self: center;
+    list-style: none; padding: 0; margin: 0; display: grid; gap: var(--fe-entre-razoes);
+    /* laterais da seção: linhas que esfumam em cima e embaixo */
+    border-style: solid; border-width: 0 var(--fe-linha); border-image: var(--fe-linha-v) 1; }
+  .razao { display: flex; flex-direction: column; }
+  /* entre uma razão e a próxima, uma linha só, contínua */
+  .razoes[data-disposicao="empilhado"] .razao + .razao { border-top: var(--fe-linha) solid var(--fe-razao-borda); }
+  /* lado a lado: as três como colunas do mapa, a linha entre elas esfuma em cima e embaixo; topo de mesma altura (subgrid) */
+  .razoes[data-disposicao="lado"] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+  .razoes[data-disposicao="lado"] .razao { display: grid; grid-row: span 2; grid-template-rows: subgrid; }
+  .razoes[data-disposicao="lado"] .razao + .razao { border-style: solid; border-width: 0 0 0 var(--fe-linha); border-image: var(--fe-linha-v) 1; }
+  /* .etapa-topo: o número em cima, o nome logo abaixo (a altura sai do conteúdo, não fixa); recuo dos lados para o texto não correr */
+  .razao-topo { display: flex; flex-direction: column; gap: var(--fe-numero-ate-titulo); box-sizing: border-box; padding: 12px var(--fe-recuo) 10px; }
+  .razao-n { font-family: var(--fonte-inter-tight); font-size: var(--fe-numero-tamanho); font-weight: 400; line-height: 1.45; color: var(--fe-numero-cor); font-variant-numeric: tabular-nums; }
+  .razao-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--fe-razao-titulo-tamanho); font-weight: var(--fe-razao-titulo-peso); line-height: 1.2;
+    letter-spacing: normal; color: var(--fe-razao-titulo-cor); text-wrap: balance; }
+  /* .camada: a linha e o texto */
+  /* a linha entre o topo e o texto é mais clara que a entre razões: três razões, não seis faixas */
+  .razao-corpo { flex: 1; padding: 12px var(--fe-recuo) 16px; border-top: var(--fe-linha) solid var(--fe-razao-borda-interna);
+    font-size: var(--fe-razao-texto-tamanho); line-height: 1.45; color: var(--fe-razao-texto-cor); }
+  .razao-corpo p { margin: 0; text-wrap: pretty; }
+  .razao-corpo .razao-nota { margin-top: var(--fe-nota-espaco); font-size: var(--fe-nota-tamanho); color: var(--fe-nota-cor); }
+  @media (max-width: 720px) {
+    .ferramenta { grid-template-columns: 1fr; }
+    .razoes[data-disposicao="lado"] { grid-template-columns: 1fr; gap: var(--fe-entre-razoes); }
+    .razoes[data-disposicao="lado"] .razao { display: flex; grid-row: auto; }
+    .razoes[data-disposicao="lado"] .razao + .razao { border-width: var(--fe-linha) 0 0; border-image: none; border-color: var(--fe-razao-borda); }
+    .ferramenta-ideia h2 { --fe-titulo-tamanho: var(--tamanho-2xl); }
+  }
+</style>

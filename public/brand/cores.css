@@ -13,6 +13,7 @@
  */
 :root {
   /* coral */
+  --coral-50: oklch(0.962 0.008 40.247);          /* #F8F1EE · entre neutro-50 e coral-100 (fundo do bloco ativo do bento, 21/11/2026) */
   --coral-100: oklch(0.937 0.014 40.247);         /* #F3E7E3 */
   --coral-200: oklch(0.893 0.036 40.247);         /* #F2D4CA */
   --coral-300: oklch(0.825 0.086 40.247);         /* #F7B39C */

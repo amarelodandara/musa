@@ -1,5 +1,5 @@
 ---
-// Navegação principal: a marca e as duas ações (Baixar o mapa, Usar o mapa). Fundo opaco na cor da página, sem linha.
+// Navegação principal: a marca e as duas ações (Baixar mapa, Usar mapa). Fundo opaco na cor da página, sem linha.
 // Duas camadas iguais: a normal e, por cima, a invertida (claro sobre carmim). A invertida é recortada com clip-path
 // para aparecer só na faixa da barra que já está sobre o rodapé, então a troca de cor acompanha a borda do rodapé
 // (public/scripts/navegacao.js). A camada invertida fica fora do teclado e do leitor de tela.
@@ -10,8 +10,8 @@ interface Props { variante?: "olho" | "lockup"; fixa?: boolean }
 const { variante = "lockup", fixa = true } = Astro.props;
 const atual = Astro.url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
 const camadas = [
-  { invertida: false, fundo: "bg-neutro-50", secundario: "" },
-  { invertida: true, fundo: "bg-carmim-800", secundario: "bg-carmim-800 text-neutro-50 border-neutro-50 hover:bg-carmim-900 hover:border-neutro-50" }
+  { invertida: false, fundo: "bg-neutro-50" },
+  { invertida: true, fundo: "bg-carmim-800" } // cores dos botões invertidos: .nav-invertida .botao em estilo.css
 ];
 ---
 <header class:list={["nav z-10 bg-neutro-50", fixa ? "sticky top-0" : "relative"]}>
@@ -23,9 +23,9 @@ const camadas = [
     >
       <MarcaNav invertida={c.invertida} sempreNome={variante === "lockup"} />
       <nav class="nav-links ml-auto flex items-center gap-2" aria-label={c.invertida ? undefined : "Principal"}>
-        <a class={`botao secundario botao-pequeno ${c.secundario}`} href="/baixar" tabindex={c.invertida ? -1 : undefined}
-          aria-current={!c.invertida && atual === "/baixar" ? "page" : undefined}>Baixar o mapa</a>
-        <a class="botao botao-pequeno" href="/mapa" tabindex={c.invertida ? -1 : undefined}>Usar o mapa</a>
+        <a class="botao secundario botao-pequeno" href="/baixar" tabindex={c.invertida ? -1 : undefined}
+          aria-current={!c.invertida && atual === "/baixar" ? "page" : undefined}>Baixar mapa</a>
+        <a class="botao botao-pequeno" href="/mapa" tabindex={c.invertida ? -1 : undefined}>Usar mapa</a>
       </nav>
     </div>
   ))}

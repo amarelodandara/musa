@@ -10,10 +10,13 @@ const celular = matchMedia("(max-width: 760px)");
 
 // Vitrine (?vitrine): o mapa dentro do bloco da página inicial. Não guarda nem lê preferências (para não mexer no mapa
 // de quem visita), não rola sozinho (a roda do mouse passa para a página) e os links abrem fora do quadro.
-const vitrine = new URLSearchParams(location.search).has("vitrine");
+// Impressão (?impressao=a1|a2|a4, &fase=1|2|3): a folha dos PDFs (scripts/pdfs.mjs). Também não guarda nada.
+const impressao = new URLSearchParams(location.search).get("impressao");
+const vitrine = new URLSearchParams(location.search).has("vitrine") || !!impressao;
 const guardar = (k: string, v: string) => { if (vitrine) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { if (vitrine) return null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
-if (vitrine) {
+if (impressao) document.documentElement.dataset.impressao = impressao;
+else if (vitrine) {
   document.documentElement.dataset.vitrine = "";
   document.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((a) => { a.target = "_top"; });
 }
@@ -245,3 +248,17 @@ if (modoDoLink === "etapa" || modoDoLink === "inteiro") guardar("modo", modoDoLi
 const doLink = etapas.findIndex((e) => "#" + e.dataset.etapa === location.hash);
 atual = doLink >= 0 ? doLink : 0;
 definirModo(ler("modo") ?? "etapa", false);
+
+// impressão: visão geral, todas as Etapas (ou só as de uma Fase, &fase=1|2|3, nas folhas A4)
+if (impressao) {
+  definirModo("inteiro", false);
+  const n = Number(pedido.get("fase"));
+  const fases = [...new Set(etapas.map((e) => e.dataset.fase!))];
+  if (n >= 1 && n <= fases.length) {
+    mostrarEtapas(etapas.filter((e) => e.dataset.fase === fases[n - 1]).map((e) => e.dataset.etapa!));
+    const rotulo = raiz.querySelector<HTMLElement>(`.fase[data-fase="${fases[n - 1]}"]`)?.textContent ?? "";
+    raiz.querySelector(".impressao-fase")!.textContent = ` · ${rotulo}`;
+  }
+  history.replaceState(null, "", location.pathname + location.search);
+  document.documentElement.dataset.impressaoPronta = "";
+}

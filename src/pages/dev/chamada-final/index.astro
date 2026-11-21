@@ -1,0 +1,21 @@
+---
+// Playground: a chamada final da página inicial (frase grande, grifo de giz e os dois botões), o componente de verdade
+// (src/components/inicio/ChamadaFinal.astro) com o rodapé logo abaixo, como na página. Painel em _dials.ts: escreve as
+// variáveis --cf-* e --grifo-* na seção. Os botões em si se ajustam em /dev/botoes-bento.
+import Base from "../../../layouts/Base.astro";
+import ChamadaFinal from "../../../components/inicio/ChamadaFinal.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<Base titulo="Chamada final">
+<main class="inicio-corpo">
+  <ChamadaFinal />
+</main>
+<Fragment slot="scripts">
+  <script>import "./_dials.ts";</script>
+</Fragment>
+</Base>
+
+<style>
+  /* mesma caixa da página inicial (src/pages/index.astro) */
+  .inicio-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+</style>

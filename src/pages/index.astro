@@ -1,73 +1,57 @@
 ---
-// Página inicial (decisão Q30): abertura, tese, funcionalidades, uso em equipe, chamada final.
+// Página inicial (decisão Q30): abertura, a ferramenta (ideia e três razões), funcionalidades, chamada final.
 import Base from "../layouts/Base.astro";
 import Abertura from "../components/Abertura.astro";
+import Ferramenta from "../components/inicio/Ferramenta.astro";
 import Funcionalidades from "../components/inicio/Funcionalidades.astro";
-import { conteudo, FASES } from "../lib/conteudo";
-
-const { etapas } = conteudo;
-const porFase = FASES.map((f) => ({ ...f, etapas: etapas.filter((e) => e.fase === f.nome) }));
+import ChamadaFinal from "../components/inicio/ChamadaFinal.astro";
 
 ---
 <Base classeCorpo="inicio">
 <Abertura />
 
 <main class="inicio-corpo">
-  <section class="bloco tese">
-    <h2>A visita começa antes da porta e termina depois dela</h2>
-    <p>Para muitos museus, a visita escolar acontece entre a chegada e a saída da turma. Para a escola, ela começa semanas antes, quando o professor procura um lugar para levar os alunos, e continua depois, em sala de aula.</p>
-    <p>O que acontece fora do museu decide se a turma vem, como chega e se um dia volta.</p>
-    <ol class="fases-resumo">
-      {porFase.map((f) => (
-        <li>
-          <strong>{f.rotulo}</strong>
-          <span>{f.etapas.map((e) => e.nome).join(" · ")}</span>
-        </li>
-      ))}
-    </ol>
-  </section>
+  <!-- Traço de giz que acompanha a rolagem pela página inteira (public/scripts/traco-pagina.js): fora do texto,
+       por cima das seções e por trás dos blocos do bento. O caminho é montado pelo script a partir do layout. -->
+  <svg class="traco-pagina" aria-hidden="true">
+    <defs>
+      <!-- o mesmo giz de cera da abertura e da chamada final, em px; a faixa (y, height) acompanha a janela -->
+      <filter id="giz-pagina" filterUnits="userSpaceOnUse" x="-200" y="0" width="2000" height="1400" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+        <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+        <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+        <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+        <feComposite in="borda" in2="mascara" operator="in"/>
+      </filter>
+    </defs>
+    <path class="traco-pagina-caminho" filter="url(#giz-pagina)"/>
+  </svg>
+
+  <Ferramenta />
 
   <Funcionalidades />
 
-  <section class="bloco">
-    <h2>Um ponto de partida para conversar em equipe</h2>
-    <p>Cada museu é diferente. O mapa não é nota, ranking nem lista de regras: é uma forma de olhar a visita do ponto de vista da escola e decidir, em equipe, por onde começar.</p>
-    <ul class="lista-uso">
-      <li><strong>Leve para a reunião.</strong> Abra a etapa que mais preocupa a equipe e use as práticas como pauta.</li>
-      <li><strong>Divida por função.</strong> Cada pessoa olha o que está ao seu alcance, sem precisar ler tudo.</li>
-      <li><strong>Escreva por cima.</strong> A versão impressa tem espaço em cada etapa para o que é próprio do seu museu.</li>
-    </ul>
-  </section>
-
-  <section class="bloco chamada-final">
-    <h2>Comece pela etapa que preocupa você</h2>
-    <p class="acoes-hero"><a class="botao" href="/mapa">Usar o mapa</a> <a class="botao secundario" href="/baixar">Baixar o mapa</a></p>
-  </section>
+  <ChamadaFinal />
 </main>
 
 <Fragment slot="scripts">
   <script is:inline src="/scripts/abertura.js"></script>
+  <script is:inline src="/scripts/traco-pagina.js"></script>
 </Fragment>
 </Base>
 
 <style>
-  .inicio-corpo { max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
-  .bloco { margin: 0; padding: 72px 0; border-top: 1px solid var(--neutro-300); }
-  .bloco > h2 { font-size: var(--tamanho-2xl); max-width: 22ch; margin-bottom: 16px; }
-  .bloco > p { max-width: 62ch; margin: 0 0 12px; }
-  .tese > h2 { font-size: var(--tamanho-3xl); color: var(--carmim-800); }
-  .fases-resumo { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .fases-resumo li { padding: 16px; border-top: 3px solid var(--carmim-800); background: var(--neutro-100); font-size: var(--tamanho-sm); }
-  .fases-resumo strong { display: block; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); color: var(--carmim-800); margin-bottom: 6px; }
-  .fases-resumo span { color: var(--texto-700); }
-  .lista-uso { max-width: 62ch; padding-left: 20px; }
-  .lista-uso li { margin-bottom: 10px; }
-  .chamada-final { text-align: center; }
-  .chamada-final > h2 { margin: 0 auto 24px; }
-  .chamada-final .acoes-hero { justify-content: center; margin: 0 auto; }
+  /* seções da página inicial separadas só por espaço: --secao-espaco em cima e embaixo de cada uma, então entre duas seções fica o dobro (o bento lê a mesma) */
+  .inicio-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  /* traço da página: cobre o main (e sai por cima, até a abertura); acima do texto solto e das linhas das seções,
+     abaixo dos blocos do bento e da frase da chamada final (que ficam com z-index 1) */
+  .inicio-corpo { position: relative; }
+  .traco-pagina { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0;
+    --traco-ponta: 0.62; }
+  .traco-pagina-caminho { fill: none; stroke: var(--carmim-600); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .inicio-corpo :global(.bento > *) { z-index: 1; }
   @media (max-width: 720px) {
-    .fases-resumo { grid-template-columns: 1fr; }
-    .bloco { padding: 48px 0; }
-    .tese > h2 { font-size: var(--tamanho-2xl); }
+    .inicio-corpo { --secao-espaco: 56px; }
+    .traco-pagina { display: none; }
   }
 </style>

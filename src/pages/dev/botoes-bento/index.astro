@@ -1,0 +1,103 @@
+---
+// Playground: alternativa dos botões com a estética do bento da página inicial (Funcionalidades.astro):
+// cantos, borda e anel em degradê de cima para baixo, hover numa camada que aparece por opacidade (seta tirada em 21/11/2026)
+// (como o .b-link) e troca só de cores entre os estados. Mesma bancada de /dev/botoes (que fica como estava).
+// Cores em variáveis (--b-*), escritas pelo painel _dials.ts a partir de classes de cor do Tailwind.
+import Base from "../../../layouts/Base.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const ESTADOS = [
+  { id: undefined, rotulo: "Parado" },
+  { id: "passar", rotulo: "Mouse em cima" },
+  { id: "pressionado", rotulo: "Pressionado" },
+  { id: "foco", rotulo: "Foco pelo teclado" }
+];
+const LINHAS = [
+  { rotulo: "Principal", classe: "botao", texto: "Usar mapa" },
+  { rotulo: "Secundário", classe: "botao secundario", texto: "Baixar mapa" },
+  { rotulo: "Principal pequeno", classe: "botao botao-pequeno", texto: "Usar mapa" },
+  { rotulo: "Secundário pequeno", classe: "botao secundario botao-pequeno", texto: "Baixar mapa" }
+];
+---
+<Base titulo="Botões (bento)" rodape={false}>
+<main class="bancada">
+  <section class="quadro">
+    <p class="etiqueta">Abertura</p>
+    <div class="abertura-hero">
+      <p class="tagline">Para equipes de museus</p>
+      <h1>Enxergue a visita escolar inteira, do primeiro contato ao retorno</h1>
+      <p class="lead">O Mapa da Visita mostra o que a escola vive antes, durante e depois do dia no museu, e as práticas que ajudam ou atrapalham em cada etapa.</p>
+      <p class="acoes-hero"><a class="botao" href="#">Usar mapa<span class="seta" aria-hidden="true">→</span></a> <a class="botao secundario" href="#">Baixar mapa<span class="seta" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Chamada final</p>
+    <div class="chamada">
+      <h2>Cuide da maior exposição permanente do seu museu: o&nbsp;serviço que ele oferece</h2>
+      <p class="acoes-hero"><a class="botao" href="#">Usar mapa<span class="seta" aria-hidden="true">→</span></a> <a class="botao secundario" href="#">Baixar mapa<span class="seta" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Estados (parados para comparar; os do cabeçalho e dos quadros acima respondem ao mouse e ao teclado)</p>
+    <div class="grade" role="table" aria-label="Estados dos botões">
+      <div role="row" class="linha cabeca">
+        <span role="columnheader"></span>
+        {ESTADOS.map((e) => <span role="columnheader">{e.rotulo}</span>)}
+      </div>
+      {LINHAS.map((l) => (
+        <div role="row" class="linha">
+          <span role="rowheader">{l.rotulo}</span>
+          {ESTADOS.map((e) => (
+            <span role="cell"><a class={l.classe} href="#" data-forcar={e.id} tabindex={e.id ? -1 : undefined} aria-hidden={e.id ? "true" : undefined}>{l.texto}<span class="seta" aria-hidden="true">→</span></a></span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Baixar</p>
+    <div class="arquivo">
+      <div><strong>A2 · 59,4 × 42 cm</strong><span>O mapa inteiro com os títulos das práticas. Cabe em qualquer gráfica rápida.</span></div>
+      <a class="botao" href="#">Baixar A2 (PDF)<span class="seta" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</main>
+
+<Fragment slot="scripts">
+  <script>import "./_dials.ts";</script>
+</Fragment>
+</Base>
+
+<style is:global>
+  /* fora da camada: vence o .botao de estilo.css (camada base) e as classes de cor; forma e tamanho ficam com as classes do painel.
+     O resto (degradês, anel, camada de hover ::after que aparece por opacidade) vem do .botao do site, lendo as variáveis --b-*
+     que o painel escreve; aqui só a espessura da borda, o canto do anel e as cópias paradas da grade de estados. */
+  .botao:not(:where(.nav-invertida .botao)) { border-width: var(--b-borda-w, 1px); }
+  .botao:not(:where(.nav-invertida .botao))::before { border-radius: max(0px, calc(var(--b-raio-medido, 6px) - var(--b-borda-w, 1px))); }
+  .botao[data-forcar="passar"]::after, .botao[data-forcar="pressionado"]::after { opacity: 1; }
+  .botao[data-forcar="passar"], .botao[data-forcar="pressionado"] { color: var(--b-texto-passar); }
+  .botao[data-forcar="pressionado"] { scale: 0.97; }
+  /* na camada base, para a classe do painel (hidden / inline-block) decidir se a seta aparece */
+  @layer base { .botao .seta { display: none; } }
+  .botao .seta { transition: translate 200ms cubic-bezier(0.23, 1, 0.32, 1); }
+</style>
+
+<style>
+  .bancada { max-width: 1100px; margin: 0 auto; padding: 32px clamp(16px, 3vw, 40px) 160px; display: grid; gap: 24px; }
+  .quadro { border: 1px solid var(--neutro-300); border-radius: 8px; padding: 24px 32px 40px; }
+  /* etiquetas da bancada: fora do sistema visual de propósito */
+  .etiqueta { margin: 0 0 24px; font: 500 12px/1 system-ui, sans-serif; color: var(--texto-600); }
+  .abertura-hero { max-width: 48rem; margin: 0 auto; text-align: center; }
+  .acoes-hero { justify-content: center; }
+  .chamada { display: grid; justify-items: center; gap: 32px; text-align: center; padding: 24px 0; }
+  .chamada h2 { margin: 0; max-width: 24ch; font-size: var(--tamanho-3xl); font-weight: 600; line-height: 1.2; text-wrap: balance; color: var(--carmim-800); }
+  .grade { display: grid; gap: 16px; }
+  .linha { display: grid; grid-template-columns: 160px repeat(4, 1fr); align-items: center; gap: 16px; }
+  .linha.cabeca span, .linha [role="rowheader"] { font: 500 12px/1.3 system-ui, sans-serif; color: var(--texto-600); }
+  .arquivo { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px; border: 1px solid var(--neutro-300); border-radius: 8px; }
+  .arquivo .botao { white-space: nowrap; }
+  .arquivo strong { display: block; font-family: var(--fonte-dm-sans); }
+  .arquivo span { font-size: var(--tamanho-sm); color: var(--texto-700); }
+</style>

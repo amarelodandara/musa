@@ -1,0 +1,16 @@
+---
+// Palco do playground /dev/inicio-ferramenta: a seção da ferramenta como na página inicial (mesmo .inicio-corpo e o
+// mesmo --secao-espaco), com o bento embaixo para ver o espaço entre as duas. O painel (_dials.ts) mexe nas variáveis aqui dentro.
+import Base from "../../../../layouts/Base.astro";
+import Ferramenta from "../../../../components/inicio/Ferramenta.astro";
+import Funcionalidades from "../../../../components/inicio/Funcionalidades.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<Base titulo="Início: a ferramenta" cabecalho={false} rodape={false}>
+<main class="palco-corpo"><Ferramenta /><Funcionalidades /></main>
+</Base>
+<style>
+  /* igual a .inicio-corpo em src/pages/index.astro */
+  .palco-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  @media (max-width: 720px) { .palco-corpo { --secao-espaco: 56px; } }
+</style>

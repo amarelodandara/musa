@@ -9,7 +9,7 @@ const PESOS = ["font-normal", "font-medium", "font-semibold", "font-bold"];
 const TEXTO_COR = ["text-texto-950", "text-texto-900", "text-texto-700", "text-texto-600", "text-texto-400", "text-neutro-300", "text-neutro-400", "text-neutro-500", "text-neutro-600"];
 const INDICADOR_COR = ["text-coral-400", "text-coral-500", "text-coral-600", "text-coral-700", "text-coral-800", "text-carmim-500", "text-carmim-600", "text-carmim-700", "text-carmim-800", "text-texto-950", "text-texto-900", "text-texto-700"];
 const CIRCULO_COR = ["bg-coral-400", "bg-coral-500", "bg-coral-600", "bg-coral-700", "bg-coral-800", "bg-carmim-500", "bg-carmim-600", "bg-carmim-700", "bg-carmim-800", "bg-texto-950", "bg-texto-900", "bg-texto-700", "bg-neutro-500"];
-const FUNDO_DESTAQUE = ["data-highlighted:bg-neutro-100", "data-highlighted:bg-neutro-200", "data-highlighted:bg-neutro-300", "data-highlighted:bg-coral-100", "data-highlighted:bg-coral-200", "data-highlighted:bg-carmim-100"];
+const FUNDO_DESTAQUE = ["data-highlighted:bg-neutro-100", "data-highlighted:bg-neutro-200", "data-highlighted:bg-neutro-300", "data-highlighted:bg-coral-50", "data-highlighted:bg-coral-100", "data-highlighted:bg-coral-200", "data-highlighted:bg-carmim-100"];
 const BORDA = [...["border-neutro-100", "border-neutro-200", "border-neutro-300", "border-neutro-400", "border-neutro-500"], ["Sem borda", "border-transparente"]];
 
 // caminho -> [seletor, opções]; opção: "classe(s)" ou [rótulo, "classe(s)"]

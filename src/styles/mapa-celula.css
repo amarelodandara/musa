@@ -1,0 +1,17 @@
+/* Célula de Práticas do mapa (Boas práticas e O que evitar): uma fonte só para o mapa (src/pages/mapa.astro) e para a
+   cópia dela no bento da página inicial (Funcionalidades.astro, bloco do glossário). Mudou aqui, muda nos dois. */
+.mapa { --linha: 1px solid var(--neutro-300); --col-compacta: 296px; }
+
+.camada { padding: 12px; border-top: var(--linha); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
+.camada p { margin: 0; }
+.praticas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.pratica { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; }
+.pratica[hidden] { display: none; }
+.marcador { font-weight: 700; color: var(--texto-700); }
+.pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
+.pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
+
+/* em repouso (Etapa fechada no modo etapa): texto menor e mais claro, sem o rótulo de função */
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-funcao { display: none; }

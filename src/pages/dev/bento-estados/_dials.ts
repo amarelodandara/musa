@@ -9,7 +9,7 @@ import "dialkit/vanilla/styles.css";
 const quadro = document.querySelector(".state-stage iframe") as HTMLIFrameElement;
 
 // Todas as cores do tema, sempre
-const PASSOS = ["coral-100", "coral-200", "coral-300", "coral-400", "coral-500", "coral-600", "coral-700", "coral-800", "coral-900", "carmim-100", "carmim-200", "carmim-300", "carmim-400", "carmim-500", "carmim-600", "carmim-700", "carmim-800", "carmim-900", "carmim-950", "neutro-50", "neutro-100", "neutro-200", "neutro-300", "neutro-400", "neutro-500", "neutro-600", "neutro-700", "neutro-800", "neutro-900", "neutro-950", "texto-950", "texto-900", "texto-700", "texto-600", "texto-400", "texto-50"];
+const PASSOS = ["coral-50", "coral-100", "coral-200", "coral-300", "coral-400", "coral-500", "coral-600", "coral-700", "coral-800", "coral-900", "carmim-100", "carmim-200", "carmim-300", "carmim-400", "carmim-500", "carmim-600", "carmim-700", "carmim-800", "carmim-900", "carmim-950", "neutro-50", "neutro-100", "neutro-200", "neutro-300", "neutro-400", "neutro-500", "neutro-600", "neutro-700", "neutro-800", "neutro-900", "neutro-950", "texto-950", "texto-900", "texto-700", "texto-600", "texto-400", "texto-50"];
 const opcoes = (prefixo: string) => ["transparente", ...PASSOS].map((p) => `${prefixo}-${p}`);
 // classe → cor do token (border-coral-200 → var(--coral-200))
 const cor = (classe: string) => {
@@ -31,8 +31,8 @@ type Campo = keyof typeof CAMPOS;
 
 // valores de partida: os que estão em Funcionalidades.astro hoje
 const PADROES: Record<"ativo" | "inativo", Record<Campo, string>> = {
-  ativo: { fundo: "bg-coral-100", bordaTopo: "border-coral-200", bordaPe: "border-neutro-50", titulo: "text-texto-900", descricao: "text-texto-700", lista: "text-texto-700", pontosDaLista: "bg-coral-600" },
-  inativo: { fundo: "bg-neutro-100", bordaTopo: "border-neutro-200", bordaPe: "border-neutro-50", titulo: "text-texto-600", descricao: "text-texto-600", lista: "text-texto-700", pontosDaLista: "bg-neutro-400" }
+  ativo: { fundo: "bg-coral-50", bordaTopo: "border-coral-200", bordaPe: "border-neutro-50", titulo: "text-texto-900", descricao: "text-texto-700", lista: "text-texto-700", pontosDaLista: "bg-coral-600" },
+  inativo: { fundo: "bg-neutro-50", bordaTopo: "border-neutro-200", bordaPe: "border-neutro-50", titulo: "text-texto-600", descricao: "text-texto-600", lista: "text-texto-700", pontosDaLista: "bg-neutro-400" }
 };
 
 const config: Record<string, any> = {};

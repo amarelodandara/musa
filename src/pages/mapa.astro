@@ -10,6 +10,7 @@
 // Nível de desafio (decidido em /dev/desafio): três níveis fixos, um avatar por Etapa, ligados por um caminho de giz;
 // ao passar o mouse (ou focar) no avatar, o Pensamento do professor sobe num cartão. O desenho fica em src/scripts/mapa.ts.
 import Base from "../layouts/Base.astro";
+import "../styles/mapa-celula.css";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import MarcaNav from "../components/MarcaNav.astro";
 import { conteudo, FASES, DESAFIOS, desafio, fonte, funcao } from "../lib/conteudo";
@@ -44,6 +45,11 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     <div class="mapa-marca marca-olho"><MarcaNav soIcone tamanho="size-7" /></div>
     <a class="mapa-marca marca-simbolo" href="/" aria-label="musá, página inicial"><img src="/brand/assets/musa-symbol-crimson-pequeno.svg" alt="" width="28" height="28" /></a>
   </header>
+  {/* só na impressão (?impressao=a1|a2|a4, que gera os PDFs): marca e título no alto da folha */}
+  <header class="impressao-topo" aria-hidden="true">
+    <img src="/brand/assets/musa-lockup-crimson.svg" alt="" />
+    <div><p class="impressao-titulo">Mapa da Visita</p><p class="impressao-sub">A visita escolar do ponto de vista da escola: antes, durante e depois do dia no museu.<span class="impressao-fase"></span></p></div>
+  </header>
 
   <div class="mapa-rolagem">
     <div class="mapa-grade" style={`--n:${etapas.length}`}>
@@ -58,6 +64,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
             {c.id === "sentimentos" && <div class="desafio-niveis" aria-hidden="true">{(["alto", "medio", "baixo"] as const).map((n) => <span data-nivel={n}>{DESAFIOS[n].nome}</span>)}</div>}
           </div>
         ))}
+        {/* só na impressão: o resto da folha, pautado, para a equipe escrever */}
+        <div class="rotulo rotulo-notas">Anotações</div>
       </div>
       {/* guias dos níveis e caminho de giz entre os avatares (desenhados por mapa.ts). Giz: o mesmo filtro do caminho da abertura */}
       <svg class="linha-sentimentos" aria-hidden="true">
@@ -131,6 +139,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 <p class="vazio vazio-filtro" hidden>Nada para esta função</p>
               </div>
             ))}
+            <div class="camada camada-notas" aria-hidden="true"></div>
           </section>
         );
       })}
@@ -198,7 +207,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .pagina-mapa-v2 { background: var(--neutro-50); }
   .visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .mapa { --linha: 1px solid var(--neutro-300); --col-compacta: 296px; --col-aberta: minmax(420px, 1fr); --col-inteira: 320px; --rotulos: 192px;
+  /* --linha e --col-compacta: em src/styles/mapa-celula.css */
+  .mapa { --col-aberta: minmax(420px, 1fr); --col-inteira: 320px; --rotulos: 192px;
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
@@ -217,7 +227,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   :root[data-vitrine] .mapa-rolagem { overflow-x: hidden; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
-    grid-template-rows: auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, ... */
+    grid-template-rows: auto auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, ..., Anotações (só na impressão) */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
@@ -286,18 +296,11 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
   .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
 
-  .camada { padding: 12px; border-top: var(--linha); font-size: var(--tamanho-sm); line-height: 1.45; min-width: 0; }
-  .camada p { margin: 0; }
+  /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .camada-titulo { margin: 0 0 6px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); font-weight: 600; }
   .vazio { color: var(--texto-400); font-style: italic; }
   .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
   .etiquetas li { padding: 2px 8px; border-radius: 999px; background: var(--neutro-100); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs); }
-  .praticas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .pratica { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; }
-  .pratica[hidden] { display: none; }
-  .marcador { font-weight: 700; color: var(--texto-700); }
-  .pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
-  .pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
 
   /* Nível de desafio (valores decididos em /dev/desafio): três trilhas, alto em cima. A célula tem só a altura das trilhas;
      o avatar fica no centro da coluna, na trilha do nível. Guias e caminho: SVG desenhado por mapa.ts (desenharLinha). */
@@ -343,10 +346,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-titulo,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-acoes > p,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-pontos > *,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-funcao,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-lg); font-weight: 400; color: var(--texto-950); }
   /* nomes das Etapas fechadas (e de todas na visão geral): menores e sem peso, para a aberta se destacar */
@@ -371,6 +371,27 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .det-lista .pratica { display: block; }
   .det-origem { font-size: var(--tamanho-xs); color: var(--texto-600); }
 
+
+  /* Impressão (?impressao=a1|a2|a4; scripts/pdfs.mjs abre assim e salva o PDF): o próprio mapa na visão geral, com as
+     linhas de Etapa, Ações do professor e Nível de desafio iguais às da tela; abaixo delas, uma linha pautada até o fim
+     da folha para a equipe escrever. A folha tem o tamanho da janela (o script acerta a janela ao papel). */
+  .impressao-topo, .rotulo-notas, .camada-notas { display: none; }
+  :root[data-impressao], :root[data-impressao] body { overflow: hidden; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  :root[data-impressao] .mapa { height: 100vh; min-height: 0; }
+  :root[data-impressao] .mapa-topo, :root[data-impressao] .etapa-controles { display: none; }
+  :root[data-impressao] .impressao-topo { display: flex; align-items: center; gap: 24px; padding: 20px 24px; border-bottom: var(--linha); }
+  :root[data-impressao] .impressao-topo img { height: 40px; }
+  .impressao-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 600; color: var(--carmim-800); }
+  .impressao-sub { margin: 2px 0 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
+  :root[data-impressao] .mapa-rolagem { overflow: visible; display: flex; flex-direction: column; }
+  :root[data-impressao] .mapa-grade { flex: 1; --colunas: repeat(var(--n), minmax(0, 1fr)); grid-template-rows: auto auto auto auto 0 0 0 1fr; }
+  :root[data-impressao] .rotulos .rotulo-pontos, :root[data-impressao] .rotulos .rotulo-boas, :root[data-impressao] .rotulos .rotulo-evitar,
+  :root[data-impressao] .camada-pontos, :root[data-impressao] .camada-boas, :root[data-impressao] .camada-evitar { display: none; }
+  /* as linhas escondidas saem da grade (display: none não ocupa faixa): a pauta vai para a última faixa, a de 1fr */
+  :root[data-impressao] .rotulo-notas, :root[data-impressao] .camada-notas { display: block; grid-row: -2 / -1; }
+  /* pauta clara: uma linha a cada 28px, começando depois do respiro da célula */
+  .camada-notas { --pauta: 28px; background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--pauta) - 1px), var(--neutro-200) calc(var(--pauta) - 1px) var(--pauta))
+    content-box; padding: 12px; }
 
   /* celular: só o modo etapa, uma coluna na tela */
   @media (max-width: 760px) {

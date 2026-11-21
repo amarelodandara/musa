@@ -1,0 +1,91 @@
+---
+// Playground: os botões do site (.botao principal e .botao.secundario, grande e pequeno).
+// Os pares aparecem nos lugares onde vivem (cabeçalho, abertura, chamada final, Baixar) e numa grade de estados
+// parados (mouse em cima, pressionado, foco pelo teclado). Painel em _dials.ts: classes do Tailwind sobre o .botao.
+import Base from "../../../layouts/Base.astro";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const ESTADOS = [
+  { id: undefined, rotulo: "Parado" },
+  { id: "passar", rotulo: "Mouse em cima" },
+  { id: "pressionado", rotulo: "Pressionado" },
+  { id: "foco", rotulo: "Foco pelo teclado" }
+];
+const LINHAS = [
+  { rotulo: "Principal", classe: "botao", texto: "Usar o mapa" },
+  { rotulo: "Secundário", classe: "botao secundario", texto: "Baixar o mapa" },
+  { rotulo: "Principal pequeno", classe: "botao botao-pequeno", texto: "Usar o mapa" },
+  { rotulo: "Secundário pequeno", classe: "botao secundario botao-pequeno", texto: "Baixar o mapa" }
+];
+---
+<Base titulo="Botões (antiga)" rodape={false}>
+<main class="bancada">
+  <p class="substituido">Bancada antiga, substituída por <a href="/dev/botoes-bento">/dev/botoes-bento</a> (21/11/2026). Os botões do site seguem aquela. Esta fica só como registro do processo.</p>
+  <section class="quadro">
+    <p class="etiqueta">Abertura</p>
+    <div class="abertura-hero">
+      <p class="tagline">Para equipes de museus</p>
+      <h1>Enxergue a visita escolar inteira, do primeiro contato ao retorno</h1>
+      <p class="lead">O Mapa da Visita mostra o que a escola vive antes, durante e depois do dia no museu, e as práticas que ajudam ou atrapalham em cada etapa.</p>
+      <p class="acoes-hero"><a class="botao" href="#">Usar o mapa</a> <a class="botao secundario" href="#">Baixar o mapa</a></p>
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Chamada final</p>
+    <div class="chamada">
+      <h2>Cuide da maior exposição permanente do seu museu: o&nbsp;serviço que ele oferece</h2>
+      <p class="acoes-hero"><a class="botao" href="#">Usar o mapa</a> <a class="botao secundario" href="#">Baixar o mapa</a></p>
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Estados (parados para comparar; os do cabeçalho e dos quadros acima respondem ao mouse e ao teclado)</p>
+    <div class="grade" role="table" aria-label="Estados dos botões">
+      <div role="row" class="linha cabeca">
+        <span role="columnheader"></span>
+        {ESTADOS.map((e) => <span role="columnheader">{e.rotulo}</span>)}
+      </div>
+      {LINHAS.map((l) => (
+        <div role="row" class="linha">
+          <span role="rowheader">{l.rotulo}</span>
+          {ESTADOS.map((e) => (
+            <span role="cell"><a class={l.classe} href="#" data-forcar={e.id} tabindex={e.id ? -1 : undefined} aria-hidden={e.id ? "true" : undefined}>{l.texto}</a></span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="quadro">
+    <p class="etiqueta">Baixar</p>
+    <div class="arquivo">
+      <div><strong>A2 · 59,4 × 42 cm</strong><span>O mapa inteiro com os títulos das práticas. Cabe em qualquer gráfica rápida.</span></div>
+      <a class="botao" href="#">Baixar A2 (PDF)</a>
+    </div>
+  </section>
+</main>
+
+<Fragment slot="scripts">
+  <script>import "./_dials.ts";</script>
+</Fragment>
+</Base>
+
+<style>
+  .substituido { margin: 0; padding: 12px 16px; border-radius: 8px; background: #fff3cd; color: #5c4400; font: 500 13px/1.4 system-ui, sans-serif; }
+  .substituido a { color: inherit; }
+  .bancada { max-width: 1100px; margin: 0 auto; padding: 32px clamp(16px, 3vw, 40px) 160px; display: grid; gap: 24px; }
+  .quadro { border: 1px solid var(--neutro-300); border-radius: 8px; padding: 24px 32px 40px; }
+  /* etiquetas da bancada: fora do sistema visual de propósito */
+  .etiqueta { margin: 0 0 24px; font: 500 12px/1 system-ui, sans-serif; color: var(--texto-600); }
+  .abertura-hero { max-width: 48rem; margin: 0 auto; text-align: center; }
+  .acoes-hero { justify-content: center; }
+  .chamada { display: grid; justify-items: center; gap: 32px; text-align: center; padding: 24px 0; }
+  .chamada h2 { margin: 0; max-width: 24ch; font-size: var(--tamanho-3xl); font-weight: 600; line-height: 1.2; text-wrap: balance; color: var(--carmim-800); }
+  .grade { display: grid; gap: 16px; }
+  .linha { display: grid; grid-template-columns: 160px repeat(4, 1fr); align-items: center; gap: 16px; }
+  .linha.cabeca span, .linha [role="rowheader"] { font: 500 12px/1.3 system-ui, sans-serif; color: var(--texto-600); }
+  .arquivo { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px; border: 1px solid var(--neutro-300); border-radius: 8px; }
+  .arquivo .botao { white-space: nowrap; }
+  .arquivo strong { display: block; font-family: var(--fonte-dm-sans); }
+  .arquivo span { font-size: var(--tamanho-sm); color: var(--texto-700); }
+</style>

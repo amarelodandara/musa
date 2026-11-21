@@ -3,8 +3,9 @@
 // O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
 // enquanto estão na tela e param quando a pessoa mexe neles.
 import { conteudo, DESAFIOS, desafio, type Desafio } from "../../lib/conteudo";
-import { gruposGlossario } from "../../lib/glossario";
+import { ancora, gruposGlossario } from "../../lib/glossario";
 import { icone, pillsContato } from "../../lib/pontos-contato";
+import "../../styles/mapa-celula.css";
 
 const { etapas, pontosContato } = conteudo;
 const canais = [...new Set(pontosContato.map((p) => p.canal))];
@@ -18,6 +19,10 @@ const termos = TERMOS.map((nome) => {
   const def = (t?.paragrafos[0] ?? "").replace(/<[^>]+>/g, "").match(/^.*?[.!?](?=\s|$)/)?.[0] ?? "";
   return { nome, def };
 }).filter((t) => t.def);
+
+// Bloco "Glossário", modo "celula": a célula de Práticas do mapa (Boas práticas da Preparação para visita), com três
+// palavras circuladas (DESTAQUES, abaixo)
+type Trecho = { texto: string; termo?: string };
 
 // Bloco "Nível de desafio": a mesma linha de giz do mapa, desenhada à mão livre da primeira etapa à última,
 // num ritmo que acelera e hesita (ver o script); os avatares de cada nível aparecem quando a linha chega neles
@@ -36,22 +41,59 @@ const linha = `M${f1(pontos[0].x)} ${f1(pontos[0].y)} ` + pontos.slice(1).map((c
 }).join(" ");
 const descricaoGrafico = "Nível de desafio de cada etapa: " + pontos.map((p) => `${p.e.nome}, ${DESAFIOS[p.nivel].nome.toLowerCase()}`).join("; ") + ".";
 
-// Bloco "Imprimir": folhas na proporção real (mm)
+// Bloco "Imprimir": as três folhas em leque, com a prévia de verdade de cada PDF (public/arquivos/previa-*.png, feitas
+// por scripts/pdfs.mjs junto com os PDFs). A ordem é a do leque, da esquerda para a direita; a A1 fica na frente, no meio.
 const FOLHAS = [
-  { formato: "A1", l: 841, a: 594 },
-  { formato: "A2", l: 594, a: 420 },
-  { formato: "A4", l: 297, a: 210 }
+  { formato: "A4", previa: "/arquivos/previa-a4.png" },
+  { formato: "A1", previa: "/arquivos/previa-a1.png" },
+  { formato: "A2", previa: "/arquivos/previa-a2.png" }
 ];
-const ESCALA = 0.16;
 // Em ajuste, um bloco por vez: enquanto for true, só o primeiro (o mapa) aparece; os outros continuam no código.
 const SO_O_PRIMEIRO = false;
+// bloco 4 (glossário): as três palavras circuladas na célula do mapa (provisórias; escolher em /dev/bento-glossario-celula)
+const DESTAQUES = ["antes da visita", "professor", "mediação"];
 // desafio: como o bloco 2 mostra o nível de desafio. "cartoes" (o da página, de /dev/bento-desafio-cartoes) = os
 // pensamentos do mapa num rolo de cartões; "linha" (de /dev/bento-desafio) = a linha de giz com os avatares.
 // contato: como o bloco 3 mostra os pontos de contato (os três em /dev/bento-contato). "marquee" (o da página, 19/11/2026)
 // = as pills com ícone em duas filas que correm em cima do texto; "chips" = os canais numa fileira, uma onda acende
 // um por vez; "etapas" = os canais empilhados na etapa da jornada em que aparecem.
-interface Props { soOPrimeiro?: boolean; desafio?: "linha" | "cartoes"; contato?: "chips" | "etapas" | "marquee" }
-const { soOPrimeiro = SO_O_PRIMEIRO, desafio: modoDesafio = "cartoes", contato: modoContato = "marquee" } = Astro.props;
+// glossario: como o bloco 4 mostra o glossário. "celula" (o da página, 20/11/2026) = uma célula do mapa borrada, só os
+// termos do glossário à vista; "verbetes" = a lista de termos, um aberto por vez.
+// celulaEtapa e celulaTipo: qual célula do modo "celula" (padrão: Boas práticas da Preparação para visita, a com mais termos).
+interface Props { soOPrimeiro?: boolean; desafio?: "linha" | "cartoes"; contato?: "chips" | "etapas" | "marquee"; glossario?: "verbetes" | "celula"; celulaEtapa?: string; celulaTipo?: "boa" | "evitar"; destaques?: string[] }
+const { soOPrimeiro = SO_O_PRIMEIRO, desafio: modoDesafio = "cartoes", contato: modoContato = "marquee", glossario: modoGlossario = "celula",
+  celulaEtapa = "preparacao", celulaTipo = "boa", destaques = DESTAQUES } = Astro.props;
+// destacar: divide o texto de uma prática em trechos, com as palavras de destaques circuladas (só a primeira vez que
+// cada uma aparece na célula; maiúsculas e acentos como estão no texto)
+const vistos = new Set<string>();
+const sem = (x: string) => x.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+function destacar(texto: string): Trecho[] {
+  const faltam = destaques.filter((d) => d && !vistos.has(sem(d)));
+  if (!faltam.length) return [{ texto }];
+  const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const fonte = new RegExp(faltam.map((d) => `(?<![\\p{L}])${esc(d)}(?![\\p{L}])`).join("|"), "giu");
+  const trechos: Trecho[] = [];
+  let ultimo = 0;
+  for (const m of texto.matchAll(fonte)) {
+    if (vistos.has(sem(m[0]))) continue;
+    vistos.add(sem(m[0]));
+    if (m.index! > ultimo) trechos.push({ texto: texto.slice(ultimo, m.index) });
+    trechos.push({ texto: m[0], termo: sem(m[0]) });
+    ultimo = m.index! + m[0].length;
+  }
+  if (ultimo < texto.length) trechos.push({ texto: texto.slice(ultimo) });
+  return trechos;
+}
+const celula = {
+  marcador: celulaTipo === "boa" ? "+" : "−",
+  tipo: celulaTipo,
+  // o rótulo de função é sempre um verbete (subtermos de "As funções")
+  praticas: conteudo.praticas.filter((p) => p.etapa === celulaEtapa && p.tipo === celulaTipo).map((p) => {
+    const f = conteudo.funcoes.find((x) => x.id === p.funcao);
+    return { titulo: destacar(p.titulo), funcao: f?.nome ?? "" };
+  })
+};
+
 // marquee: todas as pills de src/lib/pontos-contato.ts (as do mapa e as sugestões), na ordem da jornada,
 // alternadas entre as duas filas para as etapas se misturarem nas duas
 const pills = pillsContato(etapas, pontosContato);
@@ -65,7 +107,6 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     <article class="bloco-b b-visoes" data-revelar data-disposicao="lado" data-tempo="8000">
       <div class="b-texto">
         <h3>O nível de detalhes que seu planejamento precisa</h3>
-        <p>Analise cada etapa visão detalhada ou tenha um entendimento da jornada completa na visão geral.</p>
         <!-- os filtros que o mapa tem de verdade (menu "Filtrar visualização") -->
         <ul class="b-filtros" aria-label="Filtros do mapa">
           <li>Filtre apenas as etapas que precisa</li>
@@ -148,7 +189,6 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       )}
       <div class="b-texto">
         <h3>Todos os encontros da escola com seu museu</h3>
-        <p>Não basta ter uma boa exposição, é preciso também ter uma boa apresentação, ser encontrável no mundo digital e alinhado no mundo físico.</p>
       </div>
       {modoContato === "marquee" ? null : modoContato === "etapas" ? (
         <ol class="contato-etapas">
@@ -167,12 +207,40 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     </article>
 
     <!-- 5b. Glossário -->
-    <a class="bloco-b b-glossario" href="/guia/glossario" data-revelar>
+    <a class="bloco-b b-glossario" href="/guia/glossario" data-revelar data-glossario={modoGlossario}>
       <div class="b-texto">
-        <h3>Fale a mesma língua da sua equipe</h3>
-        <p>O glossário explica cada palavra do mapa, para todo mundo entender a mesma coisa.</p>
-        <span class="b-link">Abrir o glossário <span aria-hidden="true">→</span></span>
+        <h3>Entenda como pensar visitas</h3>
+        <p>Aproveite o glossário e uma lista como pontos de partida para o seu aprendizado de serviço.</p>
+        {/* o bloco inteiro já é o link: o botão é só desenho (span), com o hover do bloco */}
+        <span class="botao secundario botao-pequeno b-botao">Abrir glossário</span>
       </div>
+      {modoGlossario === "celula" ? (
+      /* a célula de Práticas do mapa em repouso (Etapa fechada no modo etapa), com as mesmas classes e o mesmo CSS do mapa
+         (src/styles/mapa-celula.css): o que mudar lá muda aqui. Decorativa (o link já diz para onde vai) */
+      <div class="celula-g mapa" data-modo="etapa" aria-hidden="true" data-tracado="700" data-entre="450" data-pausa="2600" data-giz="sim" data-volta="28">
+        {/* giz: o mesmo filtro do caminho do Nível de desafio no mapa */}
+        <svg class="circulo-defs" width="0" height="0"><filter id="circulo-giz" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula" />
+          <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2" xChannelSelector="R" yChannelSelector="G" result="borda" />
+          <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao" />
+          <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara" />
+          <feComposite in="borda" in2="mascara" operator="in" />
+        </filter></svg>
+        <div class="etapa">
+          <div class={`camada camada-${celula.tipo === "boa" ? "boas" : "evitar"}`}>
+            <ul class="praticas">
+              {celula.praticas.map((p) => (
+                <li class="pratica" data-tipo={celula.tipo}>
+                  <span class="marcador">{celula.marcador}</span>
+                  <span class="pratica-titulo">{p.titulo.map((t) => t.termo ? <mark data-termo={t.termo}>{t.texto}<svg class="circulo"><path pathLength="1" /></svg></mark> : <span>{t.texto}</span>)}</span>
+                  <span class="pratica-funcao"><span>{p.funcao}</span></span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      ) : (
       <dl class="verbetes">
         {termos.map((t, i) => (
           <div class="verbete" data-aberto={i === 0 ? "" : undefined}>
@@ -181,19 +249,20 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
           </div>
         ))}
       </dl>
+      )}
     </a>
 
     <!-- 6. Imprimir -->
     <a class="bloco-b b-imprimir" href="/baixar" data-revelar>
       <div class="b-texto">
-        <h3>Do navegador para a parede</h3>
-        <p>Baixe em A1, A2 ou A4, com linhas em branco para a equipe escrever o que é do seu museu.</p>
-        <span class="b-link">Baixar o mapa <span aria-hidden="true">→</span></span>
+        <h3>Do computador para a parede da sua sala</h3>
+        <p>Baixe o mapa completo em grande formato ou seleções da jornada em pequenos formatos para trabalhar com o seu time.</p>
+        <span class="botao secundario botao-pequeno b-botao">Baixar mapa</span>
       </div>
       <div class="folhas" aria-hidden="true">
         {FOLHAS.map((f, i) => (
-          <div class="folha" style={`--l:${f.l * ESCALA}px;--a:${f.a * ESCALA}px;--i:${i}`}>
-            <span class="folha-grade">{Array.from({ length: 7 }, () => <i></i>)}</span>
+          <div class="folha" style={`--i:${i}`}>
+            <img src={f.previa} alt="" loading="lazy" decoding="async" />
             <span class="folha-rotulo">{f.formato}</span>
           </div>
         ))}
@@ -471,7 +540,50 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
 
   // ---------- 5b. Glossário: os verbetes se revezam, um aberto por vez ----------
   const bGlossario = document.querySelector<HTMLElement>(".func .b-glossario");
-  if (bGlossario) {
+  // modo "celula": os três termos ganham um círculo à mão, um depois do outro; com os três circulados, uma pausa, os
+  // círculos somem e tudo recomeça. Ao perder a vez, o traço já começado termina e nada novo começa (o bloco para).
+  const termosCelula = bGlossario ? [...bGlossario.querySelectorAll<HTMLElement>(".celula-g mark")] : [];
+  if (bGlossario && termosCelula.length) {
+    // ajustes (lidos a cada passo; o playground /dev/bento-glossario-celula muda ao vivo): tracado = ms de cada círculo;
+    // entre = ms entre um círculo e o próximo; pausa = ms com os três circulados; volta = graus que o traço passa do início
+    const cel = bGlossario.querySelector<HTMLElement>(".celula-g")!;
+    const num = (k: string, padrao: number) => { const n = Number(cel.dataset[k]); return Number.isFinite(n) ? n : padrao; };
+    // o círculo: uma volta de elipse que começa em cima à esquerda e passa um pouco do ponto de partida, com o raio
+    // variando de leve, como à mão; desenhado no tamanho da palavra (folga vem do CSS)
+    function desenhar() {
+      const volta = num("volta", 28);
+      termosCelula.forEach((m) => {
+        const svg = m.querySelector<SVGSVGElement>(".circulo")!, w = svg.clientWidth, h = svg.clientHeight;
+        if (!w || !h) return;
+        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        const cx = w / 2, cy = h / 2, rx = w / 2 - 2, ry = h / 2 - 2, n = 56, ini = (200 * Math.PI) / 180, total = ((360 + volta) * Math.PI) / 180;
+        const pts = Array.from({ length: n + 1 }, (_, k) => {
+          const t = k / n, a = ini + t * total, r = 1 + 0.035 * Math.sin(a * 2 + 1) - 0.06 * t;
+          return `${(cx + Math.cos(a) * rx * r).toFixed(1)} ${(cy + Math.sin(a) * ry * r).toFixed(1)}`;
+        });
+        svg.querySelector("path")!.setAttribute("d", "M" + pts.join(" L"));
+      });
+    }
+    desenhar();
+    new ResizeObserver(desenhar).observe(cel);
+    new MutationObserver(desenhar).observe(cel, { attributes: true, attributeFilter: ["data-volta", "style"] });
+    let i = 0;
+    const l = laco(bGlossario, async () => {
+      if (i < termosCelula.length) {
+        if (!(await l.esperar(i === 0 ? 600 : num("entre", 450)))) return;
+        cel.style.setProperty("--circulo-ms", `${num("tracado", 700)}ms`);
+        termosCelula[i].dataset.circulado = "";
+        i++;
+        if (!(await l.esperar(num("tracado", 700)))) return;
+        return;
+      }
+      if (!(await l.esperar(num("pausa", 2600)))) return;
+      termosCelula.forEach((t) => { t.dataset.apagando = ""; delete t.dataset.circulado; });
+      await l.esperar(320);
+      termosCelula.forEach((t) => delete t.dataset.apagando);
+      i = 0;
+    }, { aoParar: () => {} });
+  } else if (bGlossario) {
     const verbetes = [...bGlossario.querySelectorAll<HTMLElement>(".verbete")];
     let i = 0;
     const l = laco(bGlossario, async () => {
@@ -494,23 +606,20 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   @property --cor-fundo { syntax: "<color>"; inherits: true; initial-value: transparent; }
   /* posição de cada cartão no rolo do bloco 2 (experimento), registrada para transicionar pelo arco */
   @property --rolo-pos { syntax: "<number>"; inherits: true; initial-value: 0; }
-  .func { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); padding: 72px 0; border-top: 1px solid var(--neutro-300); margin: 0; }
+  .func { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); padding: var(--secao-espaco, 96px) 0; margin: 0; }
 
   .func[data-so-primeiro] .bento > :not(.b-visoes) { display: none; }
   .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
   .bloco-b { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border: 1px solid transparent; overflow: hidden; min-width: 0; color: inherit; text-decoration: none; }
   .b-texto h3 { margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
   .b-texto p { margin: 0; text-wrap: balance; }
-  .b-link { display: inline-block; margin-top: 12px; font: 600 var(--tamanho-sm)/1 var(--fonte-inter); color: var(--carmim-800); text-decoration: none; }
-  .b-link span { display: inline-block; transition: transform 200ms var(--ease-out); }
-  .b-link:hover span, .b-imprimir:hover .b-link span, .b-glossario:hover .b-link span { transform: translateX(3px); }
 
   /* Sistema de todos os blocos (decidido no primeiro bloco, em /dev/bento-mapa e /dev/bento-estados, 18/11/2026):
      cantos de 0.375rem, borda em degradê de cima para baixo, e as cores do bloco ativo e do inativo
      (o regente troca uma pela outra; entre os estados só mudam as cores). */
   .bloco-b { border-radius: 0.375rem;
-    --ativo-borda-topo: var(--coral-200); --ativo-borda-pe: var(--neutro-50); --ativo-titulo: var(--texto-900); --ativo-descricao: var(--texto-700); --ativo-lista: var(--texto-700); --ativo-pontos: var(--coral-600); --ativo-fundo: var(--coral-100);
-    --inativo-borda-topo: var(--neutro-200); --inativo-borda-pe: var(--neutro-50); --inativo-titulo: var(--texto-600); --inativo-descricao: var(--texto-600); --inativo-lista: var(--texto-700); --inativo-pontos: var(--neutro-400); --inativo-fundo: var(--neutro-100);
+    --ativo-borda-topo: var(--coral-200); --ativo-borda-pe: var(--neutro-50); --ativo-titulo: var(--texto-900); --ativo-descricao: var(--texto-700); --ativo-lista: var(--texto-700); --ativo-pontos: var(--coral-600); --ativo-fundo: var(--coral-50);
+    --inativo-borda-topo: var(--neutro-200); --inativo-borda-pe: var(--neutro-50); --inativo-titulo: var(--texto-600); --inativo-descricao: var(--texto-600); --inativo-lista: var(--texto-700); --inativo-pontos: var(--neutro-400); --inativo-fundo: var(--neutro-50); /* = fundo da página (body): em repouso, sem fundo; não transparente, senão o degradê da borda (border-box) aparece por trás */
     --cor-borda-topo: var(--ativo-borda-topo); --cor-borda-pe: var(--ativo-borda-pe); --cor-titulo: var(--ativo-titulo); --cor-descricao: var(--ativo-descricao); --cor-lista: var(--ativo-lista); --cor-pontos: var(--ativo-pontos); --cor-fundo: var(--ativo-fundo);
     /* borda em degradê (fundo no padding-box, degradê no border-box) */
     border-color: transparent;
@@ -527,7 +636,9 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .b-visoes .b-texto { padding-right: 28px; }
   /* texto ao lado do mapa: o quadro encosta em cima, na direita e embaixo */
   .b-visoes[data-disposicao="lado"] { flex-direction: row; gap: 28px; padding: 0 0 0 28px; }
-  .b-visoes[data-disposicao="lado"] .b-texto { flex: 1 1 0; min-width: 0; padding: 28px 0; display: flex; flex-direction: column; }
+  .b-visoes[data-disposicao="lado"] .b-texto { flex: 1 1 0; min-width: 0; padding: 28px 0; display: flex; flex-direction: column; justify-content: flex-end; }
+  /* o título desce e fica junto da lista, no pé do bloco */
+  .b-visoes[data-disposicao="lado"] .b-filtros { margin-top: 0; }
   /* lista de filtros: no pé da coluna de texto, embaixo à esquerda */
   .b-filtros { list-style: none; margin: auto 0 0; padding: 20px 0 0; display: flex; flex-direction: column; gap: 8px; font: 400 var(--tamanho-sm)/1.3 var(--fonte-inter); color: var(--cor-lista); }
   /* ponto em em: acompanha o tamanho do texto e fica no meio da primeira linha (line-height 1.3 → meio em 0.65em) */
@@ -559,8 +670,6 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .bento[data-regendo][data-progresso="sim"]:not([data-unico]) > .bloco-b[data-ativo]::after { opacity: 1; animation: progresso var(--tempo, 4000ms) linear forwards; }
   .bento[data-segurando] > .bloco-b[data-ativo]::after { opacity: 0 !important; animation: none !important; }
   @keyframes progresso { to { transform: scaleX(1); } }
-  /* bloco sem laço próprio: as folhas só flutuam quando o bloco é o ativo */
-  .bento[data-regendo]:not([data-unico]) .b-imprimir:not([data-ativo]) .folha { animation-play-state: paused; }
 
   /* entrada em cascata, uma vez */
   [data-revelar] { opacity: 0; transform: translateY(16px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--ordem, 0) * 80ms); }
@@ -688,15 +797,48 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .verbete[data-aberto] dt { color: var(--cor-titulo); }
   .verbete[data-aberto] dd { opacity: 1; padding-top: 4px; }
 
+  /* 5b. Glossário, modo "celula": a célula de Práticas do mapa em repouso, recortada embaixo como o quadro do primeiro
+     bloco; o texto fica borrado e só os termos do glossário ficam nítidos */
+  .b-glossario[data-glossario="celula"] { padding-bottom: 0; }
+  /* o link desce para o pé do bloco, à esquerda da célula (no celular, empilhado, fica no fluxo) */
+  .b-botao { margin-top: 16px; align-self: flex-start; }
+  /* o bloco inteiro é o link: o botão (só desenho) acende com o mouse em qualquer parte dele */
+  .b-glossario:hover .b-botao, .b-imprimir:hover .b-botao { color: var(--b-texto-passar); }
+  .b-glossario:hover .b-botao::after, .b-imprimir:hover .b-botao::after { opacity: 1; }
+  @media (min-width: 641px) { .b-glossario[data-glossario="celula"] .b-botao { position: absolute; left: 28px; bottom: 28px; margin: 0; } }
+  /* a célula vem de src/styles/mapa-celula.css (a mesma do mapa); aqui só o recorte (largura da coluna em repouso,
+     fundo e linhas da Etapa fechada, degradê embaixo), o borrado e os termos que acendem */
+  .celula-g { --celula-desfoque: 0px; --celula-altura: 264px; --celula-fade: 90%;
+    --circulo-cor: var(--carmim-600); --circulo-espessura: 2.5px; --circulo-folga-x: 7px; --circulo-folga-y: 5px; --circulo-ms: 700ms;
+    margin: auto -28px 0 auto; width: var(--col-compacta); max-width: 100%; box-sizing: border-box; height: var(--celula-altura); overflow: hidden;
+    border-left: var(--linha); background: var(--neutro-50); font-family: var(--fonte-inter); color: var(--texto-900);
+    mask-image: linear-gradient(to bottom, #000 var(--celula-fade), transparent); }
+  .circulo-defs { position: absolute; }
+  .celula-g span:not(:has(*)) { filter: blur(var(--celula-desfoque)); }
+  .celula-g mark { position: relative; white-space: nowrap; background: transparent; color: inherit; font: inherit; }
+  /* o círculo em volta da palavra: o traço se desenha (dashoffset) quando o termo ganha data-circulado */
+  .circulo { position: absolute; left: calc(-1 * var(--circulo-folga-x)); top: calc(-1 * var(--circulo-folga-y));
+    width: calc(100% + 2 * var(--circulo-folga-x)); height: calc(100% + 2 * var(--circulo-folga-y)); overflow: visible; pointer-events: none; }
+  .circulo path { fill: none; stroke: var(--circulo-cor); stroke-width: var(--circulo-espessura); stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .celula-g[data-giz="sim"] .circulo path { filter: url(#circulo-giz); }
+  .celula-g mark[data-circulado] .circulo path { stroke-dashoffset: 0; transition: stroke-dashoffset var(--circulo-ms) cubic-bezier(0.65, 0, 0.35, 1); }
+  .celula-g mark[data-apagando] .circulo path { stroke-dashoffset: 0; opacity: 0; transition: opacity 300ms ease-out; }
+  @media (max-width: 640px) { .celula-g { margin-right: -24px; } }
+
   /* 6. Imprimir */
-  .folhas { display: flex; align-items: flex-end; justify-content: flex-end; gap: 14px; margin-top: auto; padding: 8px 4px 0; }
-  .folha { position: relative; flex: none; width: var(--l); height: var(--a); padding: 4px; border-radius: 2px; background: var(--neutro-50); border: 1px solid var(--neutro-300); box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.2);
-    rotate: calc((var(--i) - 1) * -2deg); animation: flutuar 5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.6s); transition: rotate 300ms var(--ease-out); }
-  .b-imprimir:hover .folha { rotate: calc((var(--i) - 1) * -5deg); }
-  @keyframes flutuar { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
-  .folha-grade { display: flex; gap: 2px; height: 100%; }
-  .folha-grade i { flex: 1; border-top: 2px solid var(--carmim-800); background: repeating-linear-gradient(to bottom, var(--neutro-200) 0 2px, transparent 2px 6px); }
-  .folha-rotulo { position: absolute; left: 6px; bottom: 6px; padding: 1px 4px; border-radius: 3px; background: var(--neutro-50); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--carmim-800); }
+  /* leque: as três folhas do mesmo tamanho, centradas no bloco, giradas a partir de um ponto abaixo delas; a do meio na
+     frente. O bloco recorta embaixo. Ao passar o mouse, o leque abre um pouco mais. */
+  .b-imprimir { padding-bottom: 0; }
+  .folhas { --folha-l: min(440px, 62%); --abertura: 11deg; position: relative; height: 300px; margin: 8px -28px 0; }
+  .b-imprimir:hover .folhas { --abertura: 15deg; }
+  .folha { position: absolute; left: 50%; top: 24px; width: var(--folha-l); aspect-ratio: 297 / 210; translate: -50% 0;
+    transform-origin: 50% 160%; rotate: calc((var(--i) - 1) * var(--abertura)); z-index: calc(2 - (var(--i) - 1) * (var(--i) - 1));
+    border-radius: 3px; background: var(--neutro-50); box-shadow: 0 0 0 1px var(--neutro-300), 0 10px 28px -12px rgb(0 0 0 / 0.28);
+    overflow: hidden; transition: rotate 400ms var(--ease-out); }
+  .folha img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .folha-rotulo { position: absolute; right: 8px; top: 8px; padding: 2px 6px; border-radius: 3px; background: var(--carmim-800); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--texto-50); }
+  @media (max-width: 640px) { .folhas { height: 200px; margin-inline: -24px; --folha-l: 70%; } }
 
   @media (max-width: 1080px) {
     .bento { grid-template-columns: repeat(2, 1fr); }
@@ -709,7 +851,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     .b-visoes { min-height: 600px; }
   }
   @media (max-width: 640px) {
-    .func { padding: 48px 0; }
+    .func { padding: var(--secao-espaco, 56px) 0; }
     .bento { grid-template-columns: 1fr; }
     .bloco-b { grid-column: 1 / -1 !important; padding: 24px; }
     .b-visoes { padding: 24px 0 0 24px; min-height: 520px; }
