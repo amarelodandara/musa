@@ -18,40 +18,75 @@
              2. grão: outro ruído vira uma máscara que fura o traço, como o papel aparecendo (feColorMatrix + feComposite).
              Valores em unidades do viewBox. Os grifos são traços neste mesmo svg (g.grifos, montados por abertura.js).
              Ajuste fino no painel "Giz" de dev/abertura.html. -->
-        <filter id="giz" filterUnits="userSpaceOnUse" x="-40" y="-40" width="1160" height="680" color-interpolation-filters="sRGB">
+        <filter id="giz" filterUnits="userSpaceOnUse" x="-260" y="-60" width="1600" height="800" color-interpolation-filters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
           <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
           <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
           <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
           <feComposite in="borda" in2="mascara" operator="in"/>
         </filter>
+        <!-- giz fino, para a planta: o mesmo giz de cera, com o contorno tremendo menos e o grão mais fino e mais cheio
+             (num traço fino, o grão do caminho apagaria quase tudo). Ajuste no painel "Planta" de /dev/abertura-mapa?foco=frases -->
+        <filter id="giz-fino" filterUnits="userSpaceOnUse" x="-40" y="-40" width="1160" height="680" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="2" seed="5" result="ondula"/>
+          <feDisplacementMap in="SourceGraphic" in2="ondula" scale="1.4" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+          <feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="2" seed="17" result="grao"/>
+          <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3 -0.5" result="mascara"/>
+          <feComposite in="borda" in2="mascara" operator="in"/>
+        </filter>
       </defs>
       <g class="planta">
-        <!-- planta em linha fina (1 px na tela, não escala): paredes duplas, portas com folha e arco, escada, pilares, vitrines -->
-        <path class="planta-traco traco-0.5 stroke-texto-700" vector-effect="non-scaling-stroke" d="
-          M372 142H466 M506 142H700V458H476 M430 458H372V142
-          M377 147H466 M506 147H695V453H476 M430 453H377V147
-          M430 458V435 M430 435A23 23 0 0 1 453 458 M476 458V435 M476 435A23 23 0 0 0 453 458
-          M466 142V147 M506 142V147 M466 142A20 20 0 0 0 486 162
-          M520 147V215 M520 245V300 M515 147V215 M515 245V295
-          M377 300H470 M500 300H520 M377 295H470 M500 295H515
-          M640 147V200 M640 230V260H695 M645 147V200 M645 230V255H695
-          M382 380H420V448H382Z M382 388H420 M382 396H420 M382 404H420 M382 412H420 M382 420H420 M382 428H420 M382 436H420 M401 444V384 M397 389L401 384L405 389
-          M557.5 327.5h5v5h-5Z M637.5 327.5h5v5h-5Z M557.5 397.5h5v5h-5Z M637.5 397.5h5v5h-5Z
-          M440 410Q453 398 466 410
-          M392 175h44v12h-44Z M450 175h44v12h-44Z M392 240h44v12h-44Z
-          M655 290h30v80h-30Z"/>
+        <!-- planta em giz fino (filtro #giz-fino; o traço escala com o palco), simplificada em 22/11/2026: parede única, três salas e o hall.
+             Dois traços e os móveis: o contorno (desenha primeiro; quando fecha, aparece "Seu museu"), o de dentro (paredes e porta)
+             e os móveis, que não se desenham: surgem do chão. Na ordem: o contorno inteiro (de um lado da porta de entrada ao outro, dando a volta), depois
+             as paredes de dentro, as folhas da porta de entrada e, por último, o que faz dela uma galeria: quadros nas paredes
+             (retângulos finos), um banco na sala da esquerda, uma vitrine na sala da direita e, no hall, um pedestal hexagonal. Portas: entrada embaixo (o caminho entra por ela)
+             e saída em cima (o caminho sai por ela). A versão anterior, com paredes duplas, escada, pilares e vitrines, está no git. -->
+        <path class="planta-traco planta-contorno traco-1.5 stroke-texto-700" d="M476 410 H700 V94 H506 M466 94 H372 V410 H430"/>
+        <path class="planta-traco planta-dentro traco-1.5 stroke-texto-700" d="M520 94 V167 M520 197 V252 H500 M470 252 H372 M640 94 V152 M640 182 V212 H700 M430 410 V387 A23 23 0 0 1 453 410 M476 410 V387 A23 23 0 0 0 453 410"/>
+        <!-- o que está dentro não se desenha: surge do chão (esmaece e cresce um pouco), um de cada vez -->
+        <g class="planta-moveis">
+          <path class="planta-traco planta-movel traco-1.5 stroke-texto-700" d="M390 102 h36 v3 h-36 Z M446 102 h36 v3 h-36 Z"/>
+          <path class="planta-traco planta-movel traco-1.5 stroke-texto-700" d="M538 102 h36 v3 h-36 Z M584 102 h36 v3 h-36 Z"/>
+          <path class="planta-traco planta-movel traco-1.5 stroke-texto-700" d="M412 164 h60 v14 h-60 Z"/>
+          <path class="planta-traco planta-movel traco-1.5 stroke-texto-700" d="M676 112 h14 v84 h-14 Z"/>
+          <path class="planta-traco planta-movel traco-1.5 stroke-texto-700" d="M618 332 L607 351 H585 L574 332 L585 313 H607 Z"/>
+        </g>
       </g>
-      <path class="caminho traco-4 stroke-carmim-600" id="caminho" d="M238 358 C268 330 248 308 198 280 C158 258 166 167 211 177 C271 190 368 213 312 159 C277 136 246 218 271 273 C301 338 322 276 337 336 C354 406 330 520 385 545 C440 568 470 500 452 440 C440 395 448 360 470 340 C510 300 600 290 630 320 C660 352 610 385 560 375 C505 362 502 257 557 257 C602 257 626 347 596 347 C576 347 556 330 566 322 C600 290 640 230 600 190 C560 150 475 162 485 122 C495 82 663 57 743 77 C823 97 800 150 780 210 C765 260 830 330 900 380"/>
+      <path class="caminho traco-4 stroke-carmim-600" id="caminho" d="M250 308 C292 308 306 252 276 240 C240 226 228 288 262 334 C298 384 296 472 360 494 C424 514 470 472 453 422 C445 382 500 362 540 372 C590 392 650 372 650 332 C650 282 600 252 585 212 C570 172 600 152 640 167 C668 178 662 200 640 197 C615 194 600 174 560 177 C540 178 530 182 520 182 C490 192 470 214 440 210 C405 206 392 184 405 157 C418 128 470 130 486 112 C492 104 488 98 486 90 C482 48 560 18 650 24 C760 32 830 82 845 162 C860 252 915 344 998 344"/>
       <g class="grifos"></g>
     </svg>
-    <p class="frase frase-a absolute m-0 right-153 top-21 w-72 text-lg font-inter font-light text-texto-600 text-right leading-tight tracking-normal">Onde você acha que começa a jornada do seu visitante:</p>
-    <p class="rotulo-museu absolute m-0 right-96 top-31 text-2xs font-inter-tight font-light text-texto-700 text-left leading-none tracking-widest uppercase">Seu museu</p>
-    <div class="cartao busca absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-4 top-85 w-55 h-9.5 px-3 rounded-full"><span class="icone icone-busca grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span class="busca-texto whitespace-nowrap overflow-hidden" data-texto="museu de ciências em bh"></span><span class="cursor-texto w-px h-4 -ml-1.5 bg-texto-900"></span></div>
-    <div class="cartao agenda absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-226 top-85 w-41 py-2.5 px-2.5 rounded-lg border-l-4 border-l-coral-400"><span class="icone icone-agenda grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10H20.5 M8 3V7 M16 3V7"/></svg></span><span class="agenda-corpo grid leading-tight"><b class="agenda-titulo font-semibold">Voltar no museu</b><small class="agenda-detalhe text-xs text-texto-700">sáb · 10:00</small></span></div>
-    <p class="frase frase-b absolute m-0 left-136 top-102 w-113 text-3xl font-dm-sans font-semibold text-carmim-800 text-left leading-tight tracking-wide">Onde realmente <span class="grifo">começa</span> e <span class="grifo">termina</span> a jornada do seu visitante.</p>
+    <p class="frase frase-a absolute m-0 right-195 top-1 w-111 text-2xl text-balance font-dm-sans font-light text-texto-600 text-left leading-tight tracking-normal">Onde você acha que começa a jornada do seu visitante</p>
+    <p class="rotulo-museu absolute m-0 right-96 top-19 text-2xs font-inter-tight font-light text-texto-700 text-center leading-none tracking-widest uppercase">Seu museu</p>
+    <!-- a busca: alguém procurando museus de ciência num buscador (lupa e texto, sem outros ícones). Barra grande, passa do palco para a esquerda; ao terminar de
+         digitar, abre a lista de sugestões (o trecho que completa a busca em negrito, como nos buscadores) -->
+    <div class="cartao busca absolute flex items-center gap-3 bg-neutro-50 border border-neutro-200 shadow-md font-inter text-texto-900 text-lg -left-42 top-70 w-104 h-14 px-5 rounded-full">
+      <span class="icone icone-busca grid place-items-center shrink-0 size-6 text-texto-600"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>
+      <span class="busca-texto whitespace-nowrap overflow-hidden" data-texto="museu de ciências em bh"></span><span class="cursor-texto w-px h-5 -ml-2.5 bg-texto-900"></span>
+      <ul class="busca-sugestoes absolute left-0 right-0 top-full m-0 mt-2 px-0 py-2 list-none whitespace-nowrap bg-neutro-50 border border-neutro-200 shadow-md rounded-3xl text-md text-texto-700">
+        <li class="flex items-center gap-3 px-5 py-1.5"><span class="icone grid place-items-center shrink-0 size-5 text-texto-400"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span>museu de ciências em bh <b class="font-semibold text-texto-900">horários</b></span></li>
+        <li class="flex items-center gap-3 px-5 py-1.5"><span class="icone grid place-items-center shrink-0 size-5 text-texto-400"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span>museu de ciências em bh <b class="font-semibold text-texto-900">para escolas</b></span></li>
+        <li class="flex items-center gap-3 px-5 py-1.5"><span class="icone grid place-items-center shrink-0 size-5 text-texto-400"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span>museu de ciências em bh <b class="font-semibold text-texto-900">gratuito</b></span></li>
+      </ul>
+    </div>
+    <!-- a agenda: a pessoa marcando a volta ao museu na agenda dela. Só um trecho do dia, com as horas (sem data nem
+         cabeçalho, que aqui não diriam nada), em cinza; o evento em coral bem claro, com um fio carmim claro à esquerda. Depois que o cartão aparece, depois que o cartão aparece,
+         o evento "Voltar no museu" cai no horário das 10h às 12h. Passa do palco para a direita; o caminho de giz termina
+         na borda esquerda, na altura do evento -->
+    <div class="cartao agenda absolute left-250 top-69 w-62 bg-neutro-50 border border-neutro-200 shadow-xs rounded-sm font-inter text-texto-900 overflow-hidden">
+      <div class="agenda-dia relative">
+        <div class="flex h-9"><span class="w-10 shrink-0 pt-1 pr-2 text-right text-2xs text-texto-400">9h</span></div>
+        <div class="flex h-9 border-t border-neutro-200"><span class="w-10 shrink-0 pt-1 pr-2 text-right text-2xs text-texto-400">10h</span></div>
+        <div class="flex h-9 border-t border-neutro-200"><span class="w-10 shrink-0 pt-1 pr-2 text-right text-2xs text-texto-400">11h</span></div>
+        <div class="flex h-9 border-t border-neutro-200"><span class="w-10 shrink-0 pt-1 pr-2 text-right text-2xs text-texto-400">12h</span></div>
+        <div class="agenda-evento agenda-corpo absolute left-10 right-3 top-9.5 h-17 grid content-start gap-0.5 px-2.5 py-1.5 rounded-xs bg-coral-50 border-l-2 border-carmim-400 leading-tight">
+          <b class="agenda-titulo text-xs font-semibold text-texto-900">Voltar no museu</b>
+          <small class="agenda-detalhe text-2xs text-texto-600">10:00 – 12:00 · com a família</small>
+        </div>
+      </div>
+    </div>
+    <p class="frase frase-b absolute m-0 left-223 top-115 w-121 text-3xl font-dm-sans font-semibold text-carmim-800 text-right leading-tight tracking-wide">Onde realmente <span class="grifo">começa</span> e <span class="grifo">termina</span> a jornada do seu visitante.</p>
   </div>
-  <button class="pular absolute top-3 right-4 z-10 px-2.5 py-1.5 border-0 rounded-sm bg-transparente font-inter text-xs text-texto-700 cursor-pointer transition-colors duration-150 hover:bg-neutro-100" type="button">Pular animação</button>
   <div class="hero col-start-1 row-start-2 self-start justify-self-center max-w-3xl px-4 pt-4 pb-16 text-center max-md:justify-self-start max-md:px-0 max-md:pt-6 max-md:pb-0 max-md:text-left">
     <h1>Enxergue a jornada real do seu visitante</h1>
     <p class="lead" data-original={"Tudo que acontece antes, durante e depois de pisarem no seu museu,\nmapeado para o seu time"}>Tudo que acontece antes, durante e depois de pisarem no seu museu,<br>mapeado para o seu time</p>
@@ -101,8 +136,10 @@
     --q-baixo: linear-gradient(to bottom, #000 var(--quadro-esmaece-inicio, 100%), transparent var(--quadro-esmaece-fim, 100%));
     --q-lados: linear-gradient(to right, transparent, #000 calc(var(--q-folga) + var(--quadro-esmaece-lados, 0%)),
       #000 calc(100% - var(--q-folga) - var(--quadro-esmaece-lados, 0%)), transparent);
-    -webkit-mask-image: var(--q-baixo), var(--q-lados); -webkit-mask-composite: source-in;
-    mask-image: var(--q-baixo), var(--q-lados); mask-composite: intersect;
+    /* entrada: um degradê que corre da esquerda para a direita (--q-revela de 0% a 130%, animado em abertura-mapa.js) */
+    --q-revelar: linear-gradient(to right, #000 calc(var(--q-revela) - 30%), transparent var(--q-revela));
+    -webkit-mask-image: var(--q-baixo), var(--q-lados), var(--q-revelar); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--q-baixo), var(--q-lados), var(--q-revelar); mask-composite: intersect, intersect;
   }
   .palco-quadro-janela { position: absolute; inset: var(--q-folga) var(--q-folga) 0; overflow: hidden;
     border: 1px solid var(--neutro-300); border-bottom: 0; border-radius: var(--quadro-cantos, 6px) var(--quadro-cantos, 6px) 0 0; background: var(--neutro-50);
@@ -110,7 +147,14 @@
     --q-sombra-cor: var(--quadro-sombra-cor, #000);
     box-shadow: 0 1px 2px color-mix(in oklab, var(--q-sombra-cor) calc(var(--quadro-sombra, 0.25) * 25%), transparent),
       0 16px 40px -12px color-mix(in oklab, var(--q-sombra-cor) calc(var(--quadro-sombra, 0.25) * 100%), transparent); }
+  /* a planta em giz fino; data-giz="nao" no .planta desliga (painel "Planta") */
+  .planta-traco { filter: url(#giz-fino); }
+  .planta[data-giz="nao"] .planta-traco { filter: none; }
+  /* móveis da planta: crescem a partir do próprio centro */
+  .planta-movel { transform-box: fill-box; transform-origin: center; }
   .palco-quadro iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; }
+  /* registrada para poder ser animada (a entrada do quadro); 130% = quadro inteiro à vista */
+  @property --q-revela { syntax: "<percentage>"; inherits: false; initial-value: 130%; }
   /* o texto fica por cima do quadro */
   .abertura-mapa .hero { position: relative; z-index: 1; }
 </style>

@@ -30,22 +30,8 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     }
   };
 
-  // ---------- Links de página (só neste playground: entram por script antes dos botões, nas duas camadas) ----------
+  // ---------- Links de página (Cabecalho.astro: ul.nav-paginas com li[data-pagina], nas duas camadas) ----------
   // Na camada invertida (sobre o rodapé carmim) a cor fica fixa em neutro-50; os controles de cor valem para a normal.
-  const PAGINAS = { guia: ["Guia", "/guia"], glossario: ["Glossário", "/guia/glossario"], sobre: ["Sobre", "/sobre"] };
-  document.querySelectorAll(".nav-links").forEach((nav) => {
-    const invertida = !!nav.closest(".nav-invertida");
-    const ul = document.createElement("ul");
-    ul.className = "nav-paginas flex items-center list-none m-0 p-0 max-md:hidden";
-    for (const [chave, [rotulo, href]] of Object.entries(PAGINAS)) {
-      const li = document.createElement("li");
-      li.dataset.pagina = chave;
-      li.innerHTML = `<a class="nav-pagina no-underline transition-colors duration-150 ${invertida ? "text-neutro-50" : ""}" href="${href}"${invertida ? ' tabindex="-1"' : ""}>${rotulo}</a>`;
-      ul.append(li);
-    }
-    nav.prepend(ul);
-  });
-
   // listas por extenso (todas as cores da paleta), para o Tailwind gerar cada classe
   const CORES = [
       "text-coral-50",

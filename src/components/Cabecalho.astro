@@ -4,11 +4,19 @@
 // para aparecer só na faixa da barra que já está sobre o rodapé, então a troca de cor acompanha a borda do rodapé
 // (public/scripts/navegacao.js). A camada invertida fica fora do teclado e do leitor de tela.
 // variante: "lockup" (nome sempre à vista, a escolhida) ou "olho" (ícone que vira olho e só então mostra o nome). Ver /dev/barra.
-// Altura h-20 (80 px): a marca e os botões respiram longe do topo da janela.
+// Tamanhos ajustados em /dev/cabecalho (22/11/2026): barra h-18 (72 px), ícone size-7, nome h-5, botões com gap-3.
+// Links de página (Guia, Glossário, Sobre) antes dos botões, em texto pequeno; a página atual fica em carmim e semibold.
+// No celular os links somem e ficam só os botões.
 import MarcaNav from "./MarcaNav.astro";
 interface Props { variante?: "olho" | "lockup"; fixa?: boolean }
 const { variante = "lockup", fixa = true } = Astro.props;
 const atual = Astro.url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
+// o Glossário fica dentro do Guia, mas tem link próprio: em /guia/glossario só ele fica marcado
+const PAGINAS = [
+  { chave: "guia", rotulo: "Guia", href: "/guia", atual: atual === "/guia" || (atual.startsWith("/guia/") && atual !== "/guia/glossario") },
+  { chave: "glossario", rotulo: "Glossário", href: "/guia/glossario", atual: atual === "/guia/glossario" },
+  { chave: "sobre", rotulo: "Sobre", href: "/sobre", atual: atual === "/sobre" }
+];
 const camadas = [
   { invertida: false, fundo: "bg-neutro-50" },
   { invertida: true, fundo: "bg-carmim-800" } // cores dos botões invertidos: .nav-invertida .botao em estilo.css
@@ -17,12 +25,21 @@ const camadas = [
 <header class:list={["nav z-10 bg-neutro-50", fixa ? "sticky top-0" : "relative"]}>
   {camadas.map((c) => (
     <div
-      class:list={["nav-dentro mx-auto flex items-center h-20 max-w-none px-6 gap-6", c.fundo, { "nav-invertida absolute inset-x-0 top-0": c.invertida }]}
+      class:list={["nav-dentro mx-auto flex items-center h-18 max-w-none px-6 gap-6", c.fundo, { "nav-invertida absolute inset-x-0 top-0": c.invertida }]}
       style={c.invertida ? "clip-path: inset(100% 0 0 0); display: none" : undefined}
       aria-hidden={c.invertida ? "true" : undefined}
     >
-      <MarcaNav invertida={c.invertida} sempreNome={variante === "lockup"} />
-      <nav class="nav-links ml-auto flex items-center gap-2" aria-label={c.invertida ? undefined : "Principal"}>
+      <MarcaNav invertida={c.invertida} sempreNome={variante === "lockup"} tamanho="size-7" alturaNome="h-5" />
+      <nav class="nav-links ml-auto flex items-center gap-3" aria-label={c.invertida ? undefined : "Principal"}>
+        <ul class="nav-paginas flex items-center list-none m-0 p-0 gap-6 mr-6 max-md:hidden">
+          {PAGINAS.map((p) => (
+            <li data-pagina={p.chave}><a
+              class:list={["nav-pagina no-underline transition-colors duration-150 font-inter text-xs font-normal",
+                c.invertida ? "text-neutro-50" : "text-texto-700 hover:text-carmim-800 aria-[current=page]:text-carmim-800 aria-[current=page]:font-semibold"]}
+              href={p.href} tabindex={c.invertida ? -1 : undefined}
+              aria-current={!c.invertida && p.atual ? "page" : undefined}>{p.rotulo}</a></li>
+          ))}
+        </ul>
         <a class="botao secundario botao-pequeno" href="/baixar" tabindex={c.invertida ? -1 : undefined}
           aria-current={!c.invertida && atual === "/baixar" ? "page" : undefined}>Baixar mapa</a>
         <a class="botao botao-pequeno" href="/mapa" tabindex={c.invertida ? -1 : undefined}>Usar mapa</a>

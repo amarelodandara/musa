@@ -140,7 +140,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   const el = (s) => doc.querySelector(s);
   const atual = (sel, lista) => { const c = el(sel)?.classList; return lista.find((x) => c?.contains(x)) || lista[0]; };
   const num = (sel, prefixo, padrao) => { const c = [...(el(sel)?.classList || [])].find((x) => x.startsWith(prefixo + "-")); return c ? Number(c.slice(prefixo.length + 1)) : padrao; };
-  const trocar = (sel, lista, valor) => { const e = el(sel); if (!e) return; lista.forEach((x) => e.classList.remove(x)); if (valor) e.classList.add(...valor.split(" ")); };
+  const trocar = (sel, lista, valor) => doc.querySelectorAll(sel).forEach((e) => { lista.forEach((x) => e.classList.remove(x)); if (valor) e.classList.add(...valor.split(" ")); });
   const trocarNum = (sel, prefixo, valor) => { const e = el(sel); if (!e) return; [...e.classList].filter((x) => x.startsWith(prefixo + "-")).forEach((x) => e.classList.remove(x)); e.classList.add(`${prefixo}-${valor}`); };
   const sel = (lista, sel_) => ({ type: "select", options: lista, default: atual(sel_, lista) });
 
@@ -148,6 +148,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   //   sem parâmetro ou ?foco=texto: só o painel "Texto de entrada", com a abertura parada no fim (texto inteiro à vista)
   //   ?foco=animacao: só "Linha do tempo" e "Entrada do texto"
   //   ?foco=fim: só "Quadro final", com a abertura parada no último quadro
+  //   ?foco=frases: "Textos" (as frases grandes e "Seu museu") e "Planta" (o giz fino), parada com as duas frases à vista
   //   ?foco=tudo: todos os painéis, como antes
   const FOCO = el(".abertura-mapa") ? (new URLSearchParams(location.search).get("foco") || "texto") : "tudo";
   const mostrar = (assunto) => FOCO === "tudo" || FOCO === assunto;
@@ -155,6 +156,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   // ---------- Linha do tempo (primeiro painel: tocar, pausar e andar pela animação) ----------
   const A = window.MUSA_ABERTURA;
   if (A && (FOCO === "texto" || FOCO === "fim")) { A.pausar(); A.ir(A.FIM); }
+  if (A && FOCO === "frases") { A.pausar(); A.ir(9.0); } // as duas frases, a planta, a busca e a agenda à vista
   if (A && mostrar("animacao")) {
     const PASSOS = A.PASSOS.map(([rotulo, t]) => ({ value: String(t), label: rotulo }));
     let interno = false, anterior = {};
@@ -163,7 +165,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
       pausar: { type: "action", label: "Pausar" },
       doInicio: { type: "action", label: "Tocar do início" },
       passo: { type: "select", options: PASSOS, default: "0" },
-      tempo: [Math.min(12.2, A.FIM), 0, A.FIM, 0.05], // arraste para andar pela animação (pausa sozinha)
+      tempo: [A.FIM, 0, A.FIM, 0.05], // arraste para andar pela animação (pausa sozinha); começa no fim, o quadro que está no código
       velocidade: { type: "select", options: [{ value: "0.25", label: "0,25×" }, { value: "0.5", label: "0,5×" }, { value: "1", label: "1×" }, { value: "2", label: "2×" }], default: "1" }
     }, {
       id: "musa-abertura-dev",
@@ -245,7 +247,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
       atraso: [0.1, 0, 2, 0.05], intervalo: [0.09, 0, 0.5, 0.01], duracao: [0.8, 0.2, 2, 0.05], deslocamento: [12, 0, 40, 1], desfoque: [6, 0, 20, 0.5],
       curva: s1(CURVAS, CURVAS[0].value), reverTocar: { type: "action", label: "Ver a entrada de novo" }
     }, {
-      id: "musa-abertura-mapa-entrada", persist: true,
+      id: "musa-abertura-mapa-entrada-v2", persist: true, // v2: descarta valores salvos antes, volta ao que está no código
       onAction(p) { if (p === "reverTocar") { A.ir(0); A.tocar(); } }
     }) : null;
     let entradaAnterior = "";
@@ -283,7 +285,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
       verFim: { type: "action", label: "Ir para o fim" },
       verTransicao: { type: "action", label: "Ver o quadro entrar" }
     }, {
-      id: "musa-abertura-mapa-quadro-v2", persist: true,
+      id: "musa-abertura-mapa-quadro-v3", persist: true,
       onAction(p) {
         if (p === "verFim") { A.pausar(); A.ir(A.FIM); }
         if (p === "verTransicao") { const p5 = A.PASSOS.find(([r]) => r.includes("Tudo esmaece")); A.ir(p5 ? p5[1] : 9.6); A.tocar(); }
@@ -308,11 +310,12 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   }
 
   // os outros painéis (página, conteúdo, textos, desenho, giz) só aparecem com ?foco=tudo
-  if (FOCO === "tudo") {
+  if (FOCO === "tudo" || FOCO === "frases") {
+  const soTudo = FOCO === "tudo";
 
   // ---------- Página ----------
-  const pagina = createDialKit("Página", { fundo: { type: "select", options: FUNDOS, default: FUNDOS.find((c) => doc.body.classList.contains(c)) || "bg-neutro-50" } }, { id: "musa-pagina-v2", persist: true });
-  pagina.subscribe((v) => trocar("body", FUNDOS, v.fundo));
+  const pagina = !soTudo ? null : createDialKit("Página", { fundo: { type: "select", options: FUNDOS, default: FUNDOS.find((c) => doc.body.classList.contains(c)) || "bg-neutro-50" } }, { id: "musa-pagina-v2", persist: true });
+  pagina?.subscribe((v) => trocar("body", FUNDOS, v.fundo));
 
   // ---------- Textos e "Seu museu" ----------
   // [seletor, controles numéricos (prefixo, rótulo, min, max, passo, padrão), selects]
@@ -330,7 +333,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   // Na frase final, *palavra* vira grifo (o sublinhado animado).
   const CONTEUDO = {
     fraseInicial: ".frase-a", fraseFinal: ".frase-b", seuMuseu: ".rotulo-museu",
-    busca: ".busca-texto", agendaTitulo: ".agenda-titulo", agendaDetalhe: ".agenda-detalhe", pular: ".pular",
+    busca: ".busca-texto", agendaTitulo: ".agenda-titulo", agendaDetalhe: ".agenda-detalhe",
     tagline: ".abertura .tagline", titulo: ".abertura h1", subtitulo: ".abertura .lead",
     botaoUsar: ".abertura .acoes-hero a:not(.secundario)", botaoAprender: ".abertura .acoes-hero a.secundario"
   };
@@ -340,14 +343,14 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   const lerConteudo = (k, e) => k === "busca" ? e.dataset.texto
     : k === "fraseFinal" ? [...e.childNodes].map((n) => n.nodeType === 1 && n.classList.contains("grifo") ? `*${n.textContent}*` : n.textContent).join("")
     : e.textContent.trim();
-  const conteudo = createDialKit("Conteúdo", Object.fromEntries(Object.entries(CONTEUDO).map(([k, s]) =>
+  const conteudo = !soTudo ? null : createDialKit("Conteúdo", Object.fromEntries(Object.entries(CONTEUDO).map(([k, s]) =>
     [k, { type: "text", default: el(s) ? lerConteudo(k, el(s)) : "" }])), { id: "musa-abertura-conteudo", persist: true });
   // palavras grifadas no HTML original: se o texto salvo no painel não tiver *asteriscos*
   // (salvo antes de existir o grifo), elas voltam a ser grifadas, para os traços não sumirem
   const GRIFADAS = [...(el(".frase-b")?.querySelectorAll(".grifo") || [])].map((g) => g.textContent);
   const comGrifos = (t) => t.includes("*") ? t : GRIFADAS.reduce((a, w) => a.replace(w, `*${w}*`), t);
   let conteudoAnterior = "";
-  conteudo.subscribe((v) => {
+  conteudo?.subscribe((v) => {
     const chave = JSON.stringify(v); if (chave === conteudoAnterior) return; conteudoAnterior = chave;
     for (const [k, s] of Object.entries(CONTEUDO)) {
       const e = el(s); if (!e) continue;
@@ -362,7 +365,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     fraseInicial: TEXTO(".frase-a", POS_A),
     fraseFinal: { _collapsed: true, ...TEXTO(".frase-b", POS_B) },
     seuMuseu: { ...TEXTO(".rotulo-museu", POS_R), caixa: sel(CAIXA.map((c) => c.value), ".rotulo-museu") }
-  }, { id: "musa-abertura-textos-v3", persist: true });
+  }, { id: "musa-abertura-textos-v4", persist: true }); // v4: descarta valores salvos antes, lê as classes do HTML
   const ALVOS = { fraseInicial: [".frase-a", POS_A], fraseFinal: [".frase-b", POS_B], seuMuseu: [".rotulo-museu", POS_R] };
   textos.subscribe((v) => {
     for (const [grupo, [s, pos]] of Object.entries(ALVOS)) {
@@ -376,6 +379,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     window.MUSA_ABERTURA?.remontar(); // os grifos seguem as palavras
   });
 
+  if (soTudo) { // desenho, editor do caminho e giz: só com ?foco=tudo
   // ---------- Desenho: planta e caminho ----------
   const caminho = el("#caminho");
   const ORIGINAL = caminho.getAttribute("d");
@@ -518,5 +522,35 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     });
   }
 
-  } // fim do foco "tudo"
+  } // fim do "só com ?foco=tudo"
+  } // fim do foco "tudo"/"frases"
+
+  // ---------- Planta em giz fino (filtro #giz-fino em AberturaMapa.astro, nas paredes e nos móveis) ----------
+  const gf = el("#giz-fino");
+  if (gf && A && mostrar("frases")) {
+    const [ondula, desloca, grao, matriz] = [...gf.children];
+    const freq = (n) => Number(n.getAttribute("baseFrequency").split(/[\s,]+/)[0]);
+    const m = matriz.getAttribute("values").trim().split(/\s+/).map(Number);
+    const TRACOS_FINOS = ["traco-0.75", "traco-1", "traco-1.25", "traco-1.5", "traco-2", "traco-2.5", "traco-3"];
+    const planta = createDialKit("Planta", {
+      giz: true,
+      traco: sel(TRACOS_FINOS, ".planta-traco"),
+      cor: sel(TRACOS_COR, ".planta-traco"),
+      opacidade: sel(OPACIDADES, ".planta"),
+      aspereza: [Number(desloca.getAttribute("scale")), 0, 6, 0.1],         // quanto o contorno treme
+      ondas: [freq(ondula), 0.05, 1.5, 0.01],                                 // menor = ondas longas
+      grao: [freq(grao), 0.5, 5, 0.05],                                       // maior = grão mais fino
+      cobertura: [Math.round((m[19] + m[18] / 2) * 100) / 100, 0.3, 1.6, 0.01], // menor = mais papel aparecendo
+      contraste: [m[18], 0, 12, 0.1]
+    }, { id: "musa-abertura-planta-giz", persist: true });
+    planta.subscribe((v) => {
+      el(".planta").dataset.giz = v.giz ? "sim" : "nao";
+      trocar(".planta-traco", TRACOS_FINOS, v.traco); trocar(".planta-traco", TRACOS_COR, v.cor); trocar(".planta", OPACIDADES, v.opacidade);
+      desloca.setAttribute("scale", v.aspereza);
+      ondula.setAttribute("baseFrequency", v.ondas);
+      grao.setAttribute("baseFrequency", v.grao);
+      const c = v.contraste, b = v.cobertura - c / 2;
+      matriz.setAttribute("values", `0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 ${c} ${Math.round(b * 1000) / 1000}`);
+    });
+  }
 }

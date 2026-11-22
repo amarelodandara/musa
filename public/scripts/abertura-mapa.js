@@ -3,9 +3,10 @@
 // 1. A planta do museu se desenha com "Onde você acha que começa a jornada do seu visitante".
 // 2. Uma busca digita "museu de ciências em bh".
 // 3. Dali nasce o caminho: dá voltas, entra no museu, zanza, sai. Aparece "Onde realmente começa e termina…".
-// 4. Termina num evento de agenda: "Voltar no museu".
+// 4. Termina na agenda: o dia aparece e o evento "Voltar no museu" é marcado nele.
 // 5. Tudo esmaece menos o caminho; o caminho vira a linha do Nível de desafio do professor, já no lugar onde ela fica
-//    no mapa; só depois o quadro com o mapa de verdade (/mapa?vitrine&modo=inteiro) aparece por baixo dela, e a do mapa assume.
+//    no mapa; aí o quadro com o mapa de verdade (/mapa?vitrine&modo=inteiro) aparece por baixo dela, da esquerda para
+//    a direita, e a do mapa assume.
 //
 // Tudo roda num relógio só (T, em segundos): cada animação do WAAPI fica pausada e recebe
 // currentTime = T; o que é JS (digitação, transformação do caminho) é calculado a partir de T.
@@ -18,11 +19,12 @@
   if (!abertura || !palco) return;
 
   const $ = (s) => palco.querySelector(s);
-  const caminho = $("#caminho"), planta = $(".planta"), plantaTraco = $(".planta-traco"), rotulo = $(".rotulo-museu");
+  const caminho = $("#caminho"), planta = $(".planta"), contorno = $(".planta-contorno"), dentro = $(".planta-dentro"), rotulo = $(".rotulo-museu");
   const fraseA = $(".frase-a"), fraseB = $(".frase-b");
+  const moveis = [...palco.querySelectorAll(".planta-movel")], sugestoes = $(".busca-sugestoes");
   const busca = $(".busca"), buscaTexto = $(".busca-texto"), cursor = $(".cursor-texto"), agenda = $(".agenda");
-  const agendaCorpo = $(".agenda-corpo"), iconeBusca = $(".icone-busca"), iconeAgenda = $(".icone-agenda");
-  const hero = abertura.querySelector(".hero"), pular = abertura.querySelector(".pular");
+  const agendaEvento = $(".agenda-evento"), agendaCorpo = $(".agenda-corpo"), iconeBusca = $(".icone-busca"), iconeAgenda = $(".icone-agenda");
+  const hero = abertura.querySelector(".hero"); // sem botão de pular (tirado em 22/11/2026)
   const quadroMapa = $(".palco-quadro"), mapa = quadroMapa.querySelector("iframe"), svg = $(".palco-svg");
 
   const SAIDA = "cubic-bezier(0.23, 1, 0.32, 1)";       // entradas e saídas
@@ -34,7 +36,7 @@
   // (reta = começo da transformação do caminho na linha de desafio; revela = a linha do mapa assume no lugar da de giz)
   const R = {
     texto: 0, planta: 0.8, busca: 2.2, digita: 2.6, caminho: 3.9, caminhoDur: 4, fraseB: 5.4, grifo: 6.4,
-    agenda: 8.1, esmaece: 9.6, reta: 9.9, retaDur: 1.4, quadro: 11.4, revela: 12.1, fim: 12.7
+    agenda: 8.1, esmaece: 9.6, reta: 9.9, retaDur: 1.4, quadro: 11.2, quadroDur: 1.5, revela: 12.4, fim: 13.0
   };
   const PASSOS = [
     ["0 · Texto de entrada", R.texto], ["1 · Planta e primeira frase", R.planta], ["2 · Busca digitando", R.busca], ["3 · Caminho nasce", R.caminho],
@@ -50,7 +52,7 @@
   if (window.MUSA_ABERTURA_SEMPRE) visto = false; // página de revisão: sempre do começo
 
   let comprimento, caminhoOriginal, pontos;
-  const tracoLen = plantaTraco.getTotalLength();
+  const contornoLen = contorno.getTotalLength(), dentroLen = dentro.getTotalLength();
 
   // pontos do caminho, para a transformação em linha reta (recalculados se o caminho mudar)
   const N = 260;
@@ -187,11 +189,18 @@
     // 0
     entradaDoTexto();
     // 1
-    anima(plantaTraco, [{ strokeDashoffset: tracoLen }, { strokeDashoffset: 0 }], R.planta, 1.8, MOVE);
-    entra(rotulo, R.planta + 1.0, 0.6, 4);
-    entra(fraseA, R.planta, 0.7);
+    // o contorno fecha primeiro e "Seu museu" aparece junto; depois o que há dentro (paredes, porta, quadros, pedestais)
+    anima(contorno, [{ strokeDashoffset: contornoLen }, { strokeDashoffset: 0 }], R.planta, 1.0, MOVE);
+    entra(rotulo, R.planta + 0.95, 0.5, 4);
+    anima(dentro, [{ strokeDashoffset: dentroLen }, { strokeDashoffset: 0 }], R.planta + 0.9, 0.9, MOVE);
+    // os móveis surgem do chão, um de cada vez: esmaecem e crescem de 0.9
+    moveis.forEach((m, i) => anima(m, [{ opacity: 0, transform: "scale(0.9)" }, { opacity: 1, transform: "none" }], R.planta + 1.6 + i * 0.1, 0.6, SAIDA));
+    // a pergunta só esmaece para dentro (sem subir)
+    anima(fraseA, [{ opacity: 0 }, { opacity: 1 }], R.planta, 0.9, SAIDA);
     // 2
     entra(busca, R.busca, 0.5, 6);
+    // sugestões: abrem logo depois do fim da digitação (descem 4 px e esmaecem)
+    if (sugestoes) entra(sugestoes, R.digita + (buscaTexto.dataset.texto || "").length * DIGITO + 0.1, 0.35, -4);
     // 3 (o traço em velocidade constante, como uma mão desenhando)
     anima(caminho, [{ strokeDashoffset: comprimento }, { strokeDashoffset: 0 }], R.caminho, R.caminhoDur, "linear");
     entra(fraseB, R.fraseB, 0.8, 12);
@@ -199,12 +208,13 @@
     grifos.forEach((g, i) => { g.style.strokeDasharray = "1 2"; anima(g, [{ strokeDashoffset: 1.05 }, { strokeDashoffset: 0 }], R.grifo + i * 0.25, 0.5); });
     // 4
     entra(agenda, R.agenda, 0.5, 6);
+    // o evento é marcado: cai no horário (desce 6 px, cresce de 0.96 e esmaece), logo depois do dia aparecer
+    if (agendaEvento) anima(agendaEvento, [{ opacity: 0, transform: "translateY(-6px) scale(0.96)" }, { opacity: 1, transform: "none" }], R.agenda + 0.45, 0.45, SAIDA);
     // 5
     [planta, rotulo, fraseA, fraseB, grifosG, busca, agenda].forEach((el) => some(el, R.esmaece, 0.5));
-    // o quadro do mapa aparece depois que a linha de giz já tomou a forma final: só opacidade, sem se mexer,
-    // para a linha do mapa surgir exatamente embaixo da de giz
-    anima(quadroMapa, [{ opacity: 0 }, { opacity: 1 }], R.quadro, 0.6);
-    anima(pular, [{ opacity: 1 }, { opacity: 0 }], R.revela, 0.3);
+    // o quadro do mapa aparece quando a linha de giz já está quase na forma final, sem se mexer (a linha do mapa
+    // surge exatamente embaixo da de giz): um degradê corre da esquerda para a direita, no sentido da linha
+    anima(quadroMapa, [{ opacity: 1, "--q-revela": "0%" }, { opacity: 1, "--q-revela": "130%" }], R.quadro, R.quadroDur, "cubic-bezier(0.45, 0, 0.25, 1)");
   }
 
   let T = 0, tocando = false, velocidade = 1, ultimo = 0, raf = 0;
@@ -229,7 +239,6 @@
     linhaDoMapa(u);
     const fim = T >= R.revela;
     abertura.dataset.estado = fim ? "fim" : "tocando";
-    pular.hidden = fim;
     if (T >= R.fim) { try { sessionStorage.setItem("musa-abertura-mapa", "1"); } catch (e) {} }
   }
   const ouvintes = new Set();
@@ -258,7 +267,6 @@
     ouvir(f) { ouvintes.add(f); return () => ouvintes.delete(f); }
   });
 
-  pular.addEventListener("click", () => { API.pausar(); API.ir(R.fim); });
   addEventListener("resize", () => { montar(); aplicar(); });
   // o mapa carrega à parte: quando a linha dele estiver desenhada, mede de novo (é o alvo do caminho)
   function esperarMapa(tentativas = 0) {
@@ -270,7 +278,8 @@
   if (docMapa()?.readyState === "complete") esperarMapa();
   document.fonts?.ready.then(() => { montar(); aplicar(); }); // a fonte muda a largura das palavras grifadas
 
-  plantaTraco.style.strokeDasharray = tracoLen;
+  contorno.style.strokeDasharray = contornoLen;
+  dentro.style.strokeDasharray = dentroLen;
   montar();
   if (reduzir || visto) API.ir(R.fim);
   else { API.ir(0); API.tocar(); }

@@ -17,6 +17,7 @@
 
   // a marca da camada invertida (sobre o rodapé) não ganha olho próprio: espelha a da camada normal
   const marcas = [...document.querySelectorAll(".nav-marca:not(.nav-marca-invertida)")];
+
   if (!marcas.length || !window.MUSA || !window.MusaEye) return;
 
   const raiz = getComputedStyle(document.documentElement);
