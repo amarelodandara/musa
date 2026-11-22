@@ -1,0 +1,29 @@
+---
+// Ajuste de tamanhos da barra de navegação (Cabecalho.astro + MarcaNav.astro), só em desenvolvimento; no site publicado
+// redireciona para o início. A barra aparece no contexto da página inicial (abertura parada no fim e as seções embaixo).
+// Painel: public/dev/cabecalho-dials.js (as opções são classes do Tailwind). Versões antigas da barra: /dev/barra.
+import Base from "../../layouts/Base.astro";
+import AberturaMapa from "../../components/AberturaMapa.astro";
+import Ferramenta from "../../components/inicio/Ferramenta.astro";
+const dev = import.meta.env.DEV;
+if (!dev) return Astro.redirect("/");
+---
+<Base titulo="Barra de navegação · tamanhos" classeCorpo="inicio">
+<style is:inline slot="head">
+  /* espaço fixo para o painel à direita, para não cobrir a barra */
+  @media (min-width: 900px) { body { padding-right: 320px; } }
+</style>
+<AberturaMapa />
+<main class="inicio-corpo">
+  <Ferramenta />
+</main>
+<Fragment slot="scripts">
+  <script is:inline>try { sessionStorage.setItem("musa-abertura-mapa", "1"); } catch (e) {}</script>
+  <script is:inline src="/scripts/abertura-mapa.js"></script>
+  <script is:inline type="module" src="/dev/cabecalho-dials.js"></script>
+</Fragment>
+</Base>
+
+<style>
+  .inicio-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px) 96px; }
+</style>

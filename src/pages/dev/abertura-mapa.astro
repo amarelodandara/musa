@@ -1,0 +1,62 @@
+---
+// Revisão da abertura com o mapa (AberturaMapa.astro, 21/11/2026), só em desenvolvimento. No site publicado redireciona
+// para o início. A versão anterior continua em /dev/abertura.
+// Desde 22/11/2026 a abertura aparece no contexto da página inicial (cabeçalho em cima, seções da página embaixo),
+// para ver o espaço da seção em volta dela. O corpo abaixo copia o de index.astro.
+import Base from "../../layouts/Base.astro";
+import AberturaMapa from "../../components/AberturaMapa.astro";
+import Ferramenta from "../../components/inicio/Ferramenta.astro";
+import Funcionalidades from "../../components/inicio/Funcionalidades.astro";
+import ChamadaFinal from "../../components/inicio/ChamadaFinal.astro";
+const dev = import.meta.env.DEV;
+if (!dev) return Astro.redirect("/");
+---
+<Base titulo="Abertura com o mapa · revisão" classeCorpo="inicio">
+<style is:inline slot="head">
+  /* espaço fixo para os painéis à direita, para não cobrirem o palco */
+  @media (min-width: 900px) { body { padding-right: 320px; } }
+</style>
+<AberturaMapa />
+
+<main class="inicio-corpo">
+  <svg class="traco-pagina" aria-hidden="true">
+    <defs>
+      <filter id="giz-pagina" filterUnits="userSpaceOnUse" x="-200" y="0" width="2000" height="1400" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+        <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+        <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+        <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+        <feComposite in="borda" in2="mascara" operator="in"/>
+      </filter>
+    </defs>
+    <path class="traco-pagina-caminho" filter="url(#giz-pagina)"/>
+  </svg>
+
+  <Ferramenta />
+
+  <Funcionalidades />
+
+  <ChamadaFinal />
+</main>
+
+<Fragment slot="scripts">
+  <script is:inline>window.MUSA_ABERTURA_SEMPRE = true;</script>
+  <script is:inline src="/scripts/abertura-mapa.js"></script>
+  <script is:inline src="/scripts/traco-pagina.js"></script>
+  <script is:inline type="module" src="/dev/abertura-dials.js"></script>
+</Fragment>
+</Base>
+
+<style>
+  /* igual a index.astro */
+  .inicio-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px) 96px; } /* em cima, só o --secao-espaco da primeira seção */
+  .inicio-corpo { position: relative; }
+  .traco-pagina { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0;
+    --traco-ponta: 0.62; }
+  .traco-pagina-caminho { fill: none; stroke: var(--carmim-600); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .inicio-corpo :global(.bento > *) { z-index: 1; }
+  @media (max-width: 720px) {
+    .inicio-corpo { --secao-espaco: 56px; }
+    .traco-pagina { display: none; }
+  }
+</style>

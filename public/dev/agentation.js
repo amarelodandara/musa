@@ -1,7 +1,7 @@
 // Agentation (anotações visuais para o agente) só no servidor local. Nunca carrega no site publicado.
 // React e o Agentation vêm do esm.sh (o Vite reescreveria os imports de React do node_modules).
-// Nem nas folhas de impressão (?impressao=, de onde saem os PDFs e as prévias).
-if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) && !new URLSearchParams(location.search).has("impressao")) {
+// Nem nas folhas de impressão (?impressao=, de onde saem os PDFs e as prévias) nem no mapa dentro de quadros (?vitrine).
+if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) && !["impressao", "vitrine"].some((k) => new URLSearchParams(location.search).has(k))) {
   // o react-dom do esm.sh lê process.env.NODE_ENV, que não existe no navegador
   globalThis.process ??= { env: { NODE_ENV: "development" } };
   const [{ createElement }, { createRoot }, { Agentation }] = await Promise.all([

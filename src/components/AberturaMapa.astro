@@ -1,0 +1,116 @@
+---
+// Abertura da página inicial, versão com o mapa (21/11/2026; a anterior, Abertura.astro, fica em /dev/abertura).
+// Ordem invertida: o texto (hero) aparece primeiro, embaixo; a animação toca em cima (planta, busca, caminho, agenda).
+// No fim tudo esmaece, o quadro com o mapa de verdade (/mapa?vitrine&modo=inteiro) aparece em cima do texto e o
+// caminho de giz vira a linha do Nível de desafio do professor, pousando sobre a do mapa.
+// Script: public/scripts/abertura-mapa.js. Revisão em /dev/abertura-mapa.
+---
+<section class="abertura abertura-mapa" data-hero>
+  <div class="palco" id="palco" aria-hidden="true">
+    {/* o quadro do mapa, por baixo do desenho: o caminho de giz passa por cima dele ao virar a linha de desafio */}
+    <div class="palco-quadro" data-vista="1540">
+      <div class="palco-quadro-janela"><iframe src="/mapa?vitrine&modo=inteiro" title="Mapa da Visita" tabindex="-1"></iframe></div>
+    </div>
+    <svg class="palco-svg absolute inset-0 size-full overflow-visible" viewBox="0 0 1080 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <!-- Giz de cera, usado no caminho e nos grifos da frase final.
+             1. borda: um ruído desloca o contorno do traço (feTurbulence + feDisplacementMap);
+             2. grão: outro ruído vira uma máscara que fura o traço, como o papel aparecendo (feColorMatrix + feComposite).
+             Valores em unidades do viewBox. Os grifos são traços neste mesmo svg (g.grifos, montados por abertura.js).
+             Ajuste fino no painel "Giz" de dev/abertura.html. -->
+        <filter id="giz" filterUnits="userSpaceOnUse" x="-40" y="-40" width="1160" height="680" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+          <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+          <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+          <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+          <feComposite in="borda" in2="mascara" operator="in"/>
+        </filter>
+      </defs>
+      <g class="planta">
+        <!-- planta em linha fina (1 px na tela, não escala): paredes duplas, portas com folha e arco, escada, pilares, vitrines -->
+        <path class="planta-traco traco-0.5 stroke-texto-700" vector-effect="non-scaling-stroke" d="
+          M372 142H466 M506 142H700V458H476 M430 458H372V142
+          M377 147H466 M506 147H695V453H476 M430 453H377V147
+          M430 458V435 M430 435A23 23 0 0 1 453 458 M476 458V435 M476 435A23 23 0 0 0 453 458
+          M466 142V147 M506 142V147 M466 142A20 20 0 0 0 486 162
+          M520 147V215 M520 245V300 M515 147V215 M515 245V295
+          M377 300H470 M500 300H520 M377 295H470 M500 295H515
+          M640 147V200 M640 230V260H695 M645 147V200 M645 230V255H695
+          M382 380H420V448H382Z M382 388H420 M382 396H420 M382 404H420 M382 412H420 M382 420H420 M382 428H420 M382 436H420 M401 444V384 M397 389L401 384L405 389
+          M557.5 327.5h5v5h-5Z M637.5 327.5h5v5h-5Z M557.5 397.5h5v5h-5Z M637.5 397.5h5v5h-5Z
+          M440 410Q453 398 466 410
+          M392 175h44v12h-44Z M450 175h44v12h-44Z M392 240h44v12h-44Z
+          M655 290h30v80h-30Z"/>
+      </g>
+      <path class="caminho traco-4 stroke-carmim-600" id="caminho" d="M238 358 C268 330 248 308 198 280 C158 258 166 167 211 177 C271 190 368 213 312 159 C277 136 246 218 271 273 C301 338 322 276 337 336 C354 406 330 520 385 545 C440 568 470 500 452 440 C440 395 448 360 470 340 C510 300 600 290 630 320 C660 352 610 385 560 375 C505 362 502 257 557 257 C602 257 626 347 596 347 C576 347 556 330 566 322 C600 290 640 230 600 190 C560 150 475 162 485 122 C495 82 663 57 743 77 C823 97 800 150 780 210 C765 260 830 330 900 380"/>
+      <g class="grifos"></g>
+    </svg>
+    <p class="frase frase-a absolute m-0 right-153 top-21 w-72 text-lg font-inter font-light text-texto-600 text-right leading-tight tracking-normal">Onde você acha que começa a jornada do seu visitante:</p>
+    <p class="rotulo-museu absolute m-0 right-96 top-31 text-2xs font-inter-tight font-light text-texto-700 text-left leading-none tracking-widest uppercase">Seu museu</p>
+    <div class="cartao busca absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-4 top-85 w-55 h-9.5 px-3 rounded-full"><span class="icone icone-busca grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span><span class="busca-texto whitespace-nowrap overflow-hidden" data-texto="museu de ciências em bh"></span><span class="cursor-texto w-px h-4 -ml-1.5 bg-texto-900"></span></div>
+    <div class="cartao agenda absolute flex items-center gap-2 bg-neutro-50 border border-neutro-300 shadow-md font-inter-tight text-texto-900 text-sm left-226 top-85 w-41 py-2.5 px-2.5 rounded-lg border-l-4 border-l-coral-400"><span class="icone icone-agenda grid place-items-center shrink-0 size-6 text-carmim-800"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10H20.5 M8 3V7 M16 3V7"/></svg></span><span class="agenda-corpo grid leading-tight"><b class="agenda-titulo font-semibold">Voltar no museu</b><small class="agenda-detalhe text-xs text-texto-700">sáb · 10:00</small></span></div>
+    <p class="frase frase-b absolute m-0 left-136 top-102 w-113 text-3xl font-dm-sans font-semibold text-carmim-800 text-left leading-tight tracking-wide">Onde realmente <span class="grifo">começa</span> e <span class="grifo">termina</span> a jornada do seu visitante.</p>
+  </div>
+  <button class="pular absolute top-3 right-4 z-10 px-2.5 py-1.5 border-0 rounded-sm bg-transparente font-inter text-xs text-texto-700 cursor-pointer transition-colors duration-150 hover:bg-neutro-100" type="button">Pular animação</button>
+  <div class="hero col-start-1 row-start-2 self-start justify-self-center max-w-3xl px-4 pt-4 pb-16 text-center max-md:justify-self-start max-md:px-0 max-md:pt-6 max-md:pb-0 max-md:text-left">
+    <h1>Enxergue a jornada real do seu visitante</h1>
+    <p class="lead" data-original={"Tudo que acontece antes, durante e depois de pisarem no seu museu,\nmapeado para o seu time"}>Tudo que acontece antes, durante e depois de pisarem no seu museu,<br>mapeado para o seu time</p>
+    <p class="acoes-hero flex flex-wrap gap-3 justify-center max-md:justify-start"><a class="botao secundario" href="/baixar">Baixar mapa</a> <a class="botao" href="/mapa">Usar mapa</a></p>
+  </div>
+</section>
+
+<style>
+  /* o texto tem que caber na primeira tela: o palco fica com no máximo --palco-altura de altura (e a largura que a
+     proporção dele dá), centrado; o texto vem logo abaixo */
+  .abertura-mapa { --palco-altura: 50svh; }
+  /* cada linha do texto de entrada vira um bloco (abertura-mapa.js), para entrar uma por vez */
+  .hero :global(.linha) { display: block; }
+  /* espaço da seção (decidido em 22/11/2026, no contexto da página): 60 px do cabeçalho ao palco, 60 px do palco ao texto,
+     e do fim dos botões até a próxima seção só o --secao-espaco (96 px), o mesmo de entre todas as seções.
+     No celular continuam os espaços das classes max-md do .hero. */
+  @media (min-width: 768px) {
+    .abertura-mapa { padding-top: 60px; }
+    .abertura-mapa .hero { padding-top: 60px; padding-bottom: 0; }
+    .abertura-mapa .acoes-hero { margin-bottom: 0; } /* a margem padrão do <p> somaria 16 px ao vão */
+  }
+  /* texto de entrada (valores do painel "Texto de entrada", 22/11/2026) */
+  .abertura-mapa h1 { max-width: 30ch; margin: 0 auto 8px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-2xl); font-weight: 600;
+    line-height: 1.15; letter-spacing: -0.01em; color: var(--texto-950); }
+  /* subtítulo com quebra equilibrada: ao medir as linhas, nenhuma palavra sobra sozinha numa linha */
+  .abertura-mapa .lead { max-width: 60ch; margin: 0 auto 24px; font-family: var(--fonte-inter); font-size: var(--tamanho-lg); font-weight: 400;
+    line-height: 1.45; color: var(--texto-900); text-wrap: balance; }
+  /* no celular o texto alinha à esquerda (classes do .hero), então os blocos também */
+  @media (max-width: 767px) { .abertura-mapa h1, .abertura-mapa .lead { margin-left: 0; } }
+  .abertura-mapa .palco { width: min(100%, calc(var(--palco-altura) * 1080 / 600)); justify-self: center; }
+  /* o texto não depende da animação: fica à vista o tempo todo (a abertura antiga o escondia enquanto tocava) */
+  .abertura-mapa[data-estado="tocando"] .hero { opacity: 1; visibility: visible; }
+  /* quadro do mapa (o quadro final da abertura). Centrado no palco, pode passar dele para os lados (até a largura da
+     seção, --secao-largura, medida pelo script) e para baixo, por trás do texto. Como no bento, a tela some num degradê
+     para a cor do fundo: embaixo (--quadro-esmaece-inicio/-fim, em % da altura) e, se quiser, nos lados (--quadro-esmaece-lados, em % da
+     largura; com 0 só a sombra esmaece na folga).
+     Medidas em % do palco: --quadro-largura (da largura), --quadro-topo e --quadro-altura (da altura).
+     Duas camadas: .palco-quadro (posição, entrada e degradê) tem uma folga de --q-folga em volta da janela, para a máscara
+     não cortar a sombra (a máscara apaga tudo o que fica fora da caixa dela); .palco-quadro-janela é a tela com o mapa. */
+  /* valores do quadro final (painel "Quadro final", 22/11/2026); data-vista="1540" no HTML: 1540 px do mapa na largura */
+  .palco-quadro { --quadro-largura: 124%; --quadro-topo: 0%; --quadro-altura: 132%; --quadro-esmaece-inicio: 44%; --quadro-esmaece-fim: 84%;
+    --quadro-esmaece-lados: 0%; --quadro-cantos: 4px; --quadro-sombra: 0.22; --quadro-sombra-cor: var(--carmim-800); }
+  .palco-quadro {
+    --q-largura: min(var(--quadro-largura, 96%), var(--secao-largura, 100vw - 32px)); --q-folga: 48px;
+    position: absolute; left: 50%; margin-left: calc(var(--q-largura) / -2 - var(--q-folga)); width: calc(var(--q-largura) + 2 * var(--q-folga));
+    top: calc(var(--quadro-topo, 2%) - var(--q-folga)); height: calc(var(--quadro-altura, 98%) + var(--q-folga)); opacity: 0;
+    --q-baixo: linear-gradient(to bottom, #000 var(--quadro-esmaece-inicio, 100%), transparent var(--quadro-esmaece-fim, 100%));
+    --q-lados: linear-gradient(to right, transparent, #000 calc(var(--q-folga) + var(--quadro-esmaece-lados, 0%)),
+      #000 calc(100% - var(--q-folga) - var(--quadro-esmaece-lados, 0%)), transparent);
+    -webkit-mask-image: var(--q-baixo), var(--q-lados); -webkit-mask-composite: source-in;
+    mask-image: var(--q-baixo), var(--q-lados); mask-composite: intersect;
+  }
+  .palco-quadro-janela { position: absolute; inset: var(--q-folga) var(--q-folga) 0; overflow: hidden;
+    border: 1px solid var(--neutro-300); border-bottom: 0; border-radius: var(--quadro-cantos, 6px) var(--quadro-cantos, 6px) 0 0; background: var(--neutro-50);
+    /* sombra: --quadro-sombra (força, 0–1) e --quadro-sombra-cor (preto ou um tom da paleta) */
+    --q-sombra-cor: var(--quadro-sombra-cor, #000);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--q-sombra-cor) calc(var(--quadro-sombra, 0.25) * 25%), transparent),
+      0 16px 40px -12px color-mix(in oklab, var(--q-sombra-cor) calc(var(--quadro-sombra, 0.25) * 100%), transparent); }
+  .palco-quadro iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; }
+  /* o texto fica por cima do quadro */
+  .abertura-mapa .hero { position: relative; z-index: 1; }
+</style>

@@ -58,6 +58,7 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     "text-coral-700",
     "text-carmim-800",
     "text-carmim-950",
+    "text-coral-50",
     "text-coral-100",
     "text-coral-200",
     "text-coral-300",
@@ -143,6 +144,172 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   const trocarNum = (sel, prefixo, valor) => { const e = el(sel); if (!e) return; [...e.classList].filter((x) => x.startsWith(prefixo + "-")).forEach((x) => e.classList.remove(x)); e.classList.add(`${prefixo}-${valor}`); };
   const sel = (lista, sel_) => ({ type: "select", options: lista, default: atual(sel_, lista) });
 
+  // Foco (só na abertura com o mapa): um assunto por vez, para o painel não pesar.
+  //   sem parâmetro ou ?foco=texto: só o painel "Texto de entrada", com a abertura parada no fim (texto inteiro à vista)
+  //   ?foco=animacao: só "Linha do tempo" e "Entrada do texto"
+  //   ?foco=fim: só "Quadro final", com a abertura parada no último quadro
+  //   ?foco=tudo: todos os painéis, como antes
+  const FOCO = el(".abertura-mapa") ? (new URLSearchParams(location.search).get("foco") || "texto") : "tudo";
+  const mostrar = (assunto) => FOCO === "tudo" || FOCO === assunto;
+
+  // ---------- Linha do tempo (primeiro painel: tocar, pausar e andar pela animação) ----------
+  const A = window.MUSA_ABERTURA;
+  if (A && (FOCO === "texto" || FOCO === "fim")) { A.pausar(); A.ir(A.FIM); }
+  if (A && mostrar("animacao")) {
+    const PASSOS = A.PASSOS.map(([rotulo, t]) => ({ value: String(t), label: rotulo }));
+    let interno = false, anterior = {};
+    const abertura = createDialKit("Linha do tempo", {
+      tocar: { type: "action", label: "Tocar / continuar" },
+      pausar: { type: "action", label: "Pausar" },
+      doInicio: { type: "action", label: "Tocar do início" },
+      passo: { type: "select", options: PASSOS, default: "0" },
+      tempo: [Math.min(12.2, A.FIM), 0, A.FIM, 0.05], // arraste para andar pela animação (pausa sozinha)
+      velocidade: { type: "select", options: [{ value: "0.25", label: "0,25×" }, { value: "0.5", label: "0,5×" }, { value: "1", label: "1×" }, { value: "2", label: "2×" }], default: "1" }
+    }, {
+      id: "musa-abertura-dev",
+      onAction(p) { if (p === "tocar") A.tocar(); if (p === "pausar") A.pausar(); if (p === "doInicio") A.reiniciar(); }
+    });
+    abertura.subscribe((v) => {
+      if (interno) { anterior = v; return; }
+      if (v.passo !== anterior.passo && anterior.passo !== undefined) { A.pausar(); A.ir(Number(v.passo)); }
+      else if (v.tempo !== anterior.tempo && anterior.tempo !== undefined) { A.pausar(); A.ir(v.tempo); }
+      A.velocidade(Number(v.velocidade));
+      anterior = v;
+    });
+    let ultimoAviso = 0;
+    (function vigiar() {
+      if (A.tocando && performance.now() - ultimoAviso > 100) {
+        ultimoAviso = performance.now();
+        interno = true; abertura.setValue("tempo", Math.round(A.tempo * 20) / 20); interno = false;
+      }
+      requestAnimationFrame(vigiar);
+    })();
+  }
+
+  // ---------- Texto de entrada (só na abertura com o mapa) ----------
+  // Conteúdo, aparência e entrada (uma linha por vez) do título, subtítulo e botões.
+  // Aparência vai em style no elemento (vence o estilo.css); a entrada vai em data-* no .hero, lida pelo abertura-mapa.js.
+  if (el(".abertura-mapa") && A) {
+    const H = ".abertura-mapa .hero";
+    const tam = (c) => `var(--tamanho-${c.replace("text-", "")})`;
+    const corV = (c) => `var(--${c.replace("text-", "")})`;
+    const PESO = { "font-light": "300", "font-normal": "400", "font-medium": "500", "font-semibold": "600", "font-bold": "700" };
+    const FAM = { "font-inter": "var(--fonte-inter)", "font-inter-tight": "var(--fonte-inter-tight)", "font-dm-sans": "var(--fonte-dm-sans)", "font-mono": "var(--fonte-mono)" };
+    const ENTRE = { "leading-none": "1", "leading-tight": "1.15", "leading-snug": "1.3", "leading-normal": "1.45", "leading-relaxed": "1.6" };
+    const TRACK = { "tracking-tighter": "-0.03em", "tracking-tight": "-0.01em", "tracking-normal": "0em", "tracking-wide": "0.02em", "tracking-wider": "0.04em", "tracking-widest": "0.1em" };
+    const CURVAS = [
+      { value: "cubic-bezier(0.23, 1, 0.32, 1)", label: "Saída forte (padrão)" },
+      { value: "cubic-bezier(0.16, 1, 0.3, 1)", label: "Saída suave (expo)" },
+      { value: "cubic-bezier(0.77, 0, 0.175, 1)", label: "Entra e sai" },
+      { value: "ease", label: "ease" },
+      { value: "linear", label: "Linear" }
+    ];
+    const s1 = (lista, def) => ({ type: "select", options: lista, default: def });
+    const texto = (q) => { const e = el(`${H} ${q}`); return e ? (e.dataset.original ?? e.textContent.trim()) : ""; };
+    const textoDeEntrada = mostrar("texto") ? createDialKit("Texto de entrada", {
+      conteudo: {
+        _collapsed: true,
+        titulo: { type: "text", default: texto("h1") },
+        subtitulo: { type: "text", default: texto(".lead") },
+        botaoPrincipal: { type: "text", default: texto(".acoes-hero a:not(.secundario)") },
+        botaoSecundario: { type: "text", default: texto(".acoes-hero a.secundario") }
+      },
+      titulo: { _collapsed: false, tamanho: s1(TAMANHOS, "text-2xl"), peso: s1(Object.keys(PESO), "font-semibold"), familia: s1(Object.keys(FAM), "font-dm-sans"), cor: s1(TEXTOS, "text-texto-950"),
+        entrelinha: s1(Object.keys(ENTRE), "leading-tight"), espacamento: s1(Object.keys(TRACK), "tracking-tight"), largura: [30, 10, 40, 1] },
+      subtitulo: { _collapsed: true, tamanho: s1(TAMANHOS, "text-lg"), peso: s1(Object.keys(PESO), "font-normal"), familia: s1(Object.keys(FAM), "font-inter"), cor: s1(TEXTOS, "text-texto-900"),
+        entrelinha: s1(Object.keys(ENTRE), "leading-normal"), largura: [60, 30, 80, 1] },
+      espacos: { _collapsed: true, tituloAteSubtitulo: [8, 0, 64, 2], subtituloAteBotoes: [24, 0, 80, 2],
+        alinhamento: s1([{ value: "center", label: "Centro" }, { value: "left", label: "Esquerda" }], "center") }
+    }, { id: "musa-abertura-mapa-texto-v2", persist: true }) : null;
+    let anterior = "";
+    textoDeEntrada?.subscribe((v) => {
+      const chave = JSON.stringify(v); if (chave === anterior) return; anterior = chave;
+      const hero = el(H), C = v.conteudo;
+      const pro = (q, d) => { const e = el(`${H} ${q}`); if (e) Object.assign(e.style, d); return e; };
+      const conteudo = (q, t) => { const e = el(`${H} ${q}`); if (e && e.dataset.original !== t) e.dataset.original = t; };
+      conteudo("h1", C.titulo); conteudo(".lead", C.subtitulo);
+      const b1 = el(`${H} .acoes-hero a:not(.secundario)`), b2 = el(`${H} .acoes-hero a.secundario`);
+      if (b1) b1.textContent = C.botaoPrincipal; if (b2) b2.textContent = C.botaoSecundario;
+      const T = v.titulo, L = v.subtitulo, E = v.espacos;
+      pro("h1", { fontSize: tam(T.tamanho), fontWeight: PESO[T.peso], fontFamily: FAM[T.familia], color: corV(T.cor), lineHeight: ENTRE[T.entrelinha], letterSpacing: TRACK[T.espacamento],
+        maxWidth: `${T.largura}ch`, margin: `0 ${E.alinhamento === "center" ? "auto" : "0"} ${E.tituloAteSubtitulo}px` });
+      pro(".lead", { fontSize: tam(L.tamanho), fontWeight: PESO[L.peso], fontFamily: FAM[L.familia], color: corV(L.cor), lineHeight: ENTRE[L.entrelinha],
+        maxWidth: `${L.largura}ch`, margin: `0 ${E.alinhamento === "center" ? "auto" : "0"} ${E.subtituloAteBotoes}px` });
+      hero.style.textAlign = E.alinhamento;
+      const acoes = el(`${H} .acoes-hero`); if (acoes) acoes.style.justifyContent = E.alinhamento === "center" ? "center" : "flex-start";
+      const t = A.tempo; A.remontar(); A.ir(t); // refaz as linhas (texto ou tamanho mudaram) e mantém o ponto da animação
+    });
+
+    // Entrada do texto: uma linha por vez (data-* no .hero, lidos pelo abertura-mapa.js)
+    const entrada = mostrar("animacao") ? createDialKit("Entrada do texto", {
+      atraso: [0.1, 0, 2, 0.05], intervalo: [0.09, 0, 0.5, 0.01], duracao: [0.8, 0.2, 2, 0.05], deslocamento: [12, 0, 40, 1], desfoque: [6, 0, 20, 0.5],
+      curva: s1(CURVAS, CURVAS[0].value), reverTocar: { type: "action", label: "Ver a entrada de novo" }
+    }, {
+      id: "musa-abertura-mapa-entrada", persist: true,
+      onAction(p) { if (p === "reverTocar") { A.ir(0); A.tocar(); } }
+    }) : null;
+    let entradaAnterior = "";
+    entrada?.subscribe((N) => {
+      const chave = JSON.stringify(N); if (chave === entradaAnterior) return; entradaAnterior = chave;
+      Object.assign(el(H).dataset, { linhaAtraso: N.atraso, linhaIntervalo: N.intervalo, linhaDur: N.duracao, linhaY: N.deslocamento, linhaDesfoque: N.desfoque, linhaCurva: N.curva });
+      const t = A.tempo; A.remontar(); A.ir(t);
+    });
+  }
+
+  // ---------- Quadro final (o mapa no fim da abertura) ----------
+  // Variáveis --quadro-* no .palco-quadro (ver AberturaMapa.astro) e data-vista (quanto do mapa cabe na largura).
+  // Cada mudança remonta a abertura: o mapa é reencaixado e a linha de giz mede de novo onde pousar.
+  if (el(".abertura-mapa .palco-quadro") && A && mostrar("fim")) {
+    const q = el(".abertura-mapa .palco-quadro");
+    // preto (o de hoje) e todos os tons da paleta (os mesmos de TEXTOS, sem o "text-")
+    const CORES_SOMBRA = [{ value: "preto", label: "Preto" }, ...TEXTOS.map((c) => c.replace("text-", ""))];
+    const quadroFinal = createDialKit("Quadro final", {
+      tamanho: {
+        largura: [124, 60, 180, 1],   // % da largura do palco (não passa da janela)
+        topo: [0, -20, 40, 1],       // % da altura do palco
+        altura: [132, 40, 260, 1],    // % da altura do palco; acima de 100 desce por trás do texto
+        mapaVisivel: [1540, 900, 3200, 4] // px do mapa que cabem na largura: menor = mapa maior (zoom)
+      },
+      esmaecer: {
+        inicio: [44, 0, 100, 1],     // % da altura do quadro onde começa a sumir
+        fim: [84, 0, 100, 1],        // % onde já sumiu (cor do fundo)
+        lados: [0, 0, 30, 1]         // % da largura que some em cada lado (0 = sem degradê nos lados)
+      },
+      acabamento: {
+        cantos: [4, 0, 24, 1],
+        sombra: [0.22, 0, 1, 0.01],
+        corDaSombra: { type: "select", options: CORES_SOMBRA, default: "carmim-800" }
+      },
+      verFim: { type: "action", label: "Ir para o fim" },
+      verTransicao: { type: "action", label: "Ver o quadro entrar" }
+    }, {
+      id: "musa-abertura-mapa-quadro-v2", persist: true,
+      onAction(p) {
+        if (p === "verFim") { A.pausar(); A.ir(A.FIM); }
+        if (p === "verTransicao") { const p5 = A.PASSOS.find(([r]) => r.includes("Tudo esmaece")); A.ir(p5 ? p5[1] : 9.6); A.tocar(); }
+      }
+    });
+    let qAnterior = "";
+    quadroFinal.subscribe((v) => {
+      const chave = JSON.stringify(v); if (chave === qAnterior) return; qAnterior = chave;
+      const T = v.tamanho, E = v.esmaecer, K = v.acabamento;
+      q.style.setProperty("--quadro-largura", `${T.largura}%`);
+      q.style.setProperty("--quadro-topo", `${T.topo}%`);
+      q.style.setProperty("--quadro-altura", `${T.altura}%`);
+      q.style.setProperty("--quadro-esmaece-inicio", `${Math.min(E.inicio, E.fim)}%`);
+      q.style.setProperty("--quadro-esmaece-fim", `${E.fim}%`);
+      q.style.setProperty("--quadro-esmaece-lados", `${E.lados}%`);
+      q.style.setProperty("--quadro-cantos", `${K.cantos}px`);
+      q.style.setProperty("--quadro-sombra", String(K.sombra));
+      q.style.setProperty("--quadro-sombra-cor", K.corDaSombra === "preto" ? "#000" : `var(--${K.corDaSombra})`);
+      q.dataset.vista = T.mapaVisivel;
+      const t = A.tempo; A.remontar(); A.ir(t);
+    });
+  }
+
+  // os outros painéis (página, conteúdo, textos, desenho, giz) só aparecem com ?foco=tudo
+  if (FOCO === "tudo") {
+
   // ---------- Página ----------
   const pagina = createDialKit("Página", { fundo: { type: "select", options: FUNDOS, default: FUNDOS.find((c) => doc.body.classList.contains(c)) || "bg-neutro-50" } }, { id: "musa-pagina-v2", persist: true });
   pagina.subscribe((v) => trocar("body", FUNDOS, v.fundo));
@@ -165,8 +332,10 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     fraseInicial: ".frase-a", fraseFinal: ".frase-b", seuMuseu: ".rotulo-museu",
     busca: ".busca-texto", agendaTitulo: ".agenda-titulo", agendaDetalhe: ".agenda-detalhe", pular: ".pular",
     tagline: ".abertura .tagline", titulo: ".abertura h1", subtitulo: ".abertura .lead",
-    botaoUsar: ".abertura .acoes-hero a:nth-child(1)", botaoAprender: ".abertura .acoes-hero a:nth-child(2)"
+    botaoUsar: ".abertura .acoes-hero a:not(.secundario)", botaoAprender: ".abertura .acoes-hero a.secundario"
   };
+  // na abertura com o mapa, o texto de entrada tem painel próprio ("Texto de entrada")
+  if (el(".abertura-mapa")) ["tagline", "titulo", "subtitulo", "botaoUsar", "botaoAprender"].forEach((k) => delete CONTEUDO[k]);
   const esc = (t) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   const lerConteudo = (k, e) => k === "busca" ? e.dataset.texto
     : k === "fraseFinal" ? [...e.childNodes].map((n) => n.nodeType === 1 && n.classList.contains("grifo") ? `*${n.textContent}*` : n.textContent).join("")
@@ -208,7 +377,6 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
   });
 
   // ---------- Desenho: planta e caminho ----------
-  const A = window.MUSA_ABERTURA;
   const caminho = el("#caminho");
   const ORIGINAL = caminho.getAttribute("d");
   let salvo = null;
@@ -350,35 +518,5 @@ if (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)) {
     });
   }
 
-  // ---------- Abertura (tocar e revisar) ----------
-  if (A) {
-    const PASSOS = A.PASSOS.map(([rotulo, t]) => ({ value: String(t), label: rotulo }));
-    let interno = false, anterior = {};
-    const abertura = createDialKit("Abertura", {
-      tocar: { type: "action", label: "Tocar / continuar" },
-      pausar: { type: "action", label: "Pausar" },
-      doInicio: { type: "action", label: "Tocar do início" },
-      passo: { type: "select", options: PASSOS, default: PASSOS[0].value },
-      tempo: [Math.max(0, A.tempo), 0, A.FIM, 0.05],
-      velocidade: { type: "select", options: [{ value: "0.25", label: "0,25×" }, { value: "0.5", label: "0,5×" }, { value: "1", label: "1×" }, { value: "2", label: "2×" }], default: "1" }
-    }, {
-      id: "musa-abertura-dev",
-      onAction(p) { if (p === "tocar") A.tocar(); if (p === "pausar") A.pausar(); if (p === "doInicio") A.reiniciar(); }
-    });
-    abertura.subscribe((v) => {
-      if (interno) { anterior = v; return; }
-      if (v.passo !== anterior.passo && anterior.passo !== undefined) { A.pausar(); A.ir(Number(v.passo)); }
-      else if (v.tempo !== anterior.tempo && anterior.tempo !== undefined) { A.pausar(); A.ir(v.tempo); }
-      A.velocidade(Number(v.velocidade));
-      anterior = v;
-    });
-    let ultimoAviso = 0;
-    (function vigiar() {
-      if (A.tocando && performance.now() - ultimoAviso > 100) {
-        ultimoAviso = performance.now();
-        interno = true; abertura.setValue("tempo", Math.round(A.tempo * 20) / 20); interno = false;
-      }
-      requestAnimationFrame(vigiar);
-    })();
-  }
+  } // fim do foco "tudo"
 }

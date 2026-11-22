@@ -1,14 +1,14 @@
 ---
 // Página inicial (decisão Q30): abertura, a ferramenta (ideia e três razões), funcionalidades, chamada final.
 import Base from "../layouts/Base.astro";
-import Abertura from "../components/Abertura.astro";
+import AberturaMapa from "../components/AberturaMapa.astro";
 import Ferramenta from "../components/inicio/Ferramenta.astro";
 import Funcionalidades from "../components/inicio/Funcionalidades.astro";
 import ChamadaFinal from "../components/inicio/ChamadaFinal.astro";
 
 ---
 <Base classeCorpo="inicio">
-<Abertura />
+<AberturaMapa />
 
 <main class="inicio-corpo">
   <!-- Traço de giz que acompanha a rolagem pela página inteira (public/scripts/traco-pagina.js): fora do texto,
@@ -35,14 +35,14 @@ import ChamadaFinal from "../components/inicio/ChamadaFinal.astro";
 </main>
 
 <Fragment slot="scripts">
-  <script is:inline src="/scripts/abertura.js"></script>
+  <script is:inline src="/scripts/abertura-mapa.js"></script>
   <script is:inline src="/scripts/traco-pagina.js"></script>
 </Fragment>
 </Base>
 
 <style>
   /* seções da página inicial separadas só por espaço: --secao-espaco em cima e embaixo de cada uma, então entre duas seções fica o dobro (o bento lê a mesma) */
-  .inicio-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 40px) 96px; }
+  .inicio-corpo { --secao-espaco: 96px; max-width: 1360px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px) 96px; } /* em cima, só o --secao-espaco da primeira seção */
   /* traço da página: cobre o main (e sai por cima, até a abertura); acima do texto solto e das linhas das seções,
      abaixo dos blocos do bento e da frase da chamada final (que ficam com z-index 1) */
   .inicio-corpo { position: relative; }

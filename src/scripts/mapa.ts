@@ -247,7 +247,8 @@ const modoDoLink = pedido.get("modo");
 if (modoDoLink === "etapa" || modoDoLink === "inteiro") guardar("modo", modoDoLink);
 const doLink = etapas.findIndex((e) => "#" + e.dataset.etapa === location.hash);
 atual = doLink >= 0 ? doLink : 0;
-definirModo(ler("modo") ?? "etapa", false);
+// na vitrine (que não guarda nada) o modo do link vale direto: a abertura da página inicial pede ?vitrine&modo=inteiro
+definirModo((vitrine && modoDoLink) || ler("modo") || "etapa", false);
 
 // impressão: visão geral, todas as Etapas (ou só as de uma Fase, &fase=1|2|3, nas folhas A4)
 if (impressao) {
