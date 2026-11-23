@@ -100,8 +100,10 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
     --menu-cor: var(--texto-700);
     /* com o mouse: sem fundo, texto e ícone em carmim; o ícone um passo mais escuro, porque o traço fino dele parece mais claro que as letras */
     --menu-hover-fundo: transparent; --menu-hover-cor: var(--carmim-700);
-    --menu-atual-fundo: var(--coral-100); --menu-atual-cor: var(--texto-900); --menu-atual-peso: 500;
-    --menu-icone: 1.15em; --menu-icone-cor: var(--texto-600); --menu-icone-hover: var(--carmim-800); --menu-icone-atual: var(--coral-600);
+    /* página atual: como na barra do site (Cabecalho.astro), só a cor e o peso mudam, sem fundo, para não apagar o traço
+       de giz ao lado (23/11/2026; antes, fundo coral-100) */
+    --menu-atual-fundo: transparent; --menu-atual-cor: var(--carmim-800); --menu-atual-peso: 600;
+    --menu-icone: 1.15em; --menu-icone-cor: var(--texto-600); --menu-icone-hover: var(--carmim-800); --menu-icone-atual: var(--carmim-800);
     --submenu-recuo: 14px; --submenu-linha: var(--neutro-300); --submenu-marca: var(--carmim-600); --submenu-espessura: 2.5px;
     --submenu-desenha-ms: 700ms; --menu-traco-afastamento: 6px; }
   /* igual a .inicio-corpo em src/pages/index.astro */
