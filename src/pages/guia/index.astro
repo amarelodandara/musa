@@ -18,7 +18,7 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
 <Guia titulo="Guia">
 <div class="guia-entrada" data-termos="lista" data-leia-link="seta" data-leia-layout="lista" data-lista-autoria="linha" data-lista-tipo="nome">
   <h1>Como musá?</h1>
-  <p class="lead">Entenda como usar essa ferramenta e mergulhe fundo nos conceitos pesquisados pela equipe.</p>
+  <p class="lead">Entenda como usar essa ferramenta.</p>
 
   <ul class="cartoes cartoes-partida">
     {PARTIDAS.map(({ titulo, texto, href, Icone }) => (
@@ -33,6 +33,8 @@ const iconeProps = { width: "1.5em", height: "1.5em", strokeWidth: 1.6, "aria-hi
   <TracoGiz class="divisor" />
   <section class="secao" aria-labelledby="glossario-titulo">
     <h2 id="glossario-titulo"><a href="/guia/glossario">Glossário</a></h2>
+    {/* o mergulho nos conceitos (antes no lead do topo) fica com o glossário, que é onde eles estão */}
+    <p class="secao-descricao">Mergulhe nos conceitos que a equipe pesquisou para montar o mapa.</p>
     <ul class="cartoes">
       {gruposGlossario.map((g) => { const Icone = icone(g.icone); return (
         <li class="cartao grupo">
