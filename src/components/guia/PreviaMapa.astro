@@ -1,0 +1,134 @@
+---
+// Peça do mapa redesenhada, para o cartão que aparece ao passar o mouse num link de termo do Guia (src/layouts/Guia.astro)
+// e para a bancada /dev/previas-mapa. Não é foto do mapa: cada peça é refeita em HTML, nítida, numa área de 3:2
+// (300 × 200) com contorno. O que o termo nomeia aparece com o contraste do mapa (sem o estado ativo, em fundo claro);
+// o resto vira linhas e barras em cinza bem suave, só para dar o contexto.
+// A legenda (primeira frase da definição no glossário) fica com quem usa: aqui é só o desenho.
+import { AVATAR } from "../../lib/conteudo";
+interface Props { termo: string }
+const { termo } = Astro.props;
+---
+<div class:list={["pm", `pm-t-${termo}`]} aria-hidden="true">
+  {termo === "etapa" && (
+    <div class="pm-colunas">
+      <div class="pm-col pm-apagada"><span class="pm-n">1</span><span class="pm-barra" style="width:70%" /></div>
+      <div class="pm-col pm-foco">
+        <span class="pm-n">2</span><span class="pm-nome">Agendamento da visita</span>
+        <span class="pm-linha" /><span class="pm-barra" style="width:80%" /><span class="pm-barra" style="width:60%" />
+        <span class="pm-linha" /><span class="pm-barra" style="width:72%" />
+      </div>
+      <div class="pm-col pm-apagada"><span class="pm-n">3</span><span class="pm-barra" style="width:65%" /></div>
+    </div>
+  )}
+  {termo === "fase" && (
+    <div class="pm-fase-caixa">
+      <span class="pm-fase">Antes da visita</span>
+      <div class="pm-colunas pm-colunas-fase">
+        {["Descoberta do museu", "Agendamento da visita", "Preparação para visita"].map((n, i) => (
+          <div class="pm-col"><span class="pm-n">{i + 1}</span><span class="pm-nome pm-nome-pequeno">{n}</span></div>
+        ))}
+      </div>
+    </div>
+  )}
+  {termo === "camada" && (
+    <div class="pm-linhas">
+      <div class="pm-fileira pm-apagada"><span class="pm-rotulo">Ações do professor</span><span class="pm-barra" style="width:50%" /><span class="pm-barra" style="width:44%" /></div>
+      <div class="pm-fileira pm-foco">
+        <span class="pm-rotulo">Pontos de contato</span>
+        <span class="pm-celula"><span class="pm-chip">Site</span><span class="pm-chip">E-mail</span></span>
+        <span class="pm-celula"><span class="pm-chip">Telefone</span><span class="pm-chip">WhatsApp</span></span>
+      </div>
+      <div class="pm-fileira pm-apagada"><span class="pm-rotulo">Boas práticas</span><span class="pm-barra" style="width:56%" /><span class="pm-barra" style="width:40%" /></div>
+    </div>
+  )}
+  {(termo === "nivel-de-desafio" || termo === "pensamento-do-professor") && (
+    <div class:list={["pm-desafio", { "pm-com-cartao": termo === "pensamento-do-professor" }]}>
+      {termo === "nivel-de-desafio" && <span class="pm-niveis"><span>Alto</span><span>Médio</span><span>Baixo</span></span>}
+      <svg class="pm-trilhas" viewBox="0 0 300 200" preserveAspectRatio="none">
+        {/* guias dos níveis, pontilhadas, e a linha de uma etapa à outra */}
+        {[70, 110, 150].map((y) => <line x1="0" x2="300" y1={y} y2={y} />)}
+        <path d="M60 150 C100 150 100 150 130 150 C165 150 170 70 205 70 C230 70 240 70 270 70" />
+      </svg>
+      <img class="pm-avatar" style="left:60px; top:150px" src={AVATAR.feliz} alt="" width="24" height="24" />
+      <img class="pm-avatar" style="left:130px; top:150px" src={AVATAR.feliz} alt="" width="24" height="24" />
+      <img class="pm-avatar" style="left:205px; top:70px" src={AVATAR.triste} alt="" width="24" height="24" />
+      {termo === "pensamento-do-professor" && <p class="pm-cartao cartao-pensamento">“E se chover? E o ônibus?”</p>}
+    </div>
+  )}
+  {termo === "funcao" && (
+    <div class="pm-praticas">
+      <div class="pm-pratica pm-foco"><span class="pm-marcador">+</span><span>Divulgar diretamente para escolas e professores.</span><span class="pm-funcao">Comunicação</span></div>
+      <div class="pm-pratica pm-foco"><span class="pm-marcador">+</span><span>Mapear quais escolas e faixas etárias vêm e quais não vêm.</span><span class="pm-funcao">Coordenação do educativo</span></div>
+      <div class="pm-pratica pm-apagada"><span class="pm-marcador">+</span><span class="pm-barra" style="width:80%" /></div>
+    </div>
+  )}
+  {termo === "origem" && (
+    <div class="pm-detalhe">
+      <p class="pm-det-nome">+ Reservar nos canais do museu um espaço só para as atividades educativas.</p>
+      <span class="pm-barra" style="width:92%" /><span class="pm-barra" style="width:70%" />
+      <p class="pm-origem">Comunicação · <strong>Adaptado de documento</strong> · IBRAM. Plano Museológico.</p>
+    </div>
+  )}
+</div>
+
+<style>
+  /* área do desenho: 3:2, fundo claro, contorno fino; tudo dentro em px de uma área de 300 × 200 */
+  .pm { position: relative; width: 300px; height: 200px; overflow: hidden; box-sizing: border-box;
+    background: var(--neutro-50); border: 1px solid var(--neutro-300); border-radius: 6px;
+    font-family: var(--fonte-inter-tight); color: var(--texto-900); line-height: 1.3; }
+  .pm * { box-sizing: border-box; }
+  .pm p { margin: 0; }
+  .pm-barra { display: block; height: 6px; margin-top: 7px; border-radius: 3px; background: var(--neutro-200); }
+  .pm-linha { display: block; height: 1px; margin: 12px -10px 4px; background: var(--neutro-300); }
+  .pm-apagada { opacity: 0.55; }
+
+  /* etapa e fase: colunas lado a lado, divididas por linhas finas */
+  .pm-colunas { position: absolute; inset: 0; display: grid; grid-template-columns: 0.6fr 1fr 0.6fr; }
+  .pm-col { display: flex; flex-direction: column; padding: 14px 10px; border-right: 1px solid var(--neutro-300); }
+  .pm-col:last-child { border-right: 0; }
+  .pm-n { font-size: 12px; color: var(--texto-600); font-variant-numeric: tabular-nums; }
+  .pm-nome { margin-top: 22px; font-size: 14px; font-weight: 500; color: var(--texto-950); }
+  .pm-t-etapa .pm-foco { background: var(--neutro-50); box-shadow: inset 0 0 0 1.5px var(--texto-950); border-radius: 2px; }
+  .pm-fase-caixa { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .pm-fase { padding: 10px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--texto-950);
+    background: var(--neutro-100); border-bottom: 1px solid var(--neutro-300); box-shadow: inset 0 0 0 1.5px var(--texto-950); }
+  .pm-colunas-fase { position: relative; inset: auto; flex: 1; grid-template-columns: repeat(3, 1fr); }
+  .pm-nome-pequeno { margin-top: auto; font-size: 12px; font-weight: 400; color: var(--texto-700); }
+
+  /* camada: uma fileira com rótulo e células; as vizinhas apagadas */
+  .pm-linhas { position: absolute; inset: 0; display: grid; grid-template-rows: 1fr 1.3fr 1fr; }
+  .pm-fileira { display: grid; grid-template-columns: 92px 1fr 1fr; align-items: center; column-gap: 10px; padding: 0 10px;
+    border-bottom: 1px solid var(--neutro-300); }
+  .pm-fileira:last-child { border-bottom: 0; }
+  .pm-fileira .pm-barra { margin: 0; }
+  .pm-rotulo { font-size: 12px; font-weight: 600; color: var(--texto-950); }
+  .pm-linhas .pm-foco { box-shadow: inset 0 0 0 1.5px var(--texto-950); }
+  .pm-celula { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pm-chip { padding: 2px 7px; border: 1px solid var(--neutro-300); border-radius: 999px; font-size: 11px; background: var(--neutro-50); }
+
+  /* nível de desafio e pensamento: as guias dos níveis, a linha e os rostos; no pensamento, o cartão sobre um rosto */
+  .pm-desafio { position: absolute; inset: 0; }
+  .pm-niveis { position: absolute; left: 10px; top: 0; bottom: 0; }
+  .pm-niveis span { position: absolute; left: 0; translate: 0 -50%; font-size: 11px; color: var(--texto-600); }
+  .pm-niveis span:nth-child(1) { top: 70px; } .pm-niveis span:nth-child(2) { top: 110px; } .pm-niveis span:nth-child(3) { top: 150px; }
+  .pm-trilhas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pm-trilhas line { stroke: var(--neutro-300); stroke-width: 1; stroke-dasharray: 2 4; }
+  .pm-trilhas path { fill: none; stroke: var(--carmim-600); stroke-width: 2.5; stroke-linecap: round; }
+  .pm-avatar { position: absolute; width: 26px; height: 26px; translate: -50% -50%; }
+  .pm-com-cartao .pm-trilhas line, .pm-com-cartao .pm-trilhas path { opacity: 0.5; }
+  .pm-cartao { position: absolute; left: 205px; top: 22px; translate: -50% 0; width: max-content; max-width: 170px; text-align: center; }
+
+  /* função e origem: práticas como no mapa, com a parte do termo em destaque */
+  .pm-praticas { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 14px; }
+  .pm-pratica { display: grid; grid-template-columns: 12px 1fr; column-gap: 6px; font-size: 13px; }
+  .pm-pratica .pm-barra { margin-top: 6px; }
+  .pm-marcador { font-weight: 700; color: var(--texto-700); }
+  .pm-funcao { grid-column: 2; justify-self: start; margin-top: 4px; padding: 1px 6px; font-size: 11px; font-weight: 500; color: var(--texto-950);
+    border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--texto-950); }
+  .pm-detalhe { position: absolute; inset: 0; padding: 18px 16px; }
+  .pm-det-nome { font-size: 13px; font-weight: 600; color: var(--texto-950); }
+  .pm-detalhe .pm-barra { height: 7px; }
+  .pm-origem { margin-top: 14px !important; padding: 6px 8px; font-size: 12px; color: var(--texto-700); border-radius: 3px;
+    box-shadow: inset 0 0 0 1.5px var(--texto-950); }
+  .pm-origem strong { font-weight: 600; color: var(--texto-950); }
+</style>

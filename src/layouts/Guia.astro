@@ -7,8 +7,10 @@ import Base from "./Base.astro";
 import { paginasGuia, guias } from "../lib/guia";
 import { icone } from "../lib/pontos-contato";
 import { gruposGlossario } from "../lib/glossario";
-// fotos do mapa para os links de termos que são peças dele (geradas por npm run previas-mapa)
-import previasMapa from "../lib/previas-mapa.json";
+// peças do mapa redesenhadas, para o cartão dos links de termos que são peças dele
+import PreviaMapa from "../components/guia/PreviaMapa.astro";
+import { TERMOS_COM_PREVIA, legendaPrevia } from "../lib/previas-mapa";
+const legendas = Object.fromEntries(TERMOS_COM_PREVIA.map((t) => [t, legendaPrevia(t)]));
 // A mesma moldura serve a outras páginas de texto (a Licença): elas passam o próprio menu (paginas), os subitens da página
 // aberta (secoes, os títulos com id do texto), as migalhas e se o "Leia mais" do Guia aparece.
 interface ItemMenu { slug: string; titulo: string; icone: string; href: string }
@@ -84,12 +86,14 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
   </aside>
   <main class="guia-conteudo"><slot /></main>
 </div>
-{/* cartão com a foto do mapa: aparece ao passar o mouse (ou o foco) num link para um termo que é peça do mapa */}
+{/* cartão com a peça do mapa: aparece ao passar o mouse (ou o foco) num link para um termo que é peça do mapa.
+    Cada peça fica num <template>; o script copia a do termo para dentro do cartão. */}
 <div class="previa-mapa" id="previa-mapa" role="tooltip" hidden>
-  <img alt="" decoding="async" />
+  <div class="previa-desenho"></div>
   <span class="previa-legenda"></span>
 </div>
-<script type="application/json" id="previas-mapa-dados" set:html={JSON.stringify(previasMapa)} />
+{TERMOS_COM_PREVIA.map((t) => <template data-previa={t}><PreviaMapa termo={t} /></template>)}
+<script type="application/json" id="previas-mapa-dados" set:html={JSON.stringify(legendas)} />
 </Base>
 
 <style>
@@ -159,18 +163,14 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
   .guia-menu li a[aria-current="page"] :global(svg) { color: var(--menu-icone-atual); }
   .guia[data-sem-icones] .guia-menu li a :global(svg) { display: none; }
   .guia-conteudo { min-width: 0; }
-  /* cartão da foto do mapa: o papel da página com uma borda, a foto com as bordas de baixo e da direita esmaecendo
-     (os recortes cortam o mapa no meio) e a legenda pequena embaixo */
-  .previa-mapa { position: fixed; z-index: 30; left: 0; top: 0; width: var(--previa-largura, 360px); padding: 8px 8px 10px;
-    background: var(--neutro-50); border: 1px solid var(--neutro-300); border-radius: 8px;
+  /* cartão da peça do mapa: o desenho (300 × 200, com contorno próprio) e a legenda, que diz para que a peça serve */
+  .previa-mapa { position: fixed; z-index: 30; left: 0; top: 0; width: 318px; padding: 8px 8px 10px;
+    background: var(--neutro-50); border: 1px solid var(--neutro-300); border-radius: 10px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -16px rgb(0 0 0 / 0.22); pointer-events: none;
     opacity: 0; translate: 0 4px; transition: opacity 150ms ease-out, translate 150ms ease-out; }
   .previa-mapa[data-aberta] { opacity: 1; translate: 0 0; }
   .previa-mapa[data-instantanea] { transition: none; }
-  .previa-mapa img { display: block; width: 100%; height: auto; max-height: 280px; object-fit: cover; object-position: left top; border-radius: 4px;
-    mask: linear-gradient(to bottom, #000 calc(100% - 28px), transparent), linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-composite: intersect; }
-  .previa-mapa:not([data-esmaecer]) img { mask: none; }
-  .previa-legenda { display: block; margin-top: 8px; font-size: var(--tamanho-xs); line-height: 1.35; color: var(--texto-600); }
+  .previa-legenda { display: block; margin-top: 8px; font-size: var(--tamanho-xs); line-height: 1.4; color: var(--texto-700); text-wrap: pretty; }
   @media (prefers-reduced-motion: reduce) { .previa-mapa { transition: none; translate: 0 0; } }
   @media (max-width: 860px) {
     .guia { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
@@ -286,14 +286,14 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
     }
   }
 
-  // Fotos do mapa nos links: um link para um termo do glossário que é peça do mapa (etapa, fase, camada, nível de
-  // desafio, pensamento do professor, função, origem) mostra como ela aparece no mapa. Abre com um instante de espera
+  // Peças do mapa nos links: um link para um termo do glossário que é peça do mapa (etapa, fase, camada, nível de
+  // desafio, pensamento do professor, função, origem) mostra a peça redesenhada e para que ela serve. Abre com um instante de espera
   // (passar o mouse por cima sem querer não abre); de um link para outro, troca na hora. Fecha ao sair, ao perder o
   // foco ou com Esc. Em tela de toque não abre: o link só navega.
   const previa = document.getElementById("previa-mapa");
   const dados = JSON.parse(document.getElementById("previas-mapa-dados")?.textContent || "{}");
   if (previa && Object.keys(dados).length) {
-    const img = previa.querySelector("img")!, legenda = previa.querySelector<HTMLElement>(".previa-legenda")!;
+    const desenho = previa.querySelector<HTMLElement>(".previa-desenho")!, legenda = previa.querySelector<HTMLElement>(".previa-legenda")!;
     let espera = 0, ultimoFechamento = 0, atual: HTMLElement | null = null;
     const termo = (a: HTMLAnchorElement) => { const u = new URL(a.href, location.href); return u.pathname.replace(/\/$/, "") === "/guia/glossario" ? decodeURIComponent(u.hash.slice(1)) : ""; };
     const posicionar = (a: HTMLElement) => {
@@ -302,11 +302,11 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
       const y = r.bottom + 8 + h < innerHeight - m ? r.bottom + 8 : Math.max(m, r.top - 8 - h);
       previa.style.left = `${x}px`; previa.style.top = `${y}px`;
     };
-    const abrir = (a: HTMLAnchorElement, foto: any) => {
+    const abrir = (a: HTMLAnchorElement, termoId: string) => {
       atual = a;
-      img.src = foto.src; legenda.textContent = foto.legenda;
-      previa.style.setProperty("--previa-largura", `${Math.min(foto.largura, 360) + 16}px`);
-      previa.toggleAttribute("data-esmaecer", foto.altura > 280 || foto.largura > 360);
+      const modelo = document.querySelector<HTMLTemplateElement>(`template[data-previa="${termoId}"]`);
+      desenho.replaceChildren(modelo ? modelo.content.cloneNode(true) : "");
+      legenda.textContent = dados[termoId];
       previa.hidden = false;
       a.setAttribute("aria-describedby", "previa-mapa");
       posicionar(a);
@@ -320,12 +320,12 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
       previa.removeAttribute("data-aberta"); previa.hidden = true;
     };
     document.querySelectorAll<HTMLAnchorElement>(".guia-conteudo a[href]").forEach((a) => {
-      const foto = dados[termo(a)];
-      if (!foto) return;
-      const pedir = () => { clearTimeout(espera); espera = window.setTimeout(() => abrir(a, foto), Date.now() - ultimoFechamento < 300 ? 0 : 250); };
+      const id = termo(a);
+      if (!dados[id]) return;
+      const pedir = () => { clearTimeout(espera); espera = window.setTimeout(() => abrir(a, id), Date.now() - ultimoFechamento < 300 ? 0 : 250); };
       a.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") pedir(); });
       a.addEventListener("pointerleave", fechar);
-      a.addEventListener("focus", () => { if (a.matches(":focus-visible")) abrir(a, foto); });
+      a.addEventListener("focus", () => { if (a.matches(":focus-visible")) abrir(a, id); });
       a.addEventListener("blur", fechar);
     });
     addEventListener("keydown", (ev) => { if (ev.key === "Escape") fechar(); });
