@@ -1,251 +1,273 @@
 {
-  "origem": "mock",
-  "geradoEm": null,
+  "origem": "planilha",
+  "geradoEm": "2026-11-23T23:50:06.404Z",
   "etapas": [
     {
       "ordem": 1,
       "id": "descoberta",
       "nome": "Descoberta do museu",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Descoberta do museu\" do ponto de vista da escola.",
-      "acoesEscola": "Procura opções de passeio para a turma. Em geral, ainda não sabem do museu.",
-      "sentimento": "Curioso",
-      "pensamento": "Onde eu acho um museu que receba escolas?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Descobre a existência do museu ou de uma exposição. Pode ser através de uma pesquisa, de um anúncio ou de um convite direto.",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 3
     },
     {
       "ordem": 2,
       "id": "agendamento",
       "nome": "Agendamento da visita",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Agendamento da visita\" do ponto de vista da escola.",
-      "acoesEscola": "Tenta marcar data, horário e tamanho do grupo.",
-      "sentimento": "Frustrado",
-      "pensamento": "Ninguém responde o e-mail do agendamento…",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Entra em contato com o museu para marcar a data e horário da visita",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 4
     },
     {
       "ordem": 3,
       "id": "preparacao",
       "nome": "Preparação para visita",
       "fase": "Antes",
-      "descricao": "Exemplo: o que acontece em \"Preparação para visita\" do ponto de vista da escola.",
-      "acoesEscola": "Organiza transporte e autorizações; conversa com a turma. Levam a autorização para casa e criam expectativas.",
-      "sentimento": "Inseguro",
-      "pensamento": "E se chover? E o ônibus?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Prepara os alunos para a visita com os materiais fornecidos pelo museu. Colhe autorizações dos pais e organiza com a escola o transporte, o lanche e a logística da visita. Alinha o próposito pedagógico da visita com a instituição e o museu.",
+      "sentimento": null,
+      "pensamento": "Será que o ônibus vai chegar a tempo?",
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 5
     },
     {
       "ordem": 4,
       "id": "recepcao",
       "nome": "Recepção no museu",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Recepção no museu\" do ponto de vista da escola.",
-      "acoesEscola": "Conduz e conta o grupo; procura quem vai recebê-lo. Entram em um lugar que talvez nunca tenham visitado.",
-      "sentimento": "Tranquilo",
-      "pensamento": "Ufa, tem alguém esperando a gente.",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Chegada do grupo ao museu. Organização dos alunos, entrada e recebimento das orientações.",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 10
     },
     {
       "ordem": 5,
       "id": "mediacao",
       "nome": "Mediação no museu",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Mediação no museu\" do ponto de vista da escola.",
-      "acoesEscola": "Acompanha a turma e ajuda a manter o grupo junto. Olham, perguntam, conversam, se cansam.",
-      "sentimento": "Animado",
-      "pensamento": "Olha como eles estão prestando atenção!",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Percorrer a exposição com os alunos. Fazer pausas para lanche e banheiro se houver na programação.",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 7
     },
     {
       "ordem": 6,
       "id": "encerramento",
       "nome": "Encerramento da visita",
       "fase": "Durante",
-      "descricao": "Exemplo: o que acontece em \"Encerramento da visita\" do ponto de vista da escola.",
-      "acoesEscola": "Reúne o grupo e cuida do horário de volta. Saem com uma impressão do que é um museu.",
-      "sentimento": "Confiante",
-      "pensamento": "Deu tudo certo, mas foi corrido.",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Fazer dinâmica de encerramento e responder formulário de avaliação do museu",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 8
     },
     {
       "ordem": 7,
       "id": "vinculo",
       "nome": "Criação de vínculo",
       "fase": "Depois",
-      "descricao": "Exemplo: o que acontece em \"Criação de vínculo\" do ponto de vista da escola.",
-      "acoesEscola": "Retoma ou não a visita em sala. Contam o que viram, em sala e em casa.",
-      "sentimento": "Confiante",
-      "pensamento": "Como eu continuo isso em sala?",
-      "origemSentimento": "Pesquisa de campo",
-      "fonteSentimento": "ENT"
+      "descricao": null,
+      "acoesEscola": "Acompanhar futuras exposições do museu e visitá-lo novamente.",
+      "sentimento": null,
+      "pensamento": null,
+      "origemSentimento": null,
+      "fonteSentimento": null,
+      "desafio": null,
+      "nivelDesafio": 1
     }
   ],
   "funcoes": [
     {
       "id": "professor-a",
       "nome": "Professor(a)",
-      "descricao": ""
+      "descricao": "É o visitante que usufrui e participa das dinâmicas propostas pelo educativo, mas também prepara o grupo na pré-visita, apoia o manejo e a mediação durante o percurso e avalia o atendimento no pós-visita. Representa a instituição de ensino e tem papel decisório na jornada de visitação."
     },
     {
       "id": "estudantes",
       "nome": "Estudantes",
-      "descricao": ""
+      "descricao": "Público-alvo principal da mediação, usufrui de toda a proposta do serviço. Traz consigo seus próprios repertórios, faz perguntas e cocria o sentido da visita por meio da troca com o mediador e com o acervo."
+    },
+    {
+      "id": "visitante-espontaneo",
+      "nome": "Visitante espontâneo",
+      "descricao": "Indivíduo, família ou grupo que visita o museu de forma autônoma. Usufrui das exposições, dos recursos de auto-orientação e das atividades culturais abertas ao público geral."
     },
     {
       "id": "comunicacao",
       "nome": "Comunicação",
-      "descricao": ""
+      "descricao": "Cuida de toda a divulgação do museu: das redes sociais aos e-mails e às matérias sobre as exposições. Para um bom serviço educativo, é preciso que essa função divulgue as ações do educativo e mantenha uma relação próxima com as instituições visitantes."
     },
     {
-      "id": "atendimento-e-vigilancia",
-      "nome": "Atendimento e vigilância",
-      "descricao": ""
+      "id": "recepcao-e-agendamento",
+      "nome": "Recepção e Agendamento",
+      "descricao": "Está na linha de frente com o público e as escolas. É responsável por garantir que os visitantes tenham todas as informações de que precisam sobre a exposição e que professores e escolas tenham acesso às informações de que precisam sobre o educativo. Conhece o espaço e suas atividades de forma geral e mantém contato ativo com todos os demais setores do museu."
+    },
+    {
+      "id": "vigilancia",
+      "nome": "Vigilancia",
+      "descricao": "Garante que as visitas sejam seguras: controla a entrada de visitantes, zela pela integridade física do público e do patrimônio, monitora a circulação dos grupos e atua no acolhimento sem posturas intimidatórias."
     },
     {
       "id": "mediacao",
       "nome": "Mediação",
-      "descricao": ""
+      "descricao": "Principal ator durante a visita, o mediador é responsável por planejar e adaptar as linguagens e os recursos práticos conforme o perfil do grupo visitante. Também promove ações de acessibilidade do espaço e do conteúdo expositivo."
+    },
+    {
+      "id": "monitoria",
+      "nome": "Monitoria",
+      "descricao": "Organiza a circulação dos visitantes nas galerias, orienta sobre o manuseio de objetos interativos, tira dúvidas pontuais e zela pela organização dos espaços. Apoia a mediação em funções operacionais."
     },
     {
       "id": "espaco-e-exposicao",
       "nome": "Espaço e exposição",
-      "descricao": ""
+      "descricao": "Cuida de funções externas à mediação, que deixam tudo em ordem para os próximos visitantes: garante que o espaço esteja limpo e conservado e que os recursos multimídia, as telas interativas e os experimentos práticos estejam funcionando plenamente antes da abertura."
     },
     {
       "id": "coordenacao-do-educativo",
       "nome": "Coordenação do educativo",
-      "descricao": ""
+      "descricao": "Lidera a equipe pedagógica e articula o planejamento das visitas escolares com a agenda da recepção. Também promove discussões sobre melhorias nos processos, difunde o conhecimento sobre as boas práticas de educação museal e intervém, junto a outros setores, em situações de alta tensão."
     },
     {
       "id": "gestao",
       "nome": "Gestão",
-      "descricao": ""
+      "descricao": "Cuida do museu como um todo, desenhando e fazendo valer o Plano Museológico e a Política Nacional de Educação Museal. Assegura o orçamento, garante os recursos de acessibilidade e promove a integração entre todos os setores."
     }
   ],
   "pontosContato": [
     {
       "etapa": "descoberta",
       "canal": "Site",
-      "descricao": "Exemplo: como a escola usa site nesta etapa.",
+      "descricao": null,
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT"
+    },
+    {
+      "etapa": "descoberta",
+      "canal": "Email",
+      "descricao": null,
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT"
+    },
+    {
+      "etapa": "descoberta",
+      "canal": "Telefone",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "descoberta",
       "canal": "Redes sociais",
-      "descricao": "Exemplo: como a escola usa redes sociais nesta etapa.",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "descoberta",
-      "canal": "Site",
-      "descricao": "Exemplo: como a escola usa site nesta etapa.",
-      "origem": "Pesquisa de campo",
+      "canal": "Midias e campanhas",
+      "descricao": null,
+      "origem": "Hipótese",
       "fonte": "ENT"
     },
     {
-      "etapa": "descoberta",
-      "canal": "E-mail",
-      "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
+      "etapa": "agendamento",
+      "canal": "Formulário",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "agendamento",
       "canal": "Telefone",
-      "descricao": "Exemplo: como a escola usa telefone nesta etapa.",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "agendamento",
-      "canal": "E-mail",
-      "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
+      "canal": "Site",
+      "descricao": null,
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT"
+    },
+    {
+      "etapa": "agendamento",
+      "canal": "Atendimento presencial",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "preparacao",
-      "canal": "E-mail",
-      "descricao": "Exemplo: como a escola usa e-mail nesta etapa.",
+      "canal": "Telefone",
+      "descricao": null,
       "origem": "Pesquisa de campo",
+      "fonte": "ENT"
+    },
+    {
+      "etapa": "preparacao",
+      "canal": "Email",
+      "descricao": null,
+      "origem": "Hipótese",
       "fonte": "ENT"
     },
     {
       "etapa": "recepcao",
-      "canal": "Recepção",
-      "descricao": "Exemplo: como a escola usa recepção nesta etapa.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "recepcao",
-      "canal": "Segurança",
-      "descricao": "Exemplo: como a escola usa segurança nesta etapa.",
+      "canal": "Equipe de Mediação, Recepção e Vigilânica",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "mediacao",
-      "canal": "Mediador",
-      "descricao": "Exemplo: como a escola usa mediador nesta etapa.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "mediacao",
-      "canal": "Exposição",
-      "descricao": "Exemplo: como a escola usa exposição nesta etapa.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "mediacao",
-      "canal": "Área de convivência",
-      "descricao": "Exemplo: como a escola usa área de convivência nesta etapa.",
+      "canal": "Equipe de Mediação e Monitoria",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "encerramento",
-      "canal": "Recepção",
-      "descricao": "Exemplo: como a escola usa recepção nesta etapa.",
+      "canal": "Equipe de Mediação",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     },
     {
       "etapa": "vinculo",
-      "canal": "Material de apoio",
-      "descricao": "Exemplo: como a escola usa material de apoio nesta etapa.",
-      "origem": "Pesquisa de campo",
+      "canal": "Telefone",
+      "descricao": null,
+      "origem": "Hipótese",
       "fonte": "ENT"
     },
     {
       "etapa": "vinculo",
-      "canal": "Formulário de avaliação",
-      "descricao": "Exemplo: como a escola usa formulário de avaliação nesta etapa.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "vinculo",
-      "canal": "Redes sociais",
-      "descricao": "Exemplo: como a escola usa redes sociais nesta etapa.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "vinculo",
-      "canal": "Newsletter",
-      "descricao": "Exemplo: como a escola usa newsletter nesta etapa.",
+      "canal": "Email",
+      "descricao": null,
       "origem": "Pesquisa de campo",
       "fonte": "ENT"
     }
@@ -254,832 +276,408 @@
     {
       "id": "p1",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
+      "funcoes": [
+        "comunicacao"
+      ],
       "tipo": "boa",
-      "titulo": "Reservar nos canais do museu um espaço só para as atividades educativas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Levar a programação educativa às escolas",
+      "detalhe": "Facilite esse acesso através de uma divulgação direcionada para o público.\nUma lista de contatos de professores que já visitaram o museu, usada para enviar comunicações institucionais.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "comunicacao"
     },
     {
       "id": "p2",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
+      "funcoes": [
+        "comunicacao"
+      ],
       "tipo": "boa",
-      "titulo": "Divulgar diretamente para escolas e professores.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M1"
+      "titulo": "Deixar claro como agendar uma visita educativa",
+      "detalhe": "Crie um caminho visível e explicado do início ao fim. Assim, o primeiro contato não começa com dúvida.\nUma página no site com o passo a passo e o acesso à solicitação.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "comunicacao"
     },
     {
       "id": "p3",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
-      "tipo": "evitar",
-      "titulo": "Depender de um único canal e esperar que a escola o encontre.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
+      "tipo": "boa",
+      "titulo": "Preparar a recepção para informar como agendar",
+      "detalhe": "Forneça à equipe as principais informações sobre as visitas. Ela é o primeiro contato físico do professor.\nUm material de consulta rápida, com os canais e as etapas do agendamento.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p4",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
-      "tipo": "evitar",
-      "titulo": "Anunciar só as exposições novas, sem dizer que o museu recebe escolas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "funcoes": [
+        "comunicacao"
+      ],
+      "tipo": "boa",
+      "titulo": "Explicar as modalidades de visita e o que cada uma oferece",
+      "detalhe": "Mostre a diferença entre visitar como público espontâneo e com o acompanhamento de um educador.\nUma descrição curta de cada uma, com e sem mediação, indicando o que esperar.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "comunicacao"
     },
     {
       "id": "p5",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
+      "funcoes": [
+        "coordenacao-do-educativo"
+      ],
       "tipo": "boa",
-      "titulo": "Publicar o essencial para decidir: faixa etária, duração, custo e capacidade.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Apresentar os roteiros e temas disponíveis",
+      "detalhe": "Divulgue os percursos com tema, salas, classificação etária, horário. O professor/educador escolhe o que mais se aproxima do que trabalha em sala.\nRoteiros pré-definidos que dialoguem com as exposições vigentes e informem o percurso da visitação.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "coordenacao-do-educativo"
     },
     {
       "id": "p6",
       "etapa": "descoberta",
-      "funcao": "comunicacao",
+      "funcoes": [
+        "comunicacao"
+      ],
       "tipo": "boa",
-      "titulo": "Informar as condições de acessibilidade em formatos também acessíveis.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Informar custos, datas e apoios possíveis",
+      "detalhe": "Informe desde o início o que é cobrado, quem tem gratuidade, que apoios existem e quais dias e horários estão livres. Essa ação ajuda a escola a avaliar se a visita é viável antes de planejá-la.\nTreinamento da equipe para orientar com clareza e um FAQ que tire dúvidas nos canais de descoberta.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "comunicacao"
     },
     {
       "id": "p7",
-      "etapa": "descoberta",
-      "funcao": "comunicacao",
-      "tipo": "evitar",
-      "titulo": "Obrigar a escola a telefonar para descobrir o básico.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "etapa": "agendamento",
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
+      "tipo": "boa",
+      "titulo": "Reunir as informações da escola em um só lugar",
+      "detalhe": "Peça dados que respondam a três perguntas: quantos são, quem são e o que esperam da visita.\nUm formulário ou ficha de solicitação que registre número de alunos, idades, necessidades específicas, e expectativas do professor.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p8",
       "etapa": "agendamento",
-      "funcao": "comunicacao",
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
       "tipo": "boa",
-      "titulo": "Deixar claro como, com quem e com que antecedência marcar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Informar o limite de alunos por horário e combinar a divisão dos grupos",
+      "detalhe": "Mostre a capacidade de atendimento de cada horário e combine a divisão das turmas antes do dia.\nA capacidade máxima por horário visível na solicitação, com a opção de dividir as turmas entre períodos, como manhã e tarde.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p9",
       "etapa": "agendamento",
-      "funcao": "comunicacao",
-      "tipo": "evitar",
-      "titulo": "Manter regras e contatos diferentes em cada canal.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "funcoes": [
+        "coordenacao-do-educativo"
+      ],
+      "tipo": "boa",
+      "titulo": "Comunicar quando a agenda abre",
+      "detalhe": "Divulgue as datas de abertura com antecedência e abra as vagas por períodos. Dessa forma a escola não perde a vaga por falta de aviso, e a equipe consegue dar respostas individualizadas.\nUm aviso no site e nos canais oficiais com as datas de abertura de cada período.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "coordenacao-do-educativo"
     },
     {
       "id": "p10",
-      "etapa": "preparacao",
-      "funcao": "comunicacao",
-      "tipo": "boa",
-      "titulo": "Oferecer materiais para a escola usar antes da visita.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "etapa": "agendamento",
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
+      "tipo": "evitar",
+      "titulo": "Deixar de perguntar sobre acessibilidade",
+      "detalhe": "Inclua uma pergunta explícita sobre o tema. A escola informa se levará alunos com deficiência ou outras necessidades, e a equipe se prepara.\nUm campo específico sobre acessibilidade no formulário de agendamento.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p11",
-      "etapa": "preparacao",
-      "funcao": "comunicacao",
+      "etapa": "agendamento",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "evitar",
-      "titulo": "Enviar apenas regras de conduta, sem nada sobre o que será vivido.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Planejar somente acessibilidade física",
+      "detalhe": "Planeje o conteúdo e as dinâmicas para acolherem o aluno. Pensar na forma como ele experimenta a temática e interage com o museu também é acessibilidade.\nAdaptar roteiros e dinâmicas para permitir as atividades em grupo sempre que possível.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p12",
-      "etapa": "vinculo",
-      "funcao": "comunicacao",
+      "etapa": "preparacao",
+      "funcoes": [
+        "coordenacao-do-educativo"
+      ],
       "tipo": "boa",
-      "titulo": "Disponibilizar materiais para continuar o assunto em sala.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Confirmar a visita e falar com o professor antes da data",
+      "detalhe": "Entre em contato perto da data para evitar esquecimentos e abrir o diálogo com quem acompanha a turma.\nUm contato na semana anterior para confirmar a visita e conversar com o professor. Faça ajustes na agenda se for necessário.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "coordenacao-do-educativo"
     },
     {
       "id": "p13",
-      "etapa": "vinculo",
-      "funcao": "comunicacao",
+      "etapa": "preparacao",
+      "funcoes": [
+        "coordenacao-do-educativo"
+      ],
       "tipo": "boa",
-      "titulo": "Manter uma lista de contatos para avisar professores sobre novas atividades.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Definir com antecedência quem conduz cada visita",
+      "detalhe": "Distribua as funções e a escala da equipe antes do dia, com folga para imprevistos.\nUma planilha interna com o educador responsável e as tarefas de apoio de cada visita.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "coordenacao-do-educativo"
     },
     {
       "id": "p14",
-      "etapa": "vinculo",
-      "funcao": "comunicacao",
+      "etapa": "preparacao",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Convidar estudantes e famílias a voltar por conta própria.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Ter planos para atrasos e imprevistos",
+      "detalhe": "Combine alternativas com antecedência para a chegada dos grupos não exigir decisões apressadas.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p15",
-      "etapa": "vinculo",
-      "funcao": "comunicacao",
-      "tipo": "evitar",
-      "titulo": "Falar com a escola só quando ela procura o museu de novo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "etapa": "preparacao",
+      "funcoes": [
+        "coordenacao-do-educativo"
+      ],
+      "tipo": "boa",
+      "titulo": "Alinhar expectativas sobre o que será visto",
+      "detalhe": "Informe antes da visita o que o roteiro inclui, principalmente para quem se desloca de longe.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "coordenacao-do-educativo"
     },
     {
       "id": "p16",
-      "etapa": "agendamento",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "preparacao",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Tratar o agendamento como parte do serviço, mesmo fora do planejamento estratégico.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Checagem de equipamentos",
+      "detalhe": "Verifique o funcionamento dos equipamentos interativos no momento do planejamento. Se algum não estiver funcionando, retire-o do roteiro ou adapte o percurso.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p17",
-      "etapa": "agendamento",
-      "funcao": "atendimento-e-vigilancia",
-      "tipo": "boa",
-      "titulo": "Responder dentro do prazo de que a escola precisa para se organizar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "etapa": "preparacao",
+      "funcoes": [
+        "mediacao"
+      ],
+      "tipo": "evitar",
+      "titulo": "Planejar a visita só a partir do conteúdo da exposição",
+      "detalhe": "Coloque o visitante no centro do planejamento e conecte a mediação ao projeto do professor.\nUm plano, a partir do roteiro definido, que relacione acervo e atividades aos interesses informados e faixa etária, revisado depois do uso.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p18",
-      "etapa": "agendamento",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "preparacao",
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
       "tipo": "evitar",
-      "titulo": "Confirmar a visita sem perguntar idade, tamanho do grupo e necessidades de acesso.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Deixar a escola descobrir as condições de chegada só no dia",
+      "detalhe": "Oriente a escola com antecedência sobre o trajeto, onde parar e por onde entrar. Dessa forma o professor, que costuma responder pela segurança dos alunos no entorno, evita acidentes.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p19",
-      "etapa": "agendamento",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "preparacao",
+      "funcoes": [
+        "recepcao-e-agendamento"
+      ],
       "tipo": "evitar",
-      "titulo": "Aceitar grupos acima do que a equipe consegue receber.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Achar que o professor já conhece bem os temas da exposição",
+      "detalhe": "Apresente os conteúdos antes da visita, principalmente os temas sensíveis. Assim, o professor prepara a turma e decide com informação.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p20",
-      "etapa": "preparacao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "recepcao",
+      "funcoes": [
+        "gestao",
+        "coordenacao-do-educativo"
+      ],
       "tipo": "boa",
-      "titulo": "Reconfirmar os dados da visita poucos dias antes.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Preparar a equipe para receber grupos escolares",
+      "detalhe": "Inclua a recepção de turmas no treinamento. A chegada pode ser um momento de tensão que exige da equipe um repertório comunicativo.\nUm guia de resolução de problemas, com dicas práticas de comunicação e regras do museu.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "gestao"
     },
     {
       "id": "p21",
-      "etapa": "preparacao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "recepcao",
+      "funcoes": [
+        "recepcao-e-agendamento",
+        "vigilancia",
+        "mediacao"
+      ],
       "tipo": "evitar",
-      "titulo": "Mudar horário ou mediador sem avisar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Deixar turmas entrarem sem acolhimento",
+      "detalhe": "Reserve para grupos independentes um momento próprio de acolhimento e orientação, com as instruções de lotação e segurança dos espaços. As visitas sem mediação ainda são um ponto importante de contato e podem iniciar o vínculo com a escola.\nDefinir na escala quem atende o público espontâneo nos horários de visitas escolares.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "recepcao-e-agendamento"
     },
     {
       "id": "p22",
-      "etapa": "recepcao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "mediacao",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Receber o grupo como início da experiência: a educação começa já na entrada.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Adaptar o ritmo à idade e à atenção da turma",
+      "detalhe": "Ajuste as brincadeiras e atividades ao grupo para, mesmo com crianças pequenas, a visita ficar mais leve.\nUm repertório de atividades por faixa etária, que apoie o momento do planejamento.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p23",
-      "etapa": "recepcao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "mediacao",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Indicar um local sinalizado de embarque e desembarque perto da portaria.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Dividir a turma conforme a capacidade dos espaços e da equipe",
+      "detalhe": "Forme grupos menores ou adicione mais membros da equipe em caso de grandes visitas, principalmente em exposições interativas.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p24",
-      "etapa": "recepcao",
-      "funcao": "atendimento-e-vigilancia",
-      "tipo": "evitar",
-      "titulo": "Deixar a turma esperando do lado de fora, sem orientação.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "etapa": "mediacao",
+      "funcoes": [
+        "mediacao"
+      ],
+      "tipo": "boa",
+      "titulo": "Orientar os alunos sobre obras sensíveis",
+      "detalhe": "Combine as regras antes de entrar para as crianças e o acervo ficarem protegidos.\nCom público infantil, orientações descritivas podem ter pouco efeito; adaptações na dinâmica ou no discurso ajudam a possibilitar a interação e evitar acidentes.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p25",
       "etapa": "mediacao",
-      "funcao": "atendimento-e-vigilancia",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Sensibilizar e treinar toda a equipe em condutas inclusivas, inclusive quem vigia.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Usar recursos complementares",
+      "detalhe": "Leve objetos para a mediação e crie percursos alternativos, principalmente em exposições fixas ou com poucas mudanças.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p26",
-      "etapa": "mediacao",
-      "funcao": "atendimento-e-vigilancia",
-      "tipo": "evitar",
-      "titulo": "Vigiar os estudantes como risco, em vez de combinar a conduta com a mediação.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "etapa": "encerramento",
+      "funcoes": [
+        "mediacao"
+      ],
+      "tipo": "boa",
+      "titulo": "Ouvir o grupo ao final da visita",
+      "detalhe": "Pergunte o que gostaram, o que não gostaram e por quê. O retorno direto à equipe cria vínculos e abre espaço para melhorias.\nUma roda de conversa ao final ou um espaço onde os visitantes possam escrever o que sentiram.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p27",
-      "etapa": "mediacao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "encerramento",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Indicar onde comer, guardar mochilas e ir ao banheiro.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Pedir ao professor uma avaliação da visita",
+      "detalhe": "Ofereça um instrumento com critérios claros. A percepção dele sobre a proposta pedagógica vira informação útil para a equipe.\nUma ficha de avaliação com itens como mediação, exposição, legendas, acessibilidade e disposição das obras.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p28",
-      "etapa": "mediacao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "encerramento",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Garantir sanitários acessíveis e em rota acessível.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "titulo": "Colher os aprendizados do educativo",
+      "detalhe": "Anote os dados reais e as intercorrências logo após a visita. A experiência do educador com a escola é importante e ajuda a fazer ajustes no plano.\nUma ficha pós-visita, com número real de alunos e acompanhantes, como foi a visita.",
+      "origem": "Pesquisa de campo",
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p29",
-      "etapa": "mediacao",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "encerramento",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "evitar",
-      "titulo": "Não prever lugar nenhum para o lanche do grupo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Excluir os alunos da avaliação",
+      "detalhe": "Ouça também os alunos, inclusive os adolescentes. Observe a interação do grupo e converse com os professores, porque nem todo retorno é verbal.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     },
     {
       "id": "p30",
-      "etapa": "encerramento",
-      "funcao": "atendimento-e-vigilancia",
+      "etapa": "vinculo",
+      "funcoes": [
+        "comunicacao"
+      ],
       "tipo": "boa",
-      "titulo": "Despedir o grupo e dizer como voltar ao museu.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Convidar a escola para as próximas exposições",
+      "detalhe": "Mantenha contato depois da visita. Com a escola por perto, o vínculo tem continuidade.\nUm contato com a escola levando o convite e a programação das próximas exposições.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "fonte": "ENT",
+      "funcao": "comunicacao"
     },
     {
       "id": "p31",
-      "etapa": "encerramento",
-      "funcao": "atendimento-e-vigilancia",
-      "tipo": "evitar",
-      "titulo": "Apressar a saída para receber a próxima turma.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p32",
-      "etapa": "preparacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Planejar com o professor o antes, o durante e o depois da visita.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p33",
-      "etapa": "preparacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Perguntar o que a turma já estudou e o que espera.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p34",
-      "etapa": "preparacao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Definir toda a visita sem ouvir o professor.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p35",
-      "etapa": "recepcao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Apresentar-se e combinar com a turma o que vai acontecer.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p36",
-      "etapa": "recepcao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Começar a visita por uma lista de proibições.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p37",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Mediar pelo diálogo, partindo do que o público também sabe.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p38",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Garantir algum momento em que os estudantes escolham percurso e tempo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p39",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Adaptar atividades e ferramentas a cada turma.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p40",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Recitar um roteiro decorado, supondo um público que não sabe.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p41",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Repetir a escola: testes, avaliações e exposição linear de conteúdo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p42",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Contar com a ferramenta, como jogo ou aplicativo, para garantir o caráter educativo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p43",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Prever pausas na duração da visita.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p44",
-      "etapa": "mediacao",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Ocupar todo o tempo até esgotar a atenção da turma.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p45",
-      "etapa": "encerramento",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Reservar alguns minutos para a turma dizer o que leva da visita.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p46",
-      "etapa": "encerramento",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Terminar porque o tempo acabou, sem nenhum fechamento.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p47",
       "etapa": "vinculo",
-      "funcao": "mediacao",
+      "funcoes": [
+        "mediacao"
+      ],
       "tipo": "boa",
-      "titulo": "Sugerir ao professor caminhos para retomar a visita em sala.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p48",
-      "etapa": "vinculo",
-      "funcao": "mediacao",
-      "tipo": "evitar",
-      "titulo": "Considerar que o trabalho termina na saída do museu.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
+      "titulo": "Usar o histórico da escola nos próximos atendimentos",
+      "detalhe": "Retome o que funcionou e o que precisou de atenção nas visitas anteriores.\nConsultar a ficha pós-visita anterior ao planejar uma nova visita da mesma escola.",
       "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p49",
-      "etapa": "vinculo",
-      "funcao": "mediacao",
-      "tipo": "boa",
-      "titulo": "Registrar, a cada visita, o que funcionou e o que não funcionou.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p50",
-      "etapa": "recepcao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "boa",
-      "titulo": "Tornar o acesso legível e livre de barreiras: rampas, sinalização e piso tátil.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p51",
-      "etapa": "mediacao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "boa",
-      "titulo": "Oferecer recursos para públicos diversos: pessoas com deficiência, não alfabetizadas, crianças.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p52",
-      "etapa": "mediacao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "boa",
-      "titulo": "Considerar a circulação de grupos ao planejar circuito e fluxo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p53",
-      "etapa": "mediacao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "evitar",
-      "titulo": "Deixar exposição e recursos expositivos sem manutenção periódica.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p54",
-      "etapa": "mediacao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "boa",
-      "titulo": "Manter bebedouros e mobiliário acessíveis.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p55",
-      "etapa": "mediacao",
-      "funcao": "espaco-e-exposicao",
-      "tipo": "boa",
-      "titulo": "Ter onde o grupo possa sentar e descansar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p56",
-      "etapa": "descoberta",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Mapear quais escolas e faixas etárias vêm e quais não vêm.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M2"
-    },
-    {
-      "id": "p57",
-      "etapa": "descoberta",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Avaliar os públicos só pela impressão do dia a dia, sem dados.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M2"
-    },
-    {
-      "id": "p58",
-      "etapa": "descoberta",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Investigar o que as escolas do entorno buscam e como podem se associar ao museu.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M2"
-    },
-    {
-      "id": "p59",
-      "etapa": "agendamento",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Definir quantas turmas a equipe consegue receber bem por dia.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p60",
-      "etapa": "agendamento",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Encaixar visitas sem olhar a disponibilidade de quem vai mediar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p61",
-      "etapa": "preparacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Promover encontros com professores.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p62",
-      "etapa": "preparacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Formar e treinar quem fará a mediação.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p63",
-      "etapa": "preparacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Tratar a capacitação como algo eventual, sem planejamento anual.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p64",
-      "etapa": "mediacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Pensar atividades e ferramentas tanto para visitas mediadas quanto para não mediadas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p65",
-      "etapa": "mediacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Conceber atividades junto com outros setores do museu.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p66",
-      "etapa": "mediacao",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Considerar que a relação com as escolas cabe só ao setor educativo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p67",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Definir, ainda no planejamento, como medir os objetivos da ação.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p68",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Avaliar com os públicos depois que participam das ações.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p69",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Reunir a equipe depois das ações para avaliar e registrar.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p70",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Medir só quantidade, sem indicadores qualitativos.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p71",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Mudar os indicadores a cada ciclo e perder a comparação no tempo.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M4"
-    },
-    {
-      "id": "p72",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "boa",
-      "titulo": "Manter ações contínuas com as escolas da comunidade.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p73",
-      "etapa": "vinculo",
-      "funcao": "coordenacao-do-educativo",
-      "tipo": "evitar",
-      "titulo": "Tratar cada visita como um evento isolado.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "id": "p74",
-      "etapa": "descoberta",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Incluir no estudo de públicos as escolas que ainda não frequentam o museu.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M2"
-    },
-    {
-      "id": "p75",
-      "etapa": "descoberta",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Ouvir professores na elaboração do Plano Museológico.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M1"
-    },
-    {
-      "id": "p76",
-      "etapa": "preparacao",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Reservar verba específica para as atividades educativas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p77",
-      "etapa": "preparacao",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Investir na formação continuada de educadores museais.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "PNEM"
-    },
-    {
-      "id": "p78",
-      "etapa": "recepcao",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Construir um programa permanente de acessibilidade.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p79",
-      "etapa": "recepcao",
-      "funcao": "gestao",
-      "tipo": "evitar",
-      "titulo": "Reduzir a acessibilidade a ações pontuais.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "M3"
-    },
-    {
-      "id": "p80",
-      "etapa": "mediacao",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Compor equipes de educação museal multidisciplinares, inclusivas e diversas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "PNEM"
-    },
-    {
-      "id": "p81",
-      "etapa": "vinculo",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Usar os resultados do monitoramento para rever projetos e estratégias.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M4"
-    },
-    {
-      "id": "p82",
-      "etapa": "vinculo",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Promover diagnósticos e estudos de público com outros setores.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Documento",
-      "fonte": "PNEM"
-    },
-    {
-      "id": "p83",
-      "etapa": "vinculo",
-      "funcao": "gestao",
-      "tipo": "boa",
-      "titulo": "Buscar parcerias e redes que sustentem a relação com as escolas.",
-      "detalhe": "Exemplo: texto de detalhe da prática, com o contexto e o porquê.",
-      "origem": "Adaptado de documento",
-      "fonte": "M3"
+      "fonte": "ENT",
+      "funcao": "mediacao"
     }
   ],
   "fontes": [

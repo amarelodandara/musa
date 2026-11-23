@@ -102,7 +102,7 @@ function mostrarEtapas(ids: string[] | null) {
 // Filtro de Funções: ids à vista (null ou vazio = todas)
 function filtrar(funcoes: string[] | null) {
   const so = funcoes && funcoes.length ? funcoes : null;
-  raiz.querySelectorAll<HTMLElement>(".etapa .pratica").forEach((p) => { p.hidden = !!so && !so.includes(p.dataset.funcao!); });
+  raiz.querySelectorAll<HTMLElement>(".etapa .pratica").forEach((p) => { p.hidden = !!so && !p.dataset.funcao!.split(" ").some((f) => so.includes(f)); });
   raiz.querySelectorAll<HTMLElement>(".camada-praticas").forEach((c) => {
     const total = c.querySelectorAll(".pratica").length;
     const visiveis = c.querySelectorAll(".pratica:not([hidden])").length;
@@ -120,7 +120,11 @@ function desenharLinha() {
   const caminho = svg.querySelector(".desafio-caminho") as SVGPathElement;
   const guias = svg.querySelector(".desafio-guias") as SVGGElement, furos = svg.querySelector(".desafio-furos") as SVGGElement;
   const base = grade.getBoundingClientRect();
-  svg.setAttribute("viewBox", `0 0 ${base.width} ${base.height}`);
+  // o SVG cobre a grade inteira, não só a parte à vista: com a grade mais larga que a tela, o filtro de giz e a máscara
+  // (width 100%) cortavam o caminho na borda da tela
+  const largura = Math.max(base.width, grade.scrollWidth);
+  svg.style.width = `${largura}px`;
+  svg.setAttribute("viewBox", `0 0 ${largura} ${base.height}`);
   const v = visiveis();
   guias.replaceChildren(); furos.replaceChildren(); caminho.setAttribute("d", "");
   if (celular.matches || !v.length) return;

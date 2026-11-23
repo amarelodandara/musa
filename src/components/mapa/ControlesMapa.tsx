@@ -159,7 +159,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
     const nome = conteudo.querySelector(".det-nome");
     setTituloDetalhe(nome?.textContent ?? "");
     nome?.remove();
-    if (!todasFuncoes) conteudo.querySelectorAll<HTMLElement>(".pratica").forEach((p) => { p.hidden = !funcoesVistas.includes(p.dataset.funcao!); });
+    if (!todasFuncoes) conteudo.querySelectorAll<HTMLElement>(".pratica").forEach((p) => { p.hidden = !p.dataset.funcao!.split(" ").some((f) => funcoesVistas.includes(f)); });
     el.replaceChildren(conteudo);
   }, [detalhe, funcoesVistas, todasFuncoes]);
 
@@ -295,7 +295,7 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       <h3 className={h3}>Como ler</h3>
       <ul className={ul}>
         <li>Cada coluna é uma etapa da visita. As etapas estão agrupadas em antes, durante e depois.</li>
-        <li>Cada linha é uma camada: Ações do professor, Nível de desafio, Pontos de contato, Boas práticas e O que evitar.</li>
+        <li>Cada linha é uma camada: Ações do professor, Nível de desafio, Pontos de contato e Práticas.</li>
         <li>A linha que liga os rostos mostra o quanto cada etapa desafia o professor: baixo, médio ou alto. Passe o mouse num rosto para ler o que o professor pensa ali.</li>
         <li><strong>+</strong> marca o que tende a ajudar; <strong>−</strong>, o que tende a atrapalhar.</li>
       </ul>

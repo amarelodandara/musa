@@ -11,11 +11,14 @@ export interface Etapa {
   origemSentimento: string | null; fonteSentimento: string | null;
   // Nível de desafio da Etapa para o professor; da coluna "Desafio" da planilha, quando existir (ver desafio())
   desafio?: Desafio | null;
+  // coluna "Nível de desafio" da planilha: nota de 1 a 10 (ainda não aparece no mapa)
+  nivelDesafio?: number | null;
 }
 export type Desafio = "baixo" | "medio" | "alto";
 export interface Funcao { id: string; nome: string; descricao: string | null }
 export interface PontoContato { etapa: string; canal: string; descricao: string | null; origem: string | null; fonte: string | null }
-export interface Pratica { id: string; etapa: string; funcao: string; tipo: "boa" | "evitar"; titulo: string; detalhe: string | null; origem: Origem; fonte: string | null }
+// funcoes: uma ou mais (a planilha separa por vírgula); funcao: a primeira delas
+export interface Pratica { id: string; etapa: string; funcoes: string[]; funcao: string; tipo: "boa" | "evitar"; titulo: string; detalhe: string | null; origem: Origem; fonte: string | null }
 export interface Fonte { codigo: string; referencia: string }
 
 export const conteudo = dados as unknown as {
@@ -31,6 +34,8 @@ export const FASES: { nome: Fase; rotulo: string }[] = [
 
 export const fonte = (codigo: string | null) => conteudo.fontes.find((f) => f.codigo === codigo)?.referencia ?? null;
 export const funcao = (id: string) => conteudo.funcoes.find((f) => f.id === id);
+// nomes das Funções de uma Prática, juntos ("Gestão · Coordenação do educativo")
+export const nomesFuncoes = (p: Pratica) => p.funcoes.map((id) => funcao(id)?.nome).filter(Boolean).join(" · ");
 
 // Sentimentos: peso na linha e humor do avatar. Lista provisória, ver docs/sentimentos-e-avatar.md (to-do #45 no Solo).
 export const SENTIMENTOS: Record<string, { peso: number; humor: "feliz" | "neutro" | "triste" }> = {

@@ -24,6 +24,22 @@ export const CANAIS: Record<string, { icone: string; rotulo?: string }> = {
   "Formulário de avaliação": { icone: "ClipboardCheck" }
 };
 
+// Pills dos pontos de contato no mapa (mesmo desenho das do bento): o ícone e o nome de CANAIS e, para canais da
+// planilha que o bento não tem, os de CANAIS_SO_MAPA. Nomes comparados sem acento, caixa, hífen e espaço ("Email" = "E-mail").
+export const CANAIS_SO_MAPA: Record<string, { icone: string; rotulo?: string }> = {
+  "Mídias e campanhas": { icone: "Megaphone" },
+  "Formulário": { icone: "Page" },
+  "Atendimento presencial": { icone: "Desk" }
+};
+const chave = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+export function pillCanal(canal: string): { rotulo: string; icone: string | null } {
+  const achado = Object.entries({ ...CANAIS, ...CANAIS_SO_MAPA }).find(([k]) => chave(k) === chave(canal));
+  if (achado) return { rotulo: achado[1].rotulo ?? achado[0], icone: achado[1].icone };
+  // equipes do museu ("Equipe de Mediação e Monitoria"): um grupo de pessoas
+  if (chave(canal).startsWith("equipe")) return { rotulo: canal, icone: "Group" };
+  return { rotulo: canal, icone: null };
+}
+
 // o e-mail já cobre a newsletter
 export const FORA = ["Newsletter"];
 

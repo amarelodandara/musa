@@ -13,7 +13,8 @@ import Base from "../layouts/Base.astro";
 import "../styles/mapa-celula.css";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import MarcaNav from "../components/MarcaNav.astro";
-import { conteudo, FASES, DESAFIOS, desafio, fonte, funcao } from "../lib/conteudo";
+import { conteudo, FASES, DESAFIOS, desafio, fonte, nomesFuncoes } from "../lib/conteudo";
+import { pillCanal, icone } from "../lib/pontos-contato";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
 const daEtapa = (id: string) => ({
@@ -121,16 +122,23 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
             </div>
             {/* células sem título: o rótulo da linha, à esquerda, já diz o que é */}
             <div class="camada camada-pontos" data-camada="pontos">
-              {d.pontos.length ? <ul class="etiquetas">{d.pontos.map((p) => <li>{p.canal}</li>)}</ul> : <p class="vazio">Sem registro</p>}
+              {d.pontos.length ? (
+                <ul class="etiquetas">
+                  {[...new Set(d.pontos.map((p) => p.canal))].map((canal) => {
+                    const pill = pillCanal(canal), Icone = pill.icone && icone(pill.icone);
+                    return <li>{Icone && <Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />}{pill.rotulo}</li>;
+                  })}
+                </ul>
+              ) : <p class="vazio">Sem registro</p>}
             </div>
             <div class="camada camada-praticas" data-camada="praticas">
               {praticasDaEtapa(d).length ? (
                 <ul class="praticas">
                   {praticasDaEtapa(d).map((p) => (
-                    <li class="pratica" data-funcao={p.funcao} data-tipo={p.tipo}>
+                    <li class="pratica" data-funcao={p.funcoes.join(" ")} data-tipo={p.tipo}>
                       <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
                       <span class="pratica-titulo"><span class="visualmente-oculto">{p.tipo === "boa" ? "Boa prática: " : "Evite: "}</span>{p.titulo}</span>
-                      <span class="pratica-funcao">{funcao(p.funcao)?.nome}</span>
+                      <span class="pratica-funcao">{nomesFuncoes(p)}</span>
                     </li>
                   ))}
                 </ul>
@@ -171,10 +179,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
             <h3>{tipo === "boas" ? "Boas práticas" : "O que evitar"}</h3>
             <ul class="det-lista">
               {d[tipo].map((p) => (
-                <li class="pratica" data-funcao={p.funcao}>
+                <li class="pratica" data-funcao={p.funcoes.join(" ")}>
                   <strong><span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span> {p.titulo}</strong>
                   {p.detalhe && <p>{p.detalhe}</p>}
-                  <p class="det-origem">{funcao(p.funcao)?.nome} · {p.origem}{fonte(p.fonte) && <> · {fonte(p.fonte)}</>}</p>
+                  <p class="det-origem">{nomesFuncoes(p)} · {p.origem}{fonte(p.fonte) && <> · {fonte(p.fonte)}</>}</p>
                 </li>
               ))}
             </ul>
@@ -298,12 +306,16 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
   .etapa-n { color: var(--fase-numero); font-family: var(--fonte-inter-tight); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
-  .rotulos { position: sticky; left: 0; z-index: 2; background: transparent; }
+  .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); } /* a cor da página: cobre as Etapas ao rolar para o lado */
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .vazio { color: var(--texto-400); font-style: italic; }
-  .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .etiquetas li { padding: 2px 8px; border-radius: 999px; background: var(--neutro-100); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs); }
+  /* pontos de contato: as pills do bento da página inicial (Funcionalidades.astro, bloco 5), com ícone do Iconoir */
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  /* cantos de 14px, não 999px: um canal de nome longo quebra em duas linhas e viraria uma elipse */
+  .etiquetas li { display: inline-flex; align-items: center; gap: 0.45em; padding: 4px 10px; border-radius: 14px; background: var(--neutro-50);
+    border: 1px solid var(--coral-200); color: var(--texto-700); font-size: var(--tamanho-xs); line-height: 1.3; }
+  .etiquetas li svg { flex: none; color: var(--coral-600); }
 
   /* Nível de desafio (valores decididos em /dev/desafio): três trilhas, alto em cima. A célula tem só a altura das trilhas;
      o avatar fica no centro da coluna, na trilha do nível. Guias e caminho: SVG desenhado por mapa.ts (desenharLinha). */
