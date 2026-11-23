@@ -1,7 +1,7 @@
 // Painel DialKit da tipografia do Guia, só na bancada /dev/guia-tipografia (desenvolvimento).
 // Escreve as variáveis --gt-* (src/styles/guia-texto.css) no .guia-texto. Opções em classes do Tailwind (fonte, tamanho,
-// peso, cor, espaços em cima e embaixo), traduzidas para o valor do token; espaço entre letras (em), entrelinha e
-// largura da coluna em slider, para ajuste fino. Para levar ao código: Copy parameters, colar na conversa com o Claude.
+// peso, cor, espaço entre letras, entrelinha, espaços em cima e embaixo), traduzidas para o valor do token; só a largura
+// da coluna fica em slider. Espaço entre letras e entrelinha nos passos do Tailwind (tracking-*, leading-*). Para levar ao código: Copy parameters, colar na conversa com o Claude.
 import { createDialKit, createDialRoot } from "dialkit/vanilla";
 import "dialkit/vanilla/styles.css";
 
@@ -12,6 +12,8 @@ const TEXTO = ["text-transparente", "text-coral-100", "text-coral-200", "text-co
 const FONTES: Record<string, string> = { "font-dm-sans": "var(--fonte-dm-sans)", "font-inter": "var(--fonte-inter)", "font-inter-tight": "var(--fonte-inter-tight)" };
 const TAMANHOS = ["text-2xs", "text-xs", "text-sm", "text-md", "text-lg", "text-xl", "text-2xl", "text-3xl", "text-4xl", "text-5xl"];
 const PESOS: Record<string, string> = { "font-light": "300", "font-normal": "400", "font-medium": "500", "font-semibold": "600", "font-bold": "700" };
+const TRACKING: Record<string, string> = { "tracking-tighter": "-0.05em", "tracking-tight": "-0.025em", "tracking-normal": "0em", "tracking-wide": "0.025em", "tracking-wider": "0.05em", "tracking-widest": "0.1em" };
+const LEADING: Record<string, string> = { "leading-none": "1", "leading-tight": "1.25", "leading-snug": "1.375", "leading-normal": "1.5", "leading-relaxed": "1.625", "leading-loose": "2" };
 const ANTES = ["mt-0", "mt-1", "mt-2", "mt-3", "mt-4", "mt-6", "mt-8", "mt-10", "mt-12", "mt-14", "mt-16", "mt-20", "mt-24"];
 const DEPOIS = ["mb-0", "mb-1", "mb-1.5", "mb-2", "mb-3", "mb-4", "mb-5", "mb-6", "mb-8", "mb-10", "mb-12", "mb-16"];
 
@@ -21,31 +23,32 @@ const espaco = (c: string) => `${parseFloat(c.replace(/^m[tb]-/, "")) * 4}px`;
 const sel = (options: string[], def: string) => ({ type: "select" as const, options, default: def });
 
 // um nível de texto: fonte, tamanho, peso, cor, espaço entre letras, entrelinha e os espaços que se aplicam a ele
-function nivel(d: { fonte: string; tamanho: string; peso: string; cor: string; tracking: number; entrelinha: number; antes?: string; depois?: string }) {
+function nivel(d: { fonte: string; tamanho: string; peso: string; cor: string; tracking: string; entrelinha: string; antes?: string; depois?: string }) {
   const n: Record<string, any> = {
     fonte: sel(Object.keys(FONTES), d.fonte), tamanho: sel(TAMANHOS, d.tamanho), peso: sel(Object.keys(PESOS), d.peso),
-    cor: sel(TEXTO, d.cor), espacoEntreLetrasEm: [d.tracking, -0.05, 0.1, 0.005], entrelinha: [d.entrelinha, 0.9, 2, 0.05]
+    cor: sel(TEXTO, d.cor), espacoEntreLetras: sel(Object.keys(TRACKING), d.tracking), entrelinha: sel(Object.keys(LEADING), d.entrelinha)
   };
   if (d.antes) n.espacoAntes = sel(ANTES, d.antes);
   if (d.depois) n.espacoDepois = sel(DEPOIS, d.depois);
   return n;
 }
 
-// partida: os valores de hoje em src/styles/guia-texto.css
+// partida: os valores de hoje em src/styles/guia-texto.css, no passo do Tailwind mais próximo (o título hoje tem -0.01em
+// e entrelinha 1.15; a abertura, 1.4)
 const config = {
   coluna: { larguraRem: [44, 28, 64, 1] as [number, number, number, number] },
-  titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-3xl", peso: "font-bold", cor: "text-texto-950", tracking: -0.01, entrelinha: 1.15, depois: "mb-4" }),
-  abertura: nivel({ fonte: "font-inter", tamanho: "text-lg", peso: "font-normal", cor: "text-texto-900", tracking: 0, entrelinha: 1.4, depois: "mb-6" }),
-  secao: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-bold", cor: "text-texto-950", tracking: 0, entrelinha: 1.15, antes: "mt-14", depois: "mb-2" }),
-  subsecao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-bold", cor: "text-texto-950", tracking: 0, entrelinha: 1.15, antes: "mt-8", depois: "mb-1.5" }),
-  corpo: { ...nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: 0, entrelinha: 1.5 }),
+  titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-3xl", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", depois: "mb-4" }),
+  abertura: nivel({ fonte: "font-inter", tamanho: "text-lg", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-snug", depois: "mb-6" }),
+  secao: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-14", depois: "mb-2" }),
+  subsecao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-8", depois: "mb-1.5" }),
+  corpo: { ...nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-normal" }),
     entreParagrafos: sel(DEPOIS, "mb-4"), quebraDeLinha: sel(["text-pretty", "text-balance", "text-wrap"], "text-pretty") },
   listas: { recuo: sel(["pl-0", "pl-3", "pl-4", "pl-5", "pl-6", "pl-8"], "pl-5"), entreItens: sel(DEPOIS, "mb-2"), marcador: sel(TEXTO, "text-texto-900") },
   links: { cor: sel(TEXTO, "text-carmim-800"), sublinhadoAfastado: sel(["underline-offset-1", "underline-offset-2", "underline-offset-3", "underline-offset-4"], "underline-offset-3") }
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v1", persist: true });
+const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v2", persist: true });
 
 const NIVEIS: [string, string][] = [["titulo", "h1"], ["abertura", "lead"], ["secao", "h2"], ["subsecao", "h3"], ["corpo", "p"]];
 function aplicar(v: any) {
@@ -56,8 +59,8 @@ function aplicar(v: any) {
     vars[`--gt-${k}-tamanho`] = tamanho(n.tamanho);
     vars[`--gt-${k}-peso`] = PESOS[n.peso];
     vars[`--gt-${k}-cor`] = cor(n.cor);
-    vars[`--gt-${k}-tracking`] = `${n.espacoEntreLetrasEm}em`;
-    vars[`--gt-${k}-entrelinha`] = String(n.entrelinha);
+    vars[`--gt-${k}-tracking`] = TRACKING[n.espacoEntreLetras];
+    vars[`--gt-${k}-entrelinha`] = LEADING[n.entrelinha];
     if (n.espacoAntes) vars[`--gt-${k}-antes`] = espaco(n.espacoAntes);
     if (n.espacoDepois) vars[`--gt-${k}-depois`] = espaco(n.espacoDepois);
   }
