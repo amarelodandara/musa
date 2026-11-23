@@ -33,12 +33,10 @@ function nivel(d: { fonte: string; tamanho: string; peso: string; cor: string; t
   return n;
 }
 
-// partida: os valores de hoje em src/styles/guia-texto.css, no passo do Tailwind mais próximo (o título hoje tem -0.01em
-// e entrelinha 1.15; a abertura, 1.4)
+// partida: os valores escolhidos em 23/11/2026 (os de src/styles/guia-texto.css); sem linha de abertura
 const config = {
-  coluna: { larguraRem: [44, 28, 64, 1] as [number, number, number, number] },
-  titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-3xl", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", depois: "mb-4" }),
-  abertura: nivel({ fonte: "font-inter", tamanho: "text-lg", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-snug", depois: "mb-6" }),
+  coluna: { larguraRem: [40, 28, 64, 1] as [number, number, number, number] },
+  titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-semibold", cor: "text-texto-950", tracking: "tracking-tight", entrelinha: "leading-none", depois: "mb-4" }),
   secao: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-14", depois: "mb-2" }),
   subsecao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-8", depois: "mb-1.5" }),
   corpo: { ...nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-normal" }),
@@ -48,9 +46,9 @@ const config = {
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v2", persist: true });
+const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v3", persist: true });
 
-const NIVEIS: [string, string][] = [["titulo", "h1"], ["abertura", "lead"], ["secao", "h2"], ["subsecao", "h3"], ["corpo", "p"]];
+const NIVEIS: [string, string][] = [["titulo", "h1"], ["secao", "h2"], ["subsecao", "h3"], ["corpo", "p"]];
 function aplicar(v: any) {
   const vars: Record<string, string> = { "--gt-largura": `${v.coluna.larguraRem}rem` };
   for (const [grupo, k] of NIVEIS) {

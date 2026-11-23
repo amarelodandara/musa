@@ -1,5 +1,5 @@
 ---
-// Playground: a tipografia do texto do Guia (src/styles/guia-texto.css), nível por nível: título, abertura, seção,
+// Playground: a tipografia do texto do Guia (src/styles/guia-texto.css), nível por nível: título, seção,
 // subseção, corpo, listas e links, e a largura da coluna. Mostra o guia de verdade, na moldura do Guia (migalhas e
 // menu lateral), escolhido em ?guia= (como-comecar, o padrão, ou como-imprimir). Painel em _dials.ts.
 import Guia from "../../../layouts/Guia.astro";
@@ -13,7 +13,6 @@ const { Content } = g;
 <Guia titulo={g.titulo} atual={g.slug}>
   <article class="guia-texto">
     <h1>{g.titulo}</h1>
-    <p class="lead">{g.resumo}</p>
     <Content />
   </article>
   <script>import "./_dials.ts";</script>

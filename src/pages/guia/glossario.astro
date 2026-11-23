@@ -8,7 +8,6 @@ import { gruposGlossario as secoes } from "../../lib/glossario";
 <Guia titulo="Glossário" atual="glossario">
 <div class="glossario">
   <h1>As palavras do mapa, explicadas</h1>
-  <p class="lead">Cada termo que aparece no Mapa da Visita, para a equipe toda entender a mesma coisa. Consulte quando bater a dúvida.</p>
 
   <nav class="glossario-indice" aria-label="Seções do glossário">
     <ul>{secoes.map((s) => <li><a href={`#${s.id}`}>{s.titulo}</a></li>)}</ul>
@@ -43,7 +42,7 @@ import { gruposGlossario as secoes } from "../../lib/glossario";
 
 <style>
   /* Valores ajustáveis em /dev/guia-glossario (variáveis --glo-* no .glossario) */
-  .glossario { --glo-largura: 44rem; --glo-titulo-tamanho: var(--tamanho-3xl);
+  .glossario { --glo-largura: 40rem; --glo-titulo-tamanho: var(--tamanho-2xl);
     --glo-indice-tamanho: var(--tamanho-sm); --glo-indice-cor: var(--texto-700); --glo-indice-borda: var(--neutro-300); --glo-indice-fundo: transparent;
     --glo-indice-hover-borda: var(--coral-400); --glo-indice-hover-cor: var(--texto-900); --glo-indice-raio: 999px;
     --glo-secao-espaco: 0px; --glo-secao-tamanho: var(--tamanho-xl); --glo-secao-cor: var(--texto-950); --glo-secao-ate-termos: 16px;
@@ -53,7 +52,8 @@ import { gruposGlossario as secoes } from "../../lib/glossario";
     --glo-texto-tamanho: var(--tamanho-md); --glo-texto-cor: var(--texto-700); --glo-entre-paragrafos: 8px;
     --glo-destaque: var(--coral-100); }
   .glossario { max-width: var(--glo-largura); }
-  .glossario h1 { font-size: var(--glo-titulo-tamanho); }
+  /* o mesmo título dos guias (src/styles/guia-texto.css) */
+  .glossario h1 { margin: 0 0 16px; font-size: var(--glo-titulo-tamanho); font-weight: 600; letter-spacing: -0.025em; line-height: 1; }
   .glossario[data-sem-indice] .glossario-indice { display: none; }
   .glossario-indice ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; padding: 0; list-style: none; }
   .glossario-indice li { margin: 0; }
