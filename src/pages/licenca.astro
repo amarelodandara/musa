@@ -4,6 +4,7 @@
 // Na mesma moldura do Guia (src/layouts/Guia.astro): migalhas, menu lateral com as páginas do projeto (Sobre, Marca,
 // Licença) e, embaixo da Licença, as seções desta página, com o traço de giz que marca a seção na tela.
 import Guia from "../layouts/Guia.astro";
+import "../styles/guia-texto.css";
 const CREDITO = "musá (usemusa.app), CC BY 4.0";
 const REPOSITORIO = "https://github.com/amarelodandara/musa";
 const SECOES = [
@@ -23,7 +24,6 @@ const PAGINAS = [
   secoes={SECOES.map((s) => ({ titulo: s.titulo, href: `/licenca#${s.id}` }))}
   migalhasProprias={[{ rotulo: "musá", href: "/" }, { rotulo: "licença", href: "/licenca" }]}>
   <article class="guia-texto licenca">
-    <p class="tagline">Licença</p>
     <h1>Use, adapte e compartilhe</h1>
     <p class="lead">O <span translate="no">musá</span> é aberto. Qualquer museu pode usar o mapa, mudar o que precisar e passar adiante, inclusive para fins comerciais. Só pedimos o crédito.</p>
 
@@ -76,18 +76,11 @@ const PAGINAS = [
 </script>
 
 <style>
-  /* o mesmo texto corrido dos guias (src/pages/guia/[guia].astro) */
-  h1 { font-size: var(--tamanho-3xl); text-wrap: balance; }
-  .guia-texto { max-width: 44rem; }
-  .guia-texto h2 { margin: 56px 0 8px; font-size: var(--tamanho-2xl); text-wrap: balance; }
-  .guia-texto p { text-wrap: pretty; }
-  .guia-texto ul { padding-left: 20px; }
-  .guia-texto li { margin-bottom: 8px; }
-  .guia-texto a:not(.botao) { color: var(--carmim-800); text-underline-offset: 3px; }
+  /* o texto corrido é o dos guias (src/styles/guia-texto.css) */
   /* a linha de crédito, num quadro com o botão de copiar */
   .credito { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0; padding: 16px 20px;
     border: 1px solid var(--neutro-300); border-radius: 8px; background: var(--neutro-50); }
-  .credito-texto { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 500; color: var(--texto-950); }
+  .guia-texto .credito-texto { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 500; color: var(--texto-950); }
   .credito .botao { min-width: 9.5rem; }
   .credito-aviso { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   @media (max-width: 600px) { .credito { flex-direction: column; align-items: flex-start; } }

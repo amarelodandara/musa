@@ -1,28 +1,17 @@
 ---
-// Um guia do /guia: o texto vem de src/data/guia/<slug>.md.
+// Um guia do /guia: o texto vem de src/data/guia/<slug>.md. Tipografia em src/styles/guia-texto.css (playground
+// /dev/guia-tipografia). Sem o rótulo "Guia" em cima do título: as migalhas, ao lado, já dizem onde a pessoa está.
 import Guia from "../../layouts/Guia.astro";
 import { guias } from "../../lib/guia";
+import "../../styles/guia-texto.css";
 export function getStaticPaths() { return guias.map((g) => ({ params: { guia: g.slug }, props: { g } })); }
 const { g } = Astro.props;
 const { Content } = g;
 ---
 <Guia titulo={g.titulo} atual={g.slug}>
   <article class="guia-texto">
-    <p class="tagline">Guia</p>
     <h1>{g.titulo}</h1>
     <p class="lead">{g.resumo}</p>
     <Content />
   </article>
 </Guia>
-
-<style>
-  h1 { font-size: var(--tamanho-3xl); text-wrap: balance; }
-  /* o texto corrido fica numa coluna de leitura dentro dos 2/3 */
-  .guia-texto { max-width: 44rem; }
-  .guia-texto :global(h2) { margin: 56px 0 8px; font-size: var(--tamanho-2xl); text-wrap: balance; }
-  .guia-texto :global(h3) { margin: 32px 0 6px; font-size: var(--tamanho-lg); text-wrap: balance; }
-  .guia-texto :global(p) { text-wrap: pretty; }
-  .guia-texto :global(ul) { padding-left: 20px; }
-  .guia-texto :global(li) { margin-bottom: 8px; }
-  .guia-texto :global(a) { color: var(--carmim-800); text-underline-offset: 3px; }
-</style>

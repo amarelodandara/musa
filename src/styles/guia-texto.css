@@ -1,0 +1,44 @@
+/*
+ * Texto corrido das páginas do Guia (guias de src/data/guia/*.md) e das páginas que usam a mesma moldura (Licença).
+ * Cada nível de informação (título, abertura, seção, subseção, corpo, listas, links) lê variáveis --gt-*, com os
+ * valores de hoje. O playground /dev/guia-tipografia muda todas ao vivo; o valor escolhido entra aqui.
+ * Fora da camada "base" de estilo.css de propósito: vence os h1/h2/.lead gerais do site.
+ */
+.guia-texto {
+  --gt-largura: 44rem;
+  /* título (h1) */
+  --gt-h1-fonte: var(--fonte-dm-sans); --gt-h1-tamanho: var(--tamanho-3xl); --gt-h1-peso: 700; --gt-h1-cor: var(--texto-950);
+  --gt-h1-tracking: -0.01em; --gt-h1-entrelinha: 1.15; --gt-h1-depois: 16px;
+  /* abertura (.lead) */
+  --gt-lead-fonte: var(--fonte-inter); --gt-lead-tamanho: var(--tamanho-lg); --gt-lead-peso: 400; --gt-lead-cor: var(--texto-900);
+  --gt-lead-tracking: 0em; --gt-lead-entrelinha: 1.4; --gt-lead-depois: 24px;
+  /* seção (h2) */
+  --gt-h2-fonte: var(--fonte-dm-sans); --gt-h2-tamanho: var(--tamanho-2xl); --gt-h2-peso: 700; --gt-h2-cor: var(--texto-950);
+  --gt-h2-tracking: 0em; --gt-h2-entrelinha: 1.15; --gt-h2-antes: 56px; --gt-h2-depois: 8px;
+  /* subseção (h3) */
+  --gt-h3-fonte: var(--fonte-dm-sans); --gt-h3-tamanho: var(--tamanho-lg); --gt-h3-peso: 700; --gt-h3-cor: var(--texto-950);
+  --gt-h3-tracking: 0em; --gt-h3-entrelinha: 1.15; --gt-h3-antes: 32px; --gt-h3-depois: 6px;
+  /* corpo (p) */
+  --gt-p-fonte: var(--fonte-inter); --gt-p-tamanho: var(--tamanho-md); --gt-p-peso: 400; --gt-p-cor: var(--texto-900);
+  --gt-p-tracking: 0em; --gt-p-entrelinha: 1.5; --gt-p-entre: 16px; --gt-p-quebra: pretty;
+  /* listas */
+  --gt-li-recuo: 20px; --gt-li-entre: 8px; --gt-li-marcador: var(--texto-900);
+  /* links */
+  --gt-link-cor: var(--carmim-800); --gt-link-sublinhado: 3px;
+  max-width: var(--gt-largura);
+}
+.guia-texto h1 { margin: 0 0 var(--gt-h1-depois); font-family: var(--gt-h1-fonte); font-size: var(--gt-h1-tamanho); font-weight: var(--gt-h1-peso);
+  color: var(--gt-h1-cor); letter-spacing: var(--gt-h1-tracking); line-height: var(--gt-h1-entrelinha); text-wrap: balance; }
+.guia-texto .lead { margin: 0 0 var(--gt-lead-depois); font-family: var(--gt-lead-fonte); font-size: var(--gt-lead-tamanho); font-weight: var(--gt-lead-peso);
+  color: var(--gt-lead-cor); letter-spacing: var(--gt-lead-tracking); line-height: var(--gt-lead-entrelinha); text-wrap: pretty; }
+.guia-texto h2 { margin: var(--gt-h2-antes) 0 var(--gt-h2-depois); font-family: var(--gt-h2-fonte); font-size: var(--gt-h2-tamanho); font-weight: var(--gt-h2-peso);
+  color: var(--gt-h2-cor); letter-spacing: var(--gt-h2-tracking); line-height: var(--gt-h2-entrelinha); text-wrap: balance; }
+.guia-texto h3 { margin: var(--gt-h3-antes) 0 var(--gt-h3-depois); font-family: var(--gt-h3-fonte); font-size: var(--gt-h3-tamanho); font-weight: var(--gt-h3-peso);
+  color: var(--gt-h3-cor); letter-spacing: var(--gt-h3-tracking); line-height: var(--gt-h3-entrelinha); text-wrap: balance; }
+.guia-texto :is(p, li):not(.lead) { font-family: var(--gt-p-fonte); font-size: var(--gt-p-tamanho); font-weight: var(--gt-p-peso);
+  color: var(--gt-p-cor); letter-spacing: var(--gt-p-tracking); line-height: var(--gt-p-entrelinha); text-wrap: var(--gt-p-quebra); }
+.guia-texto p:not(.lead) { margin: var(--gt-p-entre) 0; }
+.guia-texto ul, .guia-texto ol { margin: var(--gt-p-entre) 0; padding-left: var(--gt-li-recuo); }
+.guia-texto li { margin: 0 0 var(--gt-li-entre); }
+.guia-texto li::marker { color: var(--gt-li-marcador); }
+.guia-texto a:not(.botao) { color: var(--gt-link-cor); text-underline-offset: var(--gt-link-sublinhado); }

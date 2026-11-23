@@ -1,0 +1,20 @@
+---
+// Playground: a tipografia do texto do Guia (src/styles/guia-texto.css), nível por nível: título, abertura, seção,
+// subseção, corpo, listas e links, e a largura da coluna. Mostra o guia de verdade, na moldura do Guia (migalhas e
+// menu lateral), escolhido em ?guia= (como-comecar, o padrão, ou como-imprimir). Painel em _dials.ts.
+import Guia from "../../../layouts/Guia.astro";
+import { guias } from "../../../lib/guia";
+import "../../../styles/guia-texto.css";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const slug = Astro.url.searchParams.get("guia") ?? "como-comecar";
+const g = guias.find((x) => x.slug === slug) ?? guias[0];
+const { Content } = g;
+---
+<Guia titulo={g.titulo} atual={g.slug}>
+  <article class="guia-texto">
+    <h1>{g.titulo}</h1>
+    <p class="lead">{g.resumo}</p>
+    <Content />
+  </article>
+  <script>import "./_dials.ts";</script>
+</Guia>
