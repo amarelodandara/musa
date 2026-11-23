@@ -39,14 +39,14 @@ const config = {
   titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-semibold", cor: "text-texto-950", tracking: "tracking-tight", entrelinha: "leading-none", depois: "mb-4" }),
   secao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-semibold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-10", depois: "mb-5" }),
   subsecao: nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-medium", cor: "text-neutro-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-0", depois: "mb-1.5" }),
-  corpo: { ...nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-normal" }),
+  corpo: { ...nivel({ fonte: "font-inter-tight", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-wide", entrelinha: "leading-normal" }),
     entreParagrafos: sel(DEPOIS, "mb-4"), quebraDeLinha: sel(["text-pretty", "text-balance", "text-wrap"], "text-pretty") },
-  listas: { recuo: sel(["pl-0", "pl-3", "pl-4", "pl-5", "pl-6", "pl-8"], "pl-5"), entreItens: sel(DEPOIS, "mb-2"), marcador: sel(TEXTO, "text-texto-900") },
-  links: { cor: sel(TEXTO, "text-carmim-800"), sublinhadoAfastado: sel(["underline-offset-1", "underline-offset-2", "underline-offset-3", "underline-offset-4"], "underline-offset-3") }
+  listas: { recuo: sel(["pl-0", "pl-3", "pl-4", "pl-5", "pl-6", "pl-8"], "pl-8"), entreItens: sel(DEPOIS, "mb-4"), marcador: sel(TEXTO, "text-neutro-300") },
+  links: { cor: sel(TEXTO, "text-coral-500"), sublinhadoAfastado: sel(["underline-offset-1", "underline-offset-2", "underline-offset-3", "underline-offset-4"], "underline-offset-4") }
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v4", persist: true });
+const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v5", persist: true });
 
 const NIVEIS: [string, string][] = [["titulo", "h1"], ["secao", "h2"], ["subsecao", "h3"], ["corpo", "p"]];
 function aplicar(v: any) {

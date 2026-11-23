@@ -16,12 +16,12 @@
   --gt-h3-fonte: var(--fonte-inter); --gt-h3-tamanho: var(--tamanho-md); --gt-h3-peso: 500; --gt-h3-cor: var(--neutro-950);
   --gt-h3-tracking: 0em; --gt-h3-entrelinha: 1.25; --gt-h3-antes: 0px; --gt-h3-depois: 6px;
   /* corpo (p) */
-  --gt-p-fonte: var(--fonte-inter); --gt-p-tamanho: var(--tamanho-md); --gt-p-peso: 400; --gt-p-cor: var(--texto-900);
-  --gt-p-tracking: 0em; --gt-p-entrelinha: 1.5; --gt-p-entre: 16px; --gt-p-quebra: pretty;
+  --gt-p-fonte: var(--fonte-inter-tight); --gt-p-tamanho: var(--tamanho-md); --gt-p-peso: 400; --gt-p-cor: var(--texto-900);
+  --gt-p-tracking: 0.025em; --gt-p-entrelinha: 1.5; --gt-p-entre: 16px; --gt-p-quebra: pretty;
   /* listas */
-  --gt-li-recuo: 20px; --gt-li-entre: 8px; --gt-li-marcador: var(--texto-900);
+  --gt-li-recuo: 32px; --gt-li-entre: 16px; --gt-li-marcador: var(--neutro-300);
   /* links */
-  --gt-link-cor: var(--carmim-800); --gt-link-sublinhado: 3px;
+  --gt-link-cor: var(--coral-500); --gt-link-sublinhado: 4px;
   max-width: var(--gt-largura);
 }
 .guia-texto h1 { margin: 0 0 var(--gt-h1-depois); font-family: var(--gt-h1-fonte); font-size: var(--gt-h1-tamanho); font-weight: var(--gt-h1-peso);
