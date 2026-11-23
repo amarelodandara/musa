@@ -7,6 +7,8 @@ import Base from "./Base.astro";
 import { paginasGuia, guias } from "../lib/guia";
 import { icone } from "../lib/pontos-contato";
 import { gruposGlossario } from "../lib/glossario";
+// fotos do mapa para os links de termos que são peças dele (geradas por npm run previas-mapa)
+import previasMapa from "../lib/previas-mapa.json";
 // A mesma moldura serve a outras páginas de texto (a Licença): elas passam o próprio menu (paginas), os subitens da página
 // aberta (secoes, os títulos com id do texto), as migalhas e se o "Leia mais" do Guia aparece.
 interface ItemMenu { slug: string; titulo: string; icone: string; href: string }
@@ -82,6 +84,12 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
   </aside>
   <main class="guia-conteudo"><slot /></main>
 </div>
+{/* cartão com a foto do mapa: aparece ao passar o mouse (ou o foco) num link para um termo que é peça do mapa */}
+<div class="previa-mapa" id="previa-mapa" role="tooltip" hidden>
+  <img alt="" decoding="async" />
+  <span class="previa-legenda"></span>
+</div>
+<script type="application/json" id="previas-mapa-dados" set:html={JSON.stringify(previasMapa)} />
 </Base>
 
 <style>
@@ -149,6 +157,19 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
   .guia-menu li a[aria-current="page"] :global(svg) { color: var(--menu-icone-atual); }
   .guia[data-sem-icones] .guia-menu li a :global(svg) { display: none; }
   .guia-conteudo { min-width: 0; }
+  /* cartão da foto do mapa: o papel da página com uma borda, a foto com as bordas de baixo e da direita esmaecendo
+     (os recortes cortam o mapa no meio) e a legenda pequena embaixo */
+  .previa-mapa { position: fixed; z-index: 30; left: 0; top: 0; width: var(--previa-largura, 360px); padding: 8px 8px 10px;
+    background: var(--neutro-50); border: 1px solid var(--neutro-300); border-radius: 8px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -16px rgb(0 0 0 / 0.22); pointer-events: none;
+    opacity: 0; translate: 0 4px; transition: opacity 150ms ease-out, translate 150ms ease-out; }
+  .previa-mapa[data-aberta] { opacity: 1; translate: 0 0; }
+  .previa-mapa[data-instantanea] { transition: none; }
+  .previa-mapa img { display: block; width: 100%; height: auto; max-height: 280px; object-fit: cover; object-position: left top; border-radius: 4px;
+    mask: linear-gradient(to bottom, #000 calc(100% - 28px), transparent), linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-composite: intersect; }
+  .previa-mapa:not([data-esmaecer]) img { mask: none; }
+  .previa-legenda { display: block; margin-top: 8px; font-size: var(--tamanho-xs); line-height: 1.35; color: var(--texto-600); }
+  @media (prefers-reduced-motion: reduce) { .previa-mapa { transition: none; translate: 0 0; } }
   @media (max-width: 860px) {
     .guia { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
     .guia-lado { position: static; gap: 16px; }
@@ -261,6 +282,52 @@ const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: 
       // ao abrir (inclusive já num trecho, /guia/glossario#a-visita), espera o cinza começar
       setTimeout(() => t.ir(naTela(), true), 450);
     }
+  }
+
+  // Fotos do mapa nos links: um link para um termo do glossário que é peça do mapa (etapa, fase, camada, nível de
+  // desafio, pensamento do professor, função, origem) mostra como ela aparece no mapa. Abre com um instante de espera
+  // (passar o mouse por cima sem querer não abre); de um link para outro, troca na hora. Fecha ao sair, ao perder o
+  // foco ou com Esc. Em tela de toque não abre: o link só navega.
+  const previa = document.getElementById("previa-mapa");
+  const dados = JSON.parse(document.getElementById("previas-mapa-dados")?.textContent || "{}");
+  if (previa && Object.keys(dados).length) {
+    const img = previa.querySelector("img")!, legenda = previa.querySelector<HTMLElement>(".previa-legenda")!;
+    let espera = 0, ultimoFechamento = 0, atual: HTMLElement | null = null;
+    const termo = (a: HTMLAnchorElement) => { const u = new URL(a.href, location.href); return u.pathname.replace(/\/$/, "") === "/guia/glossario" ? decodeURIComponent(u.hash.slice(1)) : ""; };
+    const posicionar = (a: HTMLElement) => {
+      const r = a.getBoundingClientRect(), w = previa.offsetWidth, h = previa.offsetHeight, m = 12;
+      const x = Math.min(Math.max(m, r.left), innerWidth - w - m);
+      const y = r.bottom + 8 + h < innerHeight - m ? r.bottom + 8 : Math.max(m, r.top - 8 - h);
+      previa.style.left = `${x}px`; previa.style.top = `${y}px`;
+    };
+    const abrir = (a: HTMLAnchorElement, foto: any) => {
+      atual = a;
+      img.src = foto.src; legenda.textContent = foto.legenda;
+      previa.style.setProperty("--previa-largura", `${Math.min(foto.largura, 360) + 16}px`);
+      previa.toggleAttribute("data-esmaecer", foto.altura > 280 || foto.largura > 360);
+      previa.hidden = false;
+      a.setAttribute("aria-describedby", "previa-mapa");
+      posicionar(a);
+      previa.toggleAttribute("data-instantanea", Date.now() - ultimoFechamento < 300);
+      requestAnimationFrame(() => previa.setAttribute("data-aberta", ""));
+    };
+    const fechar = () => {
+      clearTimeout(espera);
+      if (!atual) return;
+      atual.removeAttribute("aria-describedby"); atual = null; ultimoFechamento = Date.now();
+      previa.removeAttribute("data-aberta"); previa.hidden = true;
+    };
+    document.querySelectorAll<HTMLAnchorElement>(".guia-conteudo a[href]").forEach((a) => {
+      const foto = dados[termo(a)];
+      if (!foto) return;
+      const pedir = () => { clearTimeout(espera); espera = window.setTimeout(() => abrir(a, foto), Date.now() - ultimoFechamento < 300 ? 0 : 250); };
+      a.addEventListener("pointerenter", (ev) => { if (ev.pointerType === "mouse") pedir(); });
+      a.addEventListener("pointerleave", fechar);
+      a.addEventListener("focus", () => { if (a.matches(":focus-visible")) abrir(a, foto); });
+      a.addEventListener("blur", fechar);
+    });
+    addEventListener("keydown", (ev) => { if (ev.key === "Escape") fechar(); });
+    addEventListener("scroll", () => { if (atual) posicionar(atual); }, { passive: true });
   }
 
   if (guia && medidas.length) {

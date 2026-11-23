@@ -37,8 +37,8 @@ function nivel(d: { fonte: string; tamanho: string; peso: string; cor: string; t
 const config = {
   coluna: { larguraRem: [40, 28, 64, 1] as [number, number, number, number] },
   titulo: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-semibold", cor: "text-texto-950", tracking: "tracking-tight", entrelinha: "leading-none", depois: "mb-4" }),
-  secao: nivel({ fonte: "font-dm-sans", tamanho: "text-2xl", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-14", depois: "mb-2" }),
-  subsecao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-bold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-8", depois: "mb-1.5" }),
+  secao: nivel({ fonte: "font-dm-sans", tamanho: "text-lg", peso: "font-semibold", cor: "text-texto-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-10", depois: "mb-5" }),
+  subsecao: nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-medium", cor: "text-neutro-950", tracking: "tracking-normal", entrelinha: "leading-tight", antes: "mt-0", depois: "mb-1.5" }),
   corpo: { ...nivel({ fonte: "font-inter", tamanho: "text-md", peso: "font-normal", cor: "text-texto-900", tracking: "tracking-normal", entrelinha: "leading-normal" }),
     entreParagrafos: sel(DEPOIS, "mb-4"), quebraDeLinha: sel(["text-pretty", "text-balance", "text-wrap"], "text-pretty") },
   listas: { recuo: sel(["pl-0", "pl-3", "pl-4", "pl-5", "pl-6", "pl-8"], "pl-5"), entreItens: sel(DEPOIS, "mb-2"), marcador: sel(TEXTO, "text-texto-900") },
@@ -46,7 +46,7 @@ const config = {
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v3", persist: true });
+const kit = createDialKit("Guia: tipografia", config, { id: "musa-guia-tipografia-v4", persist: true });
 
 const NIVEIS: [string, string][] = [["titulo", "h1"], ["secao", "h2"], ["subsecao", "h3"], ["corpo", "p"]];
 function aplicar(v: any) {

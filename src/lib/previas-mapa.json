@@ -1,0 +1,44 @@
+{
+  "etapa": {
+    "src": "/guia/mapa/etapa.png",
+    "largura": 420,
+    "altura": 450,
+    "legenda": "Uma etapa aberta, com as camadas embaixo do nome"
+  },
+  "fase": {
+    "src": "/guia/mapa/fase.png",
+    "largura": 715,
+    "altura": 123,
+    "legenda": "A fase em cima das etapas que fazem parte dela"
+  },
+  "camada": {
+    "src": "/guia/mapa/camada.png",
+    "largura": 611,
+    "altura": 67,
+    "legenda": "Uma camada: a linha de pontos de contato, etapa por etapa"
+  },
+  "nivel-de-desafio": {
+    "src": "/guia/mapa/nivel-de-desafio.png",
+    "largura": 760,
+    "altura": 125,
+    "legenda": "O nível de desafio de cada etapa, ligado por uma linha"
+  },
+  "pensamento-do-professor": {
+    "src": "/guia/mapa/pensamento-do-professor.png",
+    "largura": 205,
+    "altura": 110,
+    "legenda": "O pensamento do professor, ao passar o mouse num rosto"
+  },
+  "funcao": {
+    "src": "/guia/mapa/funcao.png",
+    "largura": 415,
+    "altura": 67,
+    "legenda": "A função, embaixo de cada prática"
+  },
+  "origem": {
+    "src": "/guia/mapa/origem.png",
+    "largura": 499,
+    "altura": 126,
+    "legenda": "A origem, no detalhe de uma prática"
+  }
+}
