@@ -41,11 +41,11 @@ const linha = `M${f1(pontos[0].x)} ${f1(pontos[0].y)} ` + pontos.slice(1).map((c
 }).join(" ");
 const descricaoGrafico = "Nível de desafio de cada etapa: " + pontos.map((p) => `${p.e.nome}, ${DESAFIOS[p.nivel].nome.toLowerCase()}`).join("; ") + ".";
 
-// Bloco "Imprimir": as três folhas em leque, com a prévia de verdade de cada PDF (public/arquivos/previa-*.png, feitas
-// por scripts/pdfs.mjs junto com os PDFs). A ordem é a do leque, da esquerda para a direita; a A1 fica na frente, no meio.
+// Bloco "Imprimir": as duas versões do mapa (A4 e A2), com a prévia de cada PDF (public/arquivos/previa-*.png, feitas
+// por scripts/pdfs.mjs junto com os PDFs; as definitivas vêm depois). Paradas, uma quase em cima da outra; com o bloco
+// ativo, abrem em leque e um rótulo em giz aponta cada uma. A A4 fica na frente, à esquerda, e um pouco menor.
 const FOLHAS = [
   { formato: "A4", previa: "/arquivos/previa-a4.png", l: 1403, a: 992 },
-  { formato: "A1", previa: "/arquivos/previa-a1.png", l: 2119, a: 1497 },
   { formato: "A2", previa: "/arquivos/previa-a2.png", l: 2041, a: 1443 }
 ];
 // Em ajuste, um bloco por vez: enquanto for true, só o primeiro (o mapa) aparece; os outros continuam no código.
@@ -160,7 +160,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
          por vez; os de trás vão para o fundo do bloco, menores, mais apagados e desfocados.
          ajustes (lidos pelo script; o playground /dev/bento-desafio-cartoes muda ao vivo): intervalo = ms entre cartões */
       <div class="desafio-area">
-        <ul class="rolo" data-intervalo="2400" aria-label="O que o professor pensa em cada etapa">
+        <ul class="rolo" data-intervalo="2400" data-primeiro="500" aria-label="O que o professor pensa em cada etapa">
           {pensamentos.map((t, k) => <li class="rolo-cartao cartao-pensamento" style={`--rolo-pos:${(pensamentos.length - k) % pensamentos.length}`}>“{t}”</li>)}
         </ul>
       </div>
@@ -260,12 +260,31 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
         <span class="botao secundario botao-pequeno b-botao">Baixar mapa</span>
       </div>
       <div class="folhas" aria-hidden="true">
-        {FOLHAS.map((f, i) => (
-          <div class="folha" style={`--i:${i}`}>
+        {FOLHAS.map((f) => (
+          <div class="folha" data-formato={f.formato.toLowerCase()}>
             <img src={f.previa} alt="" width={f.l} height={f.a} loading="lazy" decoding="async" />
-            <span class="folha-rotulo">{f.formato}</span>
           </div>
         ))}
+        {/* rótulos em giz, fora das folhas (não giram com elas): o nome do formato e uma seta até a folha */}
+        <svg class="folhas-giz" width="0" height="0"><defs>
+          <filter id="giz-folhas" filterUnits="userSpaceOnUse" x="-20" y="-20" width="180" height="120" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+            <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+            <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+            <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+            <feComposite in="borda" in2="mascara" operator="in"/>
+          </filter>
+        </defs></svg>
+        <svg class="folha-giz" data-formato="a4" viewBox="0 0 130 90"><g filter="url(#giz-folhas)">
+          <text x="6" y="30">A4</text>
+          <path class="seta" pathLength="1" d="M48 22 C80 20 100 42 104 78" />
+          <path class="ponta" pathLength="1" d="M94 68 L104 79 L112 66" />
+        </g></svg>
+        <svg class="folha-giz" data-formato="a2" viewBox="0 0 130 90"><g filter="url(#giz-folhas)">
+          <text x="124" y="30" text-anchor="end">A2</text>
+          <path class="seta" pathLength="1" d="M82 22 C50 20 30 42 26 78" />
+          <path class="ponta" pathLength="1" d="M36 68 L26 79 L18 66" />
+        </g></svg>
       </div>
     </a>
 
@@ -492,8 +511,14 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     // posição de cada cartão: 0 = na frente, 1, 2… = mais para o fundo
     const posicionar = () => cartoes.forEach((c, k) => c.style.setProperty("--rolo-pos", String((frente - k + n) % n)));
     posicionar();
-    const l = laco(rolo.closest<HTMLElement>(".b-desafio")!, async () => {
-      if (!(await l.esperar(Number(rolo.dataset.intervalo || 2400)))) return;
+    // ao virar o bloco ativo, o primeiro cartão vira logo (data-primeiro, ms); depois, um a cada data-intervalo
+    const bDesafio = rolo.closest<HTMLElement>(".b-desafio")!;
+    let recemAtivo = true;
+    bDesafio.addEventListener("musa-bento:ativo", () => { recemAtivo = true; });
+    const l = laco(bDesafio, async () => {
+      const espera = recemAtivo ? Number(rolo.dataset.primeiro || 500) : Number(rolo.dataset.intervalo || 2400);
+      recemAtivo = false;
+      if (!(await l.esperar(espera))) return;
       // o próximo entra por baixo: vai, sem transição, para a posição de entrada e só então vem para a frente
       frente = (frente + 1) % n;
       const novo = cartoes[frente];
@@ -649,6 +674,10 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   .b-visoes[data-disposicao="lado"] .quadro { margin-top: var(--quadro-espaco); flex: 0 0 54%; height: 280px; min-height: 0; align-self: flex-end; }
   /* valores do quadro escolhidos em /dev/bento-mapa (18/11/2026) */
   .b-visoes .quadro { --quadro-fade-x: 64%; --quadro-fade-y: 48%; --quadro-raio: 4px; --quadro-espaco: 26px; --quadro-min: 460px; --quadro-borda: var(--neutro-50); }
+  /* parado, o bloco não tem fundo e o quadro (fundo neutro-50, como a página) sumia: ganha borda neutro-300 (23/11/2026).
+     A troca de cor acompanha a do bloco (--estado-ms). */
+  .b-visoes .quadro { transition: border-color var(--estado-ms, 500ms) ease; }
+  .bento[data-regendo]:not([data-unico]) > .b-visoes:not([data-ativo]) .quadro, .b-visoes[data-estado="inativo"] .quadro { --quadro-borda: var(--neutro-300); }
   .b-desafio { grid-column: span 2; grid-row: span 2; }
   /* contato e glossário dividem uma linha; imprimir ocupa a linha inteira */
   .b-contato { grid-column: span 3; }
@@ -695,6 +724,8 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
     filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.25)); }
   .cursor path { fill: var(--texto-950); stroke: var(--neutro-50); stroke-width: 1.5; stroke-linejoin: round; }
   .cursor[data-visivel] { opacity: 1; }
+  /* bloco 1: demonstração sem cursor à vista (23/11/2026); o roteiro segue igual, os cliques acontecem sozinhos */
+  .b-visoes .cursor { display: none; }
 
   /* 2. Nível de desafio */
   /* a altura do bloco é a do primeiro (mesmas 2 linhas do grid): o conteúdo daqui não conta para ela (contain: size)
@@ -834,18 +865,57 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
   @media (max-width: 640px) { .celula-g { margin-right: -24px; } }
 
   /* 6. Imprimir */
-  /* leque: as três folhas do mesmo tamanho, centradas no bloco, giradas a partir de um ponto abaixo delas; a do meio na
-     frente. O bloco recorta embaixo. Ao passar o mouse, o leque abre um pouco mais. */
-  .b-imprimir { padding-bottom: 0; }
-  .folhas { --folha-l: min(440px, 62%); --abertura: 11deg; position: relative; height: 300px; margin: 8px -28px 0; }
-  @media (hover: hover) and (pointer: fine) { .b-imprimir:hover .folhas { --abertura: 15deg; } }
-  .folha { position: absolute; left: 50%; top: 24px; width: var(--folha-l); aspect-ratio: 297 / 210; translate: -50% 0;
-    transform-origin: 50% 160%; rotate: calc((var(--i) - 1) * var(--abertura)); z-index: calc(2 - (var(--i) - 1) * (var(--i) - 1));
+  /* Folhas: paradas, quase uma em cima da outra (a A4 na frente, um pouco menor); com o bloco ativo (a vez dele na
+     sequência, ou o mouse/foco nele), abrem em leque e os rótulos em giz aparecem: primeiro a seta, depois o nome,
+     escrito da esquerda para a direita. Sem sequência (movimento reduzido), ficam abertas, paradas. 23/11/2026. */
+  /* texto à esquerda, folhas à direita, inteiras (sem corte na borda do bloco), centradas na altura (23/11/2026) */
+  .b-imprimir { flex-direction: row; align-items: center; gap: 28px; }
+  .b-imprimir .b-texto { flex: 0 0 min(34%, 22rem); align-self: flex-start; }
+  .folhas { --folha-l: min(470px, 50cqw); --abre-ms: 700ms; --fecha-ms: 450ms; container-type: inline-size; position: relative; flex: 1; align-self: stretch; min-height: 480px; margin: -28px -28px -28px 0; }
+  .folha { --x: 0px; --r: 0deg; --tam: 1; --y: 0px;
+    position: absolute; left: 50%; top: 56%; width: calc(var(--folha-l) * var(--tam)); aspect-ratio: 297 / 210;
+    translate: calc(-50% + var(--x)) calc(-50% + var(--y)); rotate: var(--r); transform-origin: 50% 160%;
     border-radius: 3px; background: var(--neutro-50); box-shadow: 0 0 0 1px var(--neutro-300), 0 10px 28px -12px rgb(0 0 0 / 0.28);
-    overflow: hidden; transition: rotate 250ms var(--ease-out); }
+    overflow: hidden; transition: translate var(--fecha-ms) var(--ease-out), rotate var(--fecha-ms) var(--ease-out); }
   .folha img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .folha-rotulo { position: absolute; right: 8px; top: 8px; padding: 2px 6px; border-radius: 3px; background: var(--carmim-800); font: 700 var(--tamanho-2xs)/1.2 var(--fonte-inter); color: var(--texto-50); }
-  @media (max-width: 640px) { .folhas { height: 200px; margin-inline: -24px; --folha-l: 70%; } }
+  .folha[data-formato="a4"] { --tam: 0.8; --x: -14px; --y: 14px; --r: -3deg; z-index: 2; }
+  .folha[data-formato="a2"] { --x: 10px; --r: 2deg; z-index: 1; }
+  /* aberto */
+  .b-imprimir[data-ativo] .folha, .bento:not([data-regendo]) .b-imprimir .folha, .bento[data-unico] .b-imprimir .folha {
+    transition-duration: var(--abre-ms); }
+  .b-imprimir[data-ativo] .folha[data-formato="a4"], .bento:not([data-regendo]) .b-imprimir .folha[data-formato="a4"], .bento[data-unico] .b-imprimir .folha[data-formato="a4"] {
+    --x: calc(var(--folha-l) * -0.32); --r: -6deg; }
+  .b-imprimir[data-ativo] .folha[data-formato="a2"], .bento:not([data-regendo]) .b-imprimir .folha[data-formato="a2"], .bento[data-unico] .b-imprimir .folha[data-formato="a2"] {
+    --x: calc(var(--folha-l) * 0.22); --r: 5deg; }
+  /* rótulos em giz: carmim-600 como os outros traços de giz da página; a A4 à esquerda da folha dela, a A2 à direita */
+  .folhas-giz { position: absolute; }
+  /* em cima das folhas abertas, apontando para baixo: a A4 sobre a ponta esquerda da dela, a A2 sobre a ponta direita */
+  .folha-giz { position: absolute; width: 130px; height: 90px; overflow: visible; pointer-events: none; z-index: 3;
+    top: calc(56% - var(--folha-l) * 0.354 - 92px); }
+  .folha-giz[data-formato="a4"] { left: calc(50% - var(--folha-l) * 0.64 - 104px); }
+  .folha-giz[data-formato="a2"] { left: calc(50% + var(--folha-l) * 0.6 - 26px); }
+  .folha-giz text { font: 600 26px/1 var(--fonte-dm-sans); fill: var(--carmim-600); clip-path: inset(0 100% 0 0); transition: clip-path 150ms ease; }
+  .folha-giz path { fill: none; stroke: var(--carmim-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 1 2; stroke-dashoffset: 1.05; transition: stroke-dashoffset 150ms ease; }
+  /* aberto: a seta se desenha quando o leque já está quase aberto, a ponta logo depois, e o nome é escrito por último */
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz .seta {
+    stroke-dashoffset: 0; transition: stroke-dashoffset 450ms cubic-bezier(0.37, 0, 0.63, 1) 380ms; }
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz .ponta {
+    stroke-dashoffset: 0; transition: stroke-dashoffset 200ms ease-out 800ms; }
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz text {
+    clip-path: inset(0 0 0 0); transition: clip-path 420ms cubic-bezier(0.37, 0, 0.63, 1) 900ms; }
+  /* a A2 é escrita um pouco depois da A4 (os mesmos passos, 220 ms mais tarde) */
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz[data-formato="a2"] .seta { transition-delay: 600ms; }
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz[data-formato="a2"] .ponta { transition-delay: 1020ms; }
+  :is(.b-imprimir[data-ativo], .bento:not([data-regendo]) .b-imprimir, .bento[data-unico] .b-imprimir) .folha-giz[data-formato="a2"] text { transition-delay: 1120ms; }
+  @media (prefers-reduced-motion: reduce) { .folha, .folha-giz text, .folha-giz path { transition: none !important; } }
+  /* estreito: texto em cima, folhas embaixo, ocupando a largura */
+  @media (max-width: 900px) {
+    .b-imprimir { flex-direction: column; align-items: stretch; }
+    .b-imprimir .b-texto { flex: none; }
+    .folhas { margin: 0 -28px -28px; min-height: 380px; --folha-l: min(440px, 52cqw); }
+  }
+  @media (max-width: 640px) { .folhas { min-height: 240px; margin-inline: -24px; --folha-l: 60cqw; } .folha-giz { display: none; } }
 
   @media (max-width: 1080px) {
     .bento { grid-template-columns: repeat(2, 1fr); }

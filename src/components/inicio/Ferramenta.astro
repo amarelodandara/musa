@@ -8,7 +8,9 @@
 const RAZOES = [
   { titulo: "A musa da sua visita", texto: "Use essa jornada como inspiração e ponto de conversa com o seu time, não como checklist. Escreva por cima, imprima e rabisque. Construa a sua jornada ideal." },
   { titulo: "Começando pela visita mais impactante", texto: "Visita a museus ainda é um dos primeiros passeios escolares por todo o país, uma boa visitação aqui estimula toda uma geração a continuar visitando museus." },
-  { titulo: "Leve essa base para qualquer jornada", texto: "Comece com a visitação escolar e expanda o que aprender para os outros serviços do museu.", nota: "E, sim, documentar as outras jornadas está nos planos do" }
+  { titulo: "Leve essa base para qualquer jornada", texto: "Comece com a visitação escolar e expanda o que aprender para os outros serviços do museu.", nota: "E, sim, documentar as outras jornadas está nos planos do",
+    // único caminho do meio do conteúdo para a página Sobre: direto para a seção dos próximos passos
+    link: { rotulo: "Ler mais", href: "/sobre#sobre-proximos" } }
 ];
 ---
 <section class="ferramenta">
@@ -25,8 +27,9 @@ const RAZOES = [
           <h3 class="razao-nome">{r.titulo}</h3>
         </div>
         <div class="razao-corpo">
-          <p>{r.texto}</p>
-          {r.nota && <p class="razao-nota">{r.nota} <span translate="no">musá</span>.</p>}
+          {/* a nota segue no mesmo parágrafo do texto, sem hierarquia própria (23/11/2026) */}
+          <p>{r.texto}{r.nota && <> {r.nota} <span translate="no">musá</span>.</>}</p>
+          {r.link && <a class="botao secundario botao-pequeno razao-link" href={r.link.href}>{r.link.rotulo}</a>}
         </div>
       </li>
     ))}
@@ -80,6 +83,7 @@ const RAZOES = [
   .razao-corpo { flex: 1; padding: 12px var(--fe-recuo) 16px; border-top: var(--fe-linha) solid var(--fe-razao-borda-interna);
     font-size: var(--fe-razao-texto-tamanho); line-height: 1.45; color: var(--fe-razao-texto-cor); }
   .razao-corpo p { margin: 0; text-wrap: pretty; }
+  .razao-corpo .razao-link { margin-top: 12px; }
   .razao-corpo .razao-nota { margin-top: var(--fe-nota-espaco); font-size: var(--fe-nota-tamanho); color: var(--fe-nota-cor); }
   @media (max-width: 720px) {
     .ferramenta { grid-template-columns: 1fr; }

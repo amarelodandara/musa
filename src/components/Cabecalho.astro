@@ -5,7 +5,8 @@
 // (public/scripts/navegacao.js). A camada invertida fica fora do teclado e do leitor de tela.
 // variante: "lockup" (nome sempre à vista, a escolhida) ou "olho" (ícone que vira olho e só então mostra o nome). Ver /dev/barra.
 // Tamanhos ajustados em /dev/cabecalho (22/11/2026): barra h-18 (72 px), ícone size-7, nome h-5, botões com gap-3.
-// Links de página (Guia, Glossário, Sobre) antes dos botões, em texto pequeno; a página atual fica em carmim e semibold.
+// Links de página (guia, glossário, sobre) antes dos botões, em minúsculas como o nome musá, em DM Sans 14 px com tracking-wide, peso normal
+// e texto-600 (23/11/2026; antes Inter 13 px, que ficava fina demais); a página atual fica em carmim e semibold.
 // No celular os links somem e ficam só os botões.
 import MarcaNav from "./MarcaNav.astro";
 interface Props { variante?: "olho" | "lockup"; fixa?: boolean }
@@ -13,9 +14,9 @@ const { variante = "lockup", fixa = true } = Astro.props;
 const atual = Astro.url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
 // o Glossário fica dentro do Guia, mas tem link próprio: em /guia/glossario só ele fica marcado
 const PAGINAS = [
-  { chave: "guia", rotulo: "Guia", href: "/guia", atual: atual === "/guia" || (atual.startsWith("/guia/") && atual !== "/guia/glossario") },
-  { chave: "glossario", rotulo: "Glossário", href: "/guia/glossario", atual: atual === "/guia/glossario" },
-  { chave: "sobre", rotulo: "Sobre", href: "/sobre", atual: atual === "/sobre" }
+  { chave: "guia", rotulo: "guia", href: "/guia", atual: atual === "/guia" || (atual.startsWith("/guia/") && atual !== "/guia/glossario") },
+  { chave: "glossario", rotulo: "glossário", href: "/guia/glossario", atual: atual === "/guia/glossario" },
+  { chave: "sobre", rotulo: "sobre", href: "/sobre", atual: atual === "/sobre" }
 ];
 const camadas = [
   { invertida: false, fundo: "bg-neutro-50" },
@@ -34,8 +35,8 @@ const camadas = [
         <ul class="nav-paginas flex items-center list-none m-0 p-0 gap-6 mr-6 max-md:hidden">
           {PAGINAS.map((p) => (
             <li data-pagina={p.chave}><a
-              class:list={["nav-pagina no-underline transition-colors duration-150 font-inter text-xs font-normal",
-                c.invertida ? "text-neutro-50" : "text-texto-700 hover:text-carmim-800 aria-[current=page]:text-carmim-800 aria-[current=page]:font-semibold"]}
+              class:list={["nav-pagina no-underline transition-colors duration-150 font-dm-sans text-sm font-normal tracking-wide",
+                c.invertida ? "text-neutro-50" : "text-texto-600 hover:text-carmim-800 aria-[current=page]:text-carmim-800 aria-[current=page]:font-semibold"]}
               href={p.href} tabindex={c.invertida ? -1 : undefined}
               aria-current={!c.invertida && p.atual ? "page" : undefined}>{p.rotulo}</a></li>
           ))}

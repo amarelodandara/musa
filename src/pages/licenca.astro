@@ -1,0 +1,94 @@
+---
+// Licença: o resumo do que pode e do que não pode ser feito com o musá. Conteúdo em CC BY 4.0 (LICENSE-CONTEUDO.md),
+// código em MIT (LICENSE). Valem os textos legais; esta página só explica e dá a linha de crédito pronta para copiar.
+// Na mesma moldura do Guia (src/layouts/Guia.astro): migalhas, menu lateral com as páginas do projeto (Sobre, Marca,
+// Licença) e, embaixo da Licença, as seções desta página, com o traço de giz que marca a seção na tela.
+import Guia from "../layouts/Guia.astro";
+const CREDITO = "musá (usemusa.app), CC BY 4.0";
+const REPOSITORIO = "https://github.com/amarelodandara/musa";
+const SECOES = [
+  { id: "conteudo", titulo: "O conteúdo" },
+  { id: "credito", titulo: "Como dar o crédito" },
+  { id: "codigo", titulo: "O código" },
+  { id: "fora", titulo: "O que não está coberto" },
+  { id: "textos-legais", titulo: "Textos legais" }
+];
+const PAGINAS = [
+  { slug: "sobre", titulo: "Sobre", icone: "InfoCircle", href: "/sobre" },
+  { slug: "marca", titulo: "Marca", icone: "Palette", href: "/brand/marca.html" },
+  { slug: "licenca", titulo: "Licença", icone: "CreativeCommons", href: "/licenca" }
+];
+---
+<Guia titulo="Licença" atual="licenca" paginas={PAGINAS} leiaMais={false} rotuloMenu="Páginas do projeto"
+  secoes={SECOES.map((s) => ({ titulo: s.titulo, href: `/licenca#${s.id}` }))}
+  migalhasProprias={[{ rotulo: "musá", href: "/" }, { rotulo: "licença", href: "/licenca" }]}>
+  <article class="guia-texto licenca">
+    <p class="tagline">Licença</p>
+    <h1>Use, adapte e compartilhe</h1>
+    <p class="lead">O <span translate="no">musá</span> é aberto. Qualquer museu pode usar o mapa, mudar o que precisar e passar adiante, inclusive para fins comerciais. Só pedimos o crédito.</p>
+
+    <h2 id="conteudo">O conteúdo: CC BY 4.0</h2>
+    <p>O conteúdo está sob a licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)</a>. Isso vale para:</p>
+    <ul>
+      <li>o conteúdo do Mapa da Visita: etapas, práticas, pontos de contato e pensamentos do professor;</li>
+      <li>os textos do site, incluindo o guia e o glossário;</li>
+      <li>os PDFs para imprimir;</li>
+      <li>a marca e as ilustrações.</li>
+    </ul>
+    <p>Copie, adapte e compartilhe esse material em qualquer meio ou formato, desde que dê o crédito e indique se fez alterações.</p>
+
+    <h2 id="credito">Como dar o crédito</h2>
+    <p>Coloque esta linha perto do material que você usou:</p>
+    <div class="credito">
+      <p class="credito-texto" translate="no">{CREDITO}</p>
+      <button type="button" class="botao secundario botao-pequeno" data-copiar={CREDITO}>Copiar crédito</button>
+    </div>
+    <p class="credito-aviso" role="status" aria-live="polite"></p>
+    <p>Se você adaptou o conteúdo, diga isso no crédito. Por exemplo: “Adaptado de <span translate="no">musá</span> (usemusa.app), CC BY 4.0.”</p>
+
+    <h2 id="codigo">O código: MIT</h2>
+    <p>O código do site está sob a licença MIT e é aberto. Use, copie, modifique e distribua como quiser, desde que mantenha o aviso de direitos autorais e o texto da licença junto do código.</p>
+    <p><a href={REPOSITORIO}>Ver o código no GitHub</a></p>
+
+    <h2 id="fora">O que não está coberto</h2>
+    <p>As referências citadas nas <a href="/sobre#sobre-conteudo">fontes do mapa</a> pertencem aos seus autores e seguem as licenças deles.</p>
+
+    <h2 id="textos-legais">Textos legais</h2>
+    <p>Esta página resume as licenças. Em caso de dúvida, valem os textos completos:</p>
+    <ul>
+      <li><a href="https://creativecommons.org/licenses/by/4.0/legalcode.pt">CC BY 4.0, texto legal em português</a></li>
+      <li><a href={`${REPOSITORIO}/blob/main/LICENSE`}>Licença MIT do código</a></li>
+    </ul>
+  </article>
+</Guia>
+
+<script is:inline>
+  // Copiar crédito: copia a linha e avisa por um instante, no botão e para leitores de tela
+  document.querySelectorAll("[data-copiar]").forEach((b) => {
+    const rotulo = b.textContent, aviso = document.querySelector(".credito-aviso");
+    let t;
+    b.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copiar); } catch { return; }
+      b.textContent = "Crédito copiado"; aviso.textContent = "Crédito copiado.";
+      clearTimeout(t); t = setTimeout(() => { b.textContent = rotulo; aviso.textContent = ""; }, 2000);
+    });
+  });
+</script>
+
+<style>
+  /* o mesmo texto corrido dos guias (src/pages/guia/[guia].astro) */
+  h1 { font-size: var(--tamanho-3xl); text-wrap: balance; }
+  .guia-texto { max-width: 44rem; }
+  .guia-texto h2 { margin: 56px 0 8px; font-size: var(--tamanho-2xl); text-wrap: balance; }
+  .guia-texto p { text-wrap: pretty; }
+  .guia-texto ul { padding-left: 20px; }
+  .guia-texto li { margin-bottom: 8px; }
+  .guia-texto a:not(.botao) { color: var(--carmim-800); text-underline-offset: 3px; }
+  /* a linha de crédito, num quadro com o botão de copiar */
+  .credito { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0; padding: 16px 20px;
+    border: 1px solid var(--neutro-300); border-radius: 8px; background: var(--neutro-50); }
+  .credito-texto { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 500; color: var(--texto-950); }
+  .credito .botao { min-width: 9.5rem; }
+  .credito-aviso { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (max-width: 600px) { .credito { flex-direction: column; align-items: flex-start; } }
+</style>

@@ -36,6 +36,8 @@ a:hover { color: var(--carmim-950); }
 h1 { font-size: var(--tamanho-3xl); font-weight: 700; margin: 0 0 16px; letter-spacing: -0.01em; }
 .lead { font-size: var(--tamanho-lg); line-height: 1.4; margin: 0 0 24px; }
 section { margin-top: 48px; }
+/* link para uma seção (#…): o título para abaixo da barra fixa (72 px), com folga */
+:target { scroll-margin-top: 96px; }
 h2 { font-size: var(--tamanho-xl); font-weight: 700; margin: 0 0 12px; }
 .texto li { margin-bottom: 8px; }
 .texto ul { padding-left: 20px; }

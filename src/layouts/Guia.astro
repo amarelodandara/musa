@@ -7,16 +7,21 @@ import Base from "./Base.astro";
 import { paginasGuia, guias } from "../lib/guia";
 import { icone } from "../lib/pontos-contato";
 import { gruposGlossario } from "../lib/glossario";
-interface Props { titulo: string; atual?: string }
-const { titulo, atual } = Astro.props;
+// A mesma moldura serve a outras páginas de texto (a Licença): elas passam o próprio menu (paginas), os subitens da página
+// aberta (secoes, os títulos com id do texto), as migalhas e se o "Leia mais" do Guia aparece.
+interface ItemMenu { slug: string; titulo: string; icone: string; href: string }
+interface Subitem { titulo: string; href: string; icone?: string }
+interface Props { titulo: string; atual?: string; paginas?: ItemMenu[]; secoes?: Subitem[]; migalhasProprias?: { rotulo: string; href: string }[]; leiaMais?: boolean; rotuloMenu?: string }
+const { titulo, atual, paginas, secoes, migalhasProprias, leiaMais = true, rotuloMenu = "Páginas do Guia" } = Astro.props;
+const menu: ItemMenu[] = paginas ?? paginasGuia.map((p) => ({ slug: p.slug, titulo: p.titulo, icone: p.icone, href: `/guia/${p.slug}` }));
 const IconeLeiaMais = icone("BookmarkBook");
 // migalhas: musá › guia › página (na entrada do Guia, só musá › guia), em minúscula como musá
 // subitens da página aberta: no glossário, os grupos de termos (com os ícones da grade da entrada do Guia);
 // num guia, os títulos "## " do texto, sem ícone
-const subitens = (slug: string) => slug === "glossario"
+const subitens = (slug: string): Subitem[] => secoes && slug === atual ? secoes : slug === "glossario"
   ? gruposGlossario.map((g) => ({ titulo: g.titulo, href: `/guia/glossario#${g.id}`, icone: g.icone as string | undefined }))
   : (guias.find((g) => g.slug === slug)?.secoes ?? []).map((s) => ({ titulo: s.titulo, href: `/guia/${slug}#${s.id}`, icone: undefined as string | undefined }));
-const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia" }, ...(atual ? [{ rotulo: titulo, href: `/guia/${atual}` }] : [])];
+const migalhas = migalhasProprias ?? [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia" }, ...(atual ? [{ rotulo: titulo, href: `/guia/${atual}` }] : [])];
 ---
 <Base titulo={titulo}>
 <div class="guia">
@@ -28,7 +33,7 @@ const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia
         ))}
       </ol>
     </nav>
-    <nav class="guia-menu" aria-label="Páginas do Guia">
+    <nav class="guia-menu" aria-label={rotuloMenu}>
       {/* o filtro de giz dos dois traços (o das páginas e o do submenu), num svg à parte para valer mesmo com um dos traços escondido */}
       <svg class="giz-defs" width="0" height="0" aria-hidden="true" focusable="false">
         <defs>
@@ -47,15 +52,15 @@ const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia
         <path class="traco-base" d="" pathLength="1" filter="url(#giz-menu)" />
       </svg>
       <ul>
-        {paginasGuia.map((p) => { const Icone = icone(p.icone); return (
+        {menu.map((p) => { const Icone = icone(p.icone); return (
           <li>
-            <a href={`/guia/${p.slug}`} aria-current={p.slug === atual ? "page" : undefined}><Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />{p.titulo}</a>
+            <a href={p.href} aria-current={p.slug === atual ? "page" : undefined}><Icone width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />{p.titulo}</a>
             {/* a página aberta mostra os subitens dela embaixo; na entrada do Guia, os grupos do glossário também aparecem
                 (cada grupo leva direto ao trecho dele). Ao lado, um traço de giz vertical (o mesmo filtro do TracoGiz),
                 saindo de baixo do ícone da página e alinhado com o meio dele: o cinza (a estrutura) desenha reto ao abrir até o meio
                 do último subitem e não muda mais; a marca, na cor da marca, diz em que trecho a pessoa está: desce reta até o
                 subitem e, quando ela para ali (clicou, ou parou de rolar), termina numa curva que aponta para ele (script no fim) */}
-            {(p.slug === atual || (p.slug === "glossario" && !atual)) && subitens(p.slug).length > 0 && (
+            {(p.slug === atual || (p.slug === "glossario" && !atual && !paginas)) && subitens(p.slug).length > 0 && (
               <div class="guia-submenu-caixa">
                 <svg class="submenu-traco" width="6" height="100%" aria-hidden="true" focusable="false">
                   <path class="traco-base" d="" pathLength="1" filter="url(#giz-menu)" />
@@ -71,7 +76,7 @@ const migalhas = [{ rotulo: "musá", href: "/" }, { rotulo: "guia", href: "/guia
           </li>
         ); })}
         {/* Leia mais: não é uma página, é a última seção da entrada do Guia (/guia#leia-mais), no mesmo nível das páginas */}
-        <li><a href="/guia#leia-mais"><IconeLeiaMais width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />Leia mais</a></li>
+        {leiaMais && <li><a href="/guia#leia-mais"><IconeLeiaMais width="1.15em" height="1.15em" strokeWidth={1.6} aria-hidden="true" />Leia mais</a></li>}
       </ul>
     </nav>
   </aside>
