@@ -103,7 +103,7 @@ function mostrarEtapas(ids: string[] | null) {
 function filtrar(funcoes: string[] | null) {
   const so = funcoes && funcoes.length ? funcoes : null;
   raiz.querySelectorAll<HTMLElement>(".etapa .pratica").forEach((p) => { p.hidden = !!so && !so.includes(p.dataset.funcao!); });
-  raiz.querySelectorAll<HTMLElement>(".camada-boas, .camada-evitar").forEach((c) => {
+  raiz.querySelectorAll<HTMLElement>(".camada-praticas").forEach((c) => {
     const total = c.querySelectorAll(".pratica").length;
     const visiveis = c.querySelectorAll(".pratica:not([hidden])").length;
     (c.querySelector(".vazio-filtro") as HTMLElement).hidden = !(total && !visiveis);

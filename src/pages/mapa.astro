@@ -21,14 +21,15 @@ const daEtapa = (id: string) => ({
   boas: praticas.filter((p) => p.etapa === id && p.tipo === "boa"),
   evitar: praticas.filter((p) => p.etapa === id && p.tipo === "evitar")
 });
+// na grade, Boas práticas e O que evitar ficam numa Camada só, uma depois da outra; o símbolo (+ ou −) diz qual é qual
+const praticasDaEtapa = (d: ReturnType<typeof daEtapa>) => [...d.boas, ...d.evitar];
 const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
 const CAMADAS = [
   { id: "acoes", nome: "Ações do professor" },
   // id "sentimentos" mantido nas classes (camada-sentimentos, rotulo-sentimentos): a Camada agora é o Nível de desafio
   { id: "sentimentos", nome: "Nível de desafio" },
   { id: "pontos", nome: "Pontos de contato" },
-  { id: "boas", nome: "Boas práticas" },
-  { id: "evitar", nome: "O que evitar" }
+  { id: "praticas", nome: "Práticas" }
 ];
 const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.nome).length }));
 ---
@@ -118,27 +119,24 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 </div>
               ) : <p class="vazio">Sem registro</p>}
             </div>
+            {/* células sem título: o rótulo da linha, à esquerda, já diz o que é */}
             <div class="camada camada-pontos" data-camada="pontos">
-              <h3 class="camada-titulo">Pontos de contato</h3>
               {d.pontos.length ? <ul class="etiquetas">{d.pontos.map((p) => <li>{p.canal}</li>)}</ul> : <p class="vazio">Sem registro</p>}
             </div>
-            {(["boas", "evitar"] as const).map((tipo) => (
-              <div class={`camada camada-${tipo}`} data-camada={tipo}>
-                <h3 class="camada-titulo">{tipo === "boas" ? "Boas práticas" : "O que evitar"}</h3>
-                {d[tipo].length ? (
-                  <ul class="praticas">
-                    {d[tipo].map((p) => (
-                      <li class="pratica" data-funcao={p.funcao} data-tipo={p.tipo}>
-                        <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
-                        <span class="pratica-titulo">{p.titulo}</span>
-                        <span class="pratica-funcao">{funcao(p.funcao)?.nome}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p class="vazio">Sem registro</p>}
-                <p class="vazio vazio-filtro" hidden>Nada para esta função</p>
-              </div>
-            ))}
+            <div class="camada camada-praticas" data-camada="praticas">
+              {praticasDaEtapa(d).length ? (
+                <ul class="praticas">
+                  {praticasDaEtapa(d).map((p) => (
+                    <li class="pratica" data-funcao={p.funcao} data-tipo={p.tipo}>
+                      <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
+                      <span class="pratica-titulo"><span class="visualmente-oculto">{p.tipo === "boa" ? "Boa prática: " : "Evite: "}</span>{p.titulo}</span>
+                      <span class="pratica-funcao">{funcao(p.funcao)?.nome}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : <p class="vazio">Sem registro</p>}
+              <p class="vazio vazio-filtro" hidden>Nada para esta função</p>
+            </div>
             <div class="camada camada-notas" aria-hidden="true"></div>
           </section>
         );
@@ -227,12 +225,13 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   :root[data-vitrine] .mapa-rolagem { overflow-x: hidden; }
   .mapa-grade { position: relative; display: grid; column-gap: 0;
     grid-template-columns: var(--rotulos) var(--colunas, repeat(var(--n), var(--col-compacta)));
-    grid-template-rows: auto auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, ..., Anotações (só na impressão) */
+    grid-template-rows: auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, Pontos de contato, Práticas, Anotações (só na impressão) */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
      (Escolhido no playground /dev/cores-fases, combinação A.) */
-  .mapa { --fase-forte: var(--neutro-100); --fase-media: var(--neutro-100); --fase-texto: var(--texto-700); --fase-numero: var(--texto-600);
+  /* fora da coluna ativa, sem fundo (23/11/2026; antes neutro-100) */
+  .mapa { --fase-forte: transparent; --fase-media: transparent; --fase-texto: var(--texto-700); --fase-numero: var(--texto-600);
     --fase-ativa: var(--coral-300); --fase-texto-ativa: var(--texto-950); --fase-clara: var(--coral-100); }
   .fase { padding: 6px 12px; font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); font-weight: 500; letter-spacing: 0.04em;
     color: var(--fase-texto); background: var(--fase-forte); border-right: var(--linha); border-bottom: var(--linha); transition: background-color 200ms ease, color 200ms ease; }
@@ -249,18 +248,24 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { color: var(--coral-100); font-variant-numeric: normal; }
   .rotulos { grid-column: 1; grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; }
   /* "Etapas" ocupa as duas linhas do topo: a das Fases e a dos nomes das Etapas */
-  .rotulos .rotulo-etapas { grid-row: span 2; border-top: 0; padding-top: 5px; } /* na linha de base de "Antes da visita", ao lado */
+  .rotulos .rotulo-etapas { grid-row: span 2; border-top: 0; padding-top: 16px; } /* um pouco abaixo do topo, com respiro (23/11/2026) */
   .rotulos .rotulo-pontos { padding-top: 14px; } /* o texto das etiquetas desce 2px (borda + respiro): o rótulo acompanha */
   /* linhas da grade: uma só (--linha, 1px neutro-300) em todas as células. Cada célula desenha a de cima e a da direita
      (a coluna dos rótulos também, a da direita); sem linhas dobradas onde duas se encontram. */
-  .rotulos { border-right: var(--linha); }
-  /* estilo.css (da tabela antiga) dá a todo .rotulo uma borda direita de 2px quase preta e posição grudada: aqui não */
-  .rotulos .rotulo { border-right: 0; position: static; width: auto; min-width: 0; }
-  .rotulo { padding: 12px; font-size: var(--tamanho-sm); line-height: 1.45; /* igual às células: mesma linha de base */ font-weight: 600; color: var(--texto-950); border-top: var(--linha); }
-  /* Ações do professor e Sentimentos formam um grupo: entre as duas, a divisão (mais clara, neutro-200) fica só na coluna
-     dos rótulos; nas Etapas não há linha (transparente, e não 0, para o texto não subir 1px e sair da linha de base do rótulo) */
-  .mapa .rotulo-sentimentos { border-top-color: var(--neutro-200); }
-  .mapa .camada-sentimentos { border-top-color: transparent; }
+  .rotulos { border-right: 1px solid var(--coral-200); }
+  /* estilo.css (da tabela antiga) dá a todo .rotulo uma borda direita de 2px quase preta, posição grudada e fundo
+     neutro-100: aqui não (o fundo de "Etapas" vem logo abaixo) */
+  .rotulos .rotulo { border-right: 0; position: static; width: auto; min-width: 0; background: transparent; }
+  /* coluna dos rótulos (valores decididos em /dev/coluna-rotulos, 23/11/2026): DM Sans 14px médio, neutro-700, à direita;
+     "Etapas" igual aos outros (sem fundo próprio). Sem linhas entre as Camadas, nem nos rótulos nem nas Etapas. */
+  .rotulo { padding: 12px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-sm); line-height: 1.45; /* igual às células: mesma linha de base */
+    font-weight: 500; color: var(--neutro-700); letter-spacing: normal; text-transform: none; text-align: right; }
+  .mapa .etapa .camada { border-top: 0; }
+  /* sem linhas, as Camadas se separam por espaço: respiro embaixo de cada uma (o topo fica igual, então rótulo e célula
+     seguem na mesma linha de base). Vale também nas Etapas compactas. O Nível de desafio tem altura própria (--desafio-fim). */
+  .mapa { --respiro-linha: 28px; }
+  .mapa[data-modo] .mapa-grade .etapa .camada:not(.camada-sentimentos, .camada-notas),
+  .mapa .rotulos .rotulo:not(.rotulo-etapas, .rotulo-sentimentos, .rotulo-notas) { padding-bottom: var(--respiro-linha); }
 
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
@@ -292,19 +297,18 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-abrir { all: unset; cursor: pointer; }
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
   .etapa-n { color: var(--fase-numero); font-family: var(--fonte-inter-tight); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
-  .mapa[data-modo="inteiro"] .camada-titulo { display: none; }
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
-  .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); }
+  .rotulos { position: sticky; left: 0; z-index: 2; background: transparent; }
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
-  .camada-titulo { margin: 0 0 6px; font-size: var(--tamanho-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-600); font-weight: 600; }
   .vazio { color: var(--texto-400); font-style: italic; }
   .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
   .etiquetas li { padding: 2px 8px; border-radius: 999px; background: var(--neutro-100); border: 1px solid var(--neutro-300); font-size: var(--tamanho-xs); }
 
   /* Nível de desafio (valores decididos em /dev/desafio): três trilhas, alto em cima. A célula tem só a altura das trilhas;
      o avatar fica no centro da coluna, na trilha do nível. Guias e caminho: SVG desenhado por mapa.ts (desenharLinha). */
-  .mapa { --desafio-inicio: 41px; --desafio-espaco: 30px; --desafio-fim: 24px; --desafio-avatar: 24px; }
+  /* --desafio-inicio: 41 → 56px (23/11/2026), mais espaço entre "Nível de desafio" e "Alto"; --desafio-fim: 24 → 36px, o respiro das outras Camadas */
+  .mapa { --desafio-inicio: 56px; --desafio-espaco: 30px; --desafio-fim: 36px; --desafio-avatar: 24px; }
   .mapa .etapa .camada.camada-sentimentos { position: relative; padding: 0 !important; /* também nas fechadas, que têm respiro menor */
     height: calc(var(--desafio-inicio) + 2 * var(--desafio-espaco) + var(--desafio-fim)); box-sizing: border-box; }
   .mapa .camada-sentimentos .vazio { padding: 12px; }
@@ -343,7 +347,6 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 
   /* modo etapa: a aberta mostra tudo; as compactas, só o título e as Práticas */
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-titulo,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-acoes > p,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-pontos > *,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
@@ -384,9 +387,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .impressao-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 600; color: var(--carmim-800); }
   .impressao-sub { margin: 2px 0 0; font-size: var(--tamanho-sm); color: var(--texto-700); }
   :root[data-impressao] .mapa-rolagem { overflow: visible; display: flex; flex-direction: column; }
-  :root[data-impressao] .mapa-grade { flex: 1; --colunas: repeat(var(--n), minmax(0, 1fr)); grid-template-rows: auto auto auto auto 0 0 0 1fr; }
-  :root[data-impressao] .rotulos .rotulo-pontos, :root[data-impressao] .rotulos .rotulo-boas, :root[data-impressao] .rotulos .rotulo-evitar,
-  :root[data-impressao] .camada-pontos, :root[data-impressao] .camada-boas, :root[data-impressao] .camada-evitar { display: none; }
+  :root[data-impressao] .mapa-grade { flex: 1; --colunas: repeat(var(--n), minmax(0, 1fr)); grid-template-rows: auto auto auto auto 0 0 1fr; }
+  :root[data-impressao] .rotulos .rotulo-pontos, :root[data-impressao] .rotulos .rotulo-praticas,
+  :root[data-impressao] .camada-pontos, :root[data-impressao] .camada-praticas { display: none; }
   /* as linhas escondidas saem da grade (display: none não ocupa faixa): a pauta vai para a última faixa, a de 1fr */
   :root[data-impressao] .rotulo-notas, :root[data-impressao] .camada-notas { display: block; grid-row: -2 / -1; }
   /* pauta clara: uma linha a cada 28px, começando depois do respiro da célula */

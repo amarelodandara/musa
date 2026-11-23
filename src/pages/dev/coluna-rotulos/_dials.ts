@@ -82,8 +82,8 @@ const ROTULOS = [
   { id: "acoes", nome: "Ações do professor" },
   { id: "sentimentos", nome: "Nível de desafio" },
   { id: "pontos", nome: "Pontos de contato" },
-  { id: "boas", nome: "Boas práticas" },
-  { id: "evitar", nome: "O que evitar" }
+  // Boas práticas e O que evitar viraram uma Camada só (23/11/2026)
+  { id: "praticas", nome: "Práticas" }
 ];
 
 const valor = (o: Opcao) => (Array.isArray(o) ? o[1] : o);
@@ -123,8 +123,16 @@ const primeiro = await new Promise<Document>((ok) => {
   const t = setInterval(() => { const d = doc(); if (pronto(d)) { clearInterval(t); ok(d!); } }, 100);
 });
 
-// rótulos alinhados à direita (escolha de 18/11/2026)
-const PADROES: Record<string, string> = { "rotulos.alinhamento": "text-right" };
+// escolhas coladas em 23/11/2026 ("" = como no código)
+const PADROES: Record<string, string> = {
+  "coluna.fundo": "bg-transparente", "coluna.bordaDireitaCor": "border-coral-200", "coluna.bordaDireitaEspessura": "border-r",
+  "rotulos.fonte": "font-dm-sans", "rotulos.tamanho": "text-sm", "rotulos.peso": "font-medium", "rotulos.cor": "text-neutro-700",
+  "rotulos.espacamentoDeLetras": "tracking-normal", "rotulos.caixa": "normal-case", "rotulos.alinhamento": "text-right",
+  "rotulos.respiroLados": "px-3", "rotulos.fundo": "bg-transparente",
+  "rotuloEtapas.tamanho": "text-sm", "rotuloEtapas.peso": "", "rotuloEtapas.cor": "", "rotuloEtapas.fundo": "bg-transparente",
+  "descricoes.tamanho": "", "descricoes.peso": "", "descricoes.cor": "",
+  "niveisDoDesafio.tamanho": "", "niveisDoDesafio.peso": "font-normal", "niveisDoDesafio.cor": "text-texto-600"
+};
 
 const config: Record<string, any> = {};
 for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
@@ -136,34 +144,33 @@ for (const [grupo, ctrls] of Object.entries(CONTROLES)) {
   }
 }
 // Linhas entre as Camadas (a de cima de cada linha da grade), em dois grupos de conteúdo:
-//   do professor: Ações do professor e Nível de desafio; da escola: Pontos de contato, Boas práticas e O que evitar.
+//   do professor: Ações do professor e Nível de desafio; da escola: Pontos de contato e Práticas.
 //   topo: entre os nomes das Etapas e Ações do professor (na coluna dos rótulos, embaixo de "Etapas")
 //   entre grupos: a linha forte, em cima de Pontos de contato
-//   dentro do grupo: as finas (em cima de Nível de desafio, de Boas práticas e de O que evitar)
+//   dentro do grupo: as finas (em cima de Nível de desafio e de Práticas)
 const COR_LINHA = (def: string) => ({ type: "select", options: PASSOS, default: def });
 config.linhas = {
   _collapsed: false,
   topoNaColunaDosRotulos: [0, 0, 4, 0.5],
-  topoNasEtapas: [1, 0, 4, 0.5],
+  topoNasEtapas: [0, 0, 4, 0.5],
   topoCor: COR_LINHA("neutro-300"),
-  entreGruposEspessura: [2, 0, 6, 0.5],
+  entreGruposEspessura: [0, 0, 6, 0.5],
   entreGruposCor: COR_LINHA("neutro-500"),
   entreGruposNasEtapas: true,
-  dentroDoGrupoEspessura: [0.5, 0, 3, 0.5],
+  dentroDoGrupoEspessura: [0, 0, 3, 0.5],
   dentroDoGrupoCor: COR_LINHA("neutro-200"),
-  // hoje, entre Ações do professor e Nível de desafio, as Etapas não têm linha (só a coluna dos rótulos)
   dentroDoProfessorNasEtapas: false,
-  dentroDaEscolaNasEtapas: true
+  dentroDaEscolaNasEtapas: false
 };
 config.sombraAoRolar = { _collapsed: false, mostrar: false, desfoque: [12, 0, 32, 1], opacidade: [8, 0, 30, 1] };
 config.textos = { _collapsed: true, ...Object.fromEntries(ROTULOS.flatMap((r) => [
-  // "Etapas" começa sem texto (escolha de 18/11/2026); nome vazio = rótulo sem texto
-  [`${r.id}Nome`, { type: "text", default: r.id === "etapas" ? "" : r.nome, placeholder: "Sem texto" }],
+  // nome vazio = rótulo sem texto
+  [`${r.id}Nome`, { type: "text", default: r.nome, placeholder: "Sem texto" }],
   [`${r.id}Descricao`, { type: "text", default: "", placeholder: "Sem descrição" }]
 ])) };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Coluna dos rótulos", config, { id: "musa-coluna-rotulos-v2", persist: true });
+const kit = createDialKit("Coluna dos rótulos", config, { id: "musa-coluna-rotulos-v3", persist: true });
 
 let v = kit.getValues() as Record<string, any>;
 function aplicar() {
@@ -189,7 +196,7 @@ function aplicar() {
   regras.push(`${celula("acoes")} { border-top: ${linha(L.topoNasEtapas, L.topoCor)}; }`);
   regras.push(`${rotulo("pontos")} { border-top: ${linha(L.entreGruposEspessura, L.entreGruposCor)}; }`);
   regras.push(`${celula("pontos")} { border-top: ${L.entreGruposNasEtapas ? linha(L.entreGruposEspessura, L.entreGruposCor) : "1px solid transparent !important"}; }`);
-  for (const id of ["sentimentos", "boas", "evitar"]) {
+  for (const id of ["sentimentos", "praticas"]) {
     const nasEtapas = id === "sentimentos" ? L.dentroDoProfessorNasEtapas : L.dentroDaEscolaNasEtapas;
     regras.push(`${rotulo(id)} { border-top: ${linha(L.dentroDoGrupoEspessura, L.dentroDoGrupoCor)}; }`);
     // sem linha nas Etapas: transparente com a mesma espessura, para o texto não sair da linha de base do rótulo
