@@ -139,6 +139,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                       <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
                       <span class="pratica-titulo"><span class="visualmente-oculto">{p.tipo === "boa" ? "Boa prática: " : "Evite: "}</span>{p.titulo}</span>
                       <span class="pratica-funcao">{nomesFuncoes(p)}</span>
+                      {/* o detalhe só aparece na Etapa aberta (cada linha da planilha vira um parágrafo) */}
+                      {p.detalhe && <div class="pratica-detalhe">{p.detalhe.split("\n").filter((t) => t.trim()).map((t) => <p>{t}</p>)}</div>}
                     </li>
                   ))}
                 </ul>
@@ -310,6 +312,11 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .vazio { color: var(--texto-400); font-style: italic; }
+  /* detalhe das Práticas: só na Etapa aberta, embaixo da Função */
+  .pratica-detalhe { grid-column: 2; display: none; margin-top: 4px; font-size: var(--tamanho-xs); line-height: 1.45; color: var(--texto-700); }
+  .pratica-detalhe p + p { margin-top: 4px; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica-detalhe { display: block; }
+
   /* pontos de contato: as pills do bento da página inicial (Funcionalidades.astro, bloco 5), com ícone do Iconoir */
   .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
   /* cantos de 14px, não 999px: um canal de nome longo quebra em duas linhas e viraria uma elipse */

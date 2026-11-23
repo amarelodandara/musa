@@ -9,10 +9,8 @@ export interface Etapa {
   descricao: string | null; acoesEscola: string | null;
   sentimento: string | null; pensamento: string | null;
   origemSentimento: string | null; fonteSentimento: string | null;
-  // Nível de desafio da Etapa para o professor; da coluna "Desafio" da planilha, quando existir (ver desafio())
+  // Nível de desafio da Etapa para o professor; da coluna "Nível de desafio" da planilha (ver desafio())
   desafio?: Desafio | null;
-  // coluna "Nível de desafio" da planilha: nota de 1 a 10 (ainda não aparece no mapa)
-  nivelDesafio?: number | null;
 }
 export type Desafio = "baixo" | "medio" | "alto";
 export interface Funcao { id: string; nome: string; descricao: string | null }

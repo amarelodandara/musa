@@ -76,14 +76,11 @@ const etapas = etapasBrutas.map((l) => {
     descricao: limpo(l["Descrição"]), acoesEscola: limpo(l["Ações da escola"]),
     sentimento: limpo(l["Sentimento"]), pensamento: limpo(l["Pensamento do professor"]),
     origemSentimento: limpo(l["Origem do sentimento"]), fonteSentimento: limpo(l["Fonte do sentimento"]),
-    // coluna opcional: Baixo, Médio ou Alto (sem ela, o mapa usa os níveis provisórios de src/lib/conteudo.ts)
-    desafio: nivelDesafio(l["Desafio"]),
-    // coluna "Nível de desafio": nota de 1 a 10 (ainda não aparece no mapa; a grade usa os três níveis)
-    nivelDesafio: vazio(l["Nível de desafio"]) ? null : Number(l["Nível de desafio"])
+    // coluna "Nível de desafio" (antes "Desafio"): Baixo, Médio ou Alto (sem ela, o mapa usa os níveis provisórios de src/lib/conteudo.ts)
+    desafio: nivelDesafio(l["Nível de desafio"] ?? l["Desafio"])
   };
-  if (l["Desafio"] && !e.desafio) erro("Etapas", l.linha, `Desafio "${l["Desafio"]}" inválido (use Baixo, Médio ou Alto)`);
-  if (e.nivelDesafio !== null && !(Number.isInteger(e.nivelDesafio) && e.nivelDesafio >= 1 && e.nivelDesafio <= 10))
-    erro("Etapas", l.linha, `Nível de desafio "${l["Nível de desafio"]}" inválido (use um número de 1 a 10)`);
+  const desafioBruto = l["Nível de desafio"] ?? l["Desafio"];
+  if (!vazio(desafioBruto) && !e.desafio) erro("Etapas", l.linha, `Nível de desafio "${desafioBruto}" inválido (use Baixo, Médio ou Alto)`);
   if (!e.nome) erro("Etapas", l.linha, "Etapa sem nome");
   if (!FASES.includes(e.fase)) erro("Etapas", l.linha, `Fase "${e.fase}" inválida`);
   checarOrigem("Etapas", l, e.origemSentimento, e.fonteSentimento);
