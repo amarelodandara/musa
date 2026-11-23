@@ -2,14 +2,15 @@
 // Divisor de seção em giz de cera: o mesmo filtro do caminho da abertura e da linha do nível de desafio
 // (Abertura.astro, #giz; mapa.astro, #desafio-giz): um ruído ondula a borda do traço e outro fura o traço com o grão do papel.
 // A linha vai de ponta a ponta em pixels de verdade (x2="100%", sem viewBox), então o grão não estica em telas largas.
-interface Props { cor?: string; espessura?: number; class?: string }
-const { cor = "var(--neutro-400)", espessura = 2.5, class: classe } = Astro.props;
+// vertical: a mesma linha em pé, de cima a baixo da altura que o svg ocupar (quem usa define a altura no CSS).
+interface Props { cor?: string; espessura?: number; class?: string; vertical?: boolean }
+const { cor = "var(--neutro-400)", espessura = 2.5, class: classe, vertical = false } = Astro.props;
 const id = `giz-divisor-${Math.random().toString(36).slice(2, 8)}`;
 const altura = 12;
 ---
-<svg class:list={["traco-giz", classe]} width="100%" height={altura} aria-hidden="true" focusable="false">
+<svg class:list={["traco-giz", classe]} width={vertical ? altura : "100%"} height={vertical ? "100%" : altura} aria-hidden="true" focusable="false">
   <defs>
-    <filter id={id} filterUnits="userSpaceOnUse" x="-2%" y="0" width="104%" height={altura} color-interpolation-filters="sRGB">
+    <filter id={id} filterUnits="userSpaceOnUse" x={vertical ? 0 : "-2%"} y={vertical ? "-2%" : 0} width={vertical ? altura : "104%"} height={vertical ? "104%" : altura} color-interpolation-filters="sRGB">
       <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula" />
       <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda" />
       <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao" />
@@ -17,7 +18,9 @@ const altura = 12;
       <feComposite in="borda" in2="mascara" operator="in" />
     </filter>
   </defs>
-  <line x1={espessura} x2="99.5%" y1={altura / 2} y2={altura / 2} stroke={cor} stroke-width={espessura} stroke-linecap="round" filter={`url(#${id})`} />
+  {vertical
+    ? <line y1={espessura} y2="99.5%" x1={altura / 2} x2={altura / 2} stroke={cor} stroke-width={espessura} stroke-linecap="round" filter={`url(#${id})`} />
+    : <line x1={espessura} x2="99.5%" y1={altura / 2} y2={altura / 2} stroke={cor} stroke-width={espessura} stroke-linecap="round" filter={`url(#${id})`} />}
 </svg>
 
 <style>

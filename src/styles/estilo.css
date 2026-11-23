@@ -22,10 +22,22 @@ body {
   color: var(--texto-900);
   background: var(--neutro-50);
 }
+/* textura de papel no fundo (decidida no playground /dev/inicio-textura): fica abaixo do conteúdo, então blocos com
+   fundo próprio a cobrem. O ladrilho (public/texturas/papel.png, 200 px para telas retina) é o filtro SVG do
+   playground exportado: papel, fibra 2.7, detalhe 4, relevo 4.3, semente 12. O mapa não usa (Base textura={false}). */
+body.com-textura { position: relative; }
+body.com-textura::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: url("/texturas/papel.png") repeat 0 0 / 100px 100px;
+  opacity: 0.36; mix-blend-mode: soft-light;
+}
+@media print { body.com-textura::before { display: none; } }
 h1, h2, h3 { font-family: var(--fonte-dm-sans); color: var(--texto-950); line-height: 1.15; text-wrap: balance; }
 a { color: var(--carmim-800); }
 a:hover { color: var(--carmim-950); }
 :focus-visible { outline: 3px solid var(--carmim-700); outline-offset: 2px; }
+/* link para uma seção (#…): o título para abaixo da barra fixa (72 px), com folga */
+:target { scroll-margin-top: 96px; }
 
 
 /* Página inicial */
@@ -36,8 +48,6 @@ a:hover { color: var(--carmim-950); }
 h1 { font-size: var(--tamanho-3xl); font-weight: 700; margin: 0 0 16px; letter-spacing: -0.01em; }
 .lead { font-size: var(--tamanho-lg); line-height: 1.4; margin: 0 0 24px; }
 section { margin-top: 48px; }
-/* link para uma seção (#…): o título para abaixo da barra fixa (72 px), com folga */
-:target { scroll-margin-top: 96px; }
 h2 { font-size: var(--tamanho-xl); font-weight: 700; margin: 0 0 12px; }
 .texto li { margin-bottom: 8px; }
 .texto ul { padding-left: 20px; }

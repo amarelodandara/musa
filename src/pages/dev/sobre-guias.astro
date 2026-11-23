@@ -1,0 +1,29 @@
+---
+// Playground das guias e dos rabiscos em giz da página Sobre (src/pages/sobre.astro). Mostra /sobre num quadro na
+// largura de 1440 px, encolhido para caber ao lado do painel (o painel nunca cobre a página); painel em
+// public/dev/sobre-guias-dials.js, que mexe nas variáveis --guia-* e --rabisco-* e nos filtros dentro do quadro.
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sobre · guias</title>
+<style>
+  body { margin: 0; background: #e9e6e5; }
+  .palco { position: fixed; top: 16px; left: 16px; right: 336px; bottom: 16px; overflow: hidden; border-radius: 8px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08); background: #fff; }
+  .palco iframe { position: absolute; left: 0; top: 0; border: 0; width: 1440px; transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<div class="palco"><iframe src="/sobre" title="Sobre"></iframe></div>
+<script is:inline>
+  // encolhe o quadro de 1440 px para a largura disponível e estica a altura na mesma proporção
+  const palco = document.querySelector(".palco"), quadro = palco.querySelector("iframe");
+  const encaixar = () => { const k = Math.min(1, palco.clientWidth / 1440); quadro.style.transform = `scale(${k})`; quadro.style.height = palco.clientHeight / k + "px"; };
+  addEventListener("resize", encaixar); encaixar();
+</script>
+<script is:inline type="module" src="/dev/sobre-guias-dials.js"></script>
+</body>
+</html>

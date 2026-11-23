@@ -10,8 +10,9 @@ interface Props {
   classeCorpo?: string;
   cabecalho?: boolean; // o mapa tem cabeçalho próprio
   rodape?: boolean;
+  textura?: boolean; // papel no fundo; o mapa não usa
 }
-const { titulo, classeCorpo, cabecalho = true, rodape = true } = Astro.props;
+const { titulo, classeCorpo, cabecalho = true, rodape = true, textura = true } = Astro.props;
 const tituloFinal = titulo ? `${titulo} · musá` : "musá";
 const dev = import.meta.env.DEV;
 ---
@@ -30,7 +31,7 @@ const dev = import.meta.env.DEV;
 <link rel="stylesheet" href="/brand/tipografia.css">
 <slot name="head" />
 </head>
-<body class={classeCorpo}>
+<body class:list={[classeCorpo, textura && "com-textura"]}>
 {cabecalho && <Cabecalho />}
 <slot />
 {rodape && <Rodape />}

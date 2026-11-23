@@ -32,7 +32,7 @@ const CAMADAS = [
 ];
 const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.nome).length }));
 ---
-<Base titulo="Mapa da Visita" classeCorpo="pagina-mapa-v2" cabecalho={false} rodape={false}>
+<Base titulo="Mapa da Visita" classeCorpo="pagina-mapa-v2" cabecalho={false} rodape={false} textura={false}>
 <div class="mapa" data-modo="etapa" id="mapa">
   <header class="mapa-topo">
     <h1 class="visualmente-oculto">Mapa da Visita</h1>

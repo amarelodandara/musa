@@ -1,59 +1,350 @@
 ---
-// Sobre (decisões Q10, Q31, Q35). Rascunho de texto: revisar com a equipe.
+// Sobre (decisões Q10, Q31, Q35), redesenhada em 22/11/2026 na linguagem da página inicial: cada seção em duas colunas,
+// como "A ferramenta" (Ferramenta.astro): à esquerda o título em carmim e uma frase de abertura, à direita o conteúdo.
+// As listas da direita copiam a estrutura de uma Etapa do mapa (rótulo pequeno em cima, nome, linha, texto), só com as
+// linhas e a hierarquia de texto. Seções separadas só por espaço (--secao-espaco), sem linhas entre elas.
+// A versão anterior (texto corrido numa coluna) está no git.
 import Base from "../layouts/Base.astro";
+import TracoGiz from "../components/TracoGiz.astro";
 import { conteudo } from "../lib/conteudo";
 const { fontes } = conteudo;
+
+const E_NAO_E = [
+  { rotulo: "É", nome: "Um ponto de partida", texto: "Para conversar em equipe sobre a visita escolar: o que já funciona, o que falta e por onde começar." },
+  { rotulo: "Não é", nome: "Uma nota nem um ranking", texto: "O mapa não avalia nem compara museus." },
+  { rotulo: "Não é", nome: "Uma lista de regras", texto: "Nenhuma prática funciona igual em todo lugar. Adapte ao seu time, ao seu público e ao seu acervo." },
+  { rotulo: "Não é", nome: "Uma verificação legal", texto: "O mapa parte do princípio de que o museu já funciona regularmente." }
+];
+const ORIGENS = [
+  { nome: "Documento", texto: "Dito de forma direta em um documento oficial." },
+  { nome: "Adaptado de documento", texto: "Nossa leitura a partir de um documento oficial." },
+  { nome: "Pesquisa de campo", texto: "Vem das entrevistas com equipes de museus e com professores." }
+];
+// Próximos caminhos (depois de "O time"): o desenho em giz dos caminhos possíveis e o convite por e-mail.
+// e-mail profissional da Nicoly (decidido em 23/11/2026)
+const EMAIL_CONTATO = "nicoly@gmail.com";
+const ASSUNTO_CONTATO = "Próximos passos do musà"; // já com a grafia da marca: o assunto vai codificado no link e o middleware não o alcança
+const PESSOAS = [
+  // fotos do site anterior (servico-museu.vercel.app), cortadas em quadrado; o preto e branco é do CSS (filter)
+  // linkedin: sem o link, a pessoa aparece sem o "LinkedIn"
+  { nome: "Letícia França", papel: "Design e pesquisa", foto: "/fotos/time/leticia-franca.jpg", linkedin: "https://www.linkedin.com/in/let%C3%ADcia-fran%C3%A7a-8414182ba/" },
+  { nome: "Nicoly Dandara", papel: "Design e pesquisa", foto: "/fotos/time/nicoly-dandara.jpg", linkedin: "https://www.linkedin.com/in/nicolydandara/" },
+  { nome: "Simone Souza", papel: "Orientação", foto: "/fotos/time/simone-souza.jpg", linkedin: "https://www.linkedin.com/in/simone-souza-17704b110/" }
+];
 ---
 <Base titulo="Sobre">
-<main class="texto sobre">
-  <p class="tagline">Sobre</p>
-  <h1>O musá ajuda equipes de museus a enxergar a visita escolar inteira</h1>
-  <p class="lead">É uma ferramenta gratuita, aberta a qualquer equipe, sem cadastro.</p>
+<main class="sobre">
+  {/* guias em giz, como as réguas de um grid: uma linha de ponta a ponta separando a barra do resto e, de cima a baixo,
+      uma de cada lado da área do conteúdo, separando-a das margens. Só enfeite (aria-hidden, sem clique) */}
+  <div class="guias" aria-hidden="true">
+    {/* rabiscos: hachura em giz nas margens (de fora da guia até a borda da janela), onde antes só havia vazio.
+        Um padrão de linhas inclinadas (com uma segunda direção opcional, cruzada) pintado com um giz próprio */}
+    <svg class="rabiscos-defs" width="0" height="0">
+      <defs>
+        <pattern id="sobre-hachura" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(40)">
+          <line class="hachura-a" x1="0" y1="-1" x2="0" y2="10" />
+          <line class="hachura-b" x1="-1" y1="0" x2="10" y2="0" />
+        </pattern>
+        <filter id="sobre-giz-rabisco" x="-5%" y="-1%" width="110%" height="102%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="4" result="ondula"/>
+          <feDisplacementMap in="SourceGraphic" in2="ondula" scale="5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+          <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="11" result="grao"/>
+          <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3 -0.7" result="mascara"/>
+          <feComposite in="borda" in2="mascara" operator="in"/>
+        </filter>
+      </defs>
+    </svg>
+    <svg class="rabisco rabisco-esq"><rect width="100%" height="100%" fill="url(#sobre-hachura)" filter="url(#sobre-giz-rabisco)" /></svg>
+    <svg class="rabisco rabisco-dir"><rect width="100%" height="100%" fill="url(#sobre-hachura)" filter="url(#sobre-giz-rabisco)" /></svg>
+    <TracoGiz class="guia guia-topo" />
+    <TracoGiz class="guia guia-esq" vertical />
+    <TracoGiz class="guia guia-dir" vertical />
+  </div>
+  <header class="sobre-topo">
+    <h1>Uma ferramenta para cuidar do serviço que o museu oferece</h1>
+    <p class="sobre-abertura">O <span translate="no">musá</span> é gratuito, aberto a qualquer equipe e não pede cadastro. Ele começa pela visita escolar: do primeiro contato da escola até depois que a turma volta para a sala de aula.</p>
+  </header>
 
-  <section>
-    <h2>Por que a visita escolar</h2>
-    <p>Para muita gente, a excursão da escola é o primeiro contato com um museu, e às vezes o único. É também o tipo de visita que os museus mais recebem e melhor conhecem. Por isso o musá começa por ela.</p>
-    <p>Quando pensamos na visita do ponto de vista da escola, ela não começa na porta: começa quando o professor procura um museu e termina, quando termina, depois que a turma volta para a sala de aula. É nesse antes e nesse depois que muitas visitas se perdem.</p>
+  <section class="secao" aria-labelledby="sobre-escola">
+    <div class="secao-ideia">
+      <h2 id="sobre-escola">Por que a visita escolar</h2>
+      <p class="secao-abertura">É o primeiro contato de muita gente com um museu, e às vezes o único.</p>
+    </div>
+    <div class="secao-texto">
+      <p>A excursão da escola é também o tipo de visita que os museus mais recebem e melhor conhecem. Por isso o <span translate="no">musá</span> começa por ela.</p>
+      <p>Do ponto de vista da escola, a visita não começa na porta. Começa quando o professor procura um museu e termina, quando termina, depois que a turma volta para a sala de aula. É nesse antes e nesse depois que muitas visitas se perdem.</p>
+    </div>
   </section>
 
-  <section>
-    <h2>O que o mapa é, e o que não é</h2>
-    <ul>
-      <li><strong>É</strong> um ponto de partida para conversar em equipe sobre a visita escolar.</li>
-      <li><strong>Não é</strong> uma nota nem um ranking. Não compara museus.</li>
-      <li><strong>Não é</strong> uma lista de regras. Nenhuma prática funciona igual em todo lugar: adapte à sua equipe, ao seu público e ao seu acervo.</li>
-      <li><strong>Não é</strong> uma verificação legal. Parte do princípio de que o museu já funciona regularmente.</li>
-    </ul>
+  <section class="secao" aria-labelledby="sobre-mapa">
+    <div class="secao-ideia">
+      <h2 id="sobre-mapa">O que o mapa é, e o que não é</h2>
+      <p class="secao-abertura">Use o mapa para abrir conversas, não para fechar uma nota.</p>
+    </div>
+    <ol class="lista">
+      {E_NAO_E.map((i) => (
+        <li class="sobre-item">
+          <div class="sobre-item-topo">
+            <span class:list={["sobre-item-rotulo", { "sobre-item-rotulo-sim": i.rotulo === "É" }]}>{i.rotulo}</span>
+            <h3 class="sobre-item-nome">{i.nome}</h3>
+          </div>
+          <p class="sobre-item-corpo">{i.texto}</p>
+        </li>
+      ))}
+    </ol>
   </section>
 
-  <section>
-    <h2>De onde vem o conteúdo</h2>
-    <p>Cada prática mostra a sua origem quando você abre o detalhe de uma etapa:</p>
-    <dl class="origens-sobre">
-      <dt>Documento</dt><dd>Dito de forma direta em um documento oficial.</dd>
-      <dt>Adaptado de documento</dt><dd>Nossa leitura a partir de um documento oficial.</dd>
-      <dt>Pesquisa de campo</dt><dd>Vem das entrevistas com equipes de museus e com professores.</dd>
-    </dl>
-    <ul class="fontes">{fontes.map((f) => <li>{f.referencia}</li>)}</ul>
+  <section class="secao" aria-labelledby="sobre-conteudo">
+    <div class="secao-ideia">
+      <h2 id="sobre-conteudo">De onde vem o conteúdo</h2>
+      <p class="secao-abertura">Cada prática mostra a sua origem quando você abre o detalhe de uma etapa.</p>
+    </div>
+    <div>
+      <ol class="lista">
+        {ORIGENS.map((o) => (
+          <li class="sobre-item">
+            <div class="sobre-item-topo"><h3 class="sobre-item-nome">{o.nome}</h3></div>
+            <p class="sobre-item-corpo">{o.texto}</p>
+          </li>
+        ))}
+      </ol>
+      <h3 class="fontes-titulo">Fontes</h3>
+      <ul class="fontes">{fontes.map((f) => <li>{f.referencia}</li>)}</ul>
+    </div>
   </section>
 
-  <section>
-    <h2>Próximos passos</h2>
-    <p>A visita escolar é a primeira. A mesma forma de olhar serve para outros tipos de visita e para outras áreas do trabalho no museu, e é para lá que o musá quer crescer.</p>
+  <section class="secao" aria-labelledby="sobre-proximos">
+    <div class="secao-ideia">
+      <h2 id="sobre-proximos">Para onde o <span translate="no">musá</span> vai</h2>
+      <p class="secao-abertura">A visita escolar é a primeira jornada mapeada.</p>
+    </div>
+    <div class="secao-texto">
+      <p>A mesma forma de olhar serve para outros tipos de visita e para outras áreas do trabalho no museu. É para lá que o <span translate="no">musá</span> quer crescer.</p>
+    </div>
   </section>
 
-  <section>
-    <h2>Quem faz</h2>
-    <p>Design e pesquisa: Letícia França e Nicoly Dandara.</p>
-    <p>Orientação: Simone Souza.</p>
-    <p>Agradecemos às equipes de museus e à professora que dividiram com a gente como a visita escolar acontece na prática.</p>
+  {/* "Quem faz" entre duas faixas, de uma guia lateral à outra: duas linhas em giz com a hachura dos rabiscos entre elas */}
+  <div class="faixa" aria-hidden="true">
+    <svg class="rabisco faixa-rabisco"><rect width="100%" height="100%" fill="url(#sobre-hachura)" filter="url(#sobre-giz-rabisco)" /></svg>
+    <TracoGiz class="guia faixa-linha faixa-linha-cima" />
+    <TracoGiz class="guia faixa-linha faixa-linha-baixo" />
+  </div>
+  <section class="secao secao-quem" aria-labelledby="sobre-quem">
+    <div class="secao-ideia">
+      <h2 id="sobre-quem">O time <span translate="no">musá</span></h2>
+      <p class="secao-abertura">Duas UX Designers de profissão e Designers Gráficas de formação, orientadas por uma voz do Design de Serviço.</p>
+    </div>
+    <div>
+      <ul class="pessoas">
+        {PESSOAS.map((p) => (
+          <li><img class="pessoa-foto" src={p.foto} alt={p.nome} width="640" height="640" loading="lazy" decoding="async" /><span class="pessoa-nome">{p.nome}</span><span class="pessoa-papel">{p.papel}</span>{p.linkedin && <a class="pessoa-link" href={p.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`LinkedIn de ${p.nome} (abre em outra aba)`}>LinkedIn<span aria-hidden="true"> ↗</span></a>}</li>
+        ))}
+      </ul>
+      <p class="agradecimento">Agradecemos aos profissionais de museu e da educação que dividiram com a gente como a visita escolar acontece na prática.</p>
+    </div>
+  </section>
+
+  {/* Próximos passos: continua "O time" (o que o time quer fazer daqui em diante), sem título de seção próprio.
+      À esquerda o desenho (um ponto de partida e três caminhos em giz: pesquisa, prática e um aberto, pontilhado); à direita
+      o subtítulo, o texto e o convite por e-mail. O desenho se traça quando entra na tela (script no fim); com movimento
+      reduzido, já aparece pronto. */}
+  <section class="secao secao-caminhos caminhos" aria-labelledby="sobre-caminhos">
+      <svg class="caminhos-desenho" viewBox="0 0 520 300" role="img" aria-labelledby="caminhos-titulo caminhos-descricao">
+        <title id="caminhos-titulo">Os caminhos do musá</title>
+        <desc id="caminhos-descricao">Um ponto de partida, o projeto de graduação de 2026, de onde saem três caminhos: a pesquisa, num mestrado; a prática, no design de serviço; e um caminho ainda aberto.</desc>
+        <defs>
+          <filter id="caminhos-giz" filterUnits="userSpaceOnUse" x="-20" y="-20" width="560" height="340" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="3" result="ondula"/>
+            <feDisplacementMap in="SourceGraphic" in2="ondula" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="borda"/>
+            <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="11" result="grao"/>
+            <feColorMatrix in="grao" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 3.2 -0.82" result="mascara"/>
+            <feComposite in="borda" in2="mascara" operator="in"/>
+          </filter>
+        </defs>
+        <g filter="url(#caminhos-giz)">
+          {/* o começo: um ponto cheio e o tronco, à mão */}
+          <circle class="caminho-ponto" cx="28" cy="150" r="7" />
+          <path class="caminho" style="--ordem:0" pathLength="1" d="M36 150 C70 144 96 158 126 150 C150 144 166 150 180 150" />
+          {/* pesquisa: sobe */}
+          <path class="caminho" style="--ordem:1" pathLength="1" d="M180 150 C214 150 220 66 262 58 C288 53 306 60 322 56" />
+          <circle class="caminho-fim" style="--ordem:1" cx="330" cy="56" r="5" />
+          {/* prática: segue em frente */}
+          <path class="caminho" style="--ordem:2" pathLength="1" d="M180 150 C220 146 250 156 286 150 C302 147 312 150 322 150" />
+          <circle class="caminho-fim" style="--ordem:2" cx="330" cy="150" r="5" />
+          {/* o aberto: desce, pontilhado, e se perde */}
+          <path class="caminho caminho-aberto" style="--ordem:3" pathLength="1" d="M180 150 C214 152 222 232 262 242 C286 248 300 240 316 244" />
+        </g>
+        <g class="caminhos-rotulos">
+          <text class="rotulo-nome" x="22" y="186">Onde começou</text>
+          <text class="rotulo-sub" x="22" y="204">projeto de graduação, 2026</text>
+          <g class="rotulo-grupo" style="--ordem:1"><text class="rotulo-nome" x="346" y="52">Pesquisa</text><text class="rotulo-sub" x="346" y="70">um mestrado, mais fundo</text><text class="rotulo-sub" x="346" y="86">e mais amplo</text></g>
+          <g class="rotulo-grupo" style="--ordem:2"><text class="rotulo-nome" x="346" y="146">Prática</text><text class="rotulo-sub" x="346" y="164">design de serviço com</text><text class="rotulo-sub" x="346" y="180">museus e empresas</text></g>
+          <g class="rotulo-grupo" style="--ordem:3"><text class="rotulo-nome" x="332" y="240">E o que vier</text><text class="rotulo-sub" x="332" y="258">caminhos ainda abertos</text></g>
+        </g>
+      </svg>
+    <div class="caminhos-lado">
+      <h3 id="sobre-caminhos" class="caminhos-titulo">Próximos passos</h3>
+      <div class="secao-texto">
+        <p>O <span translate="no">musà</span> começou como um trabalho de conclusão de curso para a Universidade do Estado de Minas Gerais. Nós enxergamos no campo da museologia um potencial enorme quando colocado em contato com as práticas do Design de Serviço.</p>
+        <p>Cobrimos aqui apenas uma pequena parte do que é o universo gigante de serviço museológico e sabemos que há muitos desdobramentos possíveis na academia e também dentro de empresas. Assim como caminhos que ainda não imaginamos.</p>
+        <p>Estamos abertas a todos eles. Se você é um trabalhador museal ou acadêmico interessado em ignitar a próxima fase desse projeto, não hesite em entrar em contato.</p>
+      </div>
+      <p class="caminhos-acao"><a class="botao" href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(ASSUNTO_CONTATO)}`}>Entrar em contato</a></p>
+    </div>
+  </section>
+
+  <div class="faixa" aria-hidden="true">
+    <svg class="rabisco faixa-rabisco"><rect width="100%" height="100%" fill="url(#sobre-hachura)" filter="url(#sobre-giz-rabisco)" /></svg>
+    <TracoGiz class="guia faixa-linha faixa-linha-cima" />
+    <TracoGiz class="guia faixa-linha faixa-linha-baixo" />
+  </div>
+  <section class="sobre-fim" aria-labelledby="sobre-fim">
+    <h2 id="sobre-fim">Leve o mapa para a próxima reunião do seu time</h2>
+    <p class="acoes-hero"><a class="botao secundario" href="/baixar">Baixar mapa</a> <a class="botao" href="/mapa">Usar mapa</a></p>
   </section>
 </main>
+
+<Fragment slot="scripts">
+  <script is:inline>
+    // Próximos caminhos: o desenho se traça uma vez, quando entra na tela (com movimento reduzido, já aparece pronto)
+    (() => {
+      const c = document.querySelector(".caminhos");
+      if (!c) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      c.dataset.desenhar = "";
+      const io = new IntersectionObserver((e) => {
+        if (!e[0].isIntersecting) return;
+        io.disconnect(); requestAnimationFrame(() => { c.dataset.desenhado = ""; });
+      }, { threshold: 0.4 });
+      io.observe(c.querySelector(".caminhos-desenho"));
+    })();
+  </script>
+</Fragment>
 </Base>
 
 <style>
-  .sobre h1 { font-size: var(--tamanho-3xl); }
-  .origens-sobre { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 16px 0; }
-  .origens-sobre dt { font-weight: 600; color: var(--carmim-800); }
-  .origens-sobre dd { margin: 0; }
+  /* Próximos passos: o desenho na coluna da esquerda (no lugar do título das outras seções), o subtítulo, o texto e o
+     convite na da direita */
+  .caminhos-desenho { width: 100%; max-width: 560px; height: auto; overflow: visible; }
+  .caminhos-lado { display: flex; flex-direction: column; gap: 16px; }
+  .caminhos-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 600; color: var(--texto-950); }
+  .caminhos-lado .caminhos-acao { margin-top: 16px; }
+  /* linhas mais curtas que as das outras seções (56ch): o texto fica ao lado do desenho, em leitura mais solta */
+  .caminhos-lado .secao-texto { max-width: 46ch; }
+  /* as outras seções usam pretty (só evita a última linha curta); aqui balance, linhas de comprimento parecido */
+  .caminhos-lado .secao-texto p { text-wrap: balance; }
+  .caminho { fill: none; stroke: var(--carmim-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .caminho-aberto { stroke-dasharray: 0.012 0.03; stroke: var(--carmim-400); }
+  .caminho-ponto, .caminho-fim { fill: var(--carmim-600); }
+  .rotulo-nome { font: 600 15px/1 var(--fonte-dm-sans); fill: var(--texto-950); }
+  .rotulo-sub { font: 400 13px/1 var(--fonte-inter); fill: var(--texto-700); }
+  .caminhos-acao { margin: 0; }
+  /* estreito: o desenho encolhe junto com a tela; a letra dele cresce para continuar legível (~13 px e ~10 px na tela) */
+  @media (max-width: 600px) { .rotulo-nome { font-size: 19px; } .rotulo-sub { font-size: 16px; } }
+  /* traçado ao entrar na tela: o tronco, depois cada caminho, e os rótulos de cada um quando ele chega */
+  .caminhos[data-desenhar] .caminho:not(.caminho-aberto) { stroke-dasharray: 1 2; stroke-dashoffset: 1.05; }
+  .caminhos[data-desenhar] .caminho-aberto, .caminhos[data-desenhar] .caminho-fim, .caminhos[data-desenhar] .rotulo-grupo { opacity: 0; }
+  .caminhos[data-desenhado] .caminho:not(.caminho-aberto) { stroke-dashoffset: 0;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.37, 0, 0.63, 1) calc(200ms + var(--ordem) * 650ms); }
+  .caminhos[data-desenhar][data-desenhado] .caminho-aberto, .caminhos[data-desenhar][data-desenhado] .caminho-fim,
+  .caminhos[data-desenhar][data-desenhado] .rotulo-grupo { opacity: 1; transition: opacity 500ms ease-out calc(900ms + var(--ordem) * 650ms); }
+  @media (prefers-reduced-motion: reduce) { .caminhos[data-desenhado] * { transition: none !important; } }
+
+  .sobre {
+    --secao-espaco: 96px; --borda: var(--carmim-300); --borda-interna: var(--carmim-200); --linha: 0.5px;
+    /* --margem: da borda da página até a guia; --respiro: da guia até o texto */
+    --margem: clamp(16px, 3vw, 40px); --respiro: 42px;
+    position: relative; max-width: 1360px; margin: 0 auto; padding: 0 var(--margem) var(--secao-espaco);
+  }
+  /* o conteúdo fica dentro das guias, com respiro */
+  .sobre > :not(.guias) { padding-left: var(--respiro); padding-right: var(--respiro); }
+
+  /* guias: a de cima atravessa a janela inteira; as dos lados vão do topo ao fim do conteúdo (centradas na borda) */
+  .guias { position: absolute; inset: 0; pointer-events: none; }
+  .guias :global(.guia) { position: absolute; }
+  /* a de cima fica inteira dentro da página: acima do topo, a barra (fixa e opaca) cobria metade do traço */
+  .guias :global(.guia-topo) { top: 0; left: 50%; width: 100vw; margin-left: -50vw; }
+  .guias :global(.guia-esq) { top: 0; bottom: 0; left: calc(var(--margem) - 6px); }
+  .guias :global(.guia-dir) { top: 0; bottom: 0; right: calc(var(--margem) - 6px); }
+  /* guias: cor e espessura por variável (o CSS vence os atributos do TracoGiz) */
+  .sobre :global(.guia line) { stroke: var(--guia-cor, var(--carmim-600)); stroke-width: var(--guia-espessura, 2); }
+
+  /* rabiscos: da borda da janela até a guia, menos uma folga; nada embaixo do conteúdo */
+  .rabiscos-defs { position: absolute; }
+  .rabisco { position: absolute; top: 0; height: 100%; display: var(--rabisco-mostrar, block); opacity: var(--rabisco-opacidade, 0.55); overflow: visible; }
+  .rabisco-esq { left: calc((100% - 100vw) / 2); width: calc((100vw - 100%) / 2 + var(--margem) - var(--rabisco-folga, 8px)); }
+  .rabisco-dir { right: calc((100% - 100vw) / 2); width: calc((100vw - 100%) / 2 + var(--margem) - var(--rabisco-folga, 8px)); }
+  .hachura-a, .hachura-b { stroke: var(--rabisco-cor, var(--neutro-400)); stroke-width: var(--rabisco-espessura, 1.2); stroke-linecap: round; }
+  .hachura-b { opacity: var(--rabisco-cruzado, 0); }
+  /* as guias e os rabiscos passam da área do conteúdo até a borda da janela: sem rolagem para os lados */
+  :global(html:has(main.sobre)) { overflow-x: clip; }
+
+  /* topo: título grande e a abertura, à esquerda, com o mesmo respiro do resto da página */
+  .sobre-topo { padding: calc(var(--secao-espaco) * 0.75) 0 0; max-width: 880px; }
+  .sobre-topo h1 { margin: 0 0 20px; max-width: 22ch; font-size: var(--tamanho-4xl); font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
+  .sobre-abertura { margin: 0; max-width: 52ch; font-size: var(--tamanho-lg); line-height: 1.45; color: var(--texto-700); text-wrap: pretty;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  /* seções: duas colunas, como "A ferramenta" na página inicial */
+  .secao { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px 128px; align-items: start; padding: var(--secao-espaco) 0 0; }
+  .secao-ideia h2 { margin: 0 0 12px; max-width: 22ch; font-size: var(--tamanho-2xl); font-weight: 600; color: var(--carmim-800); text-wrap: balance; }
+  .secao-abertura { margin: 0; max-width: 36ch; font-size: var(--tamanho-lg); line-height: 1.45; color: var(--texto-700); text-wrap: pretty;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  .secao-texto { max-width: 56ch; font-size: var(--tamanho-md); line-height: 1.6; color: var(--texto-900); }
+  .secao-texto p { margin: 0; text-wrap: pretty; }
+  .secao-texto p + p { margin-top: 16px; }
+
+  /* listas com a estrutura de uma Etapa do mapa: rótulo pequeno em cima, nome, linha, texto; laterais que esfumam */
+  .lista { --linha-v: linear-gradient(to bottom, transparent, var(--borda) 24%, var(--borda) 76%, transparent);
+    list-style: none; margin: 0; padding: 0; max-width: 520px;
+    border-style: solid; border-width: 0 var(--linha); border-image: var(--linha-v) 1; }
+  .sobre-item + .sobre-item { border-top: var(--linha) solid var(--borda); }
+  .sobre-item-topo { display: flex; flex-direction: column; gap: 4px; padding: 12px 24px 10px; }
+  .sobre-item-rotulo { font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); line-height: 1.45; color: var(--texto-600); }
+  .sobre-item-rotulo-sim { color: var(--carmim-800); font-weight: 600; }
+  .sobre-item-nome { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; color: var(--neutro-800); text-wrap: balance; }
+  .sobre-item-corpo { margin: 0; padding: 12px 24px 16px; border-top: var(--linha) solid var(--borda-interna);
+    font-size: var(--tamanho-sm); line-height: 1.45; color: var(--texto-900); text-wrap: pretty; }
+
+  .fontes-titulo { margin: 40px 0 8px; font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--texto-600); }
+  .fontes { list-style: none; margin: 0; padding: 0; max-width: 520px; display: grid; gap: 6px;
+    font-size: var(--tamanho-xs); line-height: 1.5; color: var(--texto-700); }
+
+  .pessoas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 600px; }
+  .pessoas li { display: grid; gap: 2px; align-content: start; }
+  /* foto quadrada em preto e branco, com um contorno fino por dentro para não sumir no fundo */
+  .pessoa-foto { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; margin-bottom: 12px; border-radius: 2px;
+    filter: grayscale(1); outline: 1px solid rgb(0 0 0 / 0.08); outline-offset: -1px; }
+  .pessoa-nome { font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 500; color: var(--texto-950); }
+  .agradecimento { margin: 32px 0 0; max-width: 48ch; font-size: var(--tamanho-sm); line-height: 1.5; color: var(--texto-600); text-wrap: pretty; }
+  .pessoa-papel { font-size: var(--tamanho-sm); color: var(--texto-600); }
+  .pessoa-link { justify-self: start; margin-top: 6px; font-size: var(--tamanho-sm); color: var(--carmim-800); text-decoration: underline;
+    text-decoration-color: var(--carmim-300); text-underline-offset: 3px; transition: text-decoration-color 150ms ease; }
+  @media (hover: hover) { .pessoa-link:hover { text-decoration-color: currentColor; } }
+  .pessoa-link:focus-visible { outline: 2px solid var(--carmim-800); outline-offset: 2px; border-radius: 2px; }
+
+  /* fim: a frase e os botões, centrados, como a chamada final da página inicial (em menor escala) */
+  /* faixas em volta de "Quem faz": só na área do conteúdo, de uma guia lateral à outra, com uma linha em cima e outra
+     embaixo e a hachura no meio */
+  .sobre > .faixa { position: relative; height: var(--faixa-altura, 40px); margin: var(--secao-espaco) 0 0; padding: 0; }
+  .faixa-rabisco { left: 0; width: 100%; }
+  .faixa :global(.faixa-linha) { position: absolute; left: 0; width: 100%; }
+  .faixa :global(.faixa-linha-cima) { top: -6px; }
+  .faixa :global(.faixa-linha-baixo) { bottom: -6px; }
+  /* "Quem faz" respira por igual entre as duas faixas */
+  .secao-quem { padding-top: var(--faixa-respiro, 64px); padding-bottom: var(--faixa-respiro, 64px); }
+  .secao-quem + .faixa { margin-top: 0; }
+  .sobre-fim { display: grid; justify-items: center; gap: 32px; padding: calc(var(--secao-espaco) * 1.5) 0 0; text-align: center; }
+  .sobre-fim h2 { margin: 0; max-width: 24ch; font-size: var(--tamanho-3xl); font-weight: 600; line-height: 1.15; color: var(--texto-950); text-wrap: balance; }
+  .sobre-fim .acoes-hero { justify-content: center; margin: 0; }
+
+  @media (max-width: 720px) {
+    .sobre { --secao-espaco: 56px; --respiro: 20px; }
+    .sobre-topo h1 { font-size: var(--tamanho-3xl); }
+    .secao { grid-template-columns: 1fr; gap: 20px; }
+    .sobre-fim h2 { font-size: var(--tamanho-2xl); }
+    .pessoas { gap: 16px; }
+    .pessoa-nome { font-size: var(--tamanho-md); }
+    .pessoa-papel { font-size: var(--tamanho-xs); }
+  }
 </style>

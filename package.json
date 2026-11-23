@@ -19,7 +19,8 @@
     "marca": "node public/brand/export.mjs",
     "conteudo": "node scripts/conteudo.mjs",
     "conteudo:checar": "node scripts/conteudo.mjs --checar",
-    "pdfs": "node scripts/pdfs.mjs"
+    "pdfs": "node scripts/pdfs.mjs",
+    "rodape-olho": "node scripts/rodape-olho.mjs"
   },
   "devDependencies": {
     "@astrojs/react": "^7.1.9",
