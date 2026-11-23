@@ -113,16 +113,6 @@ const PESSOAS = [
     </div>
   </section>
 
-  <section class="secao" aria-labelledby="sobre-proximos">
-    <div class="secao-ideia">
-      <h2 id="sobre-proximos">Para onde o <span translate="no">musá</span> vai</h2>
-      <p class="secao-abertura">A visita escolar é a primeira jornada mapeada.</p>
-    </div>
-    <div class="secao-texto">
-      <p>A mesma forma de olhar serve para outros tipos de visita e para outras áreas do trabalho no museu. É para lá que o <span translate="no">musá</span> quer crescer.</p>
-    </div>
-  </section>
-
   {/* "Quem faz" entre duas faixas, de uma guia lateral à outra: duas linhas em giz com a hachura dos rabiscos entre elas */}
   <div class="faixa" aria-hidden="true">
     <svg class="rabisco faixa-rabisco"><rect width="100%" height="100%" fill="url(#sobre-hachura)" filter="url(#sobre-giz-rabisco)" /></svg>
@@ -225,6 +215,8 @@ const PESSOAS = [
 <style>
   /* Próximos passos: o desenho na coluna da esquerda (no lugar do título das outras seções), o subtítulo, o texto e o
      convite na da direita */
+  /* o desenho centrado na altura do texto ao lado */
+  .secao.secao-caminhos { align-items: center; }
   .caminhos-desenho { width: 100%; max-width: 560px; height: auto; overflow: visible; }
   .caminhos-lado { display: flex; flex-direction: column; gap: 16px; }
   .caminhos-titulo { margin: 0; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-xl); font-weight: 600; color: var(--texto-950); }
