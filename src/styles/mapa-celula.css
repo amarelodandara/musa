@@ -7,8 +7,11 @@
 .praticas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .pratica { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; }
 .pratica[hidden] { display: none; }
-.marcador { font-weight: 700; color: var(--texto-700); }
-.pratica[data-tipo="evitar"] .marcador { color: var(--texto-600); }
+/* marcador: o rosto feliz (boa prática) ou triste (o que evitar) desenhado para a marca, pintado pela cor (máscara) */
+.marcador { width: 14px; height: 14px; margin-top: 0.15em; background: var(--marcador-boa, var(--coral-600));
+  mask: url("/brand/musa-avatar-happy.svg") center / contain no-repeat; }
+.pratica[data-tipo="evitar"] .marcador { background: var(--marcador-evitar, var(--carmim-800)); mask-image: url("/brand/musa-avatar-sad.svg"); }
+.pratica-titulo { font-weight: 500; color: var(--texto-950); }
 .pratica-funcao { grid-column: 2; font-size: var(--tamanho-2xs); color: var(--texto-600); }
 
 /* em repouso (Etapa fechada no modo etapa): texto menor e mais claro, sem o rótulo de função */

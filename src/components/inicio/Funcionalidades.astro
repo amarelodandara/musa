@@ -85,7 +85,6 @@ function destacar(texto: string): Trecho[] {
   return trechos;
 }
 const celula = {
-  marcador: celulaTipo === "boa" ? "+" : "−",
   tipo: celulaTipo,
   // o rótulo de função é sempre um verbete (subtermos de "As funções")
   praticas: conteudo.praticas.filter((p) => p.etapa === celulaEtapa && p.tipo === celulaTipo).map((p) => {
@@ -231,7 +230,7 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
             <ul class="praticas">
               {celula.praticas.map((p) => (
                 <li class="pratica" data-tipo={celula.tipo}>
-                  <span class="marcador">{celula.marcador}</span>
+                  <span class="marcador" aria-hidden="true"></span>
                   <span class="pratica-titulo">{p.titulo.map((t) => t.termo ? <mark data-termo={t.termo}>{t.texto}<svg class="circulo"><path pathLength="1" /></svg></mark> : <span>{t.texto}</span>)}</span>
                   <span class="pratica-funcao"><span>{p.funcao}</span></span>
                 </li>

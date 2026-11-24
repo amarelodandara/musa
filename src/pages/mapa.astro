@@ -22,8 +22,13 @@ const daEtapa = (id: string) => ({
   boas: praticas.filter((p) => p.etapa === id && p.tipo === "boa"),
   evitar: praticas.filter((p) => p.etapa === id && p.tipo === "evitar")
 });
-// na grade, Boas práticas e O que evitar ficam numa Camada só, uma depois da outra; o símbolo (+ ou −) diz qual é qual
-const praticasDaEtapa = (d: ReturnType<typeof daEtapa>) => [...d.boas, ...d.evitar];
+// na grade, Boas práticas e O que evitar ficam numa Camada só; o rosto (feliz ou triste) diz qual é qual.
+// Ordem: pela Função (a primeira de cada Prática, em ordem alfabética), para as do mesmo ator ficarem juntas
+const nomeDaFuncao = (id: string) => conteudo.funcoes.find((f) => f.id === id)?.nome ?? "";
+const praticasDaEtapa = (d: ReturnType<typeof daEtapa>) =>
+  [...d.boas, ...d.evitar].sort((a, b) => nomeDaFuncao(a.funcoes[0]).localeCompare(nomeDaFuncao(b.funcoes[0]), "pt-BR"));
+// detalhe da Prática: a primeira linha é a descrição; as outras, o exemplo (num destaque)
+const partesDoDetalhe = (t: string | null) => { const l = (t ?? "").split("\n").map((x) => x.trim()).filter(Boolean); return { descricao: l[0], exemplo: l.slice(1) }; };
 const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
 const CAMADAS = [
   { id: "acoes", nome: "Ações do professor" },
@@ -136,11 +141,16 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 <ul class="praticas">
                   {praticasDaEtapa(d).map((p) => (
                     <li class="pratica" data-funcao={p.funcoes.join(" ")} data-tipo={p.tipo}>
-                      <span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span>
+                      <span class="marcador" aria-hidden="true"></span>
                       <span class="pratica-titulo"><span class="visualmente-oculto">{p.tipo === "boa" ? "Boa prática: " : "Evite: "}</span>{p.titulo}</span>
                       <span class="pratica-funcao">{nomesFuncoes(p)}</span>
-                      {/* o detalhe só aparece na Etapa aberta (cada linha da planilha vira um parágrafo) */}
-                      {p.detalhe && <div class="pratica-detalhe">{p.detalhe.split("\n").filter((t) => t.trim()).map((t) => <p>{t}</p>)}</div>}
+                      {/* o detalhe só aparece na Etapa aberta: a descrição, mais clara, e o exemplo num destaque */}
+                      {p.detalhe && (() => { const { descricao, exemplo } = partesDoDetalhe(p.detalhe); return (
+                        <div class="pratica-detalhe">
+                          {descricao && <p class="pratica-descricao">{descricao}</p>}
+                          {exemplo.length > 0 && <div class="pratica-exemplo">{exemplo.map((t) => <p>{t}</p>)}</div>}
+                        </div>
+                      ); })()}
                     </li>
                   ))}
                 </ul>
@@ -181,8 +191,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
             <h3>{tipo === "boas" ? "Boas práticas" : "O que evitar"}</h3>
             <ul class="det-lista">
               {d[tipo].map((p) => (
-                <li class="pratica" data-funcao={p.funcoes.join(" ")}>
-                  <strong><span class="marcador" aria-hidden="true">{p.tipo === "boa" ? "+" : "−"}</span> {p.titulo}</strong>
+                <li class="pratica" data-funcao={p.funcoes.join(" ")} data-tipo={p.tipo}>
+                  <strong><span class="marcador" aria-hidden="true"></span>{p.titulo}</strong>
                   {p.detalhe && <p>{p.detalhe}</p>}
                   <p class="det-origem">{nomesFuncoes(p)} · {p.origem}{fonte(p.fonte) && <> · {fonte(p.fonte)}</>}</p>
                 </li>
@@ -322,10 +332,15 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .vazio { color: var(--texto-400); font-style: italic; }
-  /* detalhe das Práticas: só na Etapa aberta, embaixo da Função */
-  .pratica-detalhe { grid-column: 2; display: none; margin-top: 4px; font-size: var(--tamanho-xs); line-height: 1.45; color: var(--texto-700); }
-  .pratica-detalhe p + p { margin-top: 4px; }
+  /* detalhe das Práticas: só na Etapa aberta, embaixo da Função. Hierarquia (23/11/2026): título em peso médio; a descrição
+     mais clara; o exemplo num destaque coral-100 (a coluna aberta é coral-50) */
+  .pratica-detalhe { grid-column: 2; display: none; margin-top: 4px; font-size: var(--tamanho-xs); line-height: 1.45; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica-detalhe { display: block; }
+  .pratica-descricao { color: var(--texto-600); }
+  .pratica-exemplo { margin-top: 6px; padding: 6px 8px; border-radius: 4px; background: var(--coral-100); color: var(--texto-700); }
+  .pratica-exemplo p + p { margin-top: 4px; }
+  /* no painel de detalhe, o rosto vai na linha do título */
+  .det-lista .marcador { display: inline-block; vertical-align: -2px; margin: 0 6px 0 0; }
 
   /* pontos de contato: as pills do bento da página inicial (Funcionalidades.astro, bloco 5), com ícone do Iconoir */
   .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
