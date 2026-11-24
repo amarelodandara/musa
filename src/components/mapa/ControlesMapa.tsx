@@ -36,9 +36,9 @@ const naVitrine = () => typeof location !== "undefined" && ["vitrine", "impressa
 const guardar = (k: string, v: string) => { if (naVitrine()) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { if (naVitrine()) return k === "guia-visto" ? "sim" : null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
-// classes comuns: controles de 32px (24/11/2026; antes 28px), cinza (é uma ferramenta de uso longo)
+// classes comuns: controles de 36px, texto de 14px e ícone de 18px (24/11/2026; antes 28px, 13px e 16px), cinza (é uma ferramenta de uso longo)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";
-const botao = `inline-flex items-center justify-center gap-1.5 h-8 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
+const botao = `inline-flex items-center justify-center gap-2 h-9 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900 text-sm font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
 
 // itens do menu de filtros
 // filtro-*: só ganchos para o painel de ajuste da bancada (dev/estados-menu-filtro/_dials.ts); não têm estilo próprio.
@@ -62,24 +62,24 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
 const filtroLigado = (classes: string) => classes
   .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
   .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
-// segmento do seletor de visão: trilho cinza; a visão escolhida num coral bem claro (coral-100), texto escuro
-const segmento = `h-7 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-100 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
+// segmento do seletor de visão (largura fixa de 128px, inteira: o filtro, à esquerda dele, não cai em meio pixel e não borra): trilho cinza; a visão escolhida num coral bem claro (coral-100), texto escuro
+const segmento = `h-8 rounded border-0 bg-transparente text-sm font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-100 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
 // do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
 // sempre: o rótulo fica à vista o tempo todo (botão da introdução, que sozinho não diz o que é)
 function Rotulo({ texto, sempre = false }: { texto: string; sempre?: boolean }) {
-  if (sempre) return <span className="block pl-1.5 pr-1 whitespace-nowrap">{texto}</span>;
+  if (sempre) return <span className="block pl-2 pr-1.5 whitespace-nowrap">{texto}</span>;
   return (
     <span aria-hidden="true" className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/abre:grid-cols-[1fr] group-focus-visible/abre:grid-cols-[1fr] group-data-popup-open/abre:grid-cols-[1fr] motion-reduce:transition-none">
-      <span className="overflow-hidden whitespace-nowrap"><span className="block pl-1.5 pr-0.5">{texto}</span></span>
+      <span className="overflow-hidden whitespace-nowrap"><span className="block pl-2 pr-1">{texto}</span></span>
     </span>
   );
 }
-// sem o gap do botão: com o rótulo fechado ele sobraria à direita do ícone; o espaço vem do pl-1.5 do próprio rótulo
-const botaoQueAbre = `${botao.replace("gap-1.5 ", "")} group/abre px-1.75`; // 7 + 16 + 7 + 2 de borda = 32, quadrado como os outros
+// sem o gap do botão: com o rótulo fechado ele sobraria à direita do ícone; o espaço vem do pl-2 do próprio rótulo
+const botaoQueAbre = `${botao.replace("gap-2 ", "")} group/abre px-2`; // 8 + 18 + 8 + 2 de borda = 36, quadrado como os outros
 
 // Ícones: Iconoir (traço de 1,5 px), só onde o controle não tem texto. Tamanho fixo em px, cor herdada.
-const ic = { width: 16, height: 16, strokeWidth: 1.5, "aria-hidden": true } as const;
+const ic = { width: 18, height: 18, strokeWidth: 1.5, "aria-hidden": true } as const;
 const icPequeno = { ...ic, width: 14, height: 14 } as const;
 
 export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInicial, menuFiltroAberto }: Props) {
@@ -189,7 +189,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
                 <Drawer.Content>
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <Drawer.Title className="m-0 font-inter text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
-                    <Drawer.Close className={`${botao} w-8 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
+                    <Drawer.Close className={`${botao} w-9 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
                   </div>
                   <Drawer.Description className="m-0 mb-2 text-texto-700">
                     O mapa mostra a visita escolar do ponto de vista da escola, do primeiro contato ao retorno.
@@ -262,8 +262,8 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
               className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-200">
-              <Toggle value="etapa" className={`${segmento} px-2.5`}>Visão detalhada</Toggle>
-              <Toggle value="inteiro" className={`${segmento} px-2.5`}>Visão geral</Toggle>
+              <Toggle value="etapa" className={`${segmento} w-32 px-0`}>Visão detalhada</Toggle>
+              <Toggle value="inteiro" className={`${segmento} w-32 px-0`}>Visão geral</Toggle>
             </ToggleGroup>
           )}
 
@@ -279,7 +279,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           <Dialog.Popup className="fixed z-50 right-0 top-0 h-dvh w-[min(520px,100vw)] box-border overflow-y-auto overscroll-contain bg-neutro-50 border-l border-neutro-300 shadow-xl font-inter text-texto-900 outline-none transition-[translate,opacity] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-x-6 data-starting-style:opacity-0 data-ending-style:translate-x-6 data-ending-style:opacity-0 motion-reduce:transition-none max-[760px]:top-auto max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-[85dvh] max-[760px]:w-full max-[760px]:border-l-0 max-[760px]:border-t max-[760px]:rounded-t-2xl max-[760px]:data-starting-style:translate-x-0 max-[760px]:data-starting-style:translate-y-10 max-[760px]:data-ending-style:translate-x-0 max-[760px]:data-ending-style:translate-y-10">
             <div className="sticky top-0 flex items-start justify-between gap-3 px-6 pt-5 pb-3 bg-neutro-50 border-b border-neutro-200">
               <Dialog.Title className="m-0 font-inter text-2xl font-semibold text-texto-950">{tituloDetalhe}</Dialog.Title>
-              <Dialog.Close className={`${botao} w-8 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
+              <Dialog.Close className={`${botao} w-9 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
             </div>
             <div className="detalhe-corpo" ref={preencherDetalhe} />
           </Dialog.Popup>
@@ -310,7 +310,7 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       </ul>
       <h3 className={h3}>Para imprimir</h3>
       <p className="m-0 mb-2.5 leading-normal">O mapa em A1, A2 ou A4, com espaço para a equipe escrever.</p>
-      <a className={`${botao} px-2.5 no-underline`} href="/baixar">Baixar mapa</a>
+      <a className={`${botao} px-3.5 no-underline`} href="/baixar">Baixar mapa</a>
     </>
   );
 }
