@@ -36,9 +36,9 @@ const naVitrine = () => typeof location !== "undefined" && ["vitrine", "impressa
 const guardar = (k: string, v: string) => { if (naVitrine()) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { if (naVitrine()) return k === "guia-visto" ? "sim" : null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
-// classes comuns: controles de 32px com borda e texto coral (24/11/2026; antes 28px e cinza)
+// classes comuns: controles de 32px (24/11/2026; antes 28px), cinza (é uma ferramenta de uso longo)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";
-const botao = `inline-flex items-center justify-center gap-1.5 h-8 rounded-sm border border-coral-200 bg-neutro-50 text-coral-900 text-xs font-inter cursor-pointer select-none hover:bg-coral-50 active:bg-coral-100 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
+const botao = `inline-flex items-center justify-center gap-1.5 h-8 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
 
 // itens do menu de filtros
 // filtro-*: só ganchos para o painel de ajuste da bancada (dev/estados-menu-filtro/_dials.ts); não têm estilo próprio.
@@ -60,10 +60,10 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
 
 // botão do filtro com filtro ligado: troca borda, fundo e cor do botão (coral; só ícone, sem texto)
 const filtroLigado = (classes: string) => classes
-  .replace("border-coral-200 bg-neutro-50 text-coral-900", "border-coral-200 bg-coral-200 text-coral-900")
-  .replace("hover:bg-coral-50 active:bg-coral-100", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
-// segmento do seletor de visão: trilho coral-100, a visão escolhida em coral (a cor principal, com texto escuro: 7,5:1)
-const segmento = `h-7 rounded border-0 bg-transparente text-xs font-inter text-coral-900 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-400 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
+  .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
+  .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
+// segmento do seletor de visão: trilho cinza; a visão escolhida num coral bem claro (coral-100), texto escuro
+const segmento = `h-7 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-100 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
 // do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
 // sempre: o rótulo fica à vista o tempo todo (botão da introdução, que sozinho não diz o que é)
@@ -178,7 +178,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
       <div className="flex items-center gap-2 min-w-0 flex-1">
         {/* barra lateral da introdução (o guia) */}
         <Drawer.Root open={guia} onOpenChange={setGuia} modal={false} disablePointerDismissal swipeDirection="left">
-          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-coral-100`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
+          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
             onClick={(ev) => { if (guia) { ev.preventDefault(); setGuia(false); } }}>
             {guia ? <SidebarCollapse {...ic} /> : <SidebarExpand {...ic} />}
             <Rotulo sempre texto={guia ? "Fechar a introdução" : "Introdução"} />
@@ -207,7 +207,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           <Menu.Root open={menuFiltroAberto ? true : undefined} modal={!menuFiltroAberto}>
             {/* com filtro ligado o botão fica colorido (coral, a cor principal), no lugar de um ponto */}
             <Menu.Trigger aria-label={semFiltro ? "Filtrar visualização" : "Filtrar visualização (há filtros ligados)"}
-              className={semFiltro ? `${botaoQueAbre} touch-manipulation data-popup-open:bg-coral-100` : `${filtroLigado(botaoQueAbre)} touch-manipulation`}>
+              className={semFiltro ? `${botaoQueAbre} touch-manipulation data-popup-open:bg-neutro-200` : `${filtroLigado(botaoQueAbre)} touch-manipulation`}>
               <Filter {...ic} />
               <Rotulo texto="Filtrar visualização" />
             </Menu.Trigger>
@@ -261,7 +261,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
               As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
-              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-coral-100">
+              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-200">
               <Toggle value="etapa" className={`${segmento} px-2.5`}>Visão detalhada</Toggle>
               <Toggle value="inteiro" className={`${segmento} px-2.5`}>Visão geral</Toggle>
             </ToggleGroup>

@@ -44,10 +44,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   <header class="mapa-topo">
     <h1 class="visualmente-oculto">Mapa da Visita</h1>
     {/* A marca, na ponta esquerda (24/11/2026; antes na direita, com 28px), maior para ser vista. Duas versões em teste (só uma aparece):
-        olho  → o ícone pequeno (3 anéis) com o nome sempre à vista; vira olho ao passar o mouse (padrão)
+        olho  → o ícone pequeno (3 anéis) que vira olho ao passar o mouse, como no resto do site (padrão)
         simbolo → o símbolo pequeno parado, com a moldura
         Em desenvolvimento, troque pelo endereço: /mapa?marca=simbolo ou /mapa?marca=olho (fica lembrado). */}
-    <div class="mapa-marca marca-olho"><MarcaNav sempreNome tamanho="size-9" alturaNome="h-7" /></div>
+    <div class="mapa-marca marca-olho"><MarcaNav soIcone tamanho="size-9" /></div>
     <a class="mapa-marca marca-simbolo" href="/" aria-label="musá, página inicial"><img src="/brand/assets/musa-symbol-crimson-pequeno.svg" alt="" width="36" height="36" /></a>
     <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length}
       etapas={etapas.map((e) => ({ id: e.id, nome: e.nome, fase: rotuloFase(e.fase) }))} />
@@ -251,7 +251,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .marca-simbolo { display: none; }
   :root[data-marca="simbolo"] .marca-simbolo { display: flex; }
   :root[data-marca="simbolo"] .marca-olho { display: none; }
-  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 60px; box-sizing: border-box;
+  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 61px; box-sizing: border-box; /* 60 por dentro + 1 da borda: marca (36) e botões (32) caem em pixel inteiro, sem borrar */
     padding: 0 16px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
   /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
