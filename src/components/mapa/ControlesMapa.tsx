@@ -185,14 +185,17 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Viewport className="fixed inset-x-0 bottom-0 top-(--altura-topo) z-20 flex pointer-events-none">
-              <Drawer.Popup className="pointer-events-auto h-full w-80 max-w-full box-border overflow-y-auto overscroll-contain bg-neutro-50 border-r border-neutro-300 shadow-lg p-5 font-inter text-sm text-texto-900 outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-[translate] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] data-starting-style:-translate-x-full data-ending-style:-translate-x-full data-swiping:select-none motion-reduce:transition-none max-[760px]:w-full max-[760px]:border-r-0">
-                <Drawer.Content>
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <Drawer.Title className="m-0 font-inter text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
-                    <Drawer.Close className={`${botao} w-9 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
+              {/* introdução (redesenhada em 24/11/2026): a mesma linguagem do site (título em carmim, DM Sans, abertura grande)
+                  e uma legenda feita com as peças do próprio mapa (rostos, avatares, etiqueta, botões e teclas) */}
+              <Drawer.Popup className="pointer-events-auto h-full w-96 max-w-full box-border overflow-y-auto overscroll-contain bg-neutro-50 border-r border-neutro-300 shadow-lg font-inter text-sm text-texto-900 outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-[translate] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] data-starting-style:-translate-x-full data-ending-style:-translate-x-full data-swiping:select-none motion-reduce:transition-none max-[760px]:w-full max-[760px]:border-r-0">
+                <Drawer.Content className="px-6 pt-5 pb-8">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="m-0 pt-2 font-inter-tight text-xs text-texto-600">Introdução</p>
+                    <Drawer.Close className={`${botao} w-9 px-0 shrink-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
                   </div>
-                  <Drawer.Description className="m-0 mb-2 text-texto-700">
-                    O mapa mostra a visita escolar do ponto de vista da escola, do primeiro contato ao retorno.
+                  <Drawer.Title className="m-0 mt-1 font-dm-sans text-2xl font-semibold leading-tight text-carmim-800 text-balance">Como usar o mapa</Drawer.Title>
+                  <Drawer.Description className="m-0 mt-3 text-md leading-normal text-texto-700 text-pretty">
+                    A visita escolar do ponto de vista da escola, do primeiro contato até depois da volta para a sala de aula.
                   </Drawer.Description>
                   <Guia totalEtapas={totalEtapas} />
                 </Drawer.Content>
@@ -289,28 +292,77 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
   );
 }
 
+// Peças da legenda: cópias paradas das peças do mapa (mesmas cores e formas), só para mostrar.
+const rosto = (tipo: "feliz" | "triste") => (
+  <span aria-hidden="true" className={`block size-4 shrink-0 ${tipo === "feliz" ? "bg-coral-300" : "bg-neutro-300"}`}
+    style={{ mask: `url(/brand/musa-avatar-${tipo === "feliz" ? "happy" : "sad"}.svg) center / contain no-repeat` }} />
+);
+const tecla = "inline-flex items-center justify-center min-w-6 h-6 px-1 box-border rounded-sm border border-neutro-300 border-b-2 bg-neutro-50 font-inter text-xs text-texto-900";
+const amostra = "flex items-center gap-2 min-h-8";
+
+// Um item da legenda: à esquerda a amostra (como aparece no mapa), à direita o que ela quer dizer
+function Item({ amostra: a, children }: { amostra: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <li className="grid grid-cols-[112px_minmax(0,1fr)] gap-4 items-start py-3">
+      <div className="flex flex-wrap items-center gap-1.5 min-h-6">{a}</div>
+      <div className="leading-normal text-texto-700 text-pretty">{children}</div>
+    </li>
+  );
+}
+function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-8">
+      <h3 className="m-0 mb-1 font-dm-sans text-md font-medium text-neutro-800">{titulo}</h3>
+      {children}
+    </section>
+  );
+}
+
 function Guia({ totalEtapas }: { totalEtapas: number }) {
-  const h3 = "mt-5 mb-1.5 text-xs font-semibold uppercase tracking-wider text-texto-600";
-  const ul = "m-0 pl-4.5 grid gap-1.5 leading-normal";
+  const desafios = [["happy", "Baixo"], ["mark-avatar", "Médio"], ["sad", "Alto"]] as const;
   return (
     <>
-      <h3 className={h3}>Como ler</h3>
-      <ul className={ul}>
-        <li>Cada coluna é uma etapa da visita. As etapas estão agrupadas em antes, durante e depois.</li>
-        <li>Cada linha é uma camada: Ações do professor, Nível de desafio, Pontos de contato e Práticas.</li>
-        <li>A linha que liga os rostos mostra o quanto cada etapa desafia o professor: baixo, médio ou alto. Passe o mouse num rosto para ler o que o professor pensa ali.</li>
-        <li>Nas práticas, o rosto feliz marca o que tende a ajudar; o triste, o que tende a atrapalhar.</li>
-      </ul>
-      <h3 className={h3}>Como navegar</h3>
-      <ul className={ul}>
-        <li><strong>Visão detalhada</strong> abre uma etapa de cada vez. Passe para a próxima ou volte para a anterior pelas setas ao lado do nome da etapa, ou pelas teclas ← e →.</li>
-        <li><strong>Visão geral</strong> mostra as {totalEtapas} etapas lado a lado.</li>
-        <li>Clique no nome de uma etapa para ver tudo sobre ela, com a origem de cada prática.</li>
-        <li>No filtro do topo, escolha quais etapas aparecem e de quais funções são as práticas mostradas.</li>
-      </ul>
-      <h3 className={h3}>Para imprimir</h3>
-      <p className="m-0 mb-2.5 leading-normal">O mapa em A1, A2 ou A4, com espaço para a equipe escrever.</p>
-      <a className={`${botao} px-3.5 no-underline`} href="/baixar">Baixar mapa</a>
+      <Secao titulo="Como ler">
+        <ul className="m-0 p-0 list-none">
+          <Item amostra={<span className="font-inter-tight text-xs font-medium text-texto-950 px-2 py-1 bg-coral-50 rounded-xs">Antes da visita</span>}>
+            Cada coluna é uma das {totalEtapas} etapas da visita, agrupadas em antes, durante e depois.
+          </Item>
+          <Item amostra={<span className="font-dm-sans text-sm font-medium text-neutro-700">Ações do professor</span>}>
+            Cada linha é uma camada: Ações do professor, Nível de desafio, Pontos de contato e Práticas.
+          </Item>
+          <Item amostra={desafios.map(([a, n]) => <img key={n} src={`/brand/musa-${a === "mark-avatar" ? "mark-avatar" : "avatar-" + a}.svg`} alt="" width="20" height="20" className="opacity-80" title={n} />)}>
+            A linha entre os rostos mostra o quanto cada etapa desafia o professor: baixo, médio ou alto. Passe o mouse num rosto para ler o que ele pensa ali.
+          </Item>
+          <Item amostra={<span className="inline-flex items-center px-2.5 py-1 rounded-[14px] border border-coral-200 text-xs leading-tight text-texto-700">E-mail</span>}>
+            Os pontos de contato são os canais por onde a escola fala com o museu naquela etapa.
+          </Item>
+          <Item amostra={<>{rosto("feliz")}{rosto("triste")}</>}>
+            Nas práticas, o rosto feliz marca o que tende a ajudar; o triste, o que tende a atrapalhar.
+          </Item>
+        </ul>
+      </Secao>
+      <Secao titulo="Como navegar">
+        <ul className="m-0 p-0 list-none">
+          <Item amostra={<span className="inline-flex p-0.5 rounded-sm bg-neutro-100 text-2xs"><span className="px-1.5 h-5 inline-flex items-center rounded bg-coral-300 text-texto-950 shadow-xs">Detalhada</span><span className="px-1.5 h-5 inline-flex items-center text-texto-700">Geral</span></span>}>
+            <strong className="font-medium text-texto-900">Visão detalhada</strong> abre uma etapa de cada vez; <strong className="font-medium text-texto-900">visão geral</strong> mostra todas lado a lado.
+          </Item>
+          <Item amostra={<><kbd className={tecla}>←</kbd><kbd className={tecla}>→</kbd></>}>
+            Passe de uma etapa para a outra pelas setas ao lado do nome dela ou pelas teclas do teclado.
+          </Item>
+          <Item amostra={<span className="inline-flex items-center gap-1.5 h-7 px-2 rounded-sm border border-coral-100 bg-neutro-50 text-xs text-coral-900"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21V7C12 5.89543 12.8954 5 14 5H21.4C21.7314 5 22 5.26863 22 5.6V18.7143" /><path d="M12 21V7C12 5.89543 11.1046 5 10 5H2.6C2.26863 5 2 5.26863 2 5.6V18.7143" /><path d="M14 19L22 19" /><path d="M10 19L2 19" /><path d="M12 21C12 19.8954 12.8954 19 14 19" /><path d="M12 21C12 19.8954 11.1046 19 10 19" /></svg>Ler mais</span>}>
+            Abra tudo sobre uma etapa, com a origem de cada prática.
+          </Item>
+          <Item amostra={<span className="inline-flex items-center justify-center size-7 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900"><Filter {...icPequeno} /></span>}>
+            Filtre quais etapas aparecem e de quais funções são as práticas mostradas.
+          </Item>
+        </ul>
+      </Secao>
+      {/* imprimir: um bloco à parte, com o botão */}
+      <section className="mt-8 p-4 rounded-sm bg-neutro-100">
+        <h3 className="m-0 font-dm-sans text-md font-medium text-neutro-800">Imprima para a reunião</h3>
+        <p className="m-0 mt-1 mb-3 leading-normal text-texto-700 text-pretty">O mapa em A1, A2 ou A4, com espaço para a equipe escrever.</p>
+        <a className={`${botao} px-3.5 no-underline`} href="/baixar">Baixar mapa</a>
+      </section>
     </>
   );
 }
