@@ -3,7 +3,8 @@
 //   lista: espaço entre as Práticas e entre o rosto e o texto
 //   rostos: tamanho, quanto descem e as cores (as cores valem nas fechadas também)
 //   titulo: tamanho, peso, cor e entrelinha
-//   funcao: o jeito de mostrar (embaixo · emCima · etiqueta · grupos), tamanho, peso, cor, caixa, letras e o espaço até o título
+//   funcao: o jeito de mostrar (embaixo · emCima · etiqueta · grupos), tamanho, peso, cor, caixa, letras, o espaço até o título
+//     e a caixa dela: fundo, borda, cantos e respiros
 //   etiqueta (jeito etiqueta): fundo, borda e respiro · grupos (jeito grupos): o título de cada ator
 //   descricao: tamanho, cor, entrelinha e o espaço acima · exemplo: fundo, borda, cor, tamanho, entrelinha, respiros e cantos
 // Etapas fechadas (inativas): lista, rostos e título (a Função e o detalhe não aparecem nelas).
@@ -29,17 +30,20 @@ const tam = (def: string) => select(Object.keys(TAMANHOS), def);
 const peso = (def: string) => select(Object.keys(PESOS), def);
 const linha = (def: string) => select(Object.keys(ENTRELINHA), def);
 
-// partida: os valores colados em 23/11/2026 e, no resto, como está no mapa hoje
+// partida: os valores colados em 23/11/2026 (segunda vez) e, no resto, como está no mapa hoje
 const config: Record<string, any> = {
-  lista: { _collapsed: false, entrePraticas: [8, 0, 32, 1], rostoAteTexto: [6, 0, 16, 1] },
-  rostos: { _collapsed: false, tamanho: [16, 10, 24, 1], descer: [2, -4, 8, 0.5], boa: select(cores("bg"), "bg-coral-300"), evitar: select(cores("bg"), "bg-neutro-300") },
+  lista: { _collapsed: false, entrePraticas: [20, 0, 32, 1], rostoAteTexto: [10, 0, 16, 1] },
+  rostos: { _collapsed: false, tamanho: [16, 10, 24, 1], descer: [3, -4, 8, 0.5], boa: select(cores("bg"), "bg-coral-300"), evitar: select(cores("bg"), "bg-neutro-300") },
   titulo: { _collapsed: false, tamanho: tam("text-sm"), peso: peso("font-medium"), cor: select(cores("text"), "text-texto-950"), entrelinha: linha("leading-normal") },
   funcao: {
     _collapsed: false,
     jeito: select(["embaixo", "emCima", "etiqueta", "grupos"], "emCima"),
     tamanho: tam("text-xs"), peso: peso("font-normal"), cor: select(cores("text"), "text-texto-600"),
     caixa: select(Object.keys(CAIXA), "normal-case"), letras: select(Object.keys(LETRAS), "tracking-wide"),
-    ateOTitulo: [1, 0, 12, 1]
+    ateOTitulo: [2, 0, 12, 1],
+    // a caixa da Função (vale nos jeitos embaixo e emCima; a etiqueta tem a dela)
+    fundo: select(cores("bg"), "bg-transparente"), borda: select(cores("border"), "border-transparente"),
+    cantos: select(Object.keys(CANTOS), "rounded-none"), respiroX: [0, 0, 14, 1], respiroY: [0, 0, 6, 1]
   },
   etiqueta: { _collapsed: true, fundo: select(cores("bg"), "bg-neutro-50"), borda: select(cores("border"), "border-coral-200"), respiroX: [7, 2, 14, 1], respiroY: [1, 0, 6, 1] },
   grupos: {
@@ -59,7 +63,7 @@ const config: Record<string, any> = {
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v2", persist: true });
+const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v3", persist: true });
 let v = kit.getValues() as Record<string, any>;
 
 const A = `.mapa[data-modo="etapa"] .etapa[data-aberta]`;
@@ -82,7 +86,8 @@ function aplicar() {
     `${A} .pratica { grid-template-columns: ${R.tamanho}px 1fr !important; column-gap: ${L.rostoAteTexto}px !important; }`,
     `${A} .marcador { width: ${R.tamanho}px !important; height: ${R.tamanho}px !important; margin-top: ${R.descer}px !important; }`,
     `${A} .pratica-titulo { ${texto(T)} }`,
-    `${A} .pratica-funcao { ${texto(F)} }`,
+    `${A} .pratica-funcao { ${texto(F)} justify-self: start; padding: ${F.respiroY}px ${F.respiroX}px; background: ${cor(F.fundo)};
+      border: ${F.borda === "border-transparente" ? "0" : `1px solid ${cor(F.borda)}`}; border-radius: ${CANTOS[F.cantos]}; }`,
     `${A} .pratica-grupo { list-style: none; margin: ${G.espacoAcima}px 0 ${G.ateAPrimeira}px; ${texto(G)} }`,
     `${A} .pratica-grupo:first-child { margin-top: 0 !important; }`,
     `${A} .pratica-detalhe { margin-top: ${D.espacoAcima}px !important; }`,
