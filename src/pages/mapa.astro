@@ -291,6 +291,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-topo { display: flex; flex-direction: column; justify-content: space-between; height: 90px; box-sizing: border-box; overflow: hidden;
     padding: 12px 12px 10px; background: var(--fase-media); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { padding-bottom: 8px; }
+  /* linha entre o topo e o resto da coluna (23/11/2026): a da grade em todas, coral-200 na Etapa aberta; segue embaixo de "Etapas" */
+  .etapa-topo, .rotulos .rotulo-etapas { border-bottom: var(--linha); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { border-bottom-color: var(--coral-200); }
   .etapa-linha { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .etapa-controles { display: flex; align-items: center; gap: 8px; margin-left: auto; }
   .etapa-setas { display: none; gap: 8px; }
@@ -371,10 +374,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     .desafio-cartao, .desafio-cartao:first-child, .desafio[data-visivel] .desafio-cartao { scale: 1; translate: 0 0; }
   }
 
-  /* modo etapa: a aberta mostra tudo; as compactas, só o título e as Práticas */
+  /* modo etapa: a aberta mostra tudo; as compactas, menores e sem o botão Ler mais, a Função e o detalhe das Práticas */
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-acoes > p,
-  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada-pontos > *,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-lg); font-weight: 400; color: var(--texto-950); }

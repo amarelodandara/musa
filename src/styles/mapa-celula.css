@@ -13,5 +13,8 @@
 
 /* em repouso (Etapa fechada no modo etapa): texto menor e mais claro, sem o rótulo de função */
 .mapa[data-modo="etapa"] .etapa:not([data-aberta]) { color: var(--texto-700); }
-.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 8px 10px; }
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .camada { font-size: var(--tamanho-xs); padding: 12px 10px 8px; } /* topo de 12px, como os rótulos: mesma linha de partida */
 .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-funcao { display: none; }
+/* nas fechadas também aparecem as Ações do professor e os pontos de contato (23/11/2026), em pills menores */
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etiquetas { gap: 4px; }
+.mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etiquetas li { padding: 2px 7px; gap: 0.35em; font-size: var(--tamanho-2xs); border-radius: 10px; }
