@@ -332,13 +332,25 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .vazio { color: var(--texto-400); font-style: italic; }
-  /* detalhe das Práticas: só na Etapa aberta, embaixo da Função. Hierarquia (23/11/2026): título em peso médio; a descrição
-     mais clara; o exemplo num destaque coral-100 (a coluna aberta é coral-50) */
-  .pratica-detalhe { grid-column: 2; display: none; margin-top: 4px; font-size: var(--tamanho-xs); line-height: 1.45; }
+  /* Práticas (valores decididos em /dev/praticas-funcao, 23/11/2026).
+     Etapa aberta: rosto de 16px a 10px do texto; a Função em cima do título, numa caixa texto-50; título 14px médio;
+     o detalhe embaixo: a descrição mais clara e o exemplo num destaque coral-100, ambos com sobra à direita. */
+  .pratica-detalhe { grid-column: 2; display: none; margin-top: 4px; font-size: var(--tamanho-xs); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica-detalhe { display: block; }
-  .pratica-descricao { color: var(--texto-600); }
-  .pratica-exemplo { margin-top: 6px; padding: 6px 8px; border-radius: 4px; background: var(--coral-100); color: var(--texto-700); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .praticas { gap: 30px; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica { grid-template-columns: 16px 1fr; grid-template-rows: auto auto; column-gap: 10px; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .marcador { grid-row: 2; width: 16px; height: 16px; margin-top: 3px; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica-titulo { grid-row: 2; font-size: var(--tamanho-sm); font-weight: 500; line-height: 1.5; color: var(--texto-950); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .pratica-funcao { grid-row: 1; grid-column: 2; justify-self: start; margin: 0 0 6px; padding: 0 8px;
+    border-radius: 2px; background: var(--texto-50); font-size: var(--tamanho-xs); font-weight: 400; letter-spacing: 0.025em; color: var(--texto-600); }
+  .pratica-descricao { margin-right: 32px; line-height: 1.625; color: var(--texto-600); }
+  .pratica-exemplo { margin: 6px 20px 0 0; padding: 8px 10px; border-radius: 2px; background: var(--coral-100); line-height: 1.625; color: var(--neutro-800); }
   .pratica-exemplo p + p { margin-top: 4px; }
+  /* Etapas fechadas: só o rosto (13px, a 8px do texto) e o título, 13px normal */
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .praticas { gap: 12px; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica { grid-template-columns: 13px 1fr; column-gap: 8px; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .marcador { width: 13px; height: 13px; margin-top: 3px; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-titulo { font-size: var(--tamanho-xs); font-weight: 400; line-height: 1.5; color: var(--texto-950); }
   /* no painel de detalhe, o rosto vai na linha do título */
   .det-lista .marcador { display: inline-block; vertical-align: -2px; margin: 0 6px 0 0; }
 
