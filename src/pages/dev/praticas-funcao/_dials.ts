@@ -31,7 +31,7 @@ const tam = (def: string) => select(Object.keys(TAMANHOS), def);
 const peso = (def: string) => select(Object.keys(PESOS), def);
 const linha = (def: string) => select(Object.keys(ENTRELINHA), def);
 
-// partida: os valores colados em 23/11/2026 (terceira vez) e, no resto, como está no mapa hoje
+// partida: os valores colados em 23/11/2026 (quarta vez) e, no resto, como está no mapa hoje
 const config: Record<string, any> = {
   lista: { _collapsed: false, entrePraticas: [30, 0, 48, 1], rostoAteTexto: [10, 0, 16, 1] },
   rostos: { _collapsed: false, tamanho: [16, 10, 24, 1], descer: [3, -4, 8, 0.5], boa: select(cores("bg"), "bg-coral-300"), evitar: select(cores("bg"), "bg-neutro-300") },
@@ -55,17 +55,17 @@ const config: Record<string, any> = {
   descricao: { _collapsed: false, tamanho: tam("text-xs"), cor: select(cores("text"), "text-texto-600"), entrelinha: linha("leading-relaxed"), espacoAcima: [4, 0, 16, 1], sobraADireita: [32, 0, 120, 4] },
   exemplo: {
     _collapsed: false, fundo: select(cores("bg"), "bg-coral-100"), borda: select(cores("border"), "border-transparente"), cor: select(cores("text"), "text-neutro-800"),
-    tamanho: tam("text-xs"), entrelinha: linha("leading-relaxed"), espacoAcima: [6, 0, 20, 1], respiroX: [8, 0, 20, 1], respiroY: [6, 0, 16, 1], sobraADireita: [32, 0, 120, 4],
+    tamanho: tam("text-xs"), entrelinha: linha("leading-relaxed"), espacoAcima: [6, 0, 20, 1], respiroX: [10, 0, 20, 1], respiroY: [8, 0, 16, 1], sobraADireita: [20, 0, 120, 4],
     cantos: select(Object.keys(CANTOS), "rounded-sm")
   },
   inativas: {
-    _collapsed: false, entrePraticas: [8, 0, 32, 1], rostoAteTexto: [6, 0, 16, 1], rostoTamanho: [14, 10, 24, 1], rostoDescer: [2, -4, 8, 0.5],
-    tamanho: tam("text-xs"), peso: peso("font-medium"), cor: select(cores("text"), "text-texto-950"), entrelinha: linha("leading-normal")
+    _collapsed: false, entrePraticas: [12, 0, 32, 1], rostoAteTexto: [8, 0, 16, 1], rostoTamanho: [13, 10, 24, 1], rostoDescer: [3, -4, 8, 0.5],
+    tamanho: tam("text-xs"), peso: peso("font-normal"), cor: select(cores("text"), "text-texto-950"), entrelinha: linha("leading-normal")
   }
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v4", persist: true });
+const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v5", persist: true });
 let v = kit.getValues() as Record<string, any>;
 
 const A = `.mapa[data-modo="etapa"] .etapa[data-aberta]`;
