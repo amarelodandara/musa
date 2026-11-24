@@ -36,11 +36,11 @@ const config = {
     fundo: corSel("transparente"),
     linhaDeBaixo: corSel("neutro-200"),
     textoDaAtiva: corSel("neutro-700"),
-    fundoDaAtiva: corSel("coral-100")
+    fundoDaAtiva: corSel("coral-50")
   },
   topo: {
     alturaPx: [90, 64, 140, 2],
-    fundoDaAberta: corSel("coral-100"),
+    fundoDaAberta: corSel("coral-50"),
     fundoDaColunaAberta: corSel("coral-50"),
     fundoDasFechadas: corSel("transparente"),
     linhaDeBaixoDaAberta: corSel("coral-200"),

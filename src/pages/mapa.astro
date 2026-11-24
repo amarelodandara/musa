@@ -265,10 +265,10 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
      (Escolhido no playground /dev/cores-fases, combinação A.) */
   /* fora da coluna ativa, sem fundo (23/11/2026; antes neutro-100) */
-  /* hierarquia do topo decidida em /dev/hierarquia-topo (24/11/2026): Fases em neutro-600, a ativa e o topo da Etapa aberta
-     em coral-100 (texto neutro-700); a coluna aberta segue em coral-50; número e nome da aberta em coral-500 */
+  /* hierarquia do topo decidida em /dev/hierarquia-topo (24/11/2026): Fases em neutro-600; a ativa, o topo e a coluna da
+     Etapa aberta em coral-50 (texto da Fase neutro-700); número e nome da aberta em coral-500 */
   .mapa { --fase-forte: transparent; --fase-media: transparent; --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
-    --fase-ativa: var(--coral-100); --fase-texto-ativa: var(--neutro-700); --fase-clara: var(--coral-50); }
+    --fase-ativa: var(--coral-50); --fase-texto-ativa: var(--neutro-700); --fase-clara: var(--coral-50); }
   /* linhas da grade mais claras (antes neutro-300); --linha vem de mapa-celula.css, aqui só no mapa */
   .pagina-mapa-v2 .mapa { --linha: 1px solid var(--neutro-200); }
   /* 32px de altura (antes 32,5: meio pixel, borrava) e o texto centrado pela altura das maiúsculas (text-box), não pela
