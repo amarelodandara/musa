@@ -4,7 +4,7 @@
 //   inteiro → todas as Etapas lado a lado, Camadas alinhadas em linhas
 // O detalhe de uma Etapa abre num painel lateral (folha de baixo no celular), com Origem e Fonte de cada Prática.
 // É uma ferramenta de uso longo: tons de cinza, sem a cor da marca na grade (as cores de destaque vêm depois).
-// Barra fina no topo: botão do guia, o logotipo (volta para o início) e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
+// Barra no topo: o logotipo (volta para o início), o botão do guia e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
 // guia, modo, setas das Etapas e filtro. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
 // lateral por cima da grade, aberta sozinha só na primeira visita; o link para baixar o mapa mora nele.
 // Nível de desafio (decidido em /dev/desafio): três níveis fixos, um avatar por Etapa, ligados por um caminho de giz;
@@ -43,14 +43,14 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
 <div class="mapa" data-modo="etapa" id="mapa">
   <header class="mapa-topo">
     <h1 class="visualmente-oculto">Mapa da Visita</h1>
-    <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length}
-      etapas={etapas.map((e) => ({ id: e.id, nome: e.nome, fase: rotuloFase(e.fase) }))} />
-    {/* A marca, na ponta direita, centralizada na altura da barra. Duas versões em teste (só uma aparece):
-        olho  → o ícone pequeno (3 anéis) que vira olho ao passar o mouse, como no resto do site (padrão)
+    {/* A marca, na ponta esquerda (24/11/2026; antes na direita, com 28px), maior para ser vista. Duas versões em teste (só uma aparece):
+        olho  → o ícone pequeno (3 anéis) com o nome sempre à vista; vira olho ao passar o mouse (padrão)
         simbolo → o símbolo pequeno parado, com a moldura
         Em desenvolvimento, troque pelo endereço: /mapa?marca=simbolo ou /mapa?marca=olho (fica lembrado). */}
-    <div class="mapa-marca marca-olho"><MarcaNav soIcone tamanho="size-7" /></div>
-    <a class="mapa-marca marca-simbolo" href="/" aria-label="musá, página inicial"><img src="/brand/assets/musa-symbol-crimson-pequeno.svg" alt="" width="28" height="28" /></a>
+    <div class="mapa-marca marca-olho"><MarcaNav sempreNome tamanho="size-9" alturaNome="h-7" /></div>
+    <a class="mapa-marca marca-simbolo" href="/" aria-label="musá, página inicial"><img src="/brand/assets/musa-symbol-crimson-pequeno.svg" alt="" width="36" height="36" /></a>
+    <ControlesMapa client:load funcoes={funcoes.map((f) => ({ id: f.id, nome: f.nome }))} totalEtapas={etapas.length}
+      etapas={etapas.map((e) => ({ id: e.id, nome: e.nome, fase: rotuloFase(e.fase) }))} />
   </header>
   {/* só na impressão (?impressao=a1|a2|a4, que gera os PDFs): marca e título no alto da folha */}
   <header class="impressao-topo" aria-hidden="true">
@@ -164,6 +164,20 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     </div>
   </div>
 
+  {/* rodapé do mapa: uma linha só, com o crédito e os links para as outras páginas (24/11/2026) */}
+  <footer class="mapa-rodape">
+    <p class="mapa-rodape-credito"><span translate="no">musá</span> · Mapa da Visita · Conteúdo sob <a href="/licenca">CC BY 4.0</a> · <a href="/sobre#sobre-conteudo">Fontes do mapa</a></p>
+    <nav aria-label="Outras páginas">
+      <ul>
+        <li><a href="/guia">Guia</a></li>
+        <li><a href="/guia/glossario">Glossário</a></li>
+        <li><a href="/baixar">Imprima o mapa</a></li>
+        <li><a href="/sobre">Sobre</a></li>
+        <li><a href="/">Início</a></li>
+      </ul>
+    </nav>
+  </footer>
+
   {etapas.map((e) => {
     const d = daEtapa(e.id);
     return (
@@ -230,15 +244,15 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
-  .mapa-marca { flex-shrink: 0; display: flex; align-items: center; height: 28px; }
-  .mapa-marca img { display: block; width: 28px; height: 28px; }
+  .mapa-marca { flex-shrink: 0; display: flex; align-items: center; height: 36px; margin-right: 8px; } /* 24px até a Introdução */
+  .mapa-marca img { display: block; width: 36px; height: 36px; }
   a.mapa-marca { border-radius: 4px; }
   a.mapa-marca:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 3px; }
   .marca-simbolo { display: none; }
   :root[data-marca="simbolo"] .marca-simbolo { display: flex; }
   :root[data-marca="simbolo"] .marca-olho { display: none; }
-  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 44px; box-sizing: border-box;
-    padding: 0 12px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
+  .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 60px; box-sizing: border-box;
+    padding: 0 16px; background: var(--neutro-50); border-bottom: 1px solid var(--neutro-300); }
   /* grade: uma coluna por Etapa, Camadas como linhas (subgrid) */
   .mapa-rolagem { flex: 1; min-width: 0; overflow-x: auto; padding: 0; }
   :root[data-vitrine], :root[data-vitrine] body { overflow: hidden; }
@@ -296,6 +310,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
   .etapa[hidden] { display: none; }
+  /* colunas alternadas (24/11/2026): uma sim, uma não, um cinza bem claro, como numa tabela, para dar ritmo. Conta só as
+     Etapas à vista (o filtro esconde algumas). A Etapa aberta tem o próprio fundo (regra mais abaixo, que vence por vir depois). */
+  @media (min-width: 761px) { .mapa .etapa:nth-child(even of .etapa:not([hidden])) { background: var(--neutro-100); } }
   /* topo da Etapa (valores decididos em /dev/titulo-etapa): 90px em todas as colunas; a linha de cima (número e
      controles) e o nome vão para as pontas, então os nomes de todas as Etapas ficam na mesma linha, embaixo */
   .etapa-topo { display: flex; flex-direction: column; justify-content: space-between; height: 90px; box-sizing: border-box; overflow: hidden;
@@ -435,7 +452,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .impressao-topo, .rotulo-notas, .camada-notas { display: none; }
   :root[data-impressao], :root[data-impressao] body { overflow: hidden; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   :root[data-impressao] .mapa { height: 100vh; min-height: 0; }
-  :root[data-impressao] .mapa-topo, :root[data-impressao] .etapa-controles { display: none; }
+  :root[data-impressao] .mapa-topo, :root[data-impressao] .etapa-controles, :root[data-impressao] .mapa-rodape { display: none; }
+  :root[data-impressao] .mapa .etapa { background: var(--neutro-50); }
   :root[data-impressao] .impressao-topo { display: flex; align-items: center; gap: 24px; padding: 20px 24px; border-bottom: var(--linha); }
   :root[data-impressao] .impressao-topo img { height: 40px; }
   .impressao-titulo { margin: 0; font-family: var(--fonte-inter); font-size: var(--tamanho-xl); font-weight: 600; color: var(--carmim-800); }
@@ -449,6 +467,17 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* pauta clara: uma linha a cada 28px, começando depois do respiro da célula */
   .camada-notas { --pauta: 28px; background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--pauta) - 1px), var(--neutro-200) calc(var(--pauta) - 1px) var(--pauta))
     content-box; padding: 12px; }
+
+  /* rodapé: crédito à esquerda, links à direita; quebra em duas linhas quando falta espaço */
+  .mapa-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding: 16px;
+    border-top: var(--linha); background: var(--neutro-50); font-size: var(--tamanho-xs); line-height: 1.5; color: var(--texto-600); }
+  .mapa-rodape p { margin: 0; }
+  .mapa-rodape ul { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0; padding: 0; list-style: none; }
+  .mapa-rodape a { color: var(--texto-900); text-decoration: none; border-radius: 2px; }
+  .mapa-rodape-credito a { color: inherit; text-decoration: underline; text-decoration-color: var(--neutro-400); text-underline-offset: 3px; }
+  .mapa-rodape a:hover { color: var(--carmim-800); text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 3px; }
+  .mapa-rodape a:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
+  :root[data-vitrine] .mapa-rodape { display: none; }
 
   /* celular: só o modo etapa, uma coluna na tela */
   @media (max-width: 760px) {

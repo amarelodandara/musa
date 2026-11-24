@@ -1,5 +1,5 @@
-// Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo: botão de ajuda (guia) à esquerda;
-// à direita o filtro e a visão (detalhada/geral). A marca fica fora da ilha, na ponta direita da barra (mapa.astro). Mais o painel de detalhe de uma Etapa.
+// Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo: botão de ajuda (guia) à esquerda, logo depois da marca
+// (que fica fora da ilha, na ponta esquerda da barra, em mapa.astro); à direita o filtro e a visão (detalhada/geral). Mais o painel de detalhe de uma Etapa.
 // Quem desenha a grade é src/scripts/mapa.ts. A conversa é por eventos e pela API window.musaMapa:
 //   mapa.ts → "musa-mapa:estado" { modo, atual, total, celular } e "musa-mapa:detalhe" { id }
 //   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funções) / .mostrarEtapas(etapas)
@@ -36,9 +36,9 @@ const naVitrine = () => typeof location !== "undefined" && ["vitrine", "impressa
 const guardar = (k: string, v: string) => { if (naVitrine()) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
 const ler = (k: string) => { if (naVitrine()) return k === "guia-visto" ? "sim" : null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 
-// classes comuns: controles pequenos e cinza (é uma ferramenta de uso longo)
+// classes comuns: controles de 32px com borda e texto coral (24/11/2026; antes 28px e cinza)
 const foco = "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-texto-950";
-const botao = `inline-flex items-center justify-center gap-1.5 h-7 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900 text-xs font-inter cursor-pointer select-none hover:bg-neutro-100 active:bg-neutro-200 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
+const botao = `inline-flex items-center justify-center gap-1.5 h-8 rounded-sm border border-coral-200 bg-neutro-50 text-coral-900 text-xs font-inter cursor-pointer select-none hover:bg-coral-50 active:bg-coral-100 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-neutro-50 ${foco}`;
 
 // itens do menu de filtros
 // filtro-*: só ganchos para o painel de ajuste da bancada (dev/estados-menu-filtro/_dials.ts); não têm estilo próprio.
@@ -60,13 +60,15 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
 
 // botão do filtro com filtro ligado: troca borda, fundo e cor do botão (coral; só ícone, sem texto)
 const filtroLigado = (classes: string) => classes
-  .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
-  .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
-// segmento do seletor de visão
-const segmento = `h-6 rounded border-0 bg-transparente text-xs font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap hover:text-texto-950 data-pressed:bg-neutro-50 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
+  .replace("border-coral-200 bg-neutro-50 text-coral-900", "border-coral-200 bg-coral-200 text-coral-900")
+  .replace("hover:bg-coral-50 active:bg-coral-100", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
+// segmento do seletor de visão: trilho coral-100, a visão escolhida em coral (a cor principal, com texto escuro: 7,5:1)
+const segmento = `h-7 rounded border-0 bg-transparente text-xs font-inter text-coral-900 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-400 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
 // do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
-function Rotulo({ texto }: { texto: string }) {
+// sempre: o rótulo fica à vista o tempo todo (botão da introdução, que sozinho não diz o que é)
+function Rotulo({ texto, sempre = false }: { texto: string; sempre?: boolean }) {
+  if (sempre) return <span className="block pl-1.5 pr-1 whitespace-nowrap">{texto}</span>;
   return (
     <span aria-hidden="true" className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/abre:grid-cols-[1fr] group-focus-visible/abre:grid-cols-[1fr] group-data-popup-open/abre:grid-cols-[1fr] motion-reduce:transition-none">
       <span className="overflow-hidden whitespace-nowrap"><span className="block pl-1.5 pr-0.5">{texto}</span></span>
@@ -74,7 +76,7 @@ function Rotulo({ texto }: { texto: string }) {
   );
 }
 // sem o gap do botão: com o rótulo fechado ele sobraria à direita do ícone; o espaço vem do pl-1.5 do próprio rótulo
-const botaoQueAbre = `${botao.replace("gap-1.5 ", "")} group/abre px-1.25`; // 5 + 16 + 5 + 2 de borda = 28, quadrado como os outros
+const botaoQueAbre = `${botao.replace("gap-1.5 ", "")} group/abre px-1.75`; // 7 + 16 + 7 + 2 de borda = 32, quadrado como os outros
 
 // Ícones: Iconoir (traço de 1,5 px), só onde o controle não tem texto. Tamanho fixo em px, cor herdada.
 const ic = { width: 16, height: 16, strokeWidth: 1.5, "aria-hidden": true } as const;
@@ -176,10 +178,10 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
       <div className="flex items-center gap-2 min-w-0 flex-1">
         {/* barra lateral da introdução (o guia) */}
         <Drawer.Root open={guia} onOpenChange={setGuia} modal={false} disablePointerDismissal swipeDirection="left">
-          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
+          <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-coral-100`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
             onClick={(ev) => { if (guia) { ev.preventDefault(); setGuia(false); } }}>
             {guia ? <SidebarCollapse {...ic} /> : <SidebarExpand {...ic} />}
-            <Rotulo texto={guia ? "Fechar a introdução" : "Introdução"} />
+            <Rotulo sempre texto={guia ? "Fechar a introdução" : "Introdução"} />
           </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Viewport className="fixed inset-x-0 bottom-0 top-(--altura-topo) z-20 flex pointer-events-none">
@@ -187,7 +189,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
                 <Drawer.Content>
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <Drawer.Title className="m-0 font-inter text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
-                    <Drawer.Close className={`${botao} w-7 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
+                    <Drawer.Close className={`${botao} w-8 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
                   </div>
                   <Drawer.Description className="m-0 mb-2 text-texto-700">
                     O mapa mostra a visita escolar do ponto de vista da escola, do primeiro contato ao retorno.
@@ -205,7 +207,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           <Menu.Root open={menuFiltroAberto ? true : undefined} modal={!menuFiltroAberto}>
             {/* com filtro ligado o botão fica colorido (coral, a cor principal), no lugar de um ponto */}
             <Menu.Trigger aria-label={semFiltro ? "Filtrar visualização" : "Filtrar visualização (há filtros ligados)"}
-              className={semFiltro ? `${botaoQueAbre} touch-manipulation data-popup-open:bg-neutro-200` : `${filtroLigado(botaoQueAbre)} touch-manipulation`}>
+              className={semFiltro ? `${botaoQueAbre} touch-manipulation data-popup-open:bg-coral-100` : `${filtroLigado(botaoQueAbre)} touch-manipulation`}>
               <Filter {...ic} />
               <Rotulo texto="Filtrar visualização" />
             </Menu.Trigger>
@@ -259,7 +261,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
               As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
-              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-200">
+              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-coral-100">
               <Toggle value="etapa" className={`${segmento} px-2.5`}>Visão detalhada</Toggle>
               <Toggle value="inteiro" className={`${segmento} px-2.5`}>Visão geral</Toggle>
             </ToggleGroup>
@@ -277,7 +279,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           <Dialog.Popup className="fixed z-50 right-0 top-0 h-dvh w-[min(520px,100vw)] box-border overflow-y-auto overscroll-contain bg-neutro-50 border-l border-neutro-300 shadow-xl font-inter text-texto-900 outline-none transition-[translate,opacity] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-x-6 data-starting-style:opacity-0 data-ending-style:translate-x-6 data-ending-style:opacity-0 motion-reduce:transition-none max-[760px]:top-auto max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-[85dvh] max-[760px]:w-full max-[760px]:border-l-0 max-[760px]:border-t max-[760px]:rounded-t-2xl max-[760px]:data-starting-style:translate-x-0 max-[760px]:data-starting-style:translate-y-10 max-[760px]:data-ending-style:translate-x-0 max-[760px]:data-ending-style:translate-y-10">
             <div className="sticky top-0 flex items-start justify-between gap-3 px-6 pt-5 pb-3 bg-neutro-50 border-b border-neutro-200">
               <Dialog.Title className="m-0 font-inter text-2xl font-semibold text-texto-950">{tituloDetalhe}</Dialog.Title>
-              <Dialog.Close className={`${botao} w-7 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
+              <Dialog.Close className={`${botao} w-8 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
             </div>
             <div className="detalhe-corpo" ref={preencherDetalhe} />
           </Dialog.Popup>
