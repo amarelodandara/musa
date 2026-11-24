@@ -228,7 +228,7 @@ new ResizeObserver(() => document.documentElement.style.setProperty("--altura-to
 document.addEventListener("keydown", (ev) => {
   // com o painel de detalhe aberto (atributo posto pela ilha) ou foco num controle, as setas são do controle
   if (document.documentElement.hasAttribute("data-mapa-detalhe") || raiz.dataset.modo !== "etapa") return;
-  if ((ev.target as HTMLElement).closest("select, input, [role='listbox'], [role='option'], [role='group'], [role='dialog']")) return;
+  if ((ev.target as HTMLElement).closest("select, input, textarea, [contenteditable], [role='listbox'], [role='option'], [role='group'], [role='dialog']")) return;
   if (ev.key === "ArrowRight") passo(1);
   if (ev.key === "ArrowLeft") passo(-1);
 });

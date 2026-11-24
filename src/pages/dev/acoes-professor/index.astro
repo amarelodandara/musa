@@ -1,0 +1,133 @@
+---
+// Editor das Ações do professor direto no mapa (24/11/2026). Só em desenvolvimento.
+// Mostra a própria página /mapa num quadro e deixa escrever em cada célula "Ações do professor": o mapa se ajusta na
+// hora, para achar textos de tamanho parecido e sem buracos. Os textos ficam guardados neste navegador até "Desfazer tudo".
+// Para levar ao mapa: "Copiar textos" e colar na conversa com o Claude, que passa para a planilha (a fonte do conteúdo,
+// ADR 0002) e importa de novo (npm run conteudo).
+import { conteudo } from "../../../lib/conteudo";
+if (!import.meta.env.DEV) return Astro.redirect("/");
+const etapas = conteudo.etapas.map((e) => ({ id: e.id, ordem: e.ordem, nome: e.nome, texto: e.acoesEscola ?? "" }));
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor · Ações do professor</title>
+<style is:global>
+  body { margin: 0; background: #e9e6e5; font: 13px/1.4 system-ui, -apple-system, sans-serif; color: #333; }
+  .pagina { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; padding: 16px; height: 100dvh; box-sizing: border-box; }
+  /* quadro: o mapa na largura real (1440), encolhido para caber */
+  .palco { position: relative; overflow: hidden; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08); }
+  .palco iframe { position: absolute; left: 0; top: 0; border: 0; width: 1440px; transform-origin: 0 0; }
+  .lado { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .lado h1 { margin: 0; font-size: 15px; }
+  .lado p { margin: 0; color: #666; }
+  .botoes { display: flex; gap: 8px; }
+  .botoes button { flex: 1; padding: 8px 10px; border: 0; border-radius: 8px; font: 500 13px/1 system-ui, sans-serif; cursor: pointer; background: #141111; color: #fff; }
+  .botoes button.secundario { background: #fff; color: #141111; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15); }
+  .botoes button:active { transform: scale(0.97); }
+  .lista { margin: 0; padding: 0; list-style: none; overflow-y: auto; display: grid; gap: 4px; }
+  .lista li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 8px 10px; border-radius: 8px; background: #fff; cursor: pointer; }
+  .lista li[data-mudou] { box-shadow: inset 3px 0 #ff7f50; }
+  .lista .n { color: #888; }
+  .lista .conta { font-variant-numeric: tabular-nums; color: #666; }
+  /* barra do tamanho: comprimento do texto, com a média das sete como referência */
+  .lista .barra { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #eee; position: relative; overflow: hidden; }
+  .lista .barra span { position: absolute; inset: 0 auto 0 0; background: #bbb; }
+  .lista .barra i { position: absolute; top: 0; bottom: 0; width: 1px; background: #888; }
+  .lista li[data-mudou] .barra span { background: #ff7f50; }
+  .aviso { min-height: 1.4em; color: #2a7a3a; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div class="palco"><iframe title="Mapa"></iframe></div>
+  <aside class="lado">
+    <h1>Ações do professor</h1>
+    <p>Clique no texto de uma célula, no mapa, e escreva. Clique numa etapa da lista para abri-la. A barra mostra o tamanho de cada texto; a linha clara, a média.</p>
+    <div class="botoes"><button type="button" id="copiar">Copiar textos</button><button type="button" class="secundario" id="desfazer">Desfazer tudo</button></div>
+    <p class="aviso" aria-live="polite"></p>
+    <ul class="lista"></ul>
+  </aside>
+</div>
+<script is:inline define:vars={{ etapas }}>
+  const CHAVE = "musa-dev:acoes-professor";
+  // o quadro abre sem a introdução por cima (marca como já vista neste navegador)
+  try { localStorage.setItem("musa:guia-visto", "sim"); } catch {}
+  const quadro = document.querySelector(".palco iframe"), palco = document.querySelector(".palco");
+  const lista = document.querySelector(".lista"), aviso = document.querySelector(".aviso");
+  let textos = {};
+  try { textos = JSON.parse(localStorage.getItem(CHAVE) || "{}"); } catch {}
+  const atual = (e) => textos[e.id] ?? e.texto;
+  const guardar = () => localStorage.setItem(CHAVE, JSON.stringify(textos));
+
+  function encaixar() {
+    const k = Math.min(1, palco.clientWidth / 1440);
+    quadro.style.transform = `scale(${k})`;
+    quadro.style.height = palco.clientHeight / k + "px";
+  }
+  addEventListener("resize", encaixar); encaixar();
+
+  function desenharLista() {
+    const media = etapas.reduce((s, e) => s + atual(e).length, 0) / etapas.length;
+    const maior = Math.max(...etapas.map((e) => atual(e).length), 1);
+    lista.innerHTML = "";
+    etapas.forEach((e, i) => {
+      const li = document.createElement("li");
+      li.dataset.i = i;
+      if (atual(e) !== e.texto) li.dataset.mudou = "";
+      const t = atual(e).length;
+      li.innerHTML = `<span><span class="n">${e.ordem}</span> ${e.nome}</span><span class="conta">${t} car.</span>
+        <span class="barra"><span style="width:${(t / maior) * 100}%"></span><i style="left:${(media / maior) * 100}%"></i></span>`;
+      lista.append(li);
+    });
+  }
+  lista.addEventListener("click", (ev) => {
+    const li = ev.target.closest("li"); if (!li) return;
+    const d = quadro.contentDocument;
+    d.querySelector(`.etapa[data-etapa="${etapas[li.dataset.i].id}"] .etapa-abrir`)?.click();
+  });
+
+  // dentro do quadro: cada célula vira campo de texto
+  function preparar() {
+    const d = quadro.contentDocument;
+    if (!d || !d.querySelector(".camada-acoes")) { setTimeout(preparar, 100); return; }
+    const estilo = d.createElement("style");
+    estilo.textContent = `.camada-acoes p[contenteditable] { outline: 1px dashed transparent; outline-offset: 4px; border-radius: 2px; cursor: text; }
+      .camada-acoes p[contenteditable]:hover { outline-color: var(--neutro-400); }
+      .camada-acoes p[contenteditable]:focus { outline: 2px solid var(--coral-400); }`;
+    d.head.append(estilo);
+    etapas.forEach((e) => {
+      const cel = d.querySelector(`.etapa[data-etapa="${e.id}"] .camada-acoes`);
+      if (!cel) return;
+      let p = cel.querySelector("p");
+      if (!p) { p = d.createElement("p"); cel.replaceChildren(p); }
+      p.classList.remove("vazio");
+      p.textContent = atual(e);
+      p.setAttribute("contenteditable", "plaintext-only");
+      p.addEventListener("input", () => {
+        textos[e.id] = p.textContent.replace(/\s+/g, " ").trim();
+        if (textos[e.id] === e.texto) delete textos[e.id];
+        guardar(); desenharLista();
+      });
+      // Enter não quebra linha (a célula é um parágrafo só)
+      p.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); p.blur(); } });
+    });
+  }
+  quadro.addEventListener("load", () => setTimeout(preparar, 0));
+  quadro.src = "/mapa?modo=etapa";
+
+  document.getElementById("copiar").addEventListener("click", async () => {
+    const saida = "Ações do professor (editor /dev/acoes-professor):\n\n" +
+      etapas.map((e) => `${e.ordem}. ${e.nome} [${e.id}]${atual(e) !== e.texto ? " (mudou)" : ""}\n${atual(e)}`).join("\n\n");
+    await navigator.clipboard.writeText(saida);
+    aviso.textContent = "Copiado. Cole na conversa com o Claude.";
+    setTimeout(() => (aviso.textContent = ""), 2500);
+  });
+  document.getElementById("desfazer").addEventListener("click", () => {
+    textos = {}; guardar(); desenharLista(); quadro.contentWindow.location.reload();
+  });
+  desenharLista();
+</script>
+</body>
+</html>
