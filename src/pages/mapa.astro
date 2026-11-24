@@ -277,6 +277,12 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
      Fase (fim do mapa) não tem ponta. A seguinte abre espaço para o texto não encostar. (Playground /dev/forma-fases.) */
   .fase { position: relative; }
   .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child) { border-right-color: transparent; }
+  /* a Fase ativa encosta no topo da Etapa aberta, sem linha entre elas (24/11/2026); as outras Fases mantêm a linha */
+  .mapa[data-modo="etapa"] .fase[data-ativa] { border-bottom-color: transparent; }
+  /* as outras Etapas da Fase ativa ganham a linha de volta no próprio topo (a da Fase sumiu em cima delas também) */
+  .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Antes"]) .etapa[data-fase="Antes"]:not([data-aberta]) .etapa-topo,
+  .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Durante"]) .etapa[data-fase="Durante"]:not([data-aberta]) .etapa-topo,
+  .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Depois"]) .etapa[data-fase="Depois"]:not([data-aberta]) .etapa-topo { box-shadow: inset 0 1px var(--neutro-200); }
   .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 0; bottom: 0; right: -24px; width: 24px;
     background: inherit; clip-path: polygon(0 0, 40% 0, 100% 45%, 100% 55%, 40% 100%, 0 100%); }
   .mapa[data-modo="etapa"] .fase[data-ativa] + .fase { padding-left: 36px; }
