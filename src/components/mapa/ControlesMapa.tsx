@@ -186,7 +186,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
               <Drawer.Popup className="pointer-events-auto h-full w-80 max-w-full box-border overflow-y-auto overscroll-contain bg-neutro-50 border-r border-neutro-300 shadow-lg p-5 font-inter text-sm text-texto-900 outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-[translate] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] data-starting-style:-translate-x-full data-ending-style:-translate-x-full data-swiping:select-none motion-reduce:transition-none max-[760px]:w-full max-[760px]:border-r-0">
                 <Drawer.Content>
                   <div className="flex items-center justify-between gap-3 mb-3">
-                    <Drawer.Title className="m-0 font-dm-sans text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
+                    <Drawer.Title className="m-0 font-inter text-md font-semibold text-texto-950">Como usar o mapa</Drawer.Title>
                     <Drawer.Close className={`${botao} w-7 px-0`} aria-label="Fechar a introdução"><Xmark {...ic} /></Drawer.Close>
                   </div>
                   <Drawer.Description className="m-0 mb-2 text-texto-700">
@@ -276,7 +276,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
           <Dialog.Backdrop className="fixed inset-0 z-40 bg-texto-950/20 transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
           <Dialog.Popup className="fixed z-50 right-0 top-0 h-dvh w-[min(520px,100vw)] box-border overflow-y-auto overscroll-contain bg-neutro-50 border-l border-neutro-300 shadow-xl font-inter text-texto-900 outline-none transition-[translate,opacity] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-x-6 data-starting-style:opacity-0 data-ending-style:translate-x-6 data-ending-style:opacity-0 motion-reduce:transition-none max-[760px]:top-auto max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-[85dvh] max-[760px]:w-full max-[760px]:border-l-0 max-[760px]:border-t max-[760px]:rounded-t-2xl max-[760px]:data-starting-style:translate-x-0 max-[760px]:data-starting-style:translate-y-10 max-[760px]:data-ending-style:translate-x-0 max-[760px]:data-ending-style:translate-y-10">
             <div className="sticky top-0 flex items-start justify-between gap-3 px-6 pt-5 pb-3 bg-neutro-50 border-b border-neutro-200">
-              <Dialog.Title className="m-0 font-dm-sans text-2xl font-semibold text-texto-950">{tituloDetalhe}</Dialog.Title>
+              <Dialog.Title className="m-0 font-inter text-2xl font-semibold text-texto-950">{tituloDetalhe}</Dialog.Title>
               <Dialog.Close className={`${botao} w-7 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
             </div>
             <div className="detalhe-corpo" ref={preencherDetalhe} />
