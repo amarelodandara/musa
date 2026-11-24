@@ -265,12 +265,16 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
      cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
      (Escolhido no playground /dev/cores-fases, combinação A.) */
   /* fora da coluna ativa, sem fundo (23/11/2026; antes neutro-100) */
-  .mapa { --fase-forte: transparent; --fase-media: transparent; --fase-texto: var(--texto-700); --fase-numero: var(--texto-600);
-    /* 23/11/2026: a Etapa aberta inteira (Fase, topo e coluna) em coral-50, sem o coral forte; borda coral-200 em volta dela */
-    --fase-ativa: var(--coral-50); --fase-texto-ativa: var(--texto-950); --fase-clara: var(--coral-50); }
+  /* hierarquia do topo decidida em /dev/hierarquia-topo (24/11/2026): Fases em neutro-600, a ativa e o topo da Etapa aberta
+     em coral-100 (texto neutro-700); a coluna aberta segue em coral-50; número e nome da aberta em coral-500 */
+  .mapa { --fase-forte: transparent; --fase-media: transparent; --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
+    --fase-ativa: var(--coral-100); --fase-texto-ativa: var(--neutro-700); --fase-clara: var(--coral-50); }
   /* linhas da grade mais claras (antes neutro-300); --linha vem de mapa-celula.css, aqui só no mapa */
   .pagina-mapa-v2 .mapa { --linha: 1px solid var(--neutro-200); }
-  .fase { padding: 6px 12px; font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); font-weight: 500; letter-spacing: 0.04em;
+  /* 32px de altura (antes 32,5: meio pixel, borrava) e o texto centrado pela altura das maiúsculas (text-box), não pela
+     caixa da fonte, que deixava sobra embaixo */
+  .fase { display: flex; align-items: center; height: 32px; box-sizing: border-box; padding: 0 12px; text-box: trim-both cap alphabetic;
+    font-family: var(--fonte-inter-tight); font-size: var(--tamanho-xs); font-weight: 400; letter-spacing: 0.05em; white-space: nowrap;
     color: var(--fase-texto); background: var(--fase-forte); border-right: var(--linha); border-bottom: var(--linha); transition: background-color 200ms ease, color 200ms ease; }
   .mapa[data-modo="etapa"] .fase[data-ativa] { background: var(--fase-ativa); color: var(--fase-texto-ativa); }
   /* a Fase ativa termina numa seta arredondada (24px) que avança sobre a vizinha, no lugar do corte reto; a última
@@ -288,7 +292,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .fase[data-ativa] + .fase { padding-left: 36px; }
   /* a cor da Fase ativa desce para o topo da Etapa aberta; as outras Etapas (da mesma Fase e das demais) ficam no tom claro */
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { background: var(--fase-ativa); transition: background-color 200ms ease; }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { font-variant-numeric: normal; }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-n { font-variant-numeric: normal; color: var(--coral-500); }
   /* borda da Etapa aberta em coral-200 (a mesma da coluna dos rótulos): a direita dela e a direita da vizinha da esquerda */
   .mapa[data-modo="etapa"] .etapa[data-aberta],
   .mapa[data-modo="etapa"] .etapa:has(+ .etapa[data-aberta]) { border-right-color: var(--coral-200); }
@@ -334,8 +338,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* botões de ação do topo (Ler mais e setas): tamanho, espaçamento e cantos dos botões da barra (ControlesMapa):
      28px de altura, ícone de 16px a 6px da borda, texto 6px depois do ícone e 8px antes da borda, Inter 13px, cantos de 4px.
      Borda de 0,5px coral-100 (o Chrome desenha 1px; o respiro desconta 1px) e anel interno de 0,5px coral-500 a 30%. */
-  .etapa-acao { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; box-sizing: border-box; margin: 0;
-    padding: 0 7px 0 5px; border: 0.5px solid var(--coral-100); border-radius: 4px; background: var(--neutro-50);
+  .etapa-acao { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; box-sizing: border-box; margin: 0;
+    padding: 0 7px 0 5px; border: 0.5px solid var(--coral-200); /* 30px e borda coral-200: /dev/hierarquia-topo, 24/11/2026 */ border-radius: 4px; background: var(--neutro-50);
     box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--coral-500) 30%, transparent);
     color: var(--coral-900); font-family: var(--fonte-inter); font-size: var(--tamanho-xs); font-weight: 400; line-height: 1; white-space: nowrap;
     cursor: pointer; user-select: none; transition: background-color 150ms ease, transform 150ms cubic-bezier(0.23, 1, 0.32, 1); }
@@ -343,13 +347,13 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-acao:hover { background: transparent; }
   .etapa-acao:active { background: color-mix(in srgb, var(--texto-950) 14%, transparent); transform: scale(0.97); }
   .etapa-acao:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
-  .etapa-seta { width: 28px; padding: 0; }
+  .etapa-seta { width: 30px; padding: 0; }
   /* no corpo do mapa, só Inter e Inter Tight (DM Sans fica na coluna dos rótulos) */
   .etapa-nome { margin: 8px 0 0; font-family: var(--fonte-inter); font-size: var(--tamanho-md); font-weight: 500; line-height: 1.2; letter-spacing: normal;
     text-wrap: balance; }
   .etapa-abrir { all: unset; cursor: pointer; }
   .etapa-abrir:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; border-radius: 2px; }
-  .etapa-n { color: var(--fase-numero); font-family: var(--fonte-inter-tight); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .etapa-n { color: var(--fase-numero); font-family: var(--fonte-inter); font-size: var(--tamanho-md); font-weight: 400; font-variant-numeric: tabular-nums; }
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
   .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); } /* a cor da página: cobre as Etapas ao rolar para o lado */
 
@@ -428,7 +432,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-detalhe,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .vazio { display: none; }
   .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
-  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-size: var(--tamanho-lg); font-weight: 400; color: var(--texto-950); }
+  .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-family: var(--fonte-inter-tight); font-size: var(--tamanho-lg); font-weight: 400;
+    letter-spacing: 0.025em; color: var(--coral-500); }
   /* nomes das Etapas fechadas (e de todas na visão geral): menores e sem peso, para a aberta se destacar */
   .mapa[data-modo="inteiro"] .etapa-nome,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-nome { font-size: var(--tamanho-sm); font-weight: 400; color: var(--texto-950); }

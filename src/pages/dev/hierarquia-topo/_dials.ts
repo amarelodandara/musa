@@ -23,42 +23,42 @@ const cantos = (c: string) => ({ "rounded-none": "0", "rounded-xs": "2px", "roun
 const sel = (opcoes: string[], padrao: string) => ({ type: "select", options: opcoes, default: padrao });
 const corSel = (padrao: string) => sel(CORES, padrao);
 
-// padrões: o que o mapa usa hoje (mapa.astro, 24/11/2026)
+// padrões: o que o mapa usa hoje (valores colados e levados ao mapa em 24/11/2026)
 const config = {
   fases: {
     fonte: sel(FONTES, "font-inter-tight"),
     tamanho: sel(TAMANHOS, "text-xs"),
-    peso: sel(PESOS, "font-medium"),
+    peso: sel(PESOS, "font-normal"),
     caixa: sel(CAIXA, "normal-case"),
     letras: sel(LETRAS, "tracking-wider"),
     respiroVerticalPx: [6, 2, 16, 1],
-    texto: corSel("texto-700"),
+    texto: corSel("neutro-600"),
     fundo: corSel("transparente"),
     linhaDeBaixo: corSel("neutro-200"),
-    textoDaAtiva: corSel("texto-950"),
-    fundoDaAtiva: corSel("coral-50")
+    textoDaAtiva: corSel("neutro-700"),
+    fundoDaAtiva: corSel("coral-100")
   },
   topo: {
     alturaPx: [90, 64, 140, 2],
-    fundoDaAberta: corSel("coral-50"),
+    fundoDaAberta: corSel("coral-100"),
     fundoDaColunaAberta: corSel("coral-50"),
     fundoDasFechadas: corSel("transparente"),
     linhaDeBaixoDaAberta: corSel("coral-200"),
     linhaDeBaixoDasFechadas: corSel("neutro-200")
   },
   numero: {
-    fonte: sel(FONTES, "font-inter-tight"),
+    fonte: sel(FONTES, "font-inter"),
     tamanho: sel(TAMANHOS, "text-md"),
     peso: sel(PESOS, "font-normal"),
     corNasFechadas: corSel("texto-600"),
-    corNaAberta: corSel("texto-600")
+    corNaAberta: corSel("coral-500")
   },
   nomeDaAberta: {
-    fonte: sel(FONTES, "font-inter"),
+    fonte: sel(FONTES, "font-inter-tight"),
     tamanho: sel(TAMANHOS, "text-lg"),
     peso: sel(PESOS, "font-normal"),
-    letras: sel(LETRAS, "tracking-normal"),
-    cor: corSel("texto-950")
+    letras: sel(LETRAS, "tracking-wide"),
+    cor: corSel("coral-500")
   },
   nomeDasFechadas: {
     fonte: sel(FONTES, "font-inter"),
@@ -67,12 +67,12 @@ const config = {
     cor: corSel("texto-950")
   },
   botoes: {
-    alturaPx: [28, 24, 36, 1],
+    alturaPx: [30, 24, 36, 1],
     tamanhoDoTexto: sel(TAMANHOS, "text-xs"),
     pesoDoTexto: sel(PESOS, "font-normal"),
     cantos: sel(CANTOS, "rounded-sm"),
     fundo: corSel("neutro-50"),
-    borda: corSel("coral-100"),
+    borda: corSel("coral-200"),
     texto: corSel("coral-900"),
     fundoAoPassar: corSel("transparente")
   }
