@@ -6,7 +6,8 @@
 //   funcao: o jeito de mostrar (embaixo · emCima · etiqueta · grupos), tamanho, peso, cor, caixa, letras, o espaço até o título
 //     e a caixa dela: fundo, borda, cantos e respiros
 //   etiqueta (jeito etiqueta): fundo, borda e respiro · grupos (jeito grupos): o título de cada ator
-//   descricao: tamanho, cor, entrelinha e o espaço acima · exemplo: fundo, borda, cor, tamanho, entrelinha, respiros e cantos
+//   descricao: tamanho, cor, entrelinha, o espaço acima e a sobra à direita · exemplo: fundo, borda, cor, tamanho, entrelinha,
+//     respiros, cantos e a sobra à direita
 // Etapas fechadas (inativas): lista, rostos e título (a Função e o detalhe não aparecem nelas).
 // Opções de texto e cor são classes do Tailwind (todas as cores do tema); espaços em px.
 // Tudo vira um <style> (e, nos grupos, itens <li>) dentro do quadro. Para levar ao código: Copy parameters, colar na conversa.
@@ -30,9 +31,9 @@ const tam = (def: string) => select(Object.keys(TAMANHOS), def);
 const peso = (def: string) => select(Object.keys(PESOS), def);
 const linha = (def: string) => select(Object.keys(ENTRELINHA), def);
 
-// partida: os valores colados em 23/11/2026 (segunda vez) e, no resto, como está no mapa hoje
+// partida: os valores colados em 23/11/2026 (terceira vez) e, no resto, como está no mapa hoje
 const config: Record<string, any> = {
-  lista: { _collapsed: false, entrePraticas: [20, 0, 32, 1], rostoAteTexto: [10, 0, 16, 1] },
+  lista: { _collapsed: false, entrePraticas: [30, 0, 48, 1], rostoAteTexto: [10, 0, 16, 1] },
   rostos: { _collapsed: false, tamanho: [16, 10, 24, 1], descer: [3, -4, 8, 0.5], boa: select(cores("bg"), "bg-coral-300"), evitar: select(cores("bg"), "bg-neutro-300") },
   titulo: { _collapsed: false, tamanho: tam("text-sm"), peso: peso("font-medium"), cor: select(cores("text"), "text-texto-950"), entrelinha: linha("leading-normal") },
   funcao: {
@@ -40,20 +41,21 @@ const config: Record<string, any> = {
     jeito: select(["embaixo", "emCima", "etiqueta", "grupos"], "emCima"),
     tamanho: tam("text-xs"), peso: peso("font-normal"), cor: select(cores("text"), "text-texto-600"),
     caixa: select(Object.keys(CAIXA), "normal-case"), letras: select(Object.keys(LETRAS), "tracking-wide"),
-    ateOTitulo: [2, 0, 12, 1],
+    ateOTitulo: [6, 0, 12, 1],
     // a caixa da Função (vale nos jeitos embaixo e emCima; a etiqueta tem a dela)
-    fundo: select(cores("bg"), "bg-transparente"), borda: select(cores("border"), "border-transparente"),
-    cantos: select(Object.keys(CANTOS), "rounded-none"), respiroX: [0, 0, 14, 1], respiroY: [0, 0, 6, 1]
+    fundo: select(cores("bg"), "bg-texto-50"), borda: select(cores("border"), "border-transparente"),
+    cantos: select(Object.keys(CANTOS), "rounded-sm"), respiroX: [8, 0, 14, 1], respiroY: [0, 0, 6, 1]
   },
   etiqueta: { _collapsed: true, fundo: select(cores("bg"), "bg-neutro-50"), borda: select(cores("border"), "border-coral-200"), respiroX: [7, 2, 14, 1], respiroY: [1, 0, 6, 1] },
   grupos: {
     _collapsed: true, tamanho: tam("text-xs"), peso: peso("font-semibold"), cor: select(cores("text"), "text-texto-700"),
     caixa: select(Object.keys(CAIXA), "normal-case"), letras: select(Object.keys(LETRAS), "tracking-normal"), espacoAcima: [10, 0, 32, 1], ateAPrimeira: [2, 0, 16, 1]
   },
-  descricao: { _collapsed: true, tamanho: tam("text-xs"), cor: select(cores("text"), "text-texto-600"), entrelinha: linha("leading-normal"), espacoAcima: [4, 0, 16, 1] },
+  // sobraADireita: espaço livre à direita, para as linhas ficarem mais curtas
+  descricao: { _collapsed: false, tamanho: tam("text-xs"), cor: select(cores("text"), "text-texto-600"), entrelinha: linha("leading-relaxed"), espacoAcima: [4, 0, 16, 1], sobraADireita: [32, 0, 120, 4] },
   exemplo: {
-    _collapsed: true, fundo: select(cores("bg"), "bg-coral-100"), borda: select(cores("border"), "border-transparente"), cor: select(cores("text"), "text-coral-800"),
-    tamanho: tam("text-xs"), entrelinha: linha("leading-normal"), espacoAcima: [6, 0, 20, 1], respiroX: [8, 0, 20, 1], respiroY: [6, 0, 16, 1],
+    _collapsed: false, fundo: select(cores("bg"), "bg-coral-100"), borda: select(cores("border"), "border-transparente"), cor: select(cores("text"), "text-neutro-800"),
+    tamanho: tam("text-xs"), entrelinha: linha("leading-relaxed"), espacoAcima: [6, 0, 20, 1], respiroX: [8, 0, 20, 1], respiroY: [6, 0, 16, 1], sobraADireita: [32, 0, 120, 4],
     cantos: select(Object.keys(CANTOS), "rounded-sm")
   },
   inativas: {
@@ -63,7 +65,7 @@ const config: Record<string, any> = {
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v3", persist: true });
+const kit = createDialKit("Mapa: Função nas Práticas", config, { id: "musa-praticas-funcao-v4", persist: true });
 let v = kit.getValues() as Record<string, any>;
 
 const A = `.mapa[data-modo="etapa"] .etapa[data-aberta]`;
@@ -91,9 +93,9 @@ function aplicar() {
     `${A} .pratica-grupo { list-style: none; margin: ${G.espacoAcima}px 0 ${G.ateAPrimeira}px; ${texto(G)} }`,
     `${A} .pratica-grupo:first-child { margin-top: 0 !important; }`,
     `${A} .pratica-detalhe { margin-top: ${D.espacoAcima}px !important; }`,
-    `${A} .pratica-descricao { ${texto(D)} }`,
+    `${A} .pratica-descricao { ${texto(D)} margin-right: ${D.sobraADireita}px; }`,
     `${A} .pratica-exemplo { margin-top: ${X.espacoAcima}px !important; padding: ${X.respiroY}px ${X.respiroX}px !important; background: ${cor(X.fundo)} !important;
-      border: 1px solid ${cor(X.borda)} !important; border-radius: ${CANTOS[X.cantos]} !important; ${texto(X)} }`,
+      border: 1px solid ${cor(X.borda)} !important; border-radius: ${CANTOS[X.cantos]} !important; margin-right: ${X.sobraADireita}px; ${texto(X)} }`,
     // fechadas
     `${I} .praticas { gap: ${N.entrePraticas}px !important; }`,
     `${I} .pratica { grid-template-columns: ${N.rostoTamanho}px 1fr !important; column-gap: ${N.rostoAteTexto}px !important; }`,
