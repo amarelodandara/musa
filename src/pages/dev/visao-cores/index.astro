@@ -1,0 +1,34 @@
+---
+// Playground das cores do seletor de visão do mapa (24/11/2026). Só em desenvolvimento.
+// Mostra a própria página /mapa num quadro, recortada na barra do topo; o painel (_dials.ts) troca as classes dentro dele.
+// Clique em "Visão geral" / "Visão detalhada" no quadro para ver as duas escolhas. Nada no código do mapa muda.
+if (!import.meta.env.DEV) return Astro.redirect("/");
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cores da visão · mapa</title>
+<style>
+  body { margin: 0; background: #e9e6e5; font: 13px/1.4 system-ui, sans-serif; color: #444; }
+  /* o painel fica embaixo à direita; o palco, no alto, não chega lá */
+  .pagina { padding: 24px; }
+  .pagina p { margin: 0 0 12px; }
+  /* palco: a barra em tamanho real (sem escala, para não borrar), recortada à direita onde fica o seletor */
+  .palco { width: min(100%, 760px); height: 140px; overflow: hidden; border-radius: 8px; background: #fff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08); direction: rtl; }
+  .palco iframe { display: block; border: 0; width: 1440px; height: 140px; direction: ltr; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <p>Cores do seletor de visão. Clique nas duas opções dentro do quadro e passe o mouse para ver cada estado.</p>
+  <div class="palco"><iframe title="Barra do mapa" src="/mapa"></iframe></div>
+</div>
+<script>
+  // sem a introdução aberta por cima (marca como já vista neste navegador)
+  try { localStorage.setItem("musa:guia-visto", "sim"); } catch {}
+</script>
+<script src="./_dials.ts"></script>
+</body>
+</html>
