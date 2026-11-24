@@ -62,8 +62,8 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
 const filtroLigado = (classes: string) => classes
   .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
   .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
-// segmento do seletor de visão (largura fixa de 128px, inteira: o filtro, à esquerda dele, não cai em meio pixel e não borra): trilho cinza; a visão escolhida num coral bem claro (coral-100), texto escuro
-const segmento = `h-8 rounded border-0 bg-transparente text-sm font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-100 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
+// segmento do seletor de visão (largura fixa de 128px, inteira: o filtro, à esquerda dele, não cai em meio pixel e não borra): trilho neutro-100; a visão escolhida em coral-300, texto escuro (cores escolhidas em /dev/visao-cores, 24/11/2026)
+const segmento = `h-8 rounded border-0 bg-transparente text-sm font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-300 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
 // do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
 // sempre: o rótulo fica à vista o tempo todo (botão da introdução, que sozinho não diz o que é)
@@ -261,7 +261,7 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
               As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
           {!celular && (
             <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
-              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-200">
+              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-100">
               <Toggle value="etapa" className={`${segmento} w-32 px-0`}>Visão detalhada</Toggle>
               <Toggle value="inteiro" className={`${segmento} w-32 px-0`}>Visão geral</Toggle>
             </ToggleGroup>
