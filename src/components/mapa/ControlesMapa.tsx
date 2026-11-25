@@ -1,12 +1,11 @@
 // Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo (25/11/2026): botão da introdução na ponta esquerda, depois
 // a marca e o nome da página (fora da ilha, em mapa.astro, que reordena com CSS); à direita o filtro. Sem seletor de visão (25/11/2026):
-// fechar a Etapa aberta (×, nome ou Esc, na grade) mostra todas lado a lado. Mais o painel de detalhe de uma Etapa.
+// fechar a Etapa aberta (×, nome ou Esc, na grade) mostra todas lado a lado. Sem painel de detalhe (25/11/2026): a Etapa aberta já mostra tudo.
 // Quem desenha a grade é src/scripts/mapa.ts. A conversa é por eventos e pela API window.musaMapa:
-//   mapa.ts → "musa-mapa:estado" { modo, aberta, atual, total, celular } e "musa-mapa:detalhe" { id }
+//   mapa.ts → "musa-mapa:estado" { modo, aberta, atual, total, celular }
 //   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funções) / .mostrarEtapas(etapas)
 // A introdução (o guia) abre sozinha só na primeira visita (localStorage "musa:guia-visto"); depois, só pelo botão.
-import { useCallback, useEffect, useState } from "react";
-import { Dialog } from "@base-ui/react/dialog";
+import { useEffect, useState } from "react";
 import { Drawer } from "@base-ui/react/drawer";
 import { Menu } from "@base-ui/react/menu";
 import { Check, Filter, SidebarCollapse, SidebarExpand, Xmark } from "iconoir-react";
@@ -86,26 +85,17 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
   const [funcoesVistas, setFuncoesVistas] = useState<string[]>(() => filtroInicial?.funcoes ?? funcoes.map((f) => f.id));
   const [etapasVistas, setEtapasVistas] = useState<string[]>(() => filtroInicial?.etapas ?? etapas.map((e) => e.id));
   const [guia, setGuia] = useState(false);
-  const [detalhe, setDetalhe] = useState<string | null>(null);
 
   useEffect(() => {
     const aoMudar = (ev: Event) => setEstado((ev as CustomEvent<Estado>).detail);
-    const aoDetalhe = (ev: Event) => setDetalhe((ev as CustomEvent<{ id: string }>).detail.id);
     document.addEventListener("musa-mapa:estado", aoMudar);
-    document.addEventListener("musa-mapa:detalhe", aoDetalhe);
     if (window.musaMapa) setEstado(window.musaMapa.estado());
     // primeira visita: o guia abre sozinho uma vez
     if (ler("guia-visto") !== "sim") { setGuia(true); guardar("guia-visto", "sim"); }
     return () => {
       document.removeEventListener("musa-mapa:estado", aoMudar);
-      document.removeEventListener("musa-mapa:detalhe", aoDetalhe);
     };
   }, []);
-
-  // com o detalhe aberto, as setas do teclado não trocam de Etapa (mapa.ts lê este atributo)
-  useEffect(() => {
-    document.documentElement.toggleAttribute("data-mapa-detalhe", !!detalhe);
-  }, [detalhe]);
 
   const todasFuncoes = funcoesVistas.length === funcoes.length;
   const todasEtapas = etapasVistas.length === etapas.length;
@@ -148,20 +138,6 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
   }, []);
   const alternar = (lista: string[], id: string, marcar: boolean, ordem: string[]) =>
     ordem.filter((x) => (x === id ? marcar : lista.includes(x)));
-
-  // conteúdo do detalhe: vem do <template id="detalhe-<etapa>"> que o Astro já gerou
-  const [tituloDetalhe, setTituloDetalhe] = useState("");
-  const preencherDetalhe = useCallback((el: HTMLDivElement | null) => {
-    if (!el || !detalhe) return;
-    const t = document.getElementById("detalhe-" + detalhe) as HTMLTemplateElement | null;
-    if (!t) return;
-    const conteudo = t.content.cloneNode(true) as DocumentFragment;
-    const nome = conteudo.querySelector(".det-nome");
-    setTituloDetalhe(nome?.textContent ?? "");
-    nome?.remove();
-    if (!todasFuncoes) conteudo.querySelectorAll<HTMLElement>(".pratica").forEach((p) => { p.hidden = !p.dataset.funcao!.split(" ").some((f) => funcoesVistas.includes(f)); });
-    el.replaceChildren(conteudo);
-  }, [detalhe, funcoesVistas, todasFuncoes]);
 
   const ordemFuncoes = funcoes.map((f) => f.id), ordemEtapas = etapas.map((e) => e.id);
   // "Limpar" desligado (nenhum filtro): ao passar o mouse, uma nota embaixo dele diz por quê.
@@ -263,19 +239,6 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
 
       <p className="sr-only" aria-live="polite">{aviso}</p>
 
-      {/* detalhe de uma Etapa: painel à direita (folha de baixo no celular) */}
-      <Dialog.Root open={!!detalhe} onOpenChange={(aberto) => { if (!aberto) setDetalhe(null); }}>
-        <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 z-40 bg-texto-950/20 transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
-          <Dialog.Popup className="fixed z-50 right-0 top-0 h-dvh w-[min(520px,100vw)] box-border overflow-y-auto overscroll-contain bg-neutro-50 border-l border-neutro-300 shadow-xl font-inter text-texto-900 outline-none transition-[translate,opacity] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-x-6 data-starting-style:opacity-0 data-ending-style:translate-x-6 data-ending-style:opacity-0 motion-reduce:transition-none max-[760px]:top-auto max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-[85dvh] max-[760px]:w-full max-[760px]:border-l-0 max-[760px]:border-t max-[760px]:rounded-t-2xl max-[760px]:data-starting-style:translate-x-0 max-[760px]:data-starting-style:translate-y-10 max-[760px]:data-ending-style:translate-x-0 max-[760px]:data-ending-style:translate-y-10">
-            <div className="sticky top-0 flex items-start justify-between gap-3 px-6 pt-5 pb-3 bg-neutro-50 border-b border-neutro-200">
-              <Dialog.Title className="m-0 font-inter text-2xl font-semibold text-texto-950">{tituloDetalhe}</Dialog.Title>
-              <Dialog.Close className={`${botao} w-9 px-0 shrink-0`} aria-label="Fechar"><Xmark {...ic} /></Dialog.Close>
-            </div>
-            <div className="detalhe-corpo" ref={preencherDetalhe} />
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
     </>
   );
 }
@@ -336,9 +299,6 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
           </Item>
           <Item amostra={<><kbd className={tecla}>←</kbd><kbd className={tecla}>→</kbd></>}>
             Passe de uma etapa para a outra pelas setas ao lado do nome dela ou pelas teclas do teclado.
-          </Item>
-          <Item amostra={<span className="inline-flex items-center gap-1.5 h-7 px-2 rounded-sm border border-coral-100 bg-neutro-50 text-xs text-coral-900"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21V7C12 5.89543 12.8954 5 14 5H21.4C21.7314 5 22 5.26863 22 5.6V18.7143" /><path d="M12 21V7C12 5.89543 11.1046 5 10 5H2.6C2.26863 5 2 5.26863 2 5.6V18.7143" /><path d="M14 19L22 19" /><path d="M10 19L2 19" /><path d="M12 21C12 19.8954 12.8954 19 14 19" /><path d="M12 21C12 19.8954 11.1046 19 10 19" /></svg>Ler mais</span>}>
-            Abra tudo sobre uma etapa, com a origem de cada prática.
           </Item>
           <Item amostra={<span className="inline-flex items-center justify-center size-7 rounded-sm border border-neutro-300 bg-neutro-50 text-texto-900"><Filter {...icPequeno} /></span>}>
             Filtre quais etapas aparecem e de quais funções são as práticas mostradas.

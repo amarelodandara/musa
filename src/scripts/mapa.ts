@@ -1,6 +1,7 @@
 // Comportamento da grade do Mapa da Visita: modos, etapa aberta, filtro por Função e a linha do Nível de desafio.
-// Os controles (guia, modo, setas, filtro, painel de detalhe) são a ilha ControlesMapa, com Base UI (ADR 0006).
-// Conversa com ela: emite "musa-mapa:estado" e "musa-mapa:detalhe"; recebe ordens por window.musaMapa.
+// Os controles da barra (guia e filtro) são a ilha ControlesMapa, com Base UI (ADR 0006); as setas e o × ficam na grade.
+// Conversa com ela: emite "musa-mapa:estado"; recebe ordens por window.musaMapa. Sem painel de detalhe (25/11/2026):
+// a Etapa aberta já mostra tudo.
 // Não há mais seletor de visão: com uma Etapa aberta, data-modo="etapa"; sem nenhuma aberta, data-modo="inteiro" (todas
 // lado a lado). Fecha-se pelo × no topo da Etapa, clicando de novo no nome dela ou com Esc. No celular sempre há uma aberta.
 const raiz = document.getElementById("mapa") as HTMLElement;
@@ -206,9 +207,9 @@ for (const ev of ["pointerout", "focusout"]) grade.addEventListener(ev, (e) => {
 });
 document.addEventListener("keydown", (ev) => {
   if (ev.key !== "Escape") return;
-  // primeiro fecham os Pensamentos; sem eles, Esc fecha a Etapa (salvo com o painel de detalhe ou outra camada por cima)
+  // primeiro fecham os Pensamentos; sem eles, Esc fecha a Etapa (salvo com outra camada por cima)
   if (aberto) return fecharPensamentos(aberto);
-  if (!aberta || document.documentElement.hasAttribute("data-mapa-detalhe")) return;
+  if (!aberta) return;
   if ((ev.target as HTMLElement).closest("[role='dialog'], [role='menu'], [role='listbox']")) return;
   fecharEtapa();
 });
@@ -216,7 +217,6 @@ document.addEventListener("keydown", (ev) => {
 // conversa com a ilha de controles
 const estado = () => ({ modo: raiz.dataset.modo as "etapa" | "inteiro", aberta, atual, total: etapas.length, celular: celular.matches });
 function avisar() { document.dispatchEvent(new CustomEvent("musa-mapa:estado", { detail: estado() })); }
-function abrirDetalhe(id: string) { document.dispatchEvent(new CustomEvent("musa-mapa:detalhe", { detail: { id } })); }
 window.musaMapa = {
   modo: (m: string) => definirModo(m),
   passo,
@@ -242,8 +242,6 @@ raiz.addEventListener("click", (ev) => {
     etapas[atual].querySelector<HTMLElement>("[data-ir]")?.focus({ preventScroll: true });
     return;
   }
-  const det = alvo.closest<HTMLElement>("[data-detalhe]");
-  if (det) return abrirDetalhe(det.dataset.detalhe!);
   const ir = alvo.closest<HTMLElement>("[data-ir]");
   if (ir) {
     const i = Number(ir.dataset.ir);
@@ -255,8 +253,7 @@ raiz.addEventListener("click", (ev) => {
 // altura da barra do topo no :root, para a barra lateral do guia (que vive num portal) ficar logo abaixo dela
 new ResizeObserver(() => document.documentElement.style.setProperty("--altura-topo", topo.offsetHeight + "px")).observe(topo);
 document.addEventListener("keydown", (ev) => {
-  // com o painel de detalhe aberto (atributo posto pela ilha) ou foco num controle, as setas são do controle
-  if (document.documentElement.hasAttribute("data-mapa-detalhe")) return;
+  // com foco num controle, as setas são do controle
   if ((ev.target as HTMLElement).closest("select, input, textarea, [contenteditable], [role='listbox'], [role='option'], [role='group'], [role='dialog']")) return;
   if (ev.key === "ArrowRight") passo(1);
   if (ev.key === "ArrowLeft") passo(-1);

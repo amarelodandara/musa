@@ -43,7 +43,7 @@ Cada linha é uma [camada](/guia/glossario#camada), que mostra um tipo de conte�
 
 Clique no nome de uma etapa para abri-la: ela ganha espaço e mostra o detalhe de cada prática. Passe para a próxima pelas setas ao lado do nome da etapa ou pelas teclas ← e →. Feche a etapa pelo ×, clicando de novo no nome ou com Esc: todas aparecem lado a lado, boas para enxergar a visita inteira.
 
-Em **Ler mais**, veja tudo sobre uma etapa. Cada prática mostra a sua [origem](/guia/glossario#origem): um documento oficial, a nossa leitura de um documento ou as entrevistas com equipes de museus e professores.
+Na etapa aberta, cada prática mostra também a sua descrição e um exemplo.
 
 ### Filtre pelo que é seu
 
