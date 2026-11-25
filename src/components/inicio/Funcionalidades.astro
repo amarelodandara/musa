@@ -2,7 +2,7 @@
 // Funcionalidades da página inicial em bento: cada bloco mostra uma parte do musá funcionando, com os dados reais do mapa.
 // O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
 // enquanto estão na tela e param quando a pessoa mexe neles.
-import { conteudo, DESAFIOS, desafio, emOrdem, type Desafio } from "../../lib/conteudo";
+import { conteudo, DESAFIOS, desafio, emOrdem, pensamentos as frasesDe, type Desafio } from "../../lib/conteudo";
 import { ancora, gruposGlossario } from "../../lib/glossario";
 import { icone, pillsContato } from "../../lib/pontos-contato";
 import "../../styles/mapa-celula.css";
@@ -98,7 +98,7 @@ const celula = {
 const pills = pillsContato(etapas, pontosContato);
 const filasMarquee = [pills.filter((_, i) => i % 2 === 0), pills.filter((_, i) => i % 2 === 1)];
 const contatoPorEtapa = etapas.map((e) => ({ e, canais: [...new Set(pontosContato.filter((p) => p.etapa === e.id).map((p) => p.canal))] }));
-const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!);
+const pensamentos = etapas.flatMap(frasesDe); // uma frase por cartão, como no mapa
 ---
 <section class="func" aria-label="Funcionalidades" data-so-primeiro={soOPrimeiro ? "" : undefined}>
   <div class="bento" data-tempo="4000" data-progresso="nao">
