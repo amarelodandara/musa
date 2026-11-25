@@ -1,6 +1,6 @@
 {
   "origem": "planilha",
-  "geradoEm": "2026-11-25T19:37:32.665Z",
+  "geradoEm": "2026-11-25T20:01:09.427Z",
   "etapas": [
     {
       "ordem": 1,
@@ -122,7 +122,7 @@
     },
     {
       "id": "vigilancia",
-      "nome": "Vigilancia",
+      "nome": "Vigilância",
       "descricao": "Garante que as visitas sejam seguras: controla a entrada de visitantes, zela pela integridade física do público e do patrimônio, monitora a circulação dos grupos e atua no acolhimento sem posturas intimidatórias."
     },
     {
