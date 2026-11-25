@@ -364,6 +364,21 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica { grid-template-columns: 13px 1fr; column-gap: 8px; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .marcador { width: 13px; height: 13px; margin-top: 3px; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica-titulo { font-size: var(--tamanho-xs); font-weight: 400; line-height: 1.5; color: var(--texto-950); }
+  /* Práticas na visão geral (nenhuma Etapa aberta; valores de /dev/praticas-geral, 25/11/2026): a Função em cima, numa etiqueta
+     neutro-100; as Boas práticas num fundo coral-50 que vai de borda a borda da coluna, sem espaço entre um fundo e o outro.
+     O espaço entre as Práticas vem do respiro de cada uma (não de gap); com fundo, a etiqueta clareia (neutro-50) e desce um pouco. */
+  .mapa[data-modo="inteiro"] .praticas { gap: 0; margin: -10px -12px 0; }
+  .mapa[data-modo="inteiro"] .pratica { grid-template-columns: 14px 1fr; column-gap: 6px; padding: 10px 12px; }
+  .mapa[data-modo="inteiro"] .pratica[data-tipo="boa"] { padding-top: 12px; background: var(--coral-50); }
+  .mapa[data-modo="inteiro"] .marcador { grid-row: 2; }
+  .mapa[data-modo="inteiro"] .pratica-titulo { grid-row: 2; font-size: var(--tamanho-sm); font-weight: 500; line-height: 1.375; color: var(--texto-950); }
+  .mapa[data-modo="inteiro"] .pratica-funcao { grid-row: 1; grid-column: 2; justify-self: start; margin: 0 0 4px; padding: 0 6px; border-radius: 2px;
+    background: var(--neutro-100); font-size: var(--tamanho-xs); font-weight: 400; line-height: 1.5; letter-spacing: normal; color: var(--neutro-600); }
+  .mapa[data-modo="inteiro"] .pratica[data-tipo="boa"] .pratica-funcao { background: var(--neutro-50); }
+  /* nas Etapas fechadas, ao lado da aberta, só o fundo das Boas práticas, também de borda a borda */
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .praticas { gap: 0; margin: -6px -10px 0; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica { padding: 6px 10px; }
+  .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica[data-tipo="boa"] { background: var(--coral-50); }
 
   /* pontos de contato: as pills do bento da página inicial (Funcionalidades.astro, bloco 5), com ícone do Iconoir */
   .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }

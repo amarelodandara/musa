@@ -23,22 +23,23 @@ const px = (t: string) => `${parseFloat(t.split("-").pop()!) * 4}px`;
 const sel = (opcoes: string[], padrao: string) => ({ type: "select", options: opcoes, default: padrao });
 const chaves = (o: Record<string, unknown>) => Object.keys(o);
 
-// padrões: o que o mapa usa hoje na visão geral (25/11/2026); fundo das Boas práticas desligado (transparente)
+// padrões: os valores colados e levados ao mapa em 25/11/2026. No mapa, além deles: o fundo vai de borda a borda da coluna,
+// o espaço entre as Práticas vira respiro de cada uma, e com fundo a etiqueta da Função clareia (neutro-50) e desce 2px
 const config = {
   titulo: { tamanho: sel(TAMANHOS, "text-sm"), peso: sel(chaves(PESOS), "font-medium"), cor: sel(CORES, "texto-950"),
     entrelinha: sel(chaves(ENTRELINHAS), "leading-snug") },
-  funcao: { posicao: sel(["embaixo", "em cima", "escondida"], "embaixo"), tamanho: sel(TAMANHOS, "text-2xs"), peso: sel(chaves(PESOS), "font-normal"),
-    cor: sel(CORES, "texto-600"), fundo: sel(CORES, "transparente"), tracking: sel(chaves(TRACKING), "tracking-normal"),
-    distancia: sel(ESPACOS.map((e) => `mt-${e}`), "mt-0") },
-  lista: { entre: sel(ESPACOS.map((e) => `gap-${e}`), "gap-2"), marcador: sel(chaves(MARCADORES), "size-3.5") },
-  boa: { fundo: sel(CORES, "transparente"), borda: sel(CORES, "transparente"), respiro: sel(ESPACOS.map((e) => `p-${e}`), "p-0"),
+  funcao: { posicao: sel(["embaixo", "em cima", "escondida"], "em cima"), tamanho: sel(TAMANHOS, "text-xs"), peso: sel(chaves(PESOS), "font-normal"),
+    cor: sel(CORES, "neutro-600"), fundo: sel(CORES, "neutro-100"), tracking: sel(chaves(TRACKING), "tracking-normal"),
+    distancia: sel(ESPACOS.map((e) => `mt-${e}`), "mt-1") },
+  lista: { entre: sel(ESPACOS.map((e) => `gap-${e}`), "gap-4"), marcador: sel(chaves(MARCADORES), "size-3.5") },
+  boa: { fundo: sel(CORES, "coral-50"), borda: sel(CORES, "transparente"), respiro: sel(ESPACOS.map((e) => `p-${e}`), "p-0"),
     raio: sel(chaves(RAIOS), "rounded-none"), marcador: sel(CORES, "coral-300") },
   evitar: { fundo: sel(CORES, "transparente"), borda: sel(CORES, "transparente"), marcador: sel(CORES, "neutro-300") },
   alcance: { nasFechadas: sel(["só o fundo", "tudo", "nada"], "só o fundo") }
 };
 
 createDialRoot({ position: "bottom-right", theme: "light", defaultOpen: true });
-const kit = createDialKit("Práticas na visão geral", config as any, { id: "musa-praticas-geral", persist: true });
+const kit = createDialKit("Práticas na visão geral", config as any, { id: "musa-praticas-geral-v2", persist: true });
 
 const GERAL = `.mapa[data-modo="inteiro"]`;
 const FECHADAS = `.mapa[data-modo="etapa"] .etapa:not([data-aberta])`;
