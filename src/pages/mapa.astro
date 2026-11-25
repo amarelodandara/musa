@@ -290,9 +290,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa { margin: 0; grid-row: 2 / -1; display: grid; grid-template-rows: subgrid; min-width: 0; border-right: var(--linha); background: var(--neutro-50);
     transition: background-color 200ms ease; }
   .etapa[hidden] { display: none; }
-  /* colunas alternadas (24/11/2026): uma sim, uma não, um cinza bem claro, como numa tabela, para dar ritmo. Conta só as
-     Etapas à vista (o filtro esconde algumas). A Etapa aberta tem o próprio fundo (regra mais abaixo, que vence por vir depois). */
-  @media (min-width: 761px) { .mapa .etapa:nth-child(even of .etapa:not([hidden])) { background: color-mix(in oklch, var(--neutro-100) 50%, var(--neutro-50)); } } /* meio caminho entre neutro-50 e neutro-100 (24/11/2026: neutro-100 pesava) */
+  /* sem colunas alternadas (25/11/2026): o conteúdo todo num fundo só; o que se destaca é a primeira linha e a coluna dos rótulos (--cabeca) */
   /* topo da Etapa: 90px em todas as colunas; os controles da aberta em cima, à direita; o número e o nome numa linha só,
      encostados embaixo, então os nomes de todas as Etapas ficam em sequência, na mesma altura (25/11/2026) */
   .etapa-topo { display: flex; flex-direction: column; justify-content: flex-end; height: 90px; box-sizing: border-box; overflow: hidden;
