@@ -1,6 +1,6 @@
 {
   "origem": "planilha",
-  "geradoEm": "2026-11-25T19:32:41.880Z",
+  "geradoEm": "2026-11-25T19:37:32.665Z",
   "etapas": [
     {
       "ordem": 1,
@@ -154,115 +154,185 @@
   "pontosContato": [
     {
       "etapa": "descoberta",
-      "canal": "Site",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "descoberta",
-      "canal": "Email",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "descoberta",
-      "canal": "Telefone",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Site do museu",
+      "descricao": "As páginas do museu na internet: programação, visitas educativas e como agendar.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "descoberta",
       "canal": "Redes sociais",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "descricao": "Os perfis do museu nas redes, onde saem novidades e avisos.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "descoberta",
-      "canal": "Midias e campanhas",
-      "descricao": null,
-      "origem": "Hipótese",
-      "fonte": "ENT"
+      "canal": "Mídias e campanhas",
+      "descricao": "Anúncios e campanhas de divulgação, on-line ou na rua.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "descoberta",
+      "canal": "E-mail",
+      "descricao": "Mensagens trocadas entre o museu e a escola.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "descoberta",
+      "canal": "Telefone",
+      "descricao": "Ligações entre o museu e a escola, para tirar dúvidas, marcar ou confirmar.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "descoberta",
+      "canal": "Recepção",
+      "descricao": "A equipe que atende na entrada do museu, pessoalmente.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "agendamento",
-      "canal": "Formulário",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Site do museu",
+      "descricao": "As páginas do museu na internet: programação, visitas educativas e como agendar.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "agendamento",
+      "canal": "Redes sociais",
+      "descricao": "Os perfis do museu nas redes, onde saem novidades e avisos.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "agendamento",
       "canal": "Telefone",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "descricao": "Ligações entre o museu e a escola, para tirar dúvidas, marcar ou confirmar.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "agendamento",
-      "canal": "Site",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Formulário de agendamento",
+      "descricao": "A ficha em que a escola pede a visita e informa a turma.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "agendamento",
-      "canal": "Atendimento presencial",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Recepção",
+      "descricao": "A equipe que atende na entrada do museu, pessoalmente.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "preparacao",
+      "canal": "E-mail",
+      "descricao": "Mensagens trocadas entre o museu e a escola.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "preparacao",
       "canal": "Telefone",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "descricao": "Ligações entre o museu e a escola, para tirar dúvidas, marcar ou confirmar.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "preparacao",
-      "canal": "Email",
-      "descricao": null,
-      "origem": "Hipótese",
-      "fonte": "ENT"
+      "canal": "Material de apoio",
+      "descricao": "O que o museu envia antes da visita para o professor preparar a turma.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "recepcao",
-      "canal": "Equipe de Mediação, Recepção e Vigilânica",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Recepção",
+      "descricao": "A equipe que atende na entrada do museu, pessoalmente.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "recepcao",
+      "canal": "Área de espera",
+      "descricao": "O espaço onde a turma aguarda e se organiza antes de começar.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "recepcao",
+      "canal": "Vigilância",
+      "descricao": "A equipe que cuida da segurança das pessoas e do acervo nas salas.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "recepcao",
+      "canal": "Mediação",
+      "descricao": "Os educadores que conduzem a turma pela exposição.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "mediacao",
-      "canal": "Equipe de Mediação e Monitoria",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Mediação",
+      "descricao": "Os educadores que conduzem a turma pela exposição.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "mediacao",
+      "canal": "Exposição",
+      "descricao": "As salas, as obras e os recursos que a turma percorre.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "encerramento",
-      "canal": "Equipe de Mediação",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "canal": "Mediação",
+      "descricao": "Os educadores que conduzem a turma pela exposição.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "encerramento",
+      "canal": "Formulário de avaliação",
+      "descricao": "A ficha em que o professor avalia a visita.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "vinculo",
+      "canal": "Site do museu",
+      "descricao": "As páginas do museu na internet: programação, visitas educativas e como agendar.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "vinculo",
+      "canal": "Redes sociais",
+      "descricao": "Os perfis do museu nas redes, onde saem novidades e avisos.",
+      "origem": null,
+      "fonte": null
+    },
+    {
+      "etapa": "vinculo",
+      "canal": "E-mail",
+      "descricao": "Mensagens trocadas entre o museu e a escola.",
+      "origem": null,
+      "fonte": null
     },
     {
       "etapa": "vinculo",
       "canal": "Telefone",
-      "descricao": null,
-      "origem": "Hipótese",
-      "fonte": "ENT"
-    },
-    {
-      "etapa": "vinculo",
-      "canal": "Email",
-      "descricao": null,
-      "origem": "Pesquisa de campo",
-      "fonte": "ENT"
+      "descricao": "Ligações entre o museu e a escola, para tirar dúvidas, marcar ou confirmar.",
+      "origem": null,
+      "fonte": null
     }
   ],
   "praticas": [

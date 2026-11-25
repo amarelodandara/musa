@@ -99,13 +99,18 @@ const funcoesDe = (v) => (limpo(v) ?? "").split(",").map((t) => t.trim()).filter
   return partes.length > 1 && partes.every((x) => idFuncao[slug(x)]) ? partes.map((x) => ({ id: idFuncao[slug(x)] })) : [{ id: null, nome: t }];
 });
 
-const pontosContato = pontosBrutos.flatMap((l) => {
-  const p = { etapa: idEtapa[limpo(l["Etapa"])], canal: limpo(l["Canal"]), descricao: limpo(l["Descrição (neutra)"]), origem: limpo(l["Origem"]), fonte: limpo(l["Fonte"]) };
-  // Etapa com nome que não existe: a linha fica de fora, com aviso (não trava a importação)
-  if (!p.etapa) { avisos.push(`Pontos de contato, linha ${l.linha}: Etapa "${l["Etapa"]}" não existe; linha ignorada`); return []; }
-  if (!p.canal) erro("Pontos de contato", l.linha, "Canal vazio");
-  checarOrigem("Pontos de contato", l, p.origem, p.fonte);
-  return [p];
+// Pontos de contato (25/11/2026): a aba "Pontos de contato" é a lista única (nome e descrição); em que Etapa cada um
+// aparece vem da coluna "Pontos de contato" da aba Etapas (menu com várias seleções, nomes separados por vírgula).
+const listaPontos = pontosBrutos.map((l) => ({ nome: limpo(l["Ponto de contato"]), descricao: limpo(l["Descrição"]), linha: l.linha })).filter((p) => p.nome);
+const pontoPorChave = Object.fromEntries(listaPontos.map((p) => [slug(p.nome), p]));
+const pontosContato = etapasBrutas.flatMap((l) => {
+  const etapa = idEtapa[limpo(l["Etapa"])];
+  return (limpo(l["Pontos de contato"]) ?? "").split(",").map((t) => t.trim()).filter(Boolean).flatMap((nome) => {
+    const p = pontoPorChave[slug(nome)];
+    if (!p) { erro("Etapas", l.linha, `Ponto de contato "${nome}" não está na aba Pontos de contato`); return []; }
+    return [{ etapa, canal: p.nome, descricao: p.descricao, origem: null, fonte: null }];
+  // na ordem da lista (e não na da seleção), para a mesma ordem em todas as Etapas
+  }).sort((a, b) => listaPontos.findIndex((x) => x.nome === a.canal) - listaPontos.findIndex((x) => x.nome === b.canal));
 });
 
 let hipoteses = 0;
