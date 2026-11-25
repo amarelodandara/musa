@@ -237,7 +237,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
      Etapa aberta em coral-50 (texto da Fase neutro-700); número e nome da aberta em coral-500 */
   /* primeira linha (Fases e topo das Etapas) e primeira coluna (rótulos) com fundo próprio, diferente do conteúdo
      (25/11/2026, pedido da equipe): --cabeca. Fase ativa e Etapa aberta seguem no coral-50 */
-  .mapa { --cabeca: color-mix(in oklch, var(--neutro-100) 50%, var(--neutro-200)); /* entre 100 e 200: 200 pesava (25/11/2026) */ --fase-forte: var(--cabeca); --fase-media: var(--cabeca); --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
+  .mapa { --cabeca: var(--neutro-100); /* 200 e o meio do caminho até ele pesavam (25/11/2026) */ --fase-forte: var(--cabeca); --fase-media: var(--cabeca); --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
     --fase-ativa: var(--coral-50); --fase-texto-ativa: var(--neutro-700); --fase-clara: var(--coral-50); }
   /* linhas da grade mais claras (antes neutro-300); --linha vem de mapa-celula.css, aqui só no mapa */
   .pagina-mapa-v2 .mapa { --linha: 1px solid var(--neutro-200); }
