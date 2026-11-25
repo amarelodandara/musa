@@ -256,9 +256,18 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* as outras Etapas da Fase ativa ganham a linha de volta no próprio topo (a da Fase sumiu em cima delas também) */
   .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Antes"]) .etapa[data-fase="Antes"]:not([data-aberta]) .etapa-topo,
   .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Durante"]) .etapa[data-fase="Durante"]:not([data-aberta]) .etapa-topo,
-  .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Depois"]) .etapa[data-fase="Depois"]:not([data-aberta]) .etapa-topo { box-shadow: inset 0 1px var(--neutro-200); }
-  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 0; bottom: 0; right: -24px; width: 24px;
-    background: inherit; clip-path: polygon(0 0, 40% 0, 100% 45%, 100% 55%, 40% 100%, 0 100%); }
+  .mapa[data-modo="etapa"]:has(.fase[data-ativa][data-fase="Depois"]) .etapa[data-fase="Depois"]:not([data-aberta]) .etapa-topo { box-shadow: inset 0 1px var(--coral-200); }
+  /* contorno coral-200 da Fase ativa (25/11/2026), o mesmo da Etapa aberta: à esquerda (a borda da Fase anterior; na primeira,
+     a da coluna dos rótulos), embaixo (a linha no topo das outras Etapas dela, acima) e em volta da seta. A seta são duas
+     camadas com o mesmo desenho: ::before, coral-200, 1,4px maior na diagonal e 1px mais alta (a linha de baixo); ::after,
+     o fundo, por cima. Em px, para a espessura da linha não variar com a altura. */
+  .mapa[data-modo="etapa"] .fase:has(+ .fase[data-ativa]) { border-right-color: var(--coral-200); }
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::before,
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::after { content: ""; position: absolute; top: 0; left: 100%; width: 26px; }
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::before { z-index: 1; height: 32px; background: var(--coral-200);
+    clip-path: polygon(0 0, 11px 0, 25.4px 13.95px, 25.4px 17.05px, 10.6px 32px, 0 32px); }
+  .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child)::after { z-index: 2; height: 31px; background: inherit;
+    clip-path: polygon(0 0, 9.6px 0, 24px 13.95px, 24px 17.05px, 9.6px 31px, 0 31px); }
   .mapa[data-modo="etapa"] .fase[data-ativa] + .fase { padding-left: 36px; }
   /* a cor da Fase ativa desce para o topo da Etapa aberta; as outras Etapas (da mesma Fase e das demais) ficam no tom claro */
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { background: var(--fase-ativa); transition: background-color 200ms ease; }
