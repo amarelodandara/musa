@@ -403,7 +403,9 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
 
     const doc = () => frame.contentDocument;
     const mapa = () => (frame.contentWindow as (Window & { musaMapa?: { modo(m: string): void; passo(d: number): void; estado(): { modo: string; atual: number } } }) | null)?.musaMapa;
-    const botaoModo = (texto: string) => [...(doc()?.querySelectorAll<HTMLElement>("button") ?? [])].find((b) => b.textContent?.trim() === texto);
+    // sem seletor de visão (25/11/2026): o × da Etapa aberta deixa todas lado a lado; o nome dela abre de novo
+    const daAtual = (sel: string) => { const m = mapa(); return m ? doc()?.querySelectorAll<HTMLElement>(".etapa")[m.estado().atual]?.querySelector<HTMLElement>(sel) : null; };
+    const fechar = () => daAtual("[data-fechar]"), reabrir = () => daAtual("[data-ir]");
     const seta = (d: 1 | -1) => {
       const m = mapa(); if (!m) return null;
       return doc()?.querySelectorAll<HTMLElement>(".etapa")[m.estado().atual]?.querySelector<HTMLElement>(`[data-passo="${d}"]:not([hidden])`) ?? null;
@@ -424,9 +426,9 @@ const pensamentos = etapas.filter((e) => e.pensamento).map((e) => e.pensamento!)
       alvo.click();
     }
     const ROTEIROS: Record<string, (() => HTMLElement | null | undefined)[]> = {
-      tudo: [() => seta(1), () => seta(1), () => botaoModo("Visão geral"), () => botaoModo("Visão detalhada"), () => seta(-1), () => seta(-1)],
+      tudo: [() => seta(1), () => seta(1), () => seta(-1), () => seta(-1), fechar, reabrir],
       setas: [() => seta(1), () => seta(1), () => seta(-1), () => seta(-1)],
-      visoes: [() => botaoModo("Visão geral"), () => botaoModo("Visão detalhada")]
+      visoes: [fechar, reabrir]
     };
     const roteiro = () => ROTEIROS[cfg.roteiro!] ?? ROTEIROS.tudo;
     let k = 0;

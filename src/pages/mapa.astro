@@ -1,11 +1,11 @@
 ---
-// Mapa da Visita. Dois modos sobre o mesmo DOM (ADR 0003, decisões Q25–Q26, Q34):
-//   etapa  → uma Etapa aberta por vez, as outras compactas (padrão; único modo no celular)
-//   inteiro → todas as Etapas lado a lado, Camadas alinhadas em linhas
+// Mapa da Visita. Um só mapa, sem seletor de visão (25/11/2026; antes "visão detalhada" e "visão geral"):
+//   uma Etapa aberta (data-modo="etapa") → ela larga, as outras compactas (padrão; único estado no celular)
+//   nenhuma aberta (data-modo="inteiro") → todas lado a lado, na mesma largura. Fecha pelo ×, pelo nome ou com Esc.
 // O detalhe de uma Etapa abre num painel lateral (folha de baixo no celular), com Origem e Fonte de cada Prática.
 // É uma ferramenta de uso longo: tons de cinza, sem a cor da marca na grade (as cores de destaque vêm depois).
 // Barra no topo: o logotipo (volta para o início), o botão do guia e os controles (ControlesMapa, ilha com Base UI, ADR 0006):
-// guia, modo, setas das Etapas e filtro. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
+// guia e filtro; as setas e o × ficam no topo da Etapa aberta. A grade vai de borda a borda. O guia "Como usar o mapa" é uma barra
 // lateral por cima da grade, aberta sozinha só na primeira visita; o link para baixar o mapa mora nele.
 // Nível de desafio (decidido em /dev/desafio): três níveis fixos, um avatar por Etapa, ligados por um caminho de giz;
 // ao passar o mouse (ou focar) no avatar, o Pensamento do professor sobe num cartão. O desenho fica em src/scripts/mapa.ts.
@@ -103,10 +103,12 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 <div class="etapa-controles">
                   {/* ícone Iconoir open-book */}
                   <button type="button" class="etapa-acao etapa-detalhe" data-detalhe={e.id}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V7C12 5.89543 12.8954 5 14 5H21.4C21.7314 5 22 5.26863 22 5.6V18.7143" /><path d="M12 21V7C12 5.89543 11.1046 5 10 5H2.6C2.26863 5 2 5.26863 2 5.6V18.7143" /><path d="M14 19L22 19" /><path d="M10 19L2 19" /><path d="M12 21C12 19.8954 12.8954 19 14 19" /><path d="M12 21C12 19.8954 11.1046 19 10 19" /></svg>Ler mais</button>
-                  {/* visão detalhada: setas da Etapa aberta para a anterior e a próxima (ícones Iconoir nav-arrow) */}
+                  {/* Etapa aberta: setas para a anterior e a próxima (ícones Iconoir nav-arrow) e × para fechar (xmark), que deixa
+                      todas lado a lado */}
                   <div class="etapa-setas">
                     {i > 0 && <button type="button" class="etapa-acao etapa-seta" data-passo="-1" aria-label={`Etapa anterior: ${etapas[i - 1].nome}`} title={etapas[i - 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6L9 12L15 18" /></svg></button>}
                     {i < etapas.length - 1 && <button type="button" class="etapa-acao etapa-seta" data-passo="1" aria-label={`Próxima etapa: ${etapas[i + 1].nome}`} title={etapas[i + 1].nome}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6L15 12L9 18" /></svg></button>}
+                    <button type="button" class="etapa-acao etapa-seta etapa-fechar" data-fechar aria-label={`Fechar ${e.nome} e ver todas as etapas`} title="Ver todas as etapas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.758 17.243L12.001 12M17.244 6.757L12.001 12M12.001 12L6.758 6.757M12.001 12L17.244 17.243" /></svg></button>
                   </div>
                 </div>
               </div>
@@ -250,9 +252,14 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   a.mapa-marca { border-radius: 4px; }
   a.mapa-marca:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 3px; }
   .marca-simbolo { display: none; }
-  .mapa-titulo { flex-shrink: 0; margin: 0 8px 0 -8px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 600;
+  /* ordem na barra (25/11/2026): Introdução, marca, nome da página; o resto dos controles na ponta direita.
+     A ilha React (ControlesMapa) se desfaz na barra (display: contents, como o astro-island em volta) para o botão da Introdução poder vir antes da marca */
+  .mapa-topo .controles-mapa { display: contents; }
+  .mapa-topo .mapa-marca, .mapa-topo .mapa-titulo { order: 1; }
+  .mapa-topo .controles-mapa > .ml-auto { order: 2; }
+  .mapa-titulo { flex-shrink: 0; margin: 0 0 0 -8px; font-family: var(--fonte-dm-sans); font-size: var(--tamanho-lg); font-weight: 600;
     letter-spacing: -0.01em; line-height: 1; color: var(--texto-950); white-space: nowrap; }
-  @media (max-width: 480px) { .mapa-titulo { margin-right: -4px; font-size: var(--tamanho-md); } }
+  @media (max-width: 480px) { .mapa-titulo { font-size: var(--tamanho-md); } }
   :root[data-marca="simbolo"] .marca-simbolo { display: flex; }
   :root[data-marca="simbolo"] .marca-olho { display: none; }
   .mapa-topo { position: sticky; left: 0; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 61px; box-sizing: border-box; /* 60 por dentro + 1 da borda: marca (36) e botões (32) caem em pixel inteiro, sem borrar */
@@ -266,7 +273,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
     grid-template-rows: auto auto auto auto auto auto auto; } /* Fases, Etapas, Ações do professor, Nível de desafio, Pontos de contato, Práticas, Anotações (só na impressão) */
   .fases { grid-column: 2 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; }
   /* Cor das Fases: tudo que não está ativo fica neutro e quieto; só a Fase da Etapa aberta e o topo dessa Etapa ganham
-     cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Na visão geral não há ativa: tudo neutro.
+     cor (coral, a principal da marca), e a coluna aberta um tom bem claro dela. Sem Etapa aberta não há ativa: tudo neutro.
      (Escolhido no playground /dev/cores-fases, combinação A.) */
   /* fora da coluna ativa, sem fundo (23/11/2026; antes neutro-100) */
   /* hierarquia do topo decidida em /dev/hierarquia-topo (24/11/2026): Fases em neutro-600; a ativa, o topo e a coluna da
@@ -438,11 +445,11 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa[data-modo="etapa"] .etapa[data-aberta] { background: var(--fase-clara); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-nome { font-family: var(--fonte-inter-tight); font-size: var(--tamanho-lg); font-weight: 400;
     letter-spacing: 0.025em; color: var(--coral-500); }
-  /* nomes das Etapas fechadas (e de todas na visão geral): menores e sem peso, para a aberta se destacar */
+  /* nomes das Etapas fechadas (e de todas, sem nenhuma aberta): menores e sem peso, para a aberta se destacar */
   .mapa[data-modo="inteiro"] .etapa-nome,
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .etapa-nome { font-size: var(--tamanho-sm); font-weight: 400; color: var(--texto-950); }
 
-  /* modo mapa inteiro */
+  /* nenhuma Etapa aberta: todas lado a lado */
   /* --colunas vai na grade, onde --n existe (no .mapa ela ficaria inválida e as colunas cairiam no tamanho compacto) */
   .mapa[data-modo="inteiro"] .mapa-grade { --colunas: repeat(var(--n), var(--col-inteira)); }
 
@@ -461,7 +468,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .det-origem { font-size: var(--tamanho-xs); color: var(--texto-600); }
 
 
-  /* Impressão (?impressao=a1|a2|a4; scripts/pdfs.mjs abre assim e salva o PDF): o próprio mapa na visão geral, com as
+  /* Impressão (?impressao=a1|a2|a4; scripts/pdfs.mjs abre assim e salva o PDF): o próprio mapa sem Etapa aberta, com as
      linhas de Etapa, Ações do professor e Nível de desafio iguais às da tela; abaixo delas, uma linha pautada até o fim
      da folha para a equipe escrever. A folha tem o tamanho da janela (o script acerta a janela ao papel). */
   .impressao-topo, .rotulo-notas, .camada-notas { display: none; }
@@ -494,8 +501,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .mapa-rodape a:focus-visible { outline: 2px solid var(--texto-950); outline-offset: 2px; }
   :root[data-vitrine] .mapa-rodape { display: none; }
 
-  /* celular: só o modo etapa, uma coluna na tela */
+  /* celular: sempre uma Etapa aberta, uma coluna na tela (sem o ×) */
   @media (max-width: 760px) {
+    .etapa-fechar { display: none; }
     .mapa-rolagem { overflow-x: hidden; }
     .mapa-grade, .mapa[data-modo] .mapa-grade { grid-template-columns: 0 100%; }
     .mapa .etapa:not([data-aberta]) { display: none; }

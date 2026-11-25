@@ -1,15 +1,14 @@
-// Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo: botão de ajuda (guia) à esquerda, logo depois da marca
-// (que fica fora da ilha, na ponta esquerda da barra, em mapa.astro); à direita o filtro e a visão (detalhada/geral). Mais o painel de detalhe de uma Etapa.
+// Controles do Mapa da Visita, com Base UI (ADR 0006). Ordem no topo (25/11/2026): botão da introdução na ponta esquerda, depois
+// a marca e o nome da página (fora da ilha, em mapa.astro, que reordena com CSS); à direita o filtro. Sem seletor de visão (25/11/2026):
+// fechar a Etapa aberta (×, nome ou Esc, na grade) mostra todas lado a lado. Mais o painel de detalhe de uma Etapa.
 // Quem desenha a grade é src/scripts/mapa.ts. A conversa é por eventos e pela API window.musaMapa:
-//   mapa.ts → "musa-mapa:estado" { modo, atual, total, celular } e "musa-mapa:detalhe" { id }
+//   mapa.ts → "musa-mapa:estado" { modo, aberta, atual, total, celular } e "musa-mapa:detalhe" { id }
 //   aqui    → window.musaMapa.modo(m) / .passo(±1) / .filtrar(funções) / .mostrarEtapas(etapas)
 // A introdução (o guia) abre sozinha só na primeira visita (localStorage "musa:guia-visto"); depois, só pelo botão.
 import { useCallback, useEffect, useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { Drawer } from "@base-ui/react/drawer";
 import { Menu } from "@base-ui/react/menu";
-import { Toggle } from "@base-ui/react/toggle";
-import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { Check, Filter, SidebarCollapse, SidebarExpand, Xmark } from "iconoir-react";
 
 interface Funcao { id: string; nome: string }
@@ -20,7 +19,7 @@ interface Props {
   filtroInicial?: { etapas?: string[]; funcoes?: string[] };
   menuFiltroAberto?: boolean;
 }
-interface Estado { modo: "etapa" | "inteiro"; atual: number; total: number; celular: boolean }
+interface Estado { modo: "etapa" | "inteiro"; aberta: boolean; atual: number; total: number; celular: boolean }
 interface MusaMapa {
   modo(m: string): void;
   passo(d: number): void;
@@ -62,8 +61,6 @@ function ItemMarcavel({ rotulo, marcado, aoMudar, forte = false, implicito = fal
 const filtroLigado = (classes: string) => classes
   .replace("border-neutro-300 bg-neutro-50 text-texto-900", "border-coral-200 bg-coral-200 text-coral-600")
   .replace("hover:bg-neutro-100 active:bg-neutro-200", "hover:bg-coral-200 active:bg-coral-300 data-popup-open:bg-coral-200");
-// segmento do seletor de visão (largura fixa de 128px, inteira: o filtro, à esquerda dele, não cai em meio pixel e não borra): trilho neutro-100; a visão escolhida em coral-300, texto escuro (cores escolhidas em /dev/visao-cores, 24/11/2026)
-const segmento = `h-8 rounded border-0 bg-transparente text-sm font-inter text-texto-700 cursor-pointer select-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-texto-950 data-pressed:bg-coral-300 data-pressed:text-texto-950 data-pressed:shadow-xs ${foco}`;
 // Botão de ícone que se abre: ao passar o mouse, focar pelo teclado ou com o painel aberto, o rótulo aparece ao lado
 // do ícone (no lugar de uma dica flutuante). A largura cresce pela coluna do grid (0fr → 1fr), rápido e sem quicar.
 // sempre: o rótulo fica à vista o tempo todo (botão da introdução, que sozinho não diz o que é)
@@ -79,11 +76,12 @@ function Rotulo({ texto, sempre = false }: { texto: string; sempre?: boolean }) 
 const botaoQueAbre = `${botao.replace("gap-2 ", "")} group/abre px-2`; // 8 + 18 + 8 + 2 de borda = 36, quadrado como os outros
 
 // Ícones: Iconoir (traço de 1,5 px), só onde o controle não tem texto. Tamanho fixo em px, cor herdada.
-const ic = { width: 18, height: 18, strokeWidth: 1.5, "aria-hidden": true } as const;
+const ic = { width: 18, height: 18, strokeWidth: 2, "aria-hidden": true } as const;
 const icPequeno = { ...ic, width: 14, height: 14 } as const;
 
 export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInicial, menuFiltroAberto }: Props) {
-  const [estado, setEstado] = useState<Estado>({ modo: "etapa", atual: 0, total: totalEtapas, celular: false });
+  // o estado do mapa (Etapa aberta etc.) segue chegando por evento; hoje nenhum controle da barra depende dele
+  const [, setEstado] = useState<Estado>({ modo: "etapa", aberta: true, atual: 0, total: totalEtapas, celular: false });
   // filtros: o que está à vista. Começa com tudo; nunca fica vazio (desmarcar o último volta para todos).
   const [funcoesVistas, setFuncoesVistas] = useState<string[]>(() => filtroInicial?.funcoes ?? funcoes.map((f) => f.id));
   const [etapasVistas, setEtapasVistas] = useState<string[]>(() => filtroInicial?.etapas ?? etapas.map((e) => e.id));
@@ -171,11 +169,10 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
   const semFiltro = todasFuncoes && todasEtapas;
   const [sobreLimpar, setSobreLimpar] = useState(false);
   const fases = [...new Set(etapas.map((e) => e.fase))];
-  const { modo, celular } = estado;
 
   return (
     <>
-      <div className="flex items-center gap-2 min-w-0 flex-1">
+      <div className="controles-mapa flex items-center gap-2 min-w-0 flex-1">
         {/* barra lateral da introdução (o guia) */}
         <Drawer.Root open={guia} onOpenChange={setGuia} modal={false} disablePointerDismissal swipeDirection="left">
           <Drawer.Trigger className={`${botaoQueAbre} data-popup-open:bg-neutro-200`} aria-label={guia ? "Fechar a introdução" : "Introdução"}
@@ -260,15 +257,6 @@ export default function ControlesMapa({ funcoes, etapas, totalEtapas, filtroInic
             </Menu.Portal>
           </Menu.Root>
 
-          {/* visão: detalhada = etapa por etapa (a padrão, vem primeiro), geral = mapa inteiro; mesmos nomes do rodapé. No celular só a detalhada.
-              As setas para ir de uma Etapa a outra ficam no topo da Etapa aberta, na grade (mapa.astro), não aqui. */}
-          {!celular && (
-            <ToggleGroup aria-label="Como ver o mapa" value={[modo]} onValueChange={(v) => { if (v[0]) window.musaMapa?.modo(v[0]); }}
-              className="inline-flex gap-0.5 p-0.5 rounded-sm bg-neutro-100">
-              <Toggle value="etapa" className={`${segmento} w-32 px-0`}>Visão detalhada</Toggle>
-              <Toggle value="inteiro" className={`${segmento} w-32 px-0`}>Visão geral</Toggle>
-            </ToggleGroup>
-          )}
 
         </div>
       </div>
@@ -343,8 +331,8 @@ function Guia({ totalEtapas }: { totalEtapas: number }) {
       </Secao>
       <Secao titulo="Como navegar">
         <ul className="m-0 p-0 list-none">
-          <Item amostra={<span className="inline-flex p-0.5 rounded-sm bg-neutro-100 text-2xs"><span className="px-1.5 h-5 inline-flex items-center rounded bg-coral-300 text-texto-950 shadow-xs">Detalhada</span><span className="px-1.5 h-5 inline-flex items-center text-texto-700">Geral</span></span>}>
-            <strong className="font-medium text-texto-900">Visão detalhada</strong> abre uma etapa de cada vez; <strong className="font-medium text-texto-900">visão geral</strong> mostra todas lado a lado.
+          <Item amostra={<span className="inline-flex items-center justify-center size-7 rounded-sm border border-coral-200 bg-neutro-50 text-coral-900"><Xmark {...icPequeno} /></span>}>
+            Clique no nome de uma etapa para abri-la. Para ver todas lado a lado, feche-a pelo ×, pelo nome de novo ou com Esc.
           </Item>
           <Item amostra={<><kbd className={tecla}>←</kbd><kbd className={tecla}>→</kbd></>}>
             Passe de uma etapa para a outra pelas setas ao lado do nome dela ou pelas teclas do teclado.

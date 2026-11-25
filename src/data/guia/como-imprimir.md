@@ -9,7 +9,7 @@ O mapa rende mais quando a equipe olha para ele junta. Este roteiro cabe numa re
 
 ## Antes da reunião
 
-[Baixe o mapa](/baixar) e imprima: o A1 para a parede, o A2 para a mesa ou o A4 com uma folha por fase. Deixe canetas por perto. Se preferir a tela, abra o mapa na visão geral.
+[Baixe o mapa](/baixar) e imprima: o A1 para a parede, o A2 para a mesa ou o A4 com uma folha por fase. Deixe canetas por perto. Se preferir a tela, abra o mapa e feche a etapa aberta: todas aparecem lado a lado.
 
 ## Escolha uma etapa por vez
 

@@ -1,20 +1,18 @@
 // Comportamento da grade do Mapa da Visita: modos, etapa aberta, filtro por Função e a linha do Nível de desafio.
 // Os controles (guia, modo, setas, filtro, painel de detalhe) são a ilha ControlesMapa, com Base UI (ADR 0006).
 // Conversa com ela: emite "musa-mapa:estado" e "musa-mapa:detalhe"; recebe ordens por window.musaMapa.
-// Preferências ficam no navegador (ADR 0001): o modo.
+// Não há mais seletor de visão: com uma Etapa aberta, data-modo="etapa"; sem nenhuma aberta, data-modo="inteiro" (todas
+// lado a lado). Fecha-se pelo × no topo da Etapa, clicando de novo no nome dela ou com Esc. No celular sempre há uma aberta.
 const raiz = document.getElementById("mapa") as HTMLElement;
 const grade = raiz.querySelector(".mapa-grade") as HTMLElement;
 const etapas = [...raiz.querySelectorAll<HTMLElement>(".etapa")];
 const topo = raiz.querySelector(".mapa-topo") as HTMLElement;
 const celular = matchMedia("(max-width: 760px)");
 
-// Vitrine (?vitrine): o mapa dentro do bloco da página inicial. Não guarda nem lê preferências (para não mexer no mapa
-// de quem visita), não rola sozinho (a roda do mouse passa para a página) e os links abrem fora do quadro.
+// Vitrine (?vitrine): o mapa dentro do bloco da página inicial. Não rola sozinho (a roda do mouse passa para a página) e os links abrem fora do quadro.
 // Impressão (?impressao=a1|a2|a4, &fase=1|2|3): a folha dos PDFs (scripts/pdfs.mjs). Também não guarda nada.
 const impressao = new URLSearchParams(location.search).get("impressao");
 const vitrine = new URLSearchParams(location.search).has("vitrine") || !!impressao;
-const guardar = (k: string, v: string) => { if (vitrine) return; try { localStorage.setItem("musa:" + k, v); } catch {} };
-const ler = (k: string) => { if (vitrine) return null; try { return localStorage.getItem("musa:" + k); } catch { return null; } };
 if (impressao) document.documentElement.dataset.impressao = impressao;
 else if (vitrine) {
   document.documentElement.dataset.vitrine = "";
@@ -22,26 +20,30 @@ else if (vitrine) {
 }
 
 let atual = 0;
+// há uma Etapa aberta? (atual guarda a última, para as setas e para reabrir)
+let aberta = true;
 
 // Etapas à vista (o filtro de Etapas pode esconder algumas)
 const visiveis = () => etapas.filter((e) => !e.hidden);
 
 function abrirEtapa(i: number, { rolar = true } = {}) {
   atual = Math.max(0, Math.min(etapas.length - 1, i));
+  aberta = true;
+  raiz.dataset.modo = "etapa";
   // se a pedida está escondida pelo filtro, abre a primeira à vista
   if (etapas[atual].hidden) atual = etapas.indexOf(visiveis()[0] ?? etapas[0]);
   etapas.forEach((e, j) => e.toggleAttribute("data-aberta", j === atual));
   const e = etapas[atual];
-  // a Fase da Etapa aberta fica ativa (na visão detalhada ganha um tom mais forte, no CSS)
+  // a Fase da Etapa aberta fica ativa (ganha cor, no CSS)
   raiz.querySelectorAll<HTMLElement>(".fase").forEach((f) => f.toggleAttribute("data-ativa", f.dataset.fase === e.dataset.fase));
   avisar();
   atualizarSetas();
-  if (raiz.dataset.modo === "etapa") {
+  {
     const cols = visiveis().map((v) => (v === e ? "var(--col-aberta)" : "var(--col-compacta)")).join(" ");
     grade.style.setProperty("--colunas", cols);
   }
   history.replaceState(null, "", "#" + e.dataset.etapa);
-  if (rolar && raiz.dataset.modo === "etapa") {
+  if (rolar) {
     // só na horizontal, dentro da área do mapa (scrollIntoView também rolaria a página)
     const area = grade.parentElement as HTMLElement;
     requestAnimationFrame(() => {
@@ -55,12 +57,23 @@ function abrirEtapa(i: number, { rolar = true } = {}) {
   requestAnimationFrame(desenharLinha);
 }
 
-function definirModo(modo: string, salvar = true) {
-  if (celular.matches) modo = "etapa";
-  raiz.dataset.modo = modo;
-  if (modo === "inteiro") grade.style.removeProperty("--colunas");
-  if (salvar) guardar("modo", modo);
-  abrirEtapa(atual, { rolar: false });
+// nenhuma Etapa aberta: todas lado a lado, na mesma largura (no celular não: lá sempre há uma aberta)
+function fecharEtapa() {
+  if (celular.matches) return;
+  aberta = false;
+  raiz.dataset.modo = "inteiro";
+  etapas.forEach((e) => e.removeAttribute("data-aberta"));
+  raiz.querySelectorAll<HTMLElement>(".fase").forEach((f) => f.removeAttribute("data-ativa"));
+  grade.style.removeProperty("--colunas");
+  history.replaceState(null, "", location.pathname + location.search);
+  avisar();
+  requestAnimationFrame(desenharLinha);
+}
+
+// API antiga (vitrine, bento da página inicial): "inteiro" fecha, "etapa" abre a última aberta
+function definirModo(modo: string) {
+  if (modo === "inteiro" && !celular.matches) fecharEtapa();
+  else abrirEtapa(atual, { rolar: false });
 }
 
 // próxima/anterior entre as Etapas à vista
@@ -82,6 +95,7 @@ function atualizarSetas() {
   });
 }
 function passo(d: number) {
+  if (!aberta) return abrirEtapa(atual);
   const alvo = vizinha(d);
   if (alvo) abrirEtapa(etapas.indexOf(alvo));
 }
@@ -96,7 +110,8 @@ function mostrarEtapas(ids: string[] | null) {
     f.hidden = n === 0;
     f.style.gridColumn = `span ${n || 1}`;
   });
-  abrirEtapa(atual, { rolar: false });
+  if (aberta) abrirEtapa(atual, { rolar: false });
+  else requestAnimationFrame(desenharLinha);
 }
 
 // Filtro de Funções: ids à vista (null ou vazio = todas)
@@ -189,10 +204,17 @@ for (const ev of ["pointerout", "focusout"]) grade.addEventListener(ev, (e) => {
   const para = (e as PointerEvent | FocusEvent).relatedTarget as Node | null;
   if (b && !(para && b.contains(para))) { clearTimeout(espera); if (aberto === b.parentElement) fecharPensamentos(aberto); }
 });
-document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && aberto) fecharPensamentos(aberto); });
+document.addEventListener("keydown", (ev) => {
+  if (ev.key !== "Escape") return;
+  // primeiro fecham os Pensamentos; sem eles, Esc fecha a Etapa (salvo com o painel de detalhe ou outra camada por cima)
+  if (aberto) return fecharPensamentos(aberto);
+  if (!aberta || document.documentElement.hasAttribute("data-mapa-detalhe")) return;
+  if ((ev.target as HTMLElement).closest("[role='dialog'], [role='menu'], [role='listbox']")) return;
+  fecharEtapa();
+});
 
 // conversa com a ilha de controles
-const estado = () => ({ modo: raiz.dataset.modo as "etapa" | "inteiro", atual, total: etapas.length, celular: celular.matches });
+const estado = () => ({ modo: raiz.dataset.modo as "etapa" | "inteiro", aberta, atual, total: etapas.length, celular: celular.matches });
 function avisar() { document.dispatchEvent(new CustomEvent("musa-mapa:estado", { detail: estado() })); }
 function abrirDetalhe(id: string) { document.dispatchEvent(new CustomEvent("musa-mapa:detalhe", { detail: { id } })); }
 window.musaMapa = {
@@ -214,12 +236,19 @@ raiz.addEventListener("click", (ev) => {
     (nova.querySelector<HTMLElement>(`[data-passo="${passo.dataset.passo}"]`) ?? nova.querySelector<HTMLElement>("[data-passo]"))?.focus({ preventScroll: true });
     return;
   }
+  if (alvo.closest("[data-fechar]")) {
+    fecharEtapa();
+    // o foco volta para o nome da Etapa que fechou
+    etapas[atual].querySelector<HTMLElement>("[data-ir]")?.focus({ preventScroll: true });
+    return;
+  }
   const det = alvo.closest<HTMLElement>("[data-detalhe]");
   if (det) return abrirDetalhe(det.dataset.detalhe!);
   const ir = alvo.closest<HTMLElement>("[data-ir]");
   if (ir) {
     const i = Number(ir.dataset.ir);
-    if (raiz.dataset.modo === "inteiro" || i === atual) return abrirDetalhe(etapas[i].dataset.etapa!);
+    // o nome abre a Etapa; na que já está aberta, fecha
+    if (aberta && i === atual) return fecharEtapa();
     return abrirEtapa(i);
   }
 });
@@ -227,7 +256,7 @@ raiz.addEventListener("click", (ev) => {
 new ResizeObserver(() => document.documentElement.style.setProperty("--altura-topo", topo.offsetHeight + "px")).observe(topo);
 document.addEventListener("keydown", (ev) => {
   // com o painel de detalhe aberto (atributo posto pela ilha) ou foco num controle, as setas são do controle
-  if (document.documentElement.hasAttribute("data-mapa-detalhe") || raiz.dataset.modo !== "etapa") return;
+  if (document.documentElement.hasAttribute("data-mapa-detalhe")) return;
   if ((ev.target as HTMLElement).closest("select, input, textarea, [contenteditable], [role='listbox'], [role='option'], [role='group'], [role='dialog']")) return;
   if (ev.key === "ArrowRight") passo(1);
   if (ev.key === "ArrowLeft") passo(-1);
@@ -241,22 +270,18 @@ grade.addEventListener("touchend", (ev) => {
   if (Math.abs(dx) > 50) passo(dx < 0 ? 1 : -1);
 });
 new ResizeObserver(() => requestAnimationFrame(desenharLinha)).observe(grade);
-celular.addEventListener("change", () => { definirModo(ler("modo") ?? "etapa", false); avisar(); });
+celular.addEventListener("change", () => { if (celular.matches && !aberta) abrirEtapa(atual, { rolar: false }); avisar(); });
 
-// início: etapa do link (#agendamento) e modo lembrado.
-// O link também pode trazer o modo (?modo=inteiro): vale como escolha da pessoa e fica lembrado.
-// Visão detalhada = modo etapa (a padrão); visão geral = modo inteiro (os nomes que a pessoa vê, no topo e no rodapé).
+// início: a Etapa do link (#agendamento) aberta; sem ela, a primeira. ?modo=inteiro (links antigos, a abertura da
+// página inicial) começa com todas fechadas, lado a lado.
 const pedido = new URLSearchParams(location.search);
-const modoDoLink = pedido.get("modo");
-if (modoDoLink === "etapa" || modoDoLink === "inteiro") guardar("modo", modoDoLink);
 const doLink = etapas.findIndex((e) => "#" + e.dataset.etapa === location.hash);
 atual = doLink >= 0 ? doLink : 0;
-// na vitrine (que não guarda nada) o modo do link vale direto: a abertura da página inicial pede ?vitrine&modo=inteiro
-definirModo((vitrine && modoDoLink) || ler("modo") || "etapa", false);
+definirModo(doLink < 0 && pedido.get("modo") === "inteiro" ? "inteiro" : "etapa");
 
-// impressão: visão geral, todas as Etapas (ou só as de uma Fase, &fase=1|2|3, nas folhas A4)
+// impressão: nenhuma Etapa aberta, todas lado a lado (ou só as de uma Fase, &fase=1|2|3, nas folhas A4)
 if (impressao) {
-  definirModo("inteiro", false);
+  definirModo("inteiro");
   const n = Number(pedido.get("fase"));
   const fases = [...new Set(etapas.map((e) => e.dataset.fase!))];
   if (n >= 1 && n <= fases.length) {

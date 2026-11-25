@@ -39,11 +39,11 @@ Cada linha é uma [camada](/guia/glossario#camada), que mostra um tipo de conte�
 - **Boas práticas**: o que o museu pode fazer e que tende a ajudar.
 - **O que evitar**: o que tende a atrapalhar.
 
-### Duas formas de ver
+### Abra e feche as etapas
 
-Na **visão geral**, todas as etapas aparecem lado a lado: boa para enxergar a visita inteira. Na **visão detalhada**, uma etapa ocupa a tela de cada vez; passe para a próxima pelas setas ao lado do nome da etapa ou pelas teclas ← e →.
+Clique no nome de uma etapa para abri-la: ela ganha espaço e mostra o detalhe de cada prática. Passe para a próxima pelas setas ao lado do nome da etapa ou pelas teclas ← e →. Feche a etapa pelo ×, clicando de novo no nome ou com Esc: todas aparecem lado a lado, boas para enxergar a visita inteira.
 
-Em qualquer uma das duas, clique no nome de uma etapa para ver tudo sobre ela. Cada prática mostra a sua [origem](/guia/glossario#origem): um documento oficial, a nossa leitura de um documento ou as entrevistas com equipes de museus e professores.
+Em **Ler mais**, veja tudo sobre uma etapa. Cada prática mostra a sua [origem](/guia/glossario#origem): um documento oficial, a nossa leitura de um documento ou as entrevistas com equipes de museus e professores.
 
 ### Filtre pelo que é seu
 
