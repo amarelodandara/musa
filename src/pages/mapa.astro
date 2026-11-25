@@ -12,7 +12,7 @@ import Base from "../layouts/Base.astro";
 import "../styles/mapa-celula.css";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import MarcaNav from "../components/MarcaNav.astro";
-import { conteudo, FASES, DESAFIOS, desafio, nomesFuncoes, emOrdem } from "../lib/conteudo";
+import { conteudo, FASES, DESAFIOS, desafio, nomesFuncoes, emOrdem, pensamentos } from "../lib/conteudo";
 import { pillCanal, icone } from "../lib/pontos-contato";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
@@ -121,8 +121,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 <div class="desafio" data-nivel={nv}>
                   <button type="button" class="desafio-avatar" aria-label={`Desafio ${DESAFIOS[nv].nome.toLowerCase()}`}
                     aria-describedby={e.pensamento ? `pensamentos-${e.id}` : undefined}><img src={DESAFIOS[nv].avatar} alt="" width="24" height="24" /></button>
-                  {/* um cartão por Pensamento (hoje a planilha tem um por Etapa); sobem escalonados ao passar o mouse */}
-                  {e.pensamento && <div class="desafio-cartoes" id={`pensamentos-${e.id}`} role="tooltip">{[e.pensamento].map((t, k) => <p class="desafio-cartao cartao-pensamento" style={`--i:${k}`}>“{t}”</p>)}</div>}
+                  {/* um cartão por Pensamento (a célula da planilha, quebrada em frases); sobem escalonados ao passar o mouse */}
+                  {e.pensamento && <div class="desafio-cartoes" id={`pensamentos-${e.id}`} role="tooltip">{pensamentos(e).map((t, k) => <p class="desafio-cartao cartao-pensamento" style={`--i:${k}`}>“{t}”</p>)}</div>}
                 </div>
               ) : <p class="vazio">Sem registro</p>}
             </div>

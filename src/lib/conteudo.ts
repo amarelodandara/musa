@@ -104,4 +104,7 @@ export const DESAFIOS: Record<Desafio, { nome: string; avatar: string }> = {
 const DESAFIO_PROVISORIO: Record<string, Desafio> = {
   descoberta: "baixo", agendamento: "baixo", preparacao: "alto", recepcao: "alto", mediacao: "medio", encerramento: "alto", vinculo: "baixo"
 };
+// Pensamentos do professor: a planilha traz todos numa célula só; cada frase (terminada em ? ! . ou …) vira um cartão
+export const pensamentos = (e: Etapa): string[] =>
+  (e.pensamento ?? "").split(/(?<=[?!.…])\s+/).map((t) => t.trim()).filter(Boolean);
 export const desafio = (e: Etapa): Desafio | null => e.desafio ?? DESAFIO_PROVISORIO[e.id] ?? null;

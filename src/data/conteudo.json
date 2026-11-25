@@ -1,6 +1,6 @@
 {
   "origem": "planilha",
-  "geradoEm": "2026-11-23T23:55:26.557Z",
+  "geradoEm": "2026-11-25T19:32:41.880Z",
   "etapas": [
     {
       "ordem": 1,
@@ -8,9 +8,9 @@
       "nome": "Descoberta do museu",
       "fase": "Antes",
       "descricao": null,
-      "acoesEscola": "Descobre a existência do museu ou de uma exposição. Pode ser através de uma pesquisa, de um anúncio ou de um convite direto.",
+      "acoesEscola": "Descobre a existência do museu ou de uma exposição específica por meio de pesquisa na internet, passando em frente ao museu, recebendo um convite direto ou vendo anúncios online.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "Onde posso levar meus alunos? Minha turma cabe nessa visita? Quais os custos de fazer uma visita nesse museu?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "baixo"
@@ -21,9 +21,9 @@
       "nome": "Agendamento da visita",
       "fase": "Antes",
       "descricao": null,
-      "acoesEscola": "Entra em contato com o museu para marcar a data e horário da visita",
+      "acoesEscola": "Bem informado sobre a exposição, entra em contato com o museu para marcar a data e horário da visita para sua turma.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "Será que meus alunos com necessidades especiais serão comportados?  Será que eles tem algum programa que pode viabilizar a visita?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "medio"
@@ -34,9 +34,9 @@
       "nome": "Preparação para visita",
       "fase": "Antes",
       "descricao": null,
-      "acoesEscola": "Prepara os alunos para a visita com os materiais fornecidos pelo museu. Colhe autorizações dos pais e organiza com a escola o transporte, o lanche e a logística da visita. Alinha o próposito pedagógico da visita com a instituição e o museu.",
+      "acoesEscola": "Prepara os alunos para a visita com os materiais fornecidos pelo museu. Colhe autorizações dos pais e organiza com a logística da visita.",
       "sentimento": null,
-      "pensamento": "Será que o ônibus vai chegar a tempo?",
+      "pensamento": "Como posso preparar a turma para o conteúdo da exposição? Os meninos estão animados para o passeio?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "medio"
@@ -47,9 +47,9 @@
       "nome": "Recepção no museu",
       "fase": "Durante",
       "descricao": null,
-      "acoesEscola": "Chegada do grupo ao museu. Organização dos alunos, entrada e recebimento das orientações.",
+      "acoesEscola": "Na chegada do grupo ao museu, organiza os alunos para receberem orientações e entenderem o ambiente.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "Existe um espaço para a turma esperar em segurança? Esse é um ambiente muito novo e diferente para os alunos?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "alto"
@@ -60,9 +60,9 @@
       "nome": "Mediação no museu",
       "fase": "Durante",
       "descricao": null,
-      "acoesEscola": "Percorrer a exposição com os alunos. Fazer pausas para lanche e banheiro se houver na programação.",
+      "acoesEscola": "Percorre a exposição com os alunos, servindo como um ponto de apoio para a equipe de mediação. Administra a turma nas pausas da mediação.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "A turma está cansada ou com fome? A turma está sendo educada com o mediador? O mediador está dando espaço para a turma participar?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "medio"
@@ -73,9 +73,9 @@
       "nome": "Encerramento da visita",
       "fase": "Durante",
       "descricao": null,
-      "acoesEscola": "Fazer dinâmica de encerramento e responder formulário de avaliação do museu",
+      "acoesEscola": "Reúne a turma para dinâmicas de encerramento e preparo para embarque de saída; avalia a experiência provida pelo museu.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "A turma gostou do passeio? O assunto da exposição se conectou com os temas que trabalhamos em sala?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "alto"
@@ -86,9 +86,9 @@
       "nome": "Criação de vínculo",
       "fase": "Depois",
       "descricao": null,
-      "acoesEscola": "Acompanhar futuras exposições do museu e visitá-lo novamente.",
+      "acoesEscola": "Acompanha as futuras agendas do museu, recomenda a visitação para colegas de trabalho e retorna ao museu.",
       "sentimento": null,
-      "pensamento": null,
+      "pensamento": "Qual será a próxima exposição desse museu? E se eu esquecer de me inscrever para a próxima em tempo?",
       "origemSentimento": null,
       "fonteSentimento": null,
       "desafio": "baixo"
