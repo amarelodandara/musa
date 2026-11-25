@@ -12,9 +12,9 @@ const cor = (t: string) => (t === "transparente" ? "transparent" : `var(--${t})`
 const tamanho = (t: string) => `var(--tamanho-${t.replace("text-", "")})`;
 const sel = (opcoes: string[], padrao: string) => ({ type: "select", options: opcoes, default: padrao });
 
-// padrões: o que o mapa usa hoje (25/11/2026)
+// padrões: o que o mapa usa hoje (valores colados e levados ao mapa em 25/11/2026)
 const config = {
-  naAberta: { tamanho: sel(TAMANHOS, "text-xl"), cor: sel(CORES, "coral-300") },
+  naAberta: { tamanho: sel(TAMANHOS, "text-md"), cor: sel(CORES, "coral-300") },
   nasFechadas: { tamanho: sel(TAMANHOS, "text-xs"), cor: sel(CORES, "texto-400") }
 };
 
