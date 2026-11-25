@@ -235,7 +235,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* fora da coluna ativa, sem fundo (23/11/2026; antes neutro-100) */
   /* hierarquia do topo decidida em /dev/hierarquia-topo (24/11/2026): Fases em neutro-600; a ativa, o topo e a coluna da
      Etapa aberta em coral-50 (texto da Fase neutro-700); número e nome da aberta em coral-500 */
-  .mapa { --fase-forte: transparent; --fase-media: transparent; --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
+  /* primeira linha (Fases e topo das Etapas) e primeira coluna (rótulos) com fundo próprio, diferente do conteúdo
+     (25/11/2026, pedido da equipe): --cabeca. Fase ativa e Etapa aberta seguem no coral-50 */
+  .mapa { --cabeca: var(--neutro-200); --fase-forte: var(--cabeca); --fase-media: var(--cabeca); --fase-texto: var(--neutro-600); --fase-numero: var(--texto-600);
     --fase-ativa: var(--coral-50); --fase-texto-ativa: var(--neutro-700); --fase-clara: var(--coral-50); }
   /* linhas da grade mais claras (antes neutro-300); --linha vem de mapa-celula.css, aqui só no mapa */
   .pagina-mapa-v2 .mapa { --linha: 1px solid var(--neutro-200); }
@@ -325,7 +327,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* número sempre mais claro que o nome; nas fechadas, também menor (13px, texto-400; 25/11/2026) */
   .etapa-n { flex-shrink: 0; color: var(--texto-400); font-family: var(--fonte-inter); font-size: var(--tamanho-xs); font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
   /* coluna dos rótulos das camadas nas duas visões, presa à esquerda ao rolar */
-  .rotulos { position: sticky; left: 0; z-index: 2; background: var(--neutro-50); } /* a cor da página: cobre as Etapas ao rolar para o lado */
+  .rotulos { position: sticky; left: 0; z-index: 2; background: var(--cabeca); } /* fundo de cabeçalho, opaco: cobre as Etapas ao rolar para o lado */
 
   /* .camada, .praticas, .pratica, .marcador, .pratica-funcao e o repouso delas: em src/styles/mapa-celula.css */
   .vazio { color: var(--texto-400); font-style: italic; }
