@@ -97,6 +97,8 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                 (25/11/2026; antes o número ia em cima, com os controles). Tudo encostado embaixo: os nomes ficam em sequência. */}
             <header class="etapa-topo">
               <div class="etapa-controles">
+                  {/* Etapas fechadas: "Veja mais" aparece ao passar o mouse na coluna (ou com o foco nela) e abre a Etapa (25/11/2026) */}
+                  <button type="button" class="etapa-acao etapa-ver" data-ir={i} aria-label={`Abrir ${e.nome}`}>Veja mais</button>
                   {/* Etapa aberta: setas para a anterior e a próxima (ícones Iconoir nav-arrow) e × para fechar (xmark), que deixa
                       todas lado a lado */}
                   <div class="etapa-setas">
@@ -200,7 +202,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* --linha e --col-compacta: em src/styles/mapa-celula.css */
-  .mapa { --col-aberta: minmax(420px, 1fr); --col-inteira: 320px; --rotulos: 192px;
+  .mapa { --col-aberta: minmax(420px, 1fr); --col-inteira: minmax(320px, 1fr); /* 320px no mínimo; a tela que sobrar se divide igual entre as colunas (25/11/2026) */ --rotulos: 192px;
     min-height: 100dvh; display: flex; flex-direction: column; font-family: var(--fonte-inter); color: var(--texto-900); }
 
   /* topo */
@@ -250,6 +252,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   /* a Fase ativa termina numa seta arredondada (24px) que avança sobre a vizinha, no lugar do corte reto; a última
      Fase (fim do mapa) não tem ponta. A seguinte abre espaço para o texto não encostar. (Playground /dev/forma-fases.) */
   .fase { position: relative; }
+  .fase[hidden] { display: none; } /* Fase sem nenhuma Etapa à vista (filtro): sai da faixa */
   .mapa[data-modo="etapa"] .fase[data-ativa]:not(:last-child) { border-right-color: transparent; }
   /* a Fase ativa encosta no topo da Etapa aberta, sem linha entre elas (24/11/2026); as outras Fases mantêm a linha */
   /* a linha entre as Fases e os topos das Etapas é desenhada só no topo de cada Etapa (25/11/2026; antes, metade na borda da
@@ -313,6 +316,12 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .etapa-topo, .rotulos .rotulo-etapas { border-bottom: var(--linha); }
   .mapa[data-modo="etapa"] .etapa[data-aberta] .etapa-topo { border-bottom-color: var(--coral-200); }
   .etapa-controles { display: flex; align-items: center; gap: 8px; margin: 0 0 auto auto; }
+  /* "Veja mais" das fechadas: escondido até o mouse (ou o foco) entrar na coluna; some na aberta */
+  .etapa-ver { padding: 0 8px; visibility: hidden; opacity: 0; transition: opacity 150ms ease, visibility 0s 150ms, background-color 150ms ease, transform 150ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .etapa:not([data-aberta]):is(:hover, :focus-within) .etapa-ver { visibility: visible; opacity: 1; transition-delay: 0s; }
+  .etapa[data-aberta] .etapa-ver { display: none; }
+  @media (hover: none) { .etapa-ver { display: none; } } /* no toque não há mouse: o nome abre */
+  @media (prefers-reduced-motion: reduce) { .etapa-ver { transition: none; } }
   /* número e nome na mesma linha, pela linha de base; um nome longo quebra embaixo de si mesmo, não do número */
   .etapa-titulo { display: flex; align-items: center; gap: 8px; min-width: 0; } /* número centrado na altura do nome (25/11/2026) */
   .etapa-setas { display: none; gap: 8px; }
