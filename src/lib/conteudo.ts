@@ -35,6 +35,54 @@ export const funcao = (id: string) => conteudo.funcoes.find((f) => f.id === id);
 // nomes das Funções de uma Prática, juntos ("Gestão · Coordenação do educativo")
 export const nomesFuncoes = (p: Pratica) => p.funcoes.map((id) => funcao(id)?.nome).filter(Boolean).join(" · ");
 
+// Ordem das Práticas dentro de cada Etapa (25/11/2026): a sequência em que o museu as executaria, como uma história
+// que a coluna conta, sem número (não é lista de tarefas). Boas práticas e O que evitar se intercalam nessa sequência.
+// Pelo título, para sobreviver a uma nova importação da planilha; título fora da lista vai para o fim, na ordem da planilha.
+// O ideal é a planilha já vir nessa ordem: aí esta lista pode sair.
+const ORDEM_PRATICAS = [
+  // Descoberta: primeiro o museu define o que oferece, depois mostra como agendar, prepara quem atende e só então divulga
+  "Explicar as modalidades de visita e o que cada uma oferece",
+  "Apresentar os roteiros e temas disponíveis",
+  "Informar custos, datas e apoios possíveis",
+  "Deixar claro como agendar uma visita educativa",
+  "Preparar a recepção para informar como agendar",
+  "Levar a programação educativa às escolas",
+  // Agendamento: abrir a agenda, colher os dados (com a acessibilidade), combinar os grupos, planejar para quem vem
+  "Comunicar quando a agenda abre",
+  "Reunir as informações da escola em um só lugar",
+  "Deixar de perguntar sobre acessibilidade",
+  "Informar o limite de alunos por horário e combinar a divisão dos grupos",
+  "Planejar somente acessibilidade física",
+  // Preparação: escala e plano internos, depois a conversa com o professor e as orientações para o dia
+  "Definir com antecedência quem conduz cada visita",
+  "Planejar a visita só a partir do conteúdo da exposição",
+  "Checagem de equipamentos",
+  "Ter planos para atrasos e imprevistos",
+  "Confirmar a visita e falar com o professor antes da data",
+  "Alinhar expectativas sobre o que será visto",
+  "Achar que o professor já conhece bem os temas da exposição",
+  "Deixar a escola descobrir as condições de chegada só no dia",
+  // Recepção
+  "Preparar a equipe para receber grupos escolares",
+  "Deixar turmas entrarem sem acolhimento",
+  // Mediação: dividir a turma, combinar as regras antes de entrar, conduzir, enriquecer
+  "Dividir a turma conforme a capacidade dos espaços e da equipe",
+  "Orientar os alunos sobre obras sensíveis",
+  "Adaptar o ritmo à idade e à atenção da turma",
+  "Usar recursos complementares",
+  // Encerramento: ouvir o grupo (os alunos também), o professor e, por último, a própria equipe
+  "Ouvir o grupo ao final da visita",
+  "Excluir os alunos da avaliação",
+  "Pedir ao professor uma avaliação da visita",
+  "Colher os aprendizados do educativo",
+  // Vínculo
+  "Convidar a escola para as próximas exposições",
+  "Usar o histórico da escola nos próximos atendimentos"
+];
+const posicaoPratica = (p: Pratica) => { const i = ORDEM_PRATICAS.indexOf(p.titulo.trim()); return i < 0 ? ORDEM_PRATICAS.length : i; };
+// as Práticas na ordem de execução (sort é estável: as de fora da lista mantêm a ordem da planilha)
+export const emOrdem = (lista: Pratica[]) => [...lista].sort((a, b) => posicaoPratica(a) - posicaoPratica(b));
+
 // Sentimentos: peso na linha e humor do avatar. Lista provisória, ver docs/sentimentos-e-avatar.md (to-do #45 no Solo).
 export const SENTIMENTOS: Record<string, { peso: number; humor: "feliz" | "neutro" | "triste" }> = {
   Animado: { peso: 2, humor: "feliz" },

@@ -2,7 +2,7 @@
 // Funcionalidades da página inicial em bento: cada bloco mostra uma parte do musá funcionando, com os dados reais do mapa.
 // O primeiro bloco é o próprio mapa (/mapa?vitrine) num quadro recortado; os outros repetem sozinhos animações curtas
 // enquanto estão na tela e param quando a pessoa mexe neles.
-import { conteudo, DESAFIOS, desafio, type Desafio } from "../../lib/conteudo";
+import { conteudo, DESAFIOS, desafio, emOrdem, type Desafio } from "../../lib/conteudo";
 import { ancora, gruposGlossario } from "../../lib/glossario";
 import { icone, pillsContato } from "../../lib/pontos-contato";
 import "../../styles/mapa-celula.css";
@@ -87,7 +87,7 @@ function destacar(texto: string): Trecho[] {
 const celula = {
   tipo: celulaTipo,
   // o rótulo de função é sempre um verbete (subtermos de "As funções")
-  praticas: conteudo.praticas.filter((p) => p.etapa === celulaEtapa && p.tipo === celulaTipo).map((p) => {
+  praticas: emOrdem(conteudo.praticas.filter((p) => p.etapa === celulaEtapa && p.tipo === celulaTipo)).map((p) => {
     const f = conteudo.funcoes.find((x) => x.id === p.funcao);
     return { titulo: destacar(p.titulo), funcao: f?.nome ?? "" };
   })

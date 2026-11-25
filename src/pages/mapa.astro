@@ -12,7 +12,7 @@ import Base from "../layouts/Base.astro";
 import "../styles/mapa-celula.css";
 import ControlesMapa from "../components/mapa/ControlesMapa.tsx";
 import MarcaNav from "../components/MarcaNav.astro";
-import { conteudo, FASES, DESAFIOS, desafio, nomesFuncoes } from "../lib/conteudo";
+import { conteudo, FASES, DESAFIOS, desafio, nomesFuncoes, emOrdem } from "../lib/conteudo";
 import { pillCanal, icone } from "../lib/pontos-contato";
 
 const { etapas, funcoes, pontosContato, praticas } = conteudo;
@@ -22,10 +22,8 @@ const daEtapa = (id: string) => ({
   evitar: praticas.filter((p) => p.etapa === id && p.tipo === "evitar")
 });
 // na grade, Boas práticas e O que evitar ficam numa Camada só; o rosto (feliz ou triste) diz qual é qual.
-// Ordem: pela Função (a primeira de cada Prática, em ordem alfabética), para as do mesmo ator ficarem juntas
-const nomeDaFuncao = (id: string) => conteudo.funcoes.find((f) => f.id === id)?.nome ?? "";
-const praticasDaEtapa = (d: ReturnType<typeof daEtapa>) =>
-  [...d.boas, ...d.evitar].sort((a, b) => nomeDaFuncao(a.funcoes[0]).localeCompare(nomeDaFuncao(b.funcoes[0]), "pt-BR"));
+// Ordem (25/11/2026): a sequência em que o museu as executaria, sem número (ver emOrdem em src/lib/conteudo.ts)
+const praticasDaEtapa = (d: ReturnType<typeof daEtapa>) => emOrdem([...d.boas, ...d.evitar]);
 // detalhe da Prática: a primeira linha é a descrição; as outras, o exemplo (num destaque)
 const partesDoDetalhe = (t: string | null) => { const l = (t ?? "").split("\n").map((x) => x.trim()).filter(Boolean); return { descricao: l[0], exemplo: l.slice(1) }; };
 const rotuloFase = (f: string) => FASES.find((x) => x.nome === f)?.rotulo ?? f;
@@ -149,7 +147,7 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
                       {p.detalhe && (() => { const { descricao, exemplo } = partesDoDetalhe(p.detalhe); return (
                         <div class="pratica-detalhe">
                           {descricao && <p class="pratica-descricao">{descricao}</p>}
-                          {exemplo.length > 0 && <div class="pratica-exemplo">{exemplo.map((t) => <p>{t}</p>)}</div>}
+                          {exemplo.length > 0 && <div class="pratica-exemplo"><p class="pratica-exemplo-rotulo">Exemplo</p>{exemplo.map((t) => <p>{t}</p>)}</div>}
                         </div>
                       ); })()}
                     </li>
@@ -344,6 +342,9 @@ const grupos = FASES.map((f) => ({ ...f, n: etapas.filter((e) => e.fase === f.no
   .pratica-descricao { margin-right: 32px; line-height: 1.625; color: var(--texto-600); }
   .pratica-exemplo { margin: 6px 20px 0 0; padding: 8px 10px; border-radius: 2px; background: var(--coral-100); line-height: 1.625; color: var(--neutro-800); }
   .pratica-exemplo p + p { margin-top: 4px; }
+  /* "Exemplo", um rótulo pequeno no alto do destaque: deixa claro que o texto é uma ilustração, não a prática em si */
+  .pratica-exemplo .pratica-exemplo-rotulo { margin: 0 0 2px; font-size: var(--tamanho-xs); font-weight: 600; letter-spacing: 0.025em; line-height: 1.5; color: var(--coral-900); }
+  .pratica-exemplo .pratica-exemplo-rotulo + p { margin-top: 0; }
   /* Etapas fechadas: só o rosto (13px, a 8px do texto) e o título, 13px normal */
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .praticas { gap: 12px; }
   .mapa[data-modo="etapa"] .etapa:not([data-aberta]) .pratica { grid-template-columns: 13px 1fr; column-gap: 8px; }
