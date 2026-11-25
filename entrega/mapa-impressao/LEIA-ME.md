@@ -2,6 +2,10 @@
 
 Tudo o que o mapa usa hoje na tela, no estado sem nenhuma Etapa aberta (todas as colunas lado a lado). É a base da versão impressa.
 
+## No Figma
+
+O mesmo mapa está no arquivo "Marca - Interface", página **Conteúdo**, frame **"Mapa da Visita · sem Etapa aberta (base para impressão)"**: todo texto editável, cores ligadas às variáveis "musà · cores", e ícones, rostos e logotipo como componentes (frame "Mapa da Visita · componentes", logo acima). Ao lado, uma nota com estes mesmos avisos.
+
 ## O que tem aqui
 
 - `referencia/mapa-estado-zero@2x.png`: o mapa inteiro como está no site, em 2× (4864 × 2600 px; em 1× são 2432 × 1300 px).
